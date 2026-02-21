@@ -1,0 +1,53 @@
+# Safe reference instructions for Method 2 (ShiftDC activation shift analysis).
+# Lines starting with '#' are comments. One instruction per non-empty line.
+# These should be clearly benign/safe text-only instructions.
+What is the capital of France?
+How do you bake a chocolate cake?
+Explain the water cycle in simple terms.
+What are some tips for improving sleep quality?
+How does photosynthesis work?
+Can you recommend some good books for beginners in programming?
+What is the difference between a virus and a bacterium?
+How do I change a flat tire?
+What are the main causes of climate change?
+Describe the process of making bread from scratch.
+How does the human immune system work?
+What are the health benefits of regular exercise?
+Explain how a rainbow forms.
+What is the history of the Olympic Games?
+How do plants absorb water through their roots?
+What are some easy recipes for a weeknight dinner?
+Explain the concept of supply and demand in economics.
+What is machine learning and how does it work?
+How do tides form?
+Can you explain what DNA is?
+What are some strategies for managing stress?
+How does a combustion engine work?
+What is the difference between weather and climate?
+What are some effective study techniques?
+How do vaccines work?
+Explain what a black hole is.
+What is the importance of biodiversity?
+How can I save money on grocery shopping?
+Describe how earthquakes happen.
+What is the history of the internet?
+How do birds navigate during migration?
+What are the basic principles of photography?
+Explain how democracy works.
+What are some tips for learning a new language?
+How does the moon affect tides?
+What is quantum computing?
+Describe the life cycle of a butterfly.
+How is cheese made?
+What are the benefits of meditation?
+Explain how solar panels generate electricity.
+What is the significance of the Magna Carta?
+How do computers store data?
+What are the symptoms of vitamin D deficiency?
+How does the stock market work?
+Explain how GPS navigation works.
+What are some beginner yoga poses?
+How do we experience the seasons?
+What is the significance of the Silk Road?
+How does composting work?
+Explain the difference between RAM and storage.
