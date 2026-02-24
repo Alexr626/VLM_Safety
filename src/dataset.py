@@ -68,7 +68,7 @@ _TYPE_FIELD_CANDIDATES = [
     "harm_type", "combination", "label_combo",
 ]
 _TEXT_FIELD_CANDIDATES = [
-    "question", "instruction", "text", "prompt", "query", "caption",
+    "query", "question", "instruction", "text", "prompt", "caption",
 ]
 _IMAGE_FIELD_CANDIDATES = [
     "image", "image_path", "img", "img_path", "image_file",
@@ -130,66 +130,69 @@ def inspect_schema(data) -> dict:
 
 # ── Dataset loading ──────────────────────────────────────────────────────────
 
-def load_holisafe(cache_dir: Optional[str] = None) -> Tuple[list, str]:
+def load_holisafe(
+    local_dir: Optional[str] = None,
+    cache_dir: Optional[str] = None,
+) -> Tuple[list, str]:
     """
-    Load HoliSafe-Bench from HuggingFace.
+    Load HoliSafe-Bench, saving it into this repository under ``data/holisafe-bench/``
+    so the dataset is easy to inspect locally.
 
-    Tries the `datasets` library first (returns PIL images directly), then
-    falls back to downloading the raw JSON + images via hf_hub_download.
+    Download only happens once.  On subsequent calls the local copy is reused.
+
+    Args:
+        local_dir: Where to store the dataset.  Defaults to
+                   ``<repo_root>/data/holisafe-bench/``.
+        cache_dir: Optional HuggingFace download cache directory.
 
     Returns:
         (entries, images_base_dir)
-        entries: list of raw dicts
-        images_base_dir: directory where images live (empty string if PIL images
-                         are embedded in entries).
+        entries:        list of raw dicts (one per sample).
+        images_base_dir: local directory that image paths are relative to.
     """
     REPO = "etri-vilab/holisafe-bench"
 
-    # ── Try datasets library ──────────────────────────────────────────────
-    try:
-        from datasets import load_dataset
-        print(f"Loading '{REPO}' via datasets library...")
-        # Try common split names; fall back to the full dataset
-        ds = None
-        for split in ["test", "train", "validation", None]:
-            try:
-                if split is None:
-                    raw = load_dataset(REPO, cache_dir=cache_dir)
-                    split_name = list(raw.keys())[0]
-                    ds = raw[split_name]
-                else:
-                    ds = load_dataset(REPO, split=split, cache_dir=cache_dir)
-                print(f"  Loaded split='{split or list(raw.keys())[0]}' "
-                      f"with {len(ds)} examples.")
-                break
-            except Exception:
-                continue
+    # Default to <repo_root>/data/holisafe-bench/
+    if local_dir is None:
+        repo_root = Path(__file__).resolve().parent.parent
+        local_dir = str(repo_root / "data" / "holisafe-bench")
 
-        if ds is not None:
-            entries = [dict(row) for row in ds]
-            return entries, ""   # images are PIL objects inside entries
+    json_path = os.path.join(local_dir, "holisafe_bench.json")
 
-    except ImportError:
-        print("  datasets library not available; falling back to hf_hub_download.")
-    except Exception as e:
-        print(f"  datasets load failed ({e}); falling back to hf_hub_download.")
+    # ── If already downloaded locally, just load it ───────────────────────
+    if os.path.exists(json_path):
+        print(f"Loading HoliSafe-Bench from local copy: {local_dir}")
+        with open(json_path, "r") as f:
+            raw = json.load(f)
+        entries = raw if isinstance(raw, list) else list(raw.values())
+        print(f"  Loaded {len(entries)} entries.")
+        return entries, local_dir
 
-    # ── Fallback: raw JSON + lazy image download ──────────────────────────
-    from huggingface_hub import hf_hub_download
-    print(f"Downloading '{REPO}' JSON metadata via hf_hub_download...")
-    json_path = hf_hub_download(
+    # ── Download the full dataset into local_dir ──────────────────────────
+    from huggingface_hub import snapshot_download
+    print(f"Downloading '{REPO}' into {local_dir}/ ...")
+    print(f"  (this may take a few minutes on the first run)")
+    snapshot_download(
         repo_id=REPO,
-        filename="holisafe_bench.json",
         repo_type="dataset",
+        local_dir=local_dir,
         cache_dir=cache_dir,
     )
+
+    # Verify the JSON landed where expected
+    if not os.path.exists(json_path):
+        # Some repos nest files; search for it
+        for root, _, files in os.walk(local_dir):
+            if "holisafe_bench.json" in files:
+                json_path = os.path.join(root, "holisafe_bench.json")
+                break
+
     with open(json_path, "r") as f:
         raw = json.load(f)
 
     entries = raw if isinstance(raw, list) else list(raw.values())
-    images_base = os.path.dirname(json_path)
-    print(f"  Loaded {len(entries)} entries. Images base: {images_base}")
-    return entries, images_base
+    print(f"  Loaded {len(entries)} entries.  Dataset saved to: {local_dir}")
+    return entries, local_dir
 
 
 def _build_sample(
@@ -219,15 +222,27 @@ def _build_sample(
     image_pil = None
     image_path = None
 
+    def _resolve_img_path(raw_img_str: str) -> str:
+        """Resolve a relative image path against images_base.
+        HoliSafe-Bench stores paths relative to an images/ subdirectory,
+        so we try  images_base/images/<path>  first, then  images_base/<path>."""
+        if os.path.isabs(raw_img_str):
+            return raw_img_str
+        if images_base:
+            # Try with images/ subdirectory first (HoliSafe-Bench layout)
+            candidate = os.path.join(images_base, "images", raw_img_str)
+            if os.path.exists(candidate):
+                return candidate
+            # Fall back to direct join
+            return os.path.join(images_base, raw_img_str)
+        return raw_img_str
+
     if image_field and image_field in entry:
         raw_img = entry[image_field]
         if isinstance(raw_img, Image.Image):
             image_pil = raw_img.convert("RGB")
         elif isinstance(raw_img, str):
-            if images_base:
-                image_path = os.path.join(images_base, raw_img) if not os.path.isabs(raw_img) else raw_img
-            else:
-                image_path = raw_img
+            image_path = _resolve_img_path(raw_img)
         elif isinstance(raw_img, bytes):
             from io import BytesIO
             image_pil = Image.open(BytesIO(raw_img)).convert("RGB")
@@ -240,7 +255,7 @@ def _build_sample(
                     image_pil = raw_img.convert("RGB")
                     break
                 elif isinstance(raw_img, str):
-                    image_path = os.path.join(images_base, raw_img) if images_base and not os.path.isabs(raw_img) else raw_img
+                    image_path = _resolve_img_path(raw_img)
                     break
 
     # ── Category ─────────────────────────────────────────────────────────
@@ -367,10 +382,11 @@ def load_image_for_sample(sample: dict, hf_repo: str = "etri-vilab/holisafe-benc
 
     # Try HF hub download as fallback
     if path:
-        filename = path if not os.path.isabs(path) else os.path.basename(path)
-        # Strip any cache-dir prefix to get the relative dataset path
-        if "images/" in filename:
-            filename = "images/" + filename.split("images/")[-1]
+        # Build the repo-relative filename (must include images/ prefix)
+        if "images/" in path:
+            filename = "images/" + path.split("images/")[-1]
+        else:
+            filename = "images/" + os.path.basename(path)
         try:
             from huggingface_hub import hf_hub_download
             local = hf_hub_download(
@@ -383,3 +399,6 @@ def load_image_for_sample(sample: dict, hf_repo: str = "etri-vilab/holisafe-benc
             print(f"  Warning: could not download image '{filename}': {e}")
 
     return None
+
+if __name__ == '__main__':
+    load_holisafe()

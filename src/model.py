@@ -101,7 +101,20 @@ class VLMWrapper:
         )
         self.model.eval()
 
-        print(f"  num_hidden_layers : {self.num_layers}")
+        # ── GPU diagnostics ───────────────────────────────────────────────
+        print(f"\n  CUDA available    : {torch.cuda.is_available()}")
+        if torch.cuda.is_available():
+            print(f"  CUDA device       : {torch.cuda.get_device_name(0)}")
+            print(f"  VRAM total        : {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB")
+            allocated = torch.cuda.memory_allocated() / 1024**3
+            print(f"  VRAM allocated    : {allocated:.1f} GB")
+        primary = next(self.model.parameters()).device
+        print(f"  Model device      : {primary}")
+        if str(primary) == "cpu":
+            print("  *** WARNING: Model is on CPU! Check CUDA/PyTorch installation. ***")
+        print(f"  dtype             : {self.torch_dtype}")
+
+        print(f"\n  num_hidden_layers : {self.num_layers}")
         print(f"  hidden_size       : {self.hidden_dim}")
         print(f"  num_image_tokens  : {self.num_image_tokens}")
         print(f"  image_token_id    : {self.image_token_id}")
