@@ -1,3 +1,5 @@
+# Install with CUDA support:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
 torch>=2.1.0
 torchvision>=0.16.0
 
