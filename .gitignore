@@ -4,3 +4,5 @@ __pycache__*
 diagnostic_methods_implementation_guide.md
 Jailbreak_Detection_RCS
 .vscode
+diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/activations
+diagnostic_exploratory_tests/shiftdc/contrastive_safety_examples

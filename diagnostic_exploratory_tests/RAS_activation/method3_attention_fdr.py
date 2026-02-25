@@ -32,12 +32,14 @@ Parts
       (3) safety_prompt      — safety system prompt + image + text
       (4) both               — safety + visual_context + text
 
-Outputs (under {output_dir}/{model_name}/method3_attention_fdr/)
+Outputs (under diagnostic_exploratory_tests/outputs/{model_name}/)
 -------
-  per_sample_attention.json    — top heads, effective visual attention mass per sample
-  attention_aggregate.json     — SSS/SSU mean visual attention + t-test
-  per_layer_fdr.json           — FDR per layer under all four formulations
-  sample_metadata.json
+  activations/                   — shared activation cache (reused across methods)
+  method3_attention_fdr/
+    per_sample_attention.json    — top heads, effective visual attention mass per sample
+    attention_aggregate.json     — SSS/SSU mean visual attention + t-test
+    per_layer_fdr.json           — FDR per layer under all four formulations
+    sample_metadata.json
 
 Usage
 -----
@@ -55,7 +57,11 @@ from scipy import stats
 from tqdm import tqdm
 
 # Project root is two levels up from this script
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_PROJECT_ROOT = _SCRIPT_DIR.parent.parent
+_DEFAULT_OUTPUT_DIR = str(_SCRIPT_DIR.parent / "outputs")
+
+sys.path.insert(0, str(_PROJECT_ROOT))
 from src.dataset import (
     load_holisafe, inspect_schema, filter_subsets, load_image_for_sample,
 )
@@ -73,7 +79,8 @@ from src.extraction import (
 def parse_args():
     p = argparse.ArgumentParser(description="Method 3: Attention + FDR Analysis")
     p.add_argument("--model", default="llava-hf/llava-1.5-7b-hf")
-    p.add_argument("--output_dir", default="outputs")
+    p.add_argument("--output_dir", default=_DEFAULT_OUTPUT_DIR,
+                   help="Root output directory (shared across methods)")
     p.add_argument("--cache_dir", default=None)
     p.add_argument("--limit", type=int, default=None)
     p.add_argument("--inspect", action="store_true")

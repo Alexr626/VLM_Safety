@@ -32,16 +32,18 @@ Steps (following ShiftDC Appendix A.3)
        proj_magnitude^l = (m^l · s^l) / ||s^l||²
      Aggregate SSS vs SSU per layer; run t-test.
 
-Outputs (under {output_dir}/{model_name}/method2_activation_shift/)
+Outputs (under diagnostic_exploratory_tests/outputs/{model_name}/)
 -------
-  holisafe_captions.json          — generated captions per HoliSafe sample
-  ref_unsafe_captions.json        — captions for MM-SafetyBench images
-  ref_safe_captions.json          — captions for LLaVA-Instruct images
-  reference_metadata.json         — records which ref samples were used
-  safety_direction_vectors.npz    — s^l per layer
-  per_sample_shifts.json          — cosine_sim, projection, label per sample per layer
-  aggregate_stats.json            — mean cosine/projection + t-test p-values per layer
-  sample_metadata.json
+  activations/                    — shared activation cache (reused across methods)
+  method2_activation_shift/
+    holisafe_captions.json          — generated captions per HoliSafe sample
+    ref_unsafe_captions.json        — captions for MM-SafetyBench images
+    ref_safe_captions.json          — captions for LLaVA-Instruct images
+    reference_metadata.json         — records which ref samples were used
+    safety_direction_vectors.npz    — s^l per layer
+    per_sample_shifts.json          — cosine_sim, projection, label per sample per layer
+    aggregate_stats.json            — mean cosine/projection + t-test p-values per layer
+    sample_metadata.json
 
 Usage
 -----
@@ -61,7 +63,11 @@ from scipy import stats
 from tqdm import tqdm
 
 # Project root is two levels up from this script
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_PROJECT_ROOT = _SCRIPT_DIR.parent.parent
+_DEFAULT_OUTPUT_DIR = str(_SCRIPT_DIR.parent / "outputs")
+
+sys.path.insert(0, str(_PROJECT_ROOT))
 from src.dataset import (
     load_holisafe, inspect_schema, filter_subsets,
     load_image_for_sample,
@@ -79,7 +85,8 @@ from src.extraction import (
 def parse_args():
     p = argparse.ArgumentParser(description="Method 2: Activation Shift Analysis")
     p.add_argument("--model", default="llava-hf/llava-1.5-7b-hf")
-    p.add_argument("--output_dir", default="outputs")
+    p.add_argument("--output_dir", default=_DEFAULT_OUTPUT_DIR,
+                   help="Root output directory (shared across methods)")
     p.add_argument("--cache_dir", default=None)
     p.add_argument("--limit", type=int, default=None,
                    help="Limit HoliSafe samples per class (for quick testing)")
