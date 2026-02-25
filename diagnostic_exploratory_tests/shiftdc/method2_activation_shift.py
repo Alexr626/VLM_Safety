@@ -12,35 +12,42 @@ shift toward the "safe" side of the safety boundary?  Does this modality-
 induced shift differ between SSS and SSU examples — and does it explain
 why models miss emergent harm?
 
-Steps
------
-  1. Generate captions for every SSS / SSU image using the VLM itself.
-  2. Compute safety direction s^l at each layer:
-       s^l = mean_activations^l(safe_text) − mean_activations^l(unsafe_text)
-     Safe text:   benign instructions from reference_data/safe_instructions.txt
-     Unsafe text: text from SiUt / UiUt examples in HoliSafe-Bench
-                  (text labeled unsafe even if image is safe/ignored)
-  3. For each SSS / SSU sample:
-       VL  activation x^l(vl)  = image + text → last-token hidden state at l
-       TT  activation x^l(tt)  = caption + text (text-only) → last-token hidden state at l
-       modality shift  m^l = x^l(vl) − x^l(tt)
-       cosine_sim^l    = cosine(m^l, s^l)
+Steps (following ShiftDC Appendix A.3)
+------
+  1. Load HoliSafe-Bench SSS / SSU subsets.
+  2. Load reference datasets:
+       Unsafe ref: MM-SafetyBench (scenarios 01-07 & 09, SD split, ~160 samples)
+       Safe ref:   LLaVA-Instruct-80k (~160 samples)
+  3. Load VLM.
+  4. Caption reference images with the VLM.
+  5. Caption HoliSafe images with the VLM.
+  6. Extract VL activations for HoliSafe (image + text → last-token hidden state).
+  6b. Extract TT activations for HoliSafe (caption + text → last-token hidden state).
+  7. Compute safety direction s^l from reference TT data:
+       s^l = mean(safe_tt_activations^l) − mean(unsafe_tt_activations^l)
+     where safe/unsafe TT texts are formed by captioning the reference images.
+  8. Compute modality-induced activation shifts for HoliSafe samples:
+       m^l = x^l(vl) − x^l(tt)
+       cosine_sim^l = cosine(m^l, s^l)
        proj_magnitude^l = (m^l · s^l) / ||s^l||²
-  4. Aggregate and compare SSS vs SSU per layer; run t-test.
+     Aggregate SSS vs SSU per layer; run t-test.
 
 Outputs (under {output_dir}/{model_name}/method2_activation_shift/)
 -------
-  captions.json               — generated captions per sample
-  safety_direction_vectors.npz — s^l per layer
-  per_sample_shifts.json       — cosine_sim, projection, label per sample per layer
-  aggregate_stats.json         — mean cosine/projection + t-test p-values per layer
+  holisafe_captions.json          — generated captions per HoliSafe sample
+  ref_unsafe_captions.json        — captions for MM-SafetyBench images
+  ref_safe_captions.json          — captions for LLaVA-Instruct images
+  reference_metadata.json         — records which ref samples were used
+  safety_direction_vectors.npz    — s^l per layer
+  per_sample_shifts.json          — cosine_sim, projection, label per sample per layer
+  aggregate_stats.json            — mean cosine/projection + t-test p-values per layer
   sample_metadata.json
 
 Usage
 -----
   python method2_activation_shift.py
   python method2_activation_shift.py --model llava-hf/llava-1.5-7b-hf \\
-      --output_dir outputs --limit 50
+      --output_dir outputs --limit 50 --ref_samples 160
 """
 
 import argparse
@@ -53,10 +60,12 @@ import numpy as np
 from scipy import stats
 from tqdm import tqdm
 
-sys.path.insert(0, str(Path(__file__).parent))
+# Project root is two levels up from this script
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from src.dataset import (
     load_holisafe, inspect_schema, filter_subsets,
-    filter_reference_subsets, load_image_for_sample,
+    load_image_for_sample,
+    load_mmsafetybench_reference, load_llava_instruct_reference,
 )
 from src.model import VLMWrapper
 from src.extraction import (
@@ -73,90 +82,20 @@ def parse_args():
     p.add_argument("--output_dir", default="outputs")
     p.add_argument("--cache_dir", default=None)
     p.add_argument("--limit", type=int, default=None,
-                   help="Limit samples per class (for quick testing)")
+                   help="Limit HoliSafe samples per class (for quick testing)")
     p.add_argument("--inspect", action="store_true")
     p.add_argument("--skip_captions", action="store_true",
-                   help="Skip caption generation if captions.json already exists")
+                   help="Skip caption generation if caption files already exist")
+    p.add_argument("--skip_ref_captions", action="store_true",
+                   help="Skip reference caption generation if ref caption files exist")
     p.add_argument("--skip_extraction", action="store_true",
                    help="Skip forward passes if activations are already cached")
-    p.add_argument("--safe_ref_file",
-                   default="reference_data/safe_instructions.txt",
-                   help="File of safe reference instructions (one per line)")
-    p.add_argument("--unsafe_ref_file", default=None,
-                   help="Optional file of unsafe reference instructions. "
-                        "If not provided, uses SiUt/UiUt text from HoliSafe-Bench.")
-    p.add_argument("--max_ref_samples", type=int, default=100,
-                   help="Max reference samples per class for safety direction")
+    p.add_argument("--ref_samples", type=int, default=160,
+                   help="Number of reference samples per class (safe/unsafe) "
+                        "for safety direction computation (default: 160)")
+    p.add_argument("--ref_seed", type=int, default=42,
+                   help="Random seed for reference dataset sampling (default: 42)")
     return p.parse_args()
-
-
-# ── Reference data loading ────────────────────────────────────────────────────
-
-def load_safe_instructions(path: str, max_n: int) -> list:
-    """Load safe text instructions from a flat text file (# = comment)."""
-    instructions = []
-    if not os.path.exists(path):
-        print(f"  Warning: safe reference file '{path}' not found. Using fallback.")
-        instructions = [
-            "What is the capital of France?",
-            "How do I bake a cake?",
-            "Explain the water cycle.",
-            "What are tips for better sleep?",
-            "How does photosynthesis work?",
-        ]
-    else:
-        with open(path) as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    instructions.append(line)
-    return instructions[:max_n]
-
-
-def load_unsafe_instructions(path: str, max_n: int) -> list:
-    """Load unsafe text instructions from a flat text file."""
-    if not os.path.exists(path):
-        return []
-    instructions = []
-    with open(path) as f:
-        for line in f:
-            line = line.strip()
-            if line and not line.startswith("#"):
-                instructions.append(line)
-    return instructions[:max_n]
-
-
-def extract_unsafe_from_holisafe(ref_buckets: dict, max_n: int) -> list:
-    """
-    Extract text instructions from SiUt (safe image, unsafe text) or UiUt
-    (unsafe image, unsafe text) HoliSafe subsets.  These texts are labeled as
-    unsafe regardless of image, making them good "unsafe text-only" references.
-    """
-    unsafe_texts = []
-    for k, samples in ref_buckets.items():
-        k_norm = k.lower().replace("→", "->").replace("_", "->")
-        # SiUt: safe image + unsafe text, UiUt: unsafe image + unsafe text
-        if ("siut" in k_norm or "si_ut" in k_norm or
-                "uiut" in k_norm or "ui_ut" in k_norm or
-                ("ut" in k_norm and "unsafe" in k_norm)):
-            for s in samples:
-                if s["text"]:
-                    unsafe_texts.append(s["text"])
-                if len(unsafe_texts) >= max_n:
-                    return unsafe_texts
-
-    # Fallback: try any subset whose name suggests unsafe text
-    if not unsafe_texts:
-        for k, samples in ref_buckets.items():
-            k_norm = k.lower()
-            if "unsafe" in k_norm:
-                for s in samples:
-                    if s["text"]:
-                        unsafe_texts.append(s["text"])
-                    if len(unsafe_texts) >= max_n:
-                        return unsafe_texts
-
-    return unsafe_texts[:max_n]
 
 
 # ── Caption generation ────────────────────────────────────────────────────────
@@ -174,26 +113,27 @@ def generate_captions(
     if skip_if_exists and os.path.exists(captions_path):
         print(f"  Loading existing captions from {captions_path}")
         with open(captions_path) as f:
-            return {int(k): v for k, v in json.load(f).items()}
+            # Keep keys as-is (may be int or string IDs)
+            return {k: v for k, v in json.load(f).items()}
 
     captions = {}
     for sample in tqdm(samples, desc="Generating captions"):
         image = load_image_for_sample(sample)
         if image is None:
-            captions[sample["id"]] = ""
+            captions[str(sample["id"])] = ""
             continue
         try:
             cap = wrapper.generate_caption(image)
-            captions[sample["id"]] = cap
+            captions[str(sample["id"])] = cap
         except Exception as e:
             print(f"  Warning: caption failed for sample {sample['id']}: {e}")
-            captions[sample["id"]] = ""
+            captions[str(sample["id"])] = ""
         cleanup_gpu()
 
     # Save
     Path(captions_path).parent.mkdir(parents=True, exist_ok=True)
     with open(captions_path, "w") as f:
-        json.dump({str(k): v for k, v in captions.items()}, f, indent=2)
+        json.dump(captions, f, indent=2)
     print(f"  Saved captions → {captions_path}")
     return captions
 
@@ -266,7 +206,7 @@ def extract_tt_activations(
 
     print(f"  Extracting TT activations for {len(todo)} samples...")
     for sample in tqdm(todo, desc="TT forward passes"):
-        cap = captions.get(sample["id"], "")
+        cap = captions.get(str(sample["id"]), "")
         tt_text = build_tt_prompt(sample["text"], cap)
         try:
             hidden, _, _ = wrapper.forward_text(tt_text)
@@ -402,8 +342,8 @@ def main():
 
     cache = ActivationCache(str(act_dir))
 
-    # ── Load dataset ──────────────────────────────────────────────────────
-    print("\n[1/6] Loading HoliSafe-Bench...")
+    # ── [1/8] Load HoliSafe-Bench ─────────────────────────────────────────
+    print("\n[1/8] Loading HoliSafe-Bench...")
     entries, images_base = load_holisafe(cache_dir=args.cache_dir)
 
     if args.inspect:
@@ -416,28 +356,8 @@ def main():
         ssu_samples = ssu_samples[:args.limit]
 
     all_samples = sss_samples + ssu_samples
-    ref_buckets = filter_reference_subsets(entries, images_base)
 
-    # ── Reference text data for safety direction ──────────────────────────
-    safe_texts = load_safe_instructions(
-        args.safe_ref_file, args.max_ref_samples
-    )
-
-    if args.unsafe_ref_file:
-        unsafe_texts = load_unsafe_instructions(
-            args.unsafe_ref_file, args.max_ref_samples
-        )
-    else:
-        unsafe_texts = extract_unsafe_from_holisafe(
-            ref_buckets, args.max_ref_samples
-        )
-
-    print(f"  Reference data: {len(safe_texts)} safe, {len(unsafe_texts)} unsafe instructions")
-    if not unsafe_texts:
-        print("  Warning: No unsafe reference text found. Safety direction will be uninformative.")
-        print("  Provide --unsafe_ref_file or ensure HoliSafe-Bench has SiUt/UiUt subsets.")
-
-    # Save sample metadata
+    # Save HoliSafe sample metadata
     metadata = [
         {"id": s["id"], "label": s["label"], "category": s["category"],
          "text_snippet": s["text"][:120]}
@@ -445,23 +365,67 @@ def main():
     ]
     save_json(metadata, str(out_m2 / "sample_metadata.json"))
 
-    # ── Load model ────────────────────────────────────────────────────────
-    print("\n[2/6] Loading model...")
+    # ── [2/8] Load reference datasets ─────────────────────────────────────
+    print(f"\n[2/8] Loading reference datasets ({args.ref_samples} samples each)...")
+
+    print("  Loading MM-SafetyBench (unsafe reference)...")
+    unsafe_ref_samples = load_mmsafetybench_reference(
+        n_samples=args.ref_samples, seed=args.ref_seed,
+    )
+    print(f"  → {len(unsafe_ref_samples)} unsafe reference samples")
+
+    print("  Loading LLaVA-Instruct-80k (safe reference)...")
+    safe_ref_samples = load_llava_instruct_reference(
+        n_samples=args.ref_samples, seed=args.ref_seed,
+    )
+    print(f"  → {len(safe_ref_samples)} safe reference samples")
+
+    # Save reference metadata
+    ref_meta = {
+        "unsafe_source": "MM-SafetyBench (scenarios 01-07 & 09, SD split)",
+        "safe_source": "LLaVA-Instruct-80k",
+        "n_unsafe": len(unsafe_ref_samples),
+        "n_safe": len(safe_ref_samples),
+        "seed": args.ref_seed,
+        "unsafe_ids": [s["id"] for s in unsafe_ref_samples],
+        "safe_ids": [s["id"] for s in safe_ref_samples],
+    }
+    save_json(ref_meta, str(out_m2 / "reference_metadata.json"))
+
+    # ── [3/8] Load model ──────────────────────────────────────────────────
+    print("\n[3/8] Loading model...")
     wrapper = VLMWrapper(args.model).load()
     num_layers = wrapper.num_layers
     layer_indices = range(num_layers + 1)  # 0 = embedding layer
 
-    # ── Generate captions ─────────────────────────────────────────────────
-    print("\n[3/6] Generating image captions...")
-    captions_path = str(out_m2 / "captions.json")
-    captions = generate_captions(
-        all_samples, wrapper, captions_path,
+    # ── [4/8] Caption reference images ────────────────────────────────────
+    print("\n[4/8] Captioning reference images...")
+    skip_ref = args.skip_ref_captions or args.skip_captions
+
+    print("  Captioning MM-SafetyBench (unsafe ref) images...")
+    unsafe_ref_captions = generate_captions(
+        unsafe_ref_samples, wrapper,
+        str(out_m2 / "ref_unsafe_captions.json"),
+        skip_if_exists=skip_ref,
+    )
+
+    print("  Captioning LLaVA-Instruct (safe ref) images...")
+    safe_ref_captions = generate_captions(
+        safe_ref_samples, wrapper,
+        str(out_m2 / "ref_safe_captions.json"),
+        skip_if_exists=skip_ref,
+    )
+
+    # ── [5/8] Caption HoliSafe images ─────────────────────────────────────
+    print("\n[5/8] Captioning HoliSafe images...")
+    holisafe_captions = generate_captions(
+        all_samples, wrapper,
+        str(out_m2 / "holisafe_captions.json"),
         skip_if_exists=args.skip_captions,
     )
 
-    # ── Extract VL activations ────────────────────────────────────────────
-    print("\n[4/6] Extracting VL activations (image + text)...")
-    # Reuse cache from Method 1 if already populated
+    # ── [6/8] Extract VL activations for HoliSafe ─────────────────────────
+    print("\n[6/8] Extracting VL activations (image + text)...")
     vl_todo = [s for s in all_samples
                if not (args.skip_extraction and cache.exists(s["id"], "vl"))]
     if vl_todo:
@@ -480,17 +444,31 @@ def main():
     else:
         print("  VL activations already cached.")
 
-    # ── Extract TT activations ────────────────────────────────────────────
-    print("\n[4b/6] Extracting TT activations (caption + text, no image)...")
+    # ── [6b/8] Extract TT activations for HoliSafe ───────────────────────
+    print("\n[6b/8] Extracting TT activations (caption + text, no image)...")
     extract_tt_activations(
-        all_samples, captions, wrapper, cache,
+        all_samples, holisafe_captions, wrapper, cache,
         skip_if_cached=args.skip_extraction,
     )
 
-    # ── Compute safety direction ──────────────────────────────────────────
-    print("\n[5/6] Computing safety direction vectors...")
+    # ── [7/8] Compute safety direction from reference TT data ─────────────
+    print("\n[7/8] Computing safety direction vectors from reference data...")
+
+    # Build text-only counterparts for reference samples using their captions
+    unsafe_tt_texts = [
+        build_tt_prompt(s["text"], unsafe_ref_captions.get(str(s["id"]), ""))
+        for s in unsafe_ref_samples
+    ]
+    safe_tt_texts = [
+        build_tt_prompt(s["text"], safe_ref_captions.get(str(s["id"]), ""))
+        for s in safe_ref_samples
+    ]
+
+    print(f"  Unsafe TT texts: {len(unsafe_tt_texts)} (from MM-SafetyBench + captions)")
+    print(f"  Safe TT texts:   {len(safe_tt_texts)} (from LLaVA-Instruct + captions)")
+
     safety_dir = compute_safety_direction(
-        safe_texts, unsafe_texts, wrapper, layer_indices,
+        safe_tt_texts, unsafe_tt_texts, wrapper, layer_indices,
     )
 
     # Save safety direction vectors
@@ -503,8 +481,8 @@ def main():
     cleanup_gpu()
     del wrapper
 
-    # ── Compute shifts ────────────────────────────────────────────────────
-    print("\n[6/6] Computing modality-induced activation shifts...")
+    # ── [8/8] Compute shifts and aggregate SSS vs SSU ─────────────────────
+    print("\n[8/8] Computing modality-induced activation shifts...")
     per_sample_shifts, layer_data = compute_shifts(
         all_samples, safety_dir, cache, layer_indices,
     )
@@ -518,6 +496,8 @@ def main():
     # ── Summary ───────────────────────────────────────────────────────────
     print(f"\n{'='*60}")
     print(f"  Method 2 complete.")
+    print(f"  Reference data: {len(unsafe_ref_samples)} unsafe (MM-SafetyBench), "
+          f"{len(safe_ref_samples)} safe (LLaVA-Instruct)")
     if aggregate_stats:
         # Show layer with biggest SSS-SSU cosine difference
         def _diff(r):

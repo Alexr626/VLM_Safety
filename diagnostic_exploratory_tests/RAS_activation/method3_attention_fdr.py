@@ -54,7 +54,8 @@ import numpy as np
 from scipy import stats
 from tqdm import tqdm
 
-sys.path.insert(0, str(Path(__file__).parent))
+# Project root is two levels up from this script
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from src.dataset import (
     load_holisafe, inspect_schema, filter_subsets, load_image_for_sample,
 )

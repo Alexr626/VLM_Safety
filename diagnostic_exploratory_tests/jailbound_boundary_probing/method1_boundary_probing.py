@@ -23,15 +23,17 @@ Steps
   4. Cross-validation: train classifiers on *conventional* safe/unsafe pairs
      (UiUt=unsafe, SiSt→S=safe) and test transfer to SSU detection.
 
-Outputs (under {output_dir}/{model_name}/method1_boundary_probing/)
+Outputs (under diagnostic_exploratory_tests/outputs/{model_name}/)
 -------
-  per_layer_results.json     — accuracy + confusion matrix per layer
-  classifiers.pkl            — dict {layer_idx: sklearn LogisticRegression}
-  per_layer_weights.npz      — weight vectors and biases per layer
-  per_layer_distances.npz    — boundary distances per sample per layer
-  per_layer_probabilities.npz — predicted P(unsafe) per sample per layer
-  sample_metadata.json       — sample list with IDs, labels, categories
-  cross_trained_results.json — accuracy when trained on conventional data (optional)
+  activations/                 — shared activation cache (reused across methods)
+  method1_boundary_probing/
+    per_layer_results.json     — accuracy + confusion matrix per layer
+    classifiers.pkl            — dict {layer_idx: sklearn LogisticRegression}
+    per_layer_weights.npz      — weight vectors and biases per layer
+    per_layer_distances.npz    — boundary distances per sample per layer
+    per_layer_probabilities.npz — predicted P(unsafe) per sample per layer
+    sample_metadata.json       — sample list with IDs, labels, categories
+    cross_trained_results.json — accuracy when trained on conventional data (optional)
 
 Usage
 -----
@@ -49,8 +51,12 @@ from pathlib import Path
 import numpy as np
 from tqdm import tqdm
 
-# Allow imports from src/
-sys.path.insert(0, str(Path(__file__).parent))
+# Project root is two levels up from this script
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_PROJECT_ROOT = _SCRIPT_DIR.parent.parent
+_DEFAULT_OUTPUT_DIR = str(_SCRIPT_DIR.parent / "outputs")
+
+sys.path.insert(0, str(_PROJECT_ROOT))
 from src.dataset import (
     load_holisafe, inspect_schema, filter_subsets,
     filter_reference_subsets, load_image_for_sample,
@@ -68,8 +74,8 @@ def parse_args():
     p = argparse.ArgumentParser(description="Method 1: Safety Boundary Probing")
     p.add_argument("--model", default="llava-hf/llava-1.5-7b-hf",
                    help="HuggingFace model ID")
-    p.add_argument("--output_dir", default="outputs",
-                   help="Root output directory")
+    p.add_argument("--output_dir", default=_DEFAULT_OUTPUT_DIR,
+                   help="Root output directory (shared across methods)")
     p.add_argument("--cache_dir", default=None,
                    help="HuggingFace download cache directory")
     p.add_argument("--limit", type=int, default=None,
