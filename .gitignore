@@ -6,3 +6,7 @@ Jailbreak_Detection_RCS
 .vscode
 diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/activations
 diagnostic_exploratory_tests/shiftdc/contrastive_safety_examples
+diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/plots
+project_context_summary.md
+followup_experiments_implementation_guide.md
+plots*
