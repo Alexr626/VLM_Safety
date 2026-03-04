@@ -152,15 +152,25 @@ def compute_safety_direction(
     unsafe_texts: list,
     wrapper: VLMWrapper,
     layer_indices: range,
-) -> dict:
+) -> tuple:
     """
     Compute s^l = mean_safe^l − mean_unsafe^l for each layer.
 
-    Returns dict {layer_idx: np.ndarray of shape (hidden_dim,)}.
+    Returns:
+        safety_dir: dict {layer_idx: np.ndarray of shape (hidden_dim,)}
+        ref_safe_acts: dict {layer_idx: list of np.ndarray}, individual per-sample activations
+        ref_unsafe_acts: dict {layer_idx: list of np.ndarray}, individual per-sample activations
     """
-    def _extract_means(text_list: list, desc: str) -> dict:
+    def _extract_activations(text_list: list, desc: str) -> tuple:
+        """Extract per-sample activations and compute means.
+
+        Returns:
+            means: dict {layer_idx: mean activation vector}
+            per_sample: dict {layer_idx: list of per-sample activation arrays}
+        """
         layer_sums = {l: np.zeros(wrapper.hidden_dim, dtype=np.float64)
                       for l in layer_indices}
+        per_sample = {l: [] for l in layer_indices}
         count = 0
         for text in tqdm(text_list, desc=desc):
             try:
@@ -168,24 +178,28 @@ def compute_safety_direction(
                 acts = get_last_token_activations(hidden)
                 for l in layer_indices:
                     if l in acts:
-                        layer_sums[l] += acts[l].astype(np.float64)
+                        act_arr = acts[l].astype(np.float64)
+                        layer_sums[l] += act_arr
+                        per_sample[l].append(acts[l])  # keep original float32
                 count += 1
             except Exception as e:
                 print(f"  Warning: text forward pass failed: {e}")
             cleanup_gpu()
         if count == 0:
-            return {l: layer_sums[l] for l in layer_indices}
-        return {l: layer_sums[l] / count for l in layer_indices}
+            means = {l: layer_sums[l] for l in layer_indices}
+        else:
+            means = {l: layer_sums[l] / count for l in layer_indices}
+        return means, per_sample
 
     print(f"  Computing mean activations for {len(safe_texts)} safe instructions...")
-    mean_safe   = _extract_means(safe_texts,   desc="Safe ref")
+    mean_safe, ref_safe_acts = _extract_activations(safe_texts, desc="Safe ref")
 
     print(f"  Computing mean activations for {len(unsafe_texts)} unsafe instructions...")
-    mean_unsafe = _extract_means(unsafe_texts, desc="Unsafe ref")
+    mean_unsafe, ref_unsafe_acts = _extract_activations(unsafe_texts, desc="Unsafe ref")
 
     safety_dir = {l: (mean_safe[l] - mean_unsafe[l]).astype(np.float32)
                   for l in layer_indices}
-    return safety_dir
+    return safety_dir, ref_safe_acts, ref_unsafe_acts
 
 
 # ── TT (text-only counterpart) activations ───────────────────────────────────
@@ -474,7 +488,7 @@ def main():
     print(f"  Unsafe TT texts: {len(unsafe_tt_texts)} (from MM-SafetyBench + captions)")
     print(f"  Safe TT texts:   {len(safe_tt_texts)} (from LLaVA-Instruct + captions)")
 
-    safety_dir = compute_safety_direction(
+    safety_dir, ref_safe_acts, ref_unsafe_acts = compute_safety_direction(
         safe_tt_texts, unsafe_tt_texts, wrapper, layer_indices,
     )
 
@@ -483,6 +497,16 @@ def main():
         {f"layer_{l}": safety_dir[l] for l in layer_indices},
         str(out_m2 / "safety_direction_vectors.npz"),
     )
+
+    # Save individual reference activation matrices for follow-up subspace analysis
+    ref_matrices = {}
+    for l in layer_indices:
+        if ref_safe_acts[l]:
+            ref_matrices[f"safe_layer_{l}"] = np.stack(ref_safe_acts[l])      # (N_safe, d)
+        if ref_unsafe_acts[l]:
+            ref_matrices[f"unsafe_layer_{l}"] = np.stack(ref_unsafe_acts[l])  # (N_unsafe, d)
+    save_npz(ref_matrices, str(out_m2 / "reference_activation_matrices.npz"))
+    del ref_safe_acts, ref_unsafe_acts, ref_matrices
 
     # Done with model — free GPU memory
     cleanup_gpu()

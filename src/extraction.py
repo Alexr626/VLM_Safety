@@ -278,3 +278,113 @@ def save_npz(arrays: dict, path: str):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(path, **arrays)
     print(f"  Saved → {path}")
+
+
+# ── Subspace analysis utilities ──────────────────────────────────────────────
+
+def load_activation_matrix(cache: ActivationCache,
+                           sample_ids: list,
+                           layer: int,
+                           suffix: str) -> np.ndarray:
+    """Load activations for multiple samples at a single layer, stacked into a matrix.
+
+    Args:
+        cache: ActivationCache instance pointing at activations/ directory
+        sample_ids: list of sample ID strings
+        layer: transformer layer index
+        suffix: activation file suffix ('vl', 'tt', etc.)
+
+    Returns:
+        np.ndarray of shape (N_samples, hidden_dim)
+    """
+    rows = []
+    for sid in sample_ids:
+        acts = cache.load_or_none(sid, suffix=suffix)
+        if acts is None:
+            raise FileNotFoundError(f"Missing activation: sample_{sid}_{suffix}.npz")
+        rows.append(acts[layer])
+    return np.stack(rows)
+
+
+def load_modality_shift_matrix(cache: ActivationCache,
+                               sample_ids: list,
+                               layer: int) -> np.ndarray:
+    """Compute modality shift vectors (VL - TT) for multiple samples at a layer.
+
+    Returns:
+        np.ndarray of shape (N_samples, hidden_dim)
+    """
+    vl = load_activation_matrix(cache, sample_ids, layer, suffix="vl")
+    tt = load_activation_matrix(cache, sample_ids, layer, suffix="tt")
+    return vl - tt
+
+
+def effective_rank(matrix: np.ndarray, tau: float = 0.9) -> int:
+    """Compute effective rank: minimum number of singular values
+    explaining >= tau fraction of total variance.
+
+    Args:
+        matrix: (N, d) data matrix (will be mean-centered)
+        tau: energy threshold (0 < tau <= 1)
+
+    Returns:
+        k: effective rank (int)
+    """
+    centered = matrix - matrix.mean(axis=0, keepdims=True)
+    _, sigmas, _ = np.linalg.svd(centered, full_matrices=False)
+    energy = np.cumsum(sigmas ** 2)
+    total = energy[-1]
+    if total < 1e-12:
+        return 0
+    k = int(np.searchsorted(energy / total, tau)) + 1
+    return min(k, len(sigmas))
+
+
+def extract_subspace(matrix: np.ndarray, k: int,
+                     center: bool = True) -> np.ndarray:
+    """Extract top-k principal directions from a data matrix via SVD.
+
+    Args:
+        matrix: (N, d) data matrix
+        k: number of components to keep
+        center: whether to mean-center before SVD
+
+    Returns:
+        V_k: (k, d) orthonormal basis of the top-k subspace (right singular vectors)
+    """
+    if center:
+        matrix = matrix - matrix.mean(axis=0, keepdims=True)
+    _, sigmas, Vt = np.linalg.svd(matrix, full_matrices=False)
+    return Vt[:k]  # (k, d)
+
+
+def principal_angles(V1: np.ndarray, V2: np.ndarray) -> np.ndarray:
+    """Compute principal angles between two subspaces.
+
+    Args:
+        V1: (k1, d) orthonormal basis of subspace 1
+        V2: (k2, d) orthonormal basis of subspace 2
+
+    Returns:
+        angles: array of min(k1, k2) principal angles in radians
+    """
+    M = V1 @ V2.T  # (k1, k2)
+    _, sigmas, _ = np.linalg.svd(M, full_matrices=False)
+    # Clamp to [0, 1] for numerical stability before arccos
+    sigmas = np.clip(sigmas, 0.0, 1.0)
+    return np.arccos(sigmas)
+
+
+def subspace_overlap(V1: np.ndarray, V2: np.ndarray) -> float:
+    """Compute mean cosine of principal angles between two subspaces.
+    Returns 1.0 for identical subspaces, 0.0 for fully orthogonal.
+
+    Args:
+        V1: (k1, d) orthonormal basis
+        V2: (k2, d) orthonormal basis
+
+    Returns:
+        overlap: float in [0, 1]
+    """
+    angles = principal_angles(V1, V2)
+    return float(np.mean(np.cos(angles)))
