@@ -4,9 +4,18 @@ __pycache__*
 diagnostic_methods_implementation_guide.md
 Jailbreak_Detection_RCS
 .vscode
-diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/activations
 diagnostic_exploratory_tests/shiftdc/contrastive_safety_examples
-diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/plots
+
+# Ignore all experiment outputs by default
+diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/*
+
+# But track plotting scripts and plots/ subdirectories within each experiment
+!diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/plotting_scripts/
+!diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/*/
+diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/activations/
+diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/*/*.npz
+diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/*/*.pkl
+diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/*/*.json
+!diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/*/plots/
 project_context_summary.md
 followup_experiments_implementation_guide.md
-plots*
