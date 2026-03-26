@@ -321,6 +321,30 @@ class VLMWrapper:
         caption = self.processor.decode(new_tokens, skip_special_tokens=True).strip()
         return caption
 
+    def generate_captions_batch(
+        self,
+        images: List[Image.Image],
+        prompt: Optional[str] = None,
+        max_new_tokens: int = 200,
+    ) -> List[str]:
+        """Batch version of generate_caption. All images use the same prompt."""
+        cap_prompt = prompt or self._caption_prompt
+        prompts = [self._prompt_template.format(text=cap_prompt)] * len(images)
+        inputs = self.processor(text=prompts, images=images,
+                                return_tensors="pt", padding=True)
+        inputs = {k: v.to(self.device) if hasattr(v, "to") else v
+                  for k, v in inputs.items()}
+        input_len = inputs["input_ids"].shape[1]
+        with torch.no_grad():
+            generated = self.model.generate(
+                **inputs, max_new_tokens=max_new_tokens,
+                do_sample=False, use_cache=True,
+            )
+        return [
+            self.processor.decode(gen[input_len:], skip_special_tokens=True).strip()
+            for gen in generated
+        ]
+
     # ── Memory management ─────────────────────────────────────────────────────
 
     def cleanup(self):
