@@ -1,0 +1,212 @@
+[
+  {
+    "layer": 7,
+    "category": "illegal_activity",
+    "n_samples": 87,
+    "overlap_with_safety": 0.2023955395103178,
+    "effective_rank_tau90": 40
+  },
+  {
+    "layer": 7,
+    "category": "hate",
+    "n_samples": 339,
+    "overlap_with_safety": 0.17498215758637375,
+    "effective_rank_tau90": 94
+  },
+  {
+    "layer": 7,
+    "category": "specialized_advice",
+    "n_samples": 35,
+    "overlap_with_safety": 0.16326920444034992,
+    "effective_rank_tau90": 19
+  },
+  {
+    "layer": 7,
+    "category": "violence",
+    "n_samples": 98,
+    "overlap_with_safety": 0.17978512520960177,
+    "effective_rank_tau90": 48
+  },
+  {
+    "layer": 7,
+    "category": "self_harm",
+    "n_samples": 144,
+    "overlap_with_safety": 0.22077769783124004,
+    "effective_rank_tau90": 56
+  },
+  {
+    "layer": 8,
+    "category": "illegal_activity",
+    "n_samples": 87,
+    "overlap_with_safety": 0.13718051865569508,
+    "effective_rank_tau90": 41
+  },
+  {
+    "layer": 8,
+    "category": "hate",
+    "n_samples": 339,
+    "overlap_with_safety": 0.1251697996898073,
+    "effective_rank_tau90": 95
+  },
+  {
+    "layer": 8,
+    "category": "specialized_advice",
+    "n_samples": 35,
+    "overlap_with_safety": 0.1311701848734708,
+    "effective_rank_tau90": 19
+  },
+  {
+    "layer": 8,
+    "category": "violence",
+    "n_samples": 98,
+    "overlap_with_safety": 0.13620610100072314,
+    "effective_rank_tau90": 49
+  },
+  {
+    "layer": 8,
+    "category": "self_harm",
+    "n_samples": 144,
+    "overlap_with_safety": 0.15159280893576027,
+    "effective_rank_tau90": 57
+  },
+  {
+    "layer": 10,
+    "category": "illegal_activity",
+    "n_samples": 87,
+    "overlap_with_safety": 0.12087207177753752,
+    "effective_rank_tau90": 43
+  },
+  {
+    "layer": 10,
+    "category": "hate",
+    "n_samples": 339,
+    "overlap_with_safety": 0.11182265669452959,
+    "effective_rank_tau90": 95
+  },
+  {
+    "layer": 10,
+    "category": "specialized_advice",
+    "n_samples": 35,
+    "overlap_with_safety": 0.14846518386338106,
+    "effective_rank_tau90": 18
+  },
+  {
+    "layer": 10,
+    "category": "violence",
+    "n_samples": 98,
+    "overlap_with_safety": 0.10640033999690972,
+    "effective_rank_tau90": 51
+  },
+  {
+    "layer": 10,
+    "category": "self_harm",
+    "n_samples": 144,
+    "overlap_with_safety": 0.14209951211803373,
+    "effective_rank_tau90": 53
+  },
+  {
+    "layer": 12,
+    "category": "illegal_activity",
+    "n_samples": 87,
+    "overlap_with_safety": 0.09364988372819251,
+    "effective_rank_tau90": 46
+  },
+  {
+    "layer": 12,
+    "category": "hate",
+    "n_samples": 339,
+    "overlap_with_safety": 0.11993290799640169,
+    "effective_rank_tau90": 115
+  },
+  {
+    "layer": 12,
+    "category": "specialized_advice",
+    "n_samples": 35,
+    "overlap_with_safety": 0.11554230584448104,
+    "effective_rank_tau90": 20
+  },
+  {
+    "layer": 12,
+    "category": "violence",
+    "n_samples": 98,
+    "overlap_with_safety": 0.12228271178791565,
+    "effective_rank_tau90": 56
+  },
+  {
+    "layer": 12,
+    "category": "self_harm",
+    "n_samples": 144,
+    "overlap_with_safety": 0.12705284593151728,
+    "effective_rank_tau90": 60
+  },
+  {
+    "layer": 14,
+    "category": "illegal_activity",
+    "n_samples": 87,
+    "overlap_with_safety": 0.08155682900596055,
+    "effective_rank_tau90": 48
+  },
+  {
+    "layer": 14,
+    "category": "hate",
+    "n_samples": 339,
+    "overlap_with_safety": 0.11662937174841337,
+    "effective_rank_tau90": 125
+  },
+  {
+    "layer": 14,
+    "category": "specialized_advice",
+    "n_samples": 35,
+    "overlap_with_safety": 0.14486241871693203,
+    "effective_rank_tau90": 21
+  },
+  {
+    "layer": 14,
+    "category": "violence",
+    "n_samples": 98,
+    "overlap_with_safety": 0.1457124603584261,
+    "effective_rank_tau90": 59
+  },
+  {
+    "layer": 14,
+    "category": "self_harm",
+    "n_samples": 144,
+    "overlap_with_safety": 0.12416573489940688,
+    "effective_rank_tau90": 64
+  },
+  {
+    "layer": 20,
+    "category": "illegal_activity",
+    "n_samples": 87,
+    "overlap_with_safety": 0.15081932416741767,
+    "effective_rank_tau90": 46
+  },
+  {
+    "layer": 20,
+    "category": "hate",
+    "n_samples": 339,
+    "overlap_with_safety": 0.13538583321708095,
+    "effective_rank_tau90": 118
+  },
+  {
+    "layer": 20,
+    "category": "specialized_advice",
+    "n_samples": 35,
+    "overlap_with_safety": 0.17827197018378746,
+    "effective_rank_tau90": 21
+  },
+  {
+    "layer": 20,
+    "category": "violence",
+    "n_samples": 98,
+    "overlap_with_safety": 0.17136755996239153,
+    "effective_rank_tau90": 56
+  },
+  {
+    "layer": 20,
+    "category": "self_harm",
+    "n_samples": 144,
+    "overlap_with_safety": 0.1307453724602851,
+    "effective_rank_tau90": 61
+  }
+]

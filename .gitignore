@@ -1,10 +1,15 @@
-outputs/*
-data/*
-__pycache__*
-diagnostic_methods_implementation_guide.md
-Jailbreak_Detection_RCS
-.vscode
-diagnostic_exploratory_tests/shiftdc/contrastive_safety_examples
-diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/activations/
-project_context_summary.md
-followup_experiments_implementation_guide.md
+# ── Large data files (do not track) ──────────────────
+outputs/*/activations/
+outputs/*/reference/
+outputs/*/captions/
+
+# ── Python cache ──────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+
+# ── Raw data directory ────────────────────────────────
+data/
+
+# ── Editor ────────────────────────────────────────────
+.vscode/

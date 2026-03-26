@@ -1,0 +1,2147 @@
+[
+  {
+    "layer": 0,
+    "component_k": 0,
+    "f_statistic": NaN,
+    "p_value": NaN,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 0,
+    "component_k": 1,
+    "f_statistic": NaN,
+    "p_value": NaN,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 0,
+    "component_k": 2,
+    "f_statistic": NaN,
+    "p_value": NaN,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 0,
+    "component_k": 3,
+    "f_statistic": NaN,
+    "p_value": NaN,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 0,
+    "component_k": 4,
+    "f_statistic": NaN,
+    "p_value": NaN,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 1,
+    "component_k": 0,
+    "f_statistic": 42.958370523129275,
+    "p_value": 3.069639907309306e-32,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 1,
+    "component_k": 1,
+    "f_statistic": 38.815774107907046,
+    "p_value": 2.329080985806149e-29,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 1,
+    "component_k": 2,
+    "f_statistic": 40.47705278743966,
+    "p_value": 1.606802553234981e-30,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 1,
+    "component_k": 3,
+    "f_statistic": 18.346979357532742,
+    "p_value": 2.4065126510611904e-14,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 1,
+    "component_k": 4,
+    "f_statistic": 2.276575930399703,
+    "p_value": 0.05960853653025979,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 2,
+    "component_k": 0,
+    "f_statistic": 12.116741878680703,
+    "p_value": 1.5807405960776523e-09,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 2,
+    "component_k": 1,
+    "f_statistic": 40.973500958253545,
+    "p_value": 7.2539656787205975e-31,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 2,
+    "component_k": 2,
+    "f_statistic": 19.804531575864033,
+    "p_value": 1.858706052479784e-15,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 2,
+    "component_k": 3,
+    "f_statistic": 31.420263314782215,
+    "p_value": 4.365569219646717e-24,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 2,
+    "component_k": 4,
+    "f_statistic": 55.42901930446012,
+    "p_value": 1.3196970310681569e-40,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 3,
+    "component_k": 0,
+    "f_statistic": 22.778799758412443,
+    "p_value": 1.045831075411518e-17,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 3,
+    "component_k": 1,
+    "f_statistic": 18.184534422014746,
+    "p_value": 3.2042201989093e-14,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 3,
+    "component_k": 2,
+    "f_statistic": 3.5114925544370745,
+    "p_value": 0.007533734524037731,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 3,
+    "component_k": 3,
+    "f_statistic": 48.591900048027064,
+    "p_value": 4.490967897332764e-36,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 3,
+    "component_k": 4,
+    "f_statistic": 2.287912749584849,
+    "p_value": 0.05852362645712146,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 4,
+    "component_k": 0,
+    "f_statistic": 49.49185097162126,
+    "p_value": 1.1175934964918965e-36,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 4,
+    "component_k": 1,
+    "f_statistic": 0.8002644141850301,
+    "p_value": 0.5252038783418915,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 4,
+    "component_k": 2,
+    "f_statistic": 3.6821633865460113,
+    "p_value": 0.005616251293090186,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 4,
+    "component_k": 3,
+    "f_statistic": 10.063712668012188,
+    "p_value": 6.356531007545142e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 4,
+    "component_k": 4,
+    "f_statistic": 14.113214773473254,
+    "p_value": 4.4170854246445063e-11,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 5,
+    "component_k": 0,
+    "f_statistic": 54.71583100209837,
+    "p_value": 3.8646724841071475e-40,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 5,
+    "component_k": 1,
+    "f_statistic": 21.638781558220522,
+    "p_value": 7.561077344623918e-17,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 5,
+    "component_k": 2,
+    "f_statistic": 10.929764857272852,
+    "p_value": 1.3361337155780694e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 5,
+    "component_k": 3,
+    "f_statistic": 4.365213052356963,
+    "p_value": 0.0017123337926442251,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 5,
+    "component_k": 4,
+    "f_statistic": 20.046249327800425,
+    "p_value": 1.217234000263923e-15,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 6,
+    "component_k": 0,
+    "f_statistic": 86.32141710124246,
+    "p_value": 1.4097942029811703e-59,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 6,
+    "component_k": 1,
+    "f_statistic": 51.44074340616317,
+    "p_value": 5.598556994658853e-38,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 6,
+    "component_k": 2,
+    "f_statistic": 33.48748735237757,
+    "p_value": 1.409131265857254e-25,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 6,
+    "component_k": 3,
+    "f_statistic": 3.169512030721615,
+    "p_value": 0.013508105072768992,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 6,
+    "component_k": 4,
+    "f_statistic": 8.584538840197759,
+    "p_value": 9.137417965305467e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 7,
+    "component_k": 0,
+    "f_statistic": 137.88087609322776,
+    "p_value": 8.55444139481883e-87,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 7,
+    "component_k": 1,
+    "f_statistic": 41.775241054661464,
+    "p_value": 2.0154096004942566e-31,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 7,
+    "component_k": 2,
+    "f_statistic": 9.306936013469135,
+    "p_value": 2.485880112263625e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 7,
+    "component_k": 3,
+    "f_statistic": 23.737742065755278,
+    "p_value": 1.9948960783041975e-18,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 7,
+    "component_k": 4,
+    "f_statistic": 79.58700417412149,
+    "p_value": 1.231315722322821e-55,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 8,
+    "component_k": 0,
+    "f_statistic": 181.51723585508614,
+    "p_value": 1.499423394332681e-106,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 8,
+    "component_k": 1,
+    "f_statistic": 118.61488719738031,
+    "p_value": 3.49443987184468e-77,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 8,
+    "component_k": 2,
+    "f_statistic": 57.88744474051846,
+    "p_value": 3.330820257860444e-42,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 8,
+    "component_k": 3,
+    "f_statistic": 6.103328391872099,
+    "p_value": 7.876441814089187e-05,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 8,
+    "component_k": 4,
+    "f_statistic": 37.151776756545075,
+    "p_value": 3.4575705606687526e-28,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 9,
+    "component_k": 0,
+    "f_statistic": 183.14867079294288,
+    "p_value": 3.0538142342886513e-107,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 9,
+    "component_k": 1,
+    "f_statistic": 120.18243587508238,
+    "p_value": 5.474249669343349e-78,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 9,
+    "component_k": 2,
+    "f_statistic": 142.9642442333205,
+    "p_value": 3.1205171785002912e-89,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 9,
+    "component_k": 3,
+    "f_statistic": 86.43330898051555,
+    "p_value": 1.2148426582984477e-59,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 9,
+    "component_k": 4,
+    "f_statistic": 68.74898672666735,
+    "p_value": 4.500016235709255e-49,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 10,
+    "component_k": 0,
+    "f_statistic": 124.01773411274229,
+    "p_value": 6.114374423623396e-80,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 10,
+    "component_k": 1,
+    "f_statistic": 50.23811236051112,
+    "p_value": 3.5411194045320733e-37,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 10,
+    "component_k": 2,
+    "f_statistic": 29.337393657580133,
+    "p_value": 1.432397267665298e-22,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 10,
+    "component_k": 3,
+    "f_statistic": 46.523510211609064,
+    "p_value": 1.1207538568101347e-34,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 10,
+    "component_k": 4,
+    "f_statistic": 18.444458112682128,
+    "p_value": 2.0268185124072895e-14,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 11,
+    "component_k": 0,
+    "f_statistic": 83.93983064094118,
+    "p_value": 3.3994358738540994e-58,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 11,
+    "component_k": 1,
+    "f_statistic": 46.01880968611047,
+    "p_value": 2.4678284601618883e-34,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 11,
+    "component_k": 2,
+    "f_statistic": 14.261355731221947,
+    "p_value": 3.389822967271804e-11,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 11,
+    "component_k": 3,
+    "f_statistic": 48.649407975973034,
+    "p_value": 4.1083798611872574e-36,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 11,
+    "component_k": 4,
+    "f_statistic": 31.152457051246834,
+    "p_value": 6.82645868378681e-24,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 12,
+    "component_k": 0,
+    "f_statistic": 59.86700295557237,
+    "p_value": 1.7688852952479778e-43,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 12,
+    "component_k": 1,
+    "f_statistic": 19.017256202745763,
+    "p_value": 7.39888601067067e-15,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 12,
+    "component_k": 2,
+    "f_statistic": 77.79901725758005,
+    "p_value": 1.4255299500145866e-54,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 12,
+    "component_k": 3,
+    "f_statistic": 29.469714767272833,
+    "p_value": 1.146421898372613e-22,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 12,
+    "component_k": 4,
+    "f_statistic": 7.467868927914382,
+    "p_value": 6.820084145255778e-06,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 13,
+    "component_k": 0,
+    "f_statistic": 44.54306760675209,
+    "p_value": 2.5058681792391327e-33,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 13,
+    "component_k": 1,
+    "f_statistic": 27.218850651234934,
+    "p_value": 5.154145306795744e-21,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 13,
+    "component_k": 2,
+    "f_statistic": 11.70127575804719,
+    "p_value": 3.3350294915249983e-09,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 13,
+    "component_k": 3,
+    "f_statistic": 20.94208165663981,
+    "p_value": 2.544390074312681e-16,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 13,
+    "component_k": 4,
+    "f_statistic": 26.633043138511322,
+    "p_value": 1.3962096115185026e-20,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 14,
+    "component_k": 0,
+    "f_statistic": 24.66801502843137,
+    "p_value": 4.0238298128971037e-19,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 14,
+    "component_k": 1,
+    "f_statistic": 22.939937210842743,
+    "p_value": 7.913198443594356e-18,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 14,
+    "component_k": 2,
+    "f_statistic": 9.88706896245767,
+    "p_value": 8.738674736363368e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 14,
+    "component_k": 3,
+    "f_statistic": 25.961462251907044,
+    "p_value": 4.389864060278984e-20,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 14,
+    "component_k": 4,
+    "f_statistic": 43.767419921730955,
+    "p_value": 8.52361020586296e-33,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 15,
+    "component_k": 0,
+    "f_statistic": 22.017820468675087,
+    "p_value": 3.912855167897012e-17,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 15,
+    "component_k": 1,
+    "f_statistic": 23.41015964970101,
+    "p_value": 3.5107418471501265e-18,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 15,
+    "component_k": 2,
+    "f_statistic": 11.840811511418234,
+    "p_value": 2.595213744873085e-09,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 15,
+    "component_k": 3,
+    "f_statistic": 14.48006391374352,
+    "p_value": 2.2937642390949668e-11,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 15,
+    "component_k": 4,
+    "f_statistic": 11.232138386910908,
+    "p_value": 7.7540257172255e-09,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 16,
+    "component_k": 0,
+    "f_statistic": 26.71534048947892,
+    "p_value": 1.213622943138212e-20,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 16,
+    "component_k": 1,
+    "f_statistic": 16.89216101586501,
+    "p_value": 3.1444182291731004e-13,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 16,
+    "component_k": 2,
+    "f_statistic": 23.180961205276517,
+    "p_value": 5.216164178083589e-18,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 16,
+    "component_k": 3,
+    "f_statistic": 3.417053446034466,
+    "p_value": 0.008857732098249128,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 16,
+    "component_k": 4,
+    "f_statistic": 4.320069214265989,
+    "p_value": 0.0018531372280658686,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 17,
+    "component_k": 0,
+    "f_statistic": 34.008489065967936,
+    "p_value": 5.960354662984477e-26,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 17,
+    "component_k": 1,
+    "f_statistic": 12.38646128824664,
+    "p_value": 9.739010785946884e-10,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 17,
+    "component_k": 2,
+    "f_statistic": 9.598959416527848,
+    "p_value": 1.468662289513636e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 17,
+    "component_k": 3,
+    "f_statistic": 9.419065434718842,
+    "p_value": 2.0310413389993245e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 17,
+    "component_k": 4,
+    "f_statistic": 10.134507983394458,
+    "p_value": 5.595345692051165e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 18,
+    "component_k": 0,
+    "f_statistic": 33.97816385044863,
+    "p_value": 6.266124461320937e-26,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 18,
+    "component_k": 1,
+    "f_statistic": 6.246301083280553,
+    "p_value": 6.100295697771749e-05,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 18,
+    "component_k": 2,
+    "f_statistic": 15.510298133191975,
+    "p_value": 3.656246345412442e-12,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 18,
+    "component_k": 3,
+    "f_statistic": 8.969244980745685,
+    "p_value": 4.5685416144938007e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 18,
+    "component_k": 4,
+    "f_statistic": 11.887088853963407,
+    "p_value": 2.388107670359173e-09,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 19,
+    "component_k": 0,
+    "f_statistic": 23.69217852784225,
+    "p_value": 2.1579624810162516e-18,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 19,
+    "component_k": 1,
+    "f_statistic": 3.614501407789001,
+    "p_value": 0.006310912181101777,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 19,
+    "component_k": 2,
+    "f_statistic": 7.523061772134684,
+    "p_value": 6.175768688453903e-06,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 19,
+    "component_k": 3,
+    "f_statistic": 0.3770087355295603,
+    "p_value": 0.8251233038829175,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 19,
+    "component_k": 4,
+    "f_statistic": 9.342694063454108,
+    "p_value": 2.3307358042647622e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 20,
+    "component_k": 0,
+    "f_statistic": 10.58140251239182,
+    "p_value": 2.501719768184027e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 20,
+    "component_k": 1,
+    "f_statistic": 2.219405617057964,
+    "p_value": 0.06537844687288762,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 20,
+    "component_k": 2,
+    "f_statistic": 8.514403575584804,
+    "p_value": 1.0368046373319543e-06,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 20,
+    "component_k": 3,
+    "f_statistic": 3.83848310633442,
+    "p_value": 0.004286418093092864,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 20,
+    "component_k": 4,
+    "f_statistic": 11.357347600670522,
+    "p_value": 6.190155376861633e-09,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 21,
+    "component_k": 0,
+    "f_statistic": 9.728516868841078,
+    "p_value": 1.1628562505180835e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 21,
+    "component_k": 1,
+    "f_statistic": 4.912864771641606,
+    "p_value": 0.0006534807726441031,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 21,
+    "component_k": 2,
+    "f_statistic": 6.074241494526075,
+    "p_value": 8.296503331440723e-05,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 21,
+    "component_k": 3,
+    "f_statistic": 6.413885342721625,
+    "p_value": 4.520024000178437e-05,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 21,
+    "component_k": 4,
+    "f_statistic": 14.148311036618862,
+    "p_value": 4.1485497097427286e-11,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 22,
+    "component_k": 0,
+    "f_statistic": 11.44153626100609,
+    "p_value": 5.320306196932091e-09,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 22,
+    "component_k": 1,
+    "f_statistic": 10.296892995773115,
+    "p_value": 4.1762078480779394e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 22,
+    "component_k": 2,
+    "f_statistic": 9.5411957491484,
+    "p_value": 1.6297875869193279e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 22,
+    "component_k": 3,
+    "f_statistic": 4.965452341849067,
+    "p_value": 0.0005955056332914983,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 22,
+    "component_k": 4,
+    "f_statistic": 14.125450318684946,
+    "p_value": 4.3215448878286244e-11,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 23,
+    "component_k": 0,
+    "f_statistic": 8.979446445442397,
+    "p_value": 4.4853224392120714e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 23,
+    "component_k": 1,
+    "f_statistic": 7.231898347815389,
+    "p_value": 1.042251034467225e-05,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 23,
+    "component_k": 2,
+    "f_statistic": 11.26262128025836,
+    "p_value": 7.340221695521084e-09,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 23,
+    "component_k": 3,
+    "f_statistic": 6.883811033429149,
+    "p_value": 1.9470953034910773e-05,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 23,
+    "component_k": 4,
+    "f_statistic": 15.873828734286011,
+    "p_value": 1.9153598761278458e-12,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 24,
+    "component_k": 0,
+    "f_statistic": 10.191042084340614,
+    "p_value": 5.0535255414489386e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 24,
+    "component_k": 1,
+    "f_statistic": 8.613458420296867,
+    "p_value": 8.6735304222905e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 24,
+    "component_k": 2,
+    "f_statistic": 5.519004509013228,
+    "p_value": 0.00022318789224394378,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 24,
+    "component_k": 3,
+    "f_statistic": 8.612247486825375,
+    "p_value": 8.69247379801699e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 24,
+    "component_k": 4,
+    "f_statistic": 18.635316890785493,
+    "p_value": 1.4483816844943115e-14,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 25,
+    "component_k": 0,
+    "f_statistic": 10.044325795072924,
+    "p_value": 6.582483612462476e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 25,
+    "component_k": 1,
+    "f_statistic": 10.891628705461304,
+    "p_value": 1.4310769252133398e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 25,
+    "component_k": 2,
+    "f_statistic": 15.164529685294335,
+    "p_value": 6.767213298381854e-12,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 25,
+    "component_k": 3,
+    "f_statistic": 10.435030586657007,
+    "p_value": 3.2562865455050794e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 25,
+    "component_k": 4,
+    "f_statistic": 32.52925035906767,
+    "p_value": 6.893743943948561e-25,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 26,
+    "component_k": 0,
+    "f_statistic": 15.060436266255948,
+    "p_value": 8.14630418283717e-12,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 26,
+    "component_k": 1,
+    "f_statistic": 9.187032228211239,
+    "p_value": 3.085504255930397e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 26,
+    "component_k": 2,
+    "f_statistic": 14.058845802631241,
+    "p_value": 4.867870276808497e-11,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 26,
+    "component_k": 3,
+    "f_statistic": 9.092075435916056,
+    "p_value": 3.661385683724668e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 26,
+    "component_k": 4,
+    "f_statistic": 6.438649199138812,
+    "p_value": 4.3240305876635746e-05,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 27,
+    "component_k": 0,
+    "f_statistic": 18.68879036694341,
+    "p_value": 1.3183044259211577e-14,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 27,
+    "component_k": 1,
+    "f_statistic": 11.91191415549612,
+    "p_value": 2.28391135175413e-09,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 27,
+    "component_k": 2,
+    "f_statistic": 29.19925652606097,
+    "p_value": 1.8075607082880743e-22,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 27,
+    "component_k": 3,
+    "f_statistic": 8.219009512873635,
+    "p_value": 1.7650752937538344e-06,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 27,
+    "component_k": 4,
+    "f_statistic": 10.509956376772873,
+    "p_value": 2.8452311158724212e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 28,
+    "component_k": 0,
+    "f_statistic": 22.562265178285344,
+    "p_value": 1.5217171016292708e-17,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 28,
+    "component_k": 1,
+    "f_statistic": 13.150667503406703,
+    "p_value": 2.4731032048734015e-10,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 28,
+    "component_k": 2,
+    "f_statistic": 28.39307242485402,
+    "p_value": 7.045620664896223e-22,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 28,
+    "component_k": 3,
+    "f_statistic": 10.49842361372972,
+    "p_value": 2.9049447664816177e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 28,
+    "component_k": 4,
+    "f_statistic": 11.849733847288624,
+    "p_value": 2.553930294481426e-09,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 29,
+    "component_k": 0,
+    "f_statistic": 21.524199445719503,
+    "p_value": 9.228995081033485e-17,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 29,
+    "component_k": 1,
+    "f_statistic": 13.487008558979204,
+    "p_value": 1.3539764131068482e-10,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 29,
+    "component_k": 2,
+    "f_statistic": 31.304802530782275,
+    "p_value": 5.293220967021954e-24,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 29,
+    "component_k": 3,
+    "f_statistic": 11.690056300006194,
+    "p_value": 3.402978772909737e-09,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 29,
+    "component_k": 4,
+    "f_statistic": 13.522942903035194,
+    "p_value": 1.2696160981377795e-10,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 30,
+    "component_k": 0,
+    "f_statistic": 24.224115433739044,
+    "p_value": 8.631153765677419e-19,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 30,
+    "component_k": 1,
+    "f_statistic": 9.015716445761186,
+    "p_value": 4.201531420284513e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 30,
+    "component_k": 2,
+    "f_statistic": 27.417793855028016,
+    "p_value": 3.6764195016371544e-21,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 30,
+    "component_k": 3,
+    "f_statistic": 9.507677084635674,
+    "p_value": 1.7312702354199906e-07,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 30,
+    "component_k": 4,
+    "f_statistic": 17.517316366834933,
+    "p_value": 1.0403769927232507e-13,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 31,
+    "component_k": 0,
+    "f_statistic": 19.966310838741062,
+    "p_value": 1.4000753959214309e-15,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 31,
+    "component_k": 1,
+    "f_statistic": 12.805868004256656,
+    "p_value": 4.5886609482513067e-10,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 31,
+    "component_k": 2,
+    "f_statistic": 14.14216513117683,
+    "p_value": 4.19436443195279e-11,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 31,
+    "component_k": 3,
+    "f_statistic": 13.052115115134262,
+    "p_value": 2.9508468775162806e-10,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 31,
+    "component_k": 4,
+    "f_statistic": 16.384295539065082,
+    "p_value": 7.736596223986648e-13,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 32,
+    "component_k": 0,
+    "f_statistic": 31.79352761455891,
+    "p_value": 2.3431981649524246e-24,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 32,
+    "component_k": 1,
+    "f_statistic": 21.118432656762636,
+    "p_value": 1.8708882727284613e-16,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 32,
+    "component_k": 2,
+    "f_statistic": 79.94073875596716,
+    "p_value": 7.600027320008063e-56,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 32,
+    "component_k": 3,
+    "f_statistic": 11.058409260872365,
+    "p_value": 1.0599702614246297e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  },
+  {
+    "layer": 32,
+    "component_k": 4,
+    "f_statistic": 10.056682762346574,
+    "p_value": 6.437553108106894e-08,
+    "categories_tested": [
+      "hate",
+      "illegal_activity",
+      "self_harm",
+      "specialized_advice",
+      "violence"
+    ]
+  }
+]

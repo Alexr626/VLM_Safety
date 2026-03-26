@@ -1,0 +1,134 @@
+[
+  {
+    "layer": 0,
+    "cosine_sim_dominant_vs_s_l": 1.0
+  },
+  {
+    "layer": 1,
+    "cosine_sim_dominant_vs_s_l": -0.9995267600546073
+  },
+  {
+    "layer": 2,
+    "cosine_sim_dominant_vs_s_l": -0.9958805109277233
+  },
+  {
+    "layer": 3,
+    "cosine_sim_dominant_vs_s_l": -0.9918696832188852
+  },
+  {
+    "layer": 4,
+    "cosine_sim_dominant_vs_s_l": -0.9873047414969426
+  },
+  {
+    "layer": 5,
+    "cosine_sim_dominant_vs_s_l": -0.9862732497620551
+  },
+  {
+    "layer": 6,
+    "cosine_sim_dominant_vs_s_l": -0.9882048369000277
+  },
+  {
+    "layer": 7,
+    "cosine_sim_dominant_vs_s_l": -0.9694719349677604
+  },
+  {
+    "layer": 8,
+    "cosine_sim_dominant_vs_s_l": -0.9700910320613643
+  },
+  {
+    "layer": 9,
+    "cosine_sim_dominant_vs_s_l": -0.9768483496412745
+  },
+  {
+    "layer": 10,
+    "cosine_sim_dominant_vs_s_l": -0.9285411296325297
+  },
+  {
+    "layer": 11,
+    "cosine_sim_dominant_vs_s_l": -0.9321418100409086
+  },
+  {
+    "layer": 12,
+    "cosine_sim_dominant_vs_s_l": -0.9259908504888253
+  },
+  {
+    "layer": 13,
+    "cosine_sim_dominant_vs_s_l": -0.8901844524800999
+  },
+  {
+    "layer": 14,
+    "cosine_sim_dominant_vs_s_l": -0.7868795326350504
+  },
+  {
+    "layer": 15,
+    "cosine_sim_dominant_vs_s_l": -0.6888110722030213
+  },
+  {
+    "layer": 16,
+    "cosine_sim_dominant_vs_s_l": -0.5808416652608008
+  },
+  {
+    "layer": 17,
+    "cosine_sim_dominant_vs_s_l": -0.33172248819957684
+  },
+  {
+    "layer": 18,
+    "cosine_sim_dominant_vs_s_l": -0.22249379451751333
+  },
+  {
+    "layer": 19,
+    "cosine_sim_dominant_vs_s_l": -0.24061714513788668
+  },
+  {
+    "layer": 20,
+    "cosine_sim_dominant_vs_s_l": -0.17195823931334397
+  },
+  {
+    "layer": 21,
+    "cosine_sim_dominant_vs_s_l": -0.1720321678923774
+  },
+  {
+    "layer": 22,
+    "cosine_sim_dominant_vs_s_l": -0.138831999470782
+  },
+  {
+    "layer": 23,
+    "cosine_sim_dominant_vs_s_l": -0.1625212029611948
+  },
+  {
+    "layer": 24,
+    "cosine_sim_dominant_vs_s_l": -0.15674290784211214
+  },
+  {
+    "layer": 25,
+    "cosine_sim_dominant_vs_s_l": -0.21390523246833745
+  },
+  {
+    "layer": 26,
+    "cosine_sim_dominant_vs_s_l": -0.16898147450995335
+  },
+  {
+    "layer": 27,
+    "cosine_sim_dominant_vs_s_l": -0.19842886918005298
+  },
+  {
+    "layer": 28,
+    "cosine_sim_dominant_vs_s_l": -0.19182011971275234
+  },
+  {
+    "layer": 29,
+    "cosine_sim_dominant_vs_s_l": -0.22792867509185907
+  },
+  {
+    "layer": 30,
+    "cosine_sim_dominant_vs_s_l": -0.23369021839295417
+  },
+  {
+    "layer": 31,
+    "cosine_sim_dominant_vs_s_l": -0.27104123811892344
+  },
+  {
+    "layer": 32,
+    "cosine_sim_dominant_vs_s_l": 0.781574081278915
+  }
+]
