@@ -37,6 +37,7 @@ Usage
 """
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -54,22 +55,41 @@ from src.extraction import ActivationCache, save_json, save_npz
 
 # ── Safety direction ──────────────────────────────────────────────────────────
 
-def compute_safety_direction(ref_base):
+def _load_ref_npz(ref_dir: Path):
+    """Load activation NPZ and infer the role-prefix from metadata.json."""
+    meta_path = ref_dir / "metadata.json"
+    if not meta_path.exists():
+        raise FileNotFoundError(
+            f"metadata.json not found in {ref_dir}. "
+            "Re-run extract_ref_activations.py to regenerate."
+        )
+    role = json.loads(meta_path.read_text())["role"]   # "safe" or "unsafe"
+    npz  = np.load(ref_dir / "activation_matrices.npz")
+    return npz, role
+
+
+def compute_safety_direction(ref_base, safe_ref="llava-instruct", unsafe_ref="mm-safetybench"):
     """
     PCA-based steering vector extraction (Section 3.3):
       1. Mean-center H+ and H- using joint mean μ = (mean(H+) + mean(H-))/2
       2. Concatenate [H+_centered; H-_centered]
       3. vector_l = first principal component (first right singular vector of SVD)
       4. Flip sign so vector points from unsafe → safe (aligns with mean difference)
+
+    Role labels (safe/unsafe) are read from each dataset's metadata.json so
+    the key lookup is robust even if --safe_ref / --unsafe_ref are swapped.
     """
-    safe_npz   = np.load(ref_base / "llava-instruct" / "activation_matrices.npz")
-    unsafe_npz = np.load(ref_base / "mm-safetybench" / "activation_matrices.npz")
-    layers = sorted(int(k.replace("safe_layer_", "")) for k in safe_npz.files)
+    pos_npz, pos_role = _load_ref_npz(ref_base / safe_ref)
+    neg_npz, neg_role = _load_ref_npz(ref_base / unsafe_ref)
+    print(f"  safe_ref='{safe_ref}' (role={pos_role}), "
+          f"unsafe_ref='{unsafe_ref}' (role={neg_role})")
+    layers = sorted(int(k.replace(f"{pos_role}_layer_", ""))
+                    for k in pos_npz.files if k.startswith(f"{pos_role}_layer_"))
     print(f"  Running PCA over {len(layers)} layers ...")
     safety_dir = {}
     for l in layers:
-        H_pos = safe_npz[f"safe_layer_{l}"].astype(np.float64)    # (N+, d)
-        H_neg = unsafe_npz[f"unsafe_layer_{l}"].astype(np.float64) # (N-, d)
+        H_pos = pos_npz[f"{pos_role}_layer_{l}"].astype(np.float64)    # (N+, d)
+        H_neg = neg_npz[f"{neg_role}_layer_{l}"].astype(np.float64)    # (N-, d)
 
         # Joint mean-centering
         mu = (H_pos.mean(axis=0) + H_neg.mean(axis=0)) / 2
@@ -175,6 +195,10 @@ def parse_args():
     p.add_argument("--limit", type=int, default=None)
     p.add_argument("--skip_safety_dir", action="store_true",
                    help="Skip recomputing s^l if safety_direction_vectors.npz already exists")
+    p.add_argument("--safe_ref",   default="llava-instruct",
+                   help="Subdirectory name under reference/ for safe activations")
+    p.add_argument("--unsafe_ref", default="mm-safetybench",
+                   help="Subdirectory name under reference/ for unsafe activations")
     return p.parse_args()
 
 
@@ -193,7 +217,8 @@ def main():
         layers = sorted(int(k.replace("layer_", "")) for k in safety_dir)
     else:
         print("Computing safety direction vectors ...")
-        safety_dir, layers = compute_safety_direction(out_base / "reference")
+        safety_dir, layers = compute_safety_direction(
+            out_base / "reference", args.safe_ref, args.unsafe_ref)
         save_npz(safety_dir, str(sd_path))
         print(f"  → {len(layers)} layers saved to {sd_path}")
 

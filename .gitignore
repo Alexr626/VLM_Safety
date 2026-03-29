@@ -1,7 +1,6 @@
-# ── Large data files (do not track) ──────────────────
+# ── Large binary outputs (not tracked) ───────────────
 outputs/*/activations/
 outputs/*/reference/
-outputs/*/captions/
 
 # ── Python cache ──────────────────────────────────────
 __pycache__/
@@ -10,6 +9,7 @@ __pycache__/
 
 # ── Raw data directory ────────────────────────────────
 data/
+outputs_old/
 
 # ── Editor ────────────────────────────────────────────
 .vscode/

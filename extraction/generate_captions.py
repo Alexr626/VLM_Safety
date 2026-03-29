@@ -36,7 +36,7 @@ sys.path.insert(0, str(_PROJECT_ROOT))
 
 from src.dataset import (
     load_holisafe, filter_subsets, load_image_for_sample,
-    load_mmsafetybench_reference, load_llava_instruct_reference,
+    REFERENCE_REGISTRY,
 )
 from src.model import VLMWrapper
 from src.extraction import cleanup_gpu
@@ -47,12 +47,15 @@ def load_samples(dataset, cache_dir, limit, ref_samples, ref_seed):
         entries, images_base = load_holisafe(cache_dir=cache_dir)
         sss, ssu = filter_subsets(entries, images_base)
         samples = sss + ssu
-    elif dataset == "mm-safetybench":
-        samples = load_mmsafetybench_reference(n_samples=ref_samples, seed=ref_seed)
-    elif dataset == "llava-instruct":
-        samples = load_llava_instruct_reference(n_samples=ref_samples, seed=ref_seed)
+    elif dataset in REFERENCE_REGISTRY:
+        loader = REFERENCE_REGISTRY[dataset]["loader"]
+        samples = loader(n_samples=ref_samples, seed=ref_seed)
     else:
-        raise ValueError(f"Unknown dataset: {dataset}")
+        raise ValueError(
+            f"Unknown dataset: '{dataset}'. "
+            f"Available reference datasets: {list(REFERENCE_REGISTRY)}. "
+            f"To add a new dataset, register a loader in REFERENCE_REGISTRY (src/dataset.py)."
+        )
     return samples[:limit] if limit else samples
 
 
@@ -60,7 +63,7 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--model", default="llava-hf/llava-1.5-7b-hf")
     p.add_argument("--dataset", default="holisafe",
-                   choices=["holisafe", "mm-safetybench", "llava-instruct"])
+                   help="Dataset to caption. 'holisafe' or any key in REFERENCE_REGISTRY.")
     p.add_argument("--output_dir", default=str(_PROJECT_ROOT / "outputs"))
     p.add_argument("--cache_dir", default=None)
     p.add_argument("--limit", type=int, default=None)

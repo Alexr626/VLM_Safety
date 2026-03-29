@@ -637,5 +637,31 @@ def load_llava_instruct_reference(
     return samples
 
 
+# ── Reference dataset registry ────────────────────────────────────────────────
+#
+# Maps dataset name → {role, loader}.
+# To add a new reference dataset:
+#   1. Write a loader function that returns List[dict] with keys:
+#      id, text, image_pil, image_path, source
+#   2. Add an entry here with role "safe" or "unsafe".
+#
+REFERENCE_REGISTRY: Dict[str, dict] = {
+    "mm-safetybench": {
+        "role":      "unsafe",
+        "loader":    load_mmsafetybench_reference,
+        "text_only": False,   # has images → captions required
+    },
+    "llava-instruct": {
+        "role":      "safe",
+        "loader":    load_llava_instruct_reference,
+        "text_only": False,   # has images → captions required
+    },
+    # To add a text-only dataset (e.g. prompt/response pairs with no images):
+    #   1. Write a loader function returning List[dict] with keys: id, text, image_pil=None, image_path=None
+    #   2. Add an entry here with text_only=True
+    #   3. No need to run generate_captions.py for it
+}
+
+
 if __name__ == "__main__":
     load_holisafe()

@@ -45,7 +45,7 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 _PROJECT_ROOT = _SCRIPT_DIR.parent
 sys.path.insert(0, str(_PROJECT_ROOT))
 
-from src.dataset import load_mmsafetybench_reference, load_llava_instruct_reference
+from src.dataset import REFERENCE_REGISTRY
 from src.model import VLMWrapper
 from src.extraction import get_last_token_activations, cleanup_gpu, save_json, save_npz
 
@@ -88,6 +88,10 @@ def parse_args():
     p.add_argument("--ref_samples", type=int, default=160)
     p.add_argument("--ref_seed", type=int, default=42)
     p.add_argument("--skip_if_exists", action="store_true")
+    p.add_argument("--safe_ref",   default="llava-instruct",
+                   help="Name of the safe reference dataset (must be in REFERENCE_REGISTRY)")
+    p.add_argument("--unsafe_ref", default="mm-safetybench",
+                   help="Name of the unsafe reference dataset (must be in REFERENCE_REGISTRY)")
     return p.parse_args()
 
 
@@ -98,16 +102,21 @@ def main():
     ref_base = out_base / "reference"
     captions_dir = out_base / "captions"
 
-    ref_configs = [
-        ("mm-safetybench", "unsafe",
-         load_mmsafetybench_reference(n_samples=args.ref_samples, seed=args.ref_seed)),
-        ("llava-instruct", "safe",
-         load_llava_instruct_reference(n_samples=args.ref_samples, seed=args.ref_seed)),
-    ]
+    ref_configs = []
+    for name in (args.unsafe_ref, args.safe_ref):
+        if name not in REFERENCE_REGISTRY:
+            raise ValueError(
+                f"Unknown reference dataset '{name}'. "
+                f"Available: {list(REFERENCE_REGISTRY)}. "
+                f"Add new datasets to REFERENCE_REGISTRY in src/dataset.py."
+            )
+        entry = REFERENCE_REGISTRY[name]
+        samples = entry["loader"](n_samples=args.ref_samples, seed=args.ref_seed)
+        ref_configs.append((name, entry["role"], entry.get("text_only", False), samples))
 
     wrapper = VLMWrapper(args.model).load()
 
-    for name, role, samples in ref_configs:
+    for name, role, text_only, samples in ref_configs:
         ref_dir = ref_base / name
         out_npz = ref_dir / "activation_matrices.npz"
 
@@ -115,7 +124,7 @@ def main():
             print(f"Skipping '{name}' — already exists.")
             continue
 
-        captions = load_captions(captions_dir / f"{name}.json", name)
+        captions = {} if text_only else load_captions(captions_dir / f"{name}.json", name)
         per_layer = extract_per_layer(samples, captions, wrapper, desc=name)
 
         matrices = {f"{role}_layer_{l}": np.stack(vecs)
