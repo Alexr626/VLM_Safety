@@ -1,15 +1,17 @@
-# ── Large binary outputs (not tracked) ───────────────
-outputs/*/activations/
-outputs/*/reference/
-
 # ── Python cache ──────────────────────────────────────
 __pycache__/
 *.pyc
 *.pyo
 
-# ── Raw data directory ────────────────────────────────
+# ── Data directory ────────────────────────────────
 data/
-outputs_old/
 
 # ── Editor ────────────────────────────────────────────
 .vscode/
+
+# ── Agentic planning scripts ────────────────────────────────────────────
+plans_and_project_descriptions
+
+# ── Misc. ──────────────────────────────────────
+.env
+nohup.out

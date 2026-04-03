@@ -23,7 +23,7 @@ from pathlib import Path
 from huggingface_hub import hf_hub_download
 from tqdm import tqdm
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 HOLISAFE_DIR = PROJECT_ROOT / "data" / "holisafe-bench"
 REPO_ID      = "etri-vilab/holisafe-bench"
 MAX_RETRIES  = 3

@@ -13,7 +13,7 @@ import json
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR     = PROJECT_ROOT / "data"
 HOLISAFE_DIR = DATA_DIR / "holisafe-bench"
 MMSAFETY_DIR = DATA_DIR / "mm-safetybench-ref"
@@ -128,10 +128,10 @@ else:
 
 
 # ── 4. Activation cache ───────────────────────────────────────────────────────
-print("\n[4] Activation cache (outputs/)")
+print("\n[4] Activation cache")
 
-act_dir = (PROJECT_ROOT / "diagnostic_exploratory_tests" / "outputs"
-           / "llava-1.5-7b-hf" / "activations")
+act_dir = (PROJECT_ROOT / "data" / "holisafe-bench" / "activations"
+           / "llava-1.5-7b-hf")
 if act_dir.exists():
     vl_files = list(act_dir.glob("*_vl.npz"))
     tt_files = list(act_dir.glob("*_tt.npz"))
