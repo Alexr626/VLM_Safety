@@ -1,10 +1,22 @@
-outputs/*
-data/*
-__pycache__*
-diagnostic_methods_implementation_guide.md
-Jailbreak_Detection_RCS
-.vscode
-diagnostic_exploratory_tests/shiftdc/contrastive_safety_examples
-diagnostic_exploratory_tests/outputs/llava-1.5-7b-hf/activations/
-project_context_summary.md
-followup_experiments_implementation_guide.md
+# ── Python cache ──────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+
+# ── Data directory ────────────────────────────────
+data/
+
+# ── Editor ────────────────────────────────────────────
+.vscode/
+
+# ── Agentic planning scripts ────────────────────────────────────────────
+plans_and_project_descriptions
+
+# ── Misc. ──────────────────────────────────────
+.env
+nohup.out
+*.bak
+helper_scripts/debug_id_mismatch.py
+helper_scripts/investigate_duplicates.py
+helper_scripts/remap_behavioral_ids.py
+diagnostic_experiments/llava-1.5-7b-hf/behavioral_ground_truth/outputs/results/holisafe_responses.json.bak_pre_caption
