@@ -19,3 +19,4 @@ nohup.out
 helper_scripts/debug_id_mismatch.py
 helper_scripts/investigate_duplicates.py
 helper_scripts/remap_behavioral_ids.py
+diagnostic_experiments/llava-1.5-7b-hf/behavioral_ground_truth/outputs/results/holisafe_responses.json.bak_pre_caption
