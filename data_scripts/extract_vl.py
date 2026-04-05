@@ -29,7 +29,7 @@ _PROJECT_ROOT = _SCRIPT_DIR.parent
 sys.path.insert(0, str(_PROJECT_ROOT))
 
 from src.dataset import load_holisafe, filter_subsets, load_image_for_sample, inspect_schema
-from src.model import VLMWrapper
+from src.model import create_wrapper, _normalize_model_name
 from src.extraction import ActivationCache, get_last_token_activations, cleanup_gpu, save_json
 
 
@@ -58,7 +58,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    model_name = args.model.split("/")[-1]
+    model_name = _normalize_model_name(args.model)
     act_dir = Path(args.output_dir) if args.output_dir else (
         _PROJECT_ROOT / "data" / "holisafe-bench" / "activations" / model_name)
     act_dir.mkdir(parents=True, exist_ok=True)
@@ -75,7 +75,7 @@ def main():
     )
 
     cache = ActivationCache(str(act_dir))
-    wrapper = VLMWrapper(args.model).load()
+    wrapper = create_wrapper(args.model).load()
 
     todo = [s for s in samples if not (args.skip_extraction and cache.exists(s["id"], "vl"))]
     print(f"Extracting VL activations: {len(todo)}/{len(samples)} samples")

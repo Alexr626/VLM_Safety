@@ -43,7 +43,7 @@ _PROJECT_ROOT = _SCRIPT_DIR.parent
 sys.path.insert(0, str(_PROJECT_ROOT))
 
 from src.dataset import REFERENCE_REGISTRY
-from src.model import VLMWrapper
+from src.model import create_wrapper, _normalize_model_name
 from src.extraction import get_last_token_activations, cleanup_gpu, save_json, save_npz
 
 
@@ -96,7 +96,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    model_name = args.model.split("/")[-1]
+    model_name = _normalize_model_name(args.model)
     ref_base = Path(args.output_dir) if args.output_dir else (
         _PROJECT_ROOT / "data" / "catqa-contrastive" / "activations" / model_name)
     captions_dir = Path(args.captions_dir)
@@ -113,7 +113,7 @@ def main():
         samples = entry["loader"](n_samples=args.ref_samples, seed=args.ref_seed)
         ref_configs.append((name, entry["role"], entry.get("text_only", False), samples))
 
-    wrapper = VLMWrapper(args.model).load()
+    wrapper = create_wrapper(args.model).load()
 
     for name, role, text_only, samples in ref_configs:
         ref_dir = ref_base / name

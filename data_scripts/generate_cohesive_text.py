@@ -104,9 +104,9 @@ def _make_openai_caller(model: str):
 
 def _make_local_caller():
     """Return a callable that uses the local VLMWrapper for text generation."""
-    from src.model import VLMWrapper
+    from src.model import create_wrapper
 
-    vlm = VLMWrapper().load()
+    vlm = create_wrapper().load()
     return lambda prompt: vlm.generate_text(prompt)
 
 

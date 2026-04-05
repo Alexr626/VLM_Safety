@@ -37,7 +37,7 @@ from src.dataset import (
     load_holisafe, filter_subsets, load_image_for_sample,
     REFERENCE_REGISTRY,
 )
-from src.model import VLMWrapper
+from src.model import create_wrapper
 from src.extraction import cleanup_gpu
 
 
@@ -84,7 +84,7 @@ def main():
 
     samples = load_samples(args.dataset, args.cache_dir, args.limit,
                            args.ref_samples, args.ref_seed)
-    wrapper = VLMWrapper(args.model).load()
+    wrapper = create_wrapper(args.model).load()
 
     captions = {}
     bs = args.batch_size
