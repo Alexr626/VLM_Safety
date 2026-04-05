@@ -268,8 +268,11 @@ def _build_sample(
                 category = str(entry[k])
                 break
 
+    # Prefer the dataset's own id field over the enumeration index
+    sample_id = entry.get("id", idx)
+
     return {
-        "id": idx,
+        "id": sample_id,
         "image_path": image_path,
         "image_pil": image_pil,   # pre-loaded PIL if available
         "text": text,
@@ -758,6 +761,97 @@ REFERENCE_REGISTRY: Dict[str, dict] = {
         "text_only": True,    # text-only → no captions needed
     },
 }
+
+
+def split_holisafe_train_eval(
+    sss_samples: List[dict],
+    ssu_samples: List[dict],
+    n_train: int = 175,
+    seed: int = 42,
+    save_dir: Optional[str] = None,
+) -> Tuple[List[dict], List[dict], List[dict], List[dict]]:
+    """
+    Partition SSS and SSU samples into train/eval sets, stratified by harm category.
+
+    On subsequent calls with matching seed and n_train, loads the saved split
+    rather than recomputing.
+
+    Args:
+        sss_samples: list of SSS sample dicts
+        ssu_samples: list of SSU sample dicts
+        n_train: number of training samples per group (SSS and SSU each)
+        seed: random seed for reproducibility
+        save_dir: directory to save/load the split JSON.
+                  Defaults to <repo_root>/data/holisafe-bench/
+
+    Returns:
+        (sss_train, sss_eval, ssu_train, ssu_eval)
+    """
+    import random
+
+    repo_root = Path(__file__).resolve().parent.parent
+    if save_dir is None:
+        save_dir = str(repo_root / "data" / "holisafe-bench")
+    split_path = Path(save_dir) / "train_eval_split.json"
+
+    # Build lookup by id for both groups
+    sss_by_id = {s["id"]: s for s in sss_samples}
+    ssu_by_id = {s["id"]: s for s in ssu_samples}
+
+    # Try loading existing split
+    if split_path.exists():
+        with open(split_path) as f:
+            saved = json.load(f)
+        if saved.get("seed") == seed and saved.get("n_train") == n_train:
+            print(f"  Loading saved train/eval split from {split_path}")
+            sss_train = [sss_by_id[i] for i in saved["sss_train_ids"] if i in sss_by_id]
+            sss_eval = [sss_by_id[i] for i in saved["sss_eval_ids"] if i in sss_by_id]
+            ssu_train = [ssu_by_id[i] for i in saved["ssu_train_ids"] if i in ssu_by_id]
+            ssu_eval = [ssu_by_id[i] for i in saved["ssu_eval_ids"] if i in ssu_by_id]
+            print(f"  SSS: {len(sss_train)} train, {len(sss_eval)} eval")
+            print(f"  SSU: {len(ssu_train)} train, {len(ssu_eval)} eval")
+            return sss_train, sss_eval, ssu_train, ssu_eval
+
+    def _stratified_split(samples, n_train_group, rng):
+        """Split samples stratified by category, allocating n_train_group to train."""
+        by_cat = {}
+        for s in samples:
+            by_cat.setdefault(s["category"], []).append(s)
+
+        total = len(samples)
+        train_ids, eval_ids = [], []
+
+        for cat, cat_samples in sorted(by_cat.items()):
+            rng.shuffle(cat_samples)
+            # Proportional allocation
+            n_cat_train = max(1, round(len(cat_samples) * n_train_group / total))
+            n_cat_train = min(n_cat_train, len(cat_samples) - 1)  # keep at least 1 for eval
+            train_ids.extend(cat_samples[:n_cat_train])
+            eval_ids.extend(cat_samples[n_cat_train:])
+
+        return train_ids, eval_ids
+
+    rng = random.Random(seed)
+    sss_train, sss_eval = _stratified_split(sss_samples, n_train, rng)
+    ssu_train, ssu_eval = _stratified_split(ssu_samples, n_train, rng)
+
+    # Persist
+    split_data = {
+        "seed": seed,
+        "n_train": n_train,
+        "sss_train_ids": [s["id"] for s in sss_train],
+        "sss_eval_ids": [s["id"] for s in sss_eval],
+        "ssu_train_ids": [s["id"] for s in ssu_train],
+        "ssu_eval_ids": [s["id"] for s in ssu_eval],
+    }
+    Path(save_dir).mkdir(parents=True, exist_ok=True)
+    with open(split_path, "w") as f:
+        json.dump(split_data, f, indent=2)
+    print(f"  Saved train/eval split → {split_path}")
+    print(f"  SSS: {len(sss_train)} train, {len(sss_eval)} eval")
+    print(f"  SSU: {len(ssu_train)} train, {len(ssu_eval)} eval")
+
+    return sss_train, sss_eval, ssu_train, ssu_eval
 
 
 if __name__ == "__main__":

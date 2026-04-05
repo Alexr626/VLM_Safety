@@ -345,6 +345,66 @@ class VLMWrapper:
             for gen in generated
         ]
 
+    # ── Text generation (arbitrary prompts) ─────────────────────────────────────
+
+    def generate_vl(
+        self,
+        image: Image.Image,
+        text: str,
+        max_new_tokens: int = 256,
+    ) -> str:
+        """
+        Generate a text response given image + text input.
+
+        Uses the standard multimodal prompt template and greedy decoding.
+
+        Args:
+            image: PIL image
+            text: text query
+            max_new_tokens: max tokens to generate
+        Returns:
+            Generated response string.
+        """
+        inputs = self._prepare_vl(text, image)
+        input_len = inputs["input_ids"].shape[1]
+        with torch.no_grad():
+            generated = self.model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                do_sample=False,
+                use_cache=True,
+            )
+        new_tokens = generated[0][input_len:]
+        return self.processor.decode(new_tokens, skip_special_tokens=True).strip()
+
+    def generate_text(
+        self,
+        text: str,
+        max_new_tokens: int = 256,
+    ) -> str:
+        """
+        Generate a text response given text-only input (no image).
+
+        Uses the standard text-only prompt template and greedy decoding.
+
+        Args:
+            text: text input (will be wrapped in text_only_template)
+            max_new_tokens: max tokens to generate
+        Returns:
+            Generated response string.
+        """
+        inputs = self._prepare_text(text)
+        input_len = inputs["input_ids"].shape[1]
+        with torch.no_grad():
+            generated = self.model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                do_sample=False,
+                use_cache=True,
+            )
+        new_tokens = generated[0][input_len:]
+        return self.processor.decode(new_tokens, skip_special_tokens=True).strip()
+
     # ── Memory management ─────────────────────────────────────────────────────
 
     def cleanup(self):

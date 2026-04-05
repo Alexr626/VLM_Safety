@@ -57,22 +57,40 @@ VLM_Safety/
 │   ├── extract_vl.py                       # Extract multimodal (VL) activations
 │   ├── extract_tt.py                       # Extract text-only (TT) activations using captions
 │   ├── extract_ref_activations.py          # Extract reference dataset activations (safe & unsafe)
-│   └── generate_catqa_harmless_pairs.py    # Generate contrastive QA pairs via LLM
+│   ├── generate_catqa_harmless_pairs.py    # Generate contrastive QA pairs via LLM
+│   ├── generate_cohesive_text.py           # Fuse caption + query into cohesive text (CT)
+│   └── extract_ct.py                       # Extract CT activations (cohesive text, text-only forward)
 │
 ├── diagnostic_experiments/                 # Phase 1: Diagnostic experiments
 │   └── llava-1.5-7b-hf/
-│       └── shift_dc/                       # ShiftDC modality shift analysis
-│           ├── experiment_scripts/
-│           │   ├── vl_activation_shift.py  # Compute safety direction, project shifts
-│           │   └── sanity_check_tt_baseline.py
-│           ├── plotting_scripts/
-│           │   ├── plot_vl_activation_shift_projections.py
-│           │   └── plot_tt_baseline_projections.py
-│           ├── outputs/
-│           │   ├── activations/            # Per-sample VL/TT .npz files
-│           │   ├── artifacts/              # safety_direction_vectors.npz
-│           │   └── results/                # aggregate_stats.json, plots/
-│           └── run_shiftdc.sh              # Full pipeline orchestrator
+│       ├── shift_dc/                       # ShiftDC modality shift analysis
+│       │   ├── experiment_scripts/
+│       │   │   ├── vl_activation_shift.py  # Compute safety direction, project shifts
+│       │   │   └── sanity_check_tt_baseline.py
+│       │   ├── plotting_scripts/
+│       │   │   ├── plot_vl_activation_shift_projections.py
+│       │   │   └── plot_tt_baseline_projections.py
+│       │   ├── outputs/
+│       │   │   ├── activations/            # Per-sample VL/TT .npz files
+│       │   │   ├── artifacts/              # safety_direction_vectors.npz
+│       │   │   └── results/                # aggregate_stats.json, plots/
+│       │   └── run_shiftdc.sh              # Base ShiftDC pipeline orchestrator
+│       ├── behavioral_ground_truth/        # Exp 3: Model refusal labels for VL/TT/CT
+│       │   ├── experiment_scripts/{generate_responses,classify_responses}.py
+│       │   ├── plotting_scripts/plot_behavioral_ground_truth.py
+│       │   └── outputs/results/            # holisafe_responses.json, refusal_labels.json
+│       ├── augmented_baseline/             # Exp 1: TT vs CT projection gaps
+│       │   ├── experiment_scripts/augmented_baseline_projections.py
+│       │   ├── plotting_scripts/plot_augmented_baseline.py
+│       │   └── outputs/{results,artifacts}/
+│       ├── combinatorial_safety/           # Exp 2: SSU-vs-SSS direction + probes
+│       │   ├── experiment_scripts/{combinatorial_direction,safety_probes}.py
+│       │   ├── plotting_scripts/{plot_direction_comparison,plot_probe_results}.py
+│       │   └── outputs/{results,artifacts}/
+│       ├── run_data_prep.sh                # Cohesive text + CT extraction (GPU)
+│       ├── run_behavioral_ground_truth.sh  # Responses + refusal classification (GPU)
+│       ├── run_augmented_diagnostics.sh    # Augmented analysis + plots (CPU)
+│       └── run_all_new_experiments.sh      # All three augmented experiments, in order
 │
 ├── subspace_analysis/                      # Phase 2: Subspace analysis experiments
 │   ├── llava-1.5-7b-hf/
@@ -132,6 +150,8 @@ Primary target: `llava-hf/llava-1.5-7b-hf` (LLaVA 1.5)
 - `forward_text(text)`: Text-only forward pass
 - `generate_caption(image)`: Generate image caption
 - `generate_captions_batch(images)`: Batch caption generation
+- `generate_vl(image, text, max_new_tokens=256)`: Generate response from image + text (greedy)
+- `generate_text(text, max_new_tokens=256)`: Generate response from text-only prompt (greedy)
 - `get_image_token_span(input_ids)`: Find image token positions in expanded sequence
 - `get_text_token_positions(input_ids)`: Get non-image (text) token positions
 
@@ -159,6 +179,9 @@ Primary target: `llava-hf/llava-1.5-7b-hf` (LLaVA 1.5)
 
 **Reference Datasets:**
 - `REFERENCE_REGISTRY`: Maps dataset name → `{role, loader, text_only}`
+
+**Train/Eval Split:**
+- `split_holisafe_train_eval(sss, ssu, n_train=175, seed=42)`: Stratified-by-category split into train/eval. Persists to `data/holisafe-bench/train_eval_split.json`. Reuses saved split on subsequent calls with matching seed/n_train.
 
 **Schema Detection:**
 - Auto-detects field names for type/text/image/category across different dataset formats
@@ -263,7 +286,7 @@ bash run_shiftdc.sh MODEL=other-org/model DATASET=my-dataset
 
 ## Typical Workflow
 
-### 1. Run Diagnostic Pipeline
+### 1. Run Base Diagnostic Pipeline
 ```bash
 bash diagnostic_experiments/llava-1.5-7b-hf/shift_dc/run_shiftdc.sh
 ```
@@ -273,7 +296,18 @@ bash diagnostic_experiments/llava-1.5-7b-hf/shift_dc/run_shiftdc.sh
 bash subspace_analysis/run_followup.sh
 ```
 
-### 3. Run Individual Experiments or Plots
+### 3. Run Augmented Diagnostic Experiments
+```bash
+# All three new experiments (data prep + behavioral + analysis)
+bash diagnostic_experiments/llava-1.5-7b-hf/run_all_new_experiments.sh
+
+# Phase-by-phase:
+bash diagnostic_experiments/llava-1.5-7b-hf/run_data_prep.sh                # GPU
+bash diagnostic_experiments/llava-1.5-7b-hf/run_behavioral_ground_truth.sh  # GPU
+bash diagnostic_experiments/llava-1.5-7b-hf/run_augmented_diagnostics.sh    # CPU
+```
+
+### 4. Run Individual Experiments or Plots
 ```bash
 # Single experiment
 python subspace_analysis/llava-1.5-7b-hf/effective_rank/experiment_scripts/experiment_a_effective_rank.py
@@ -281,6 +315,47 @@ python subspace_analysis/llava-1.5-7b-hf/effective_rank/experiment_scripts/exper
 # Single plot
 python subspace_analysis/llava-1.5-7b-hf/effective_rank/plotting_scripts/plot_effective_rank.py
 ```
+
+## Augmented Diagnostic Experiments
+
+### Three Representations
+For each HoliSafe sample, activations are extracted under **three** input conditions:
+- **VL** (multimodal): image + original text → `forward_vl()`
+- **TT** (text-only counterpart): `"Image description: {caption}\n\n{text}"` → `forward_text()`
+- **CT** (cohesive text): single fused natural question generated by LLM → `forward_text()`
+
+CT is generated by prompting an LLM (Anthropic/OpenAI/local VLM) with the caption and query
+and asking it to produce a single naturalistic question that preserves all information.
+
+### Experiment 1 — Augmented Baseline (`augmented_baseline/`)
+Projects TT and CT activations onto the safety direction `s^l` and computes SSS-vs-SSU gaps
+per layer. Answers: *does CT reveal a safety gap that TT misses?* If behavioral labels exist,
+also splits SSU samples by refused/complied and compares projections within SSU.
+
+### Experiment 2 — Combinatorial Safety (`combinatorial_safety/`)
+- **`combinatorial_direction.py`**: Applies the same CAST-style PCA procedure used in
+  `vl_activation_shift.py` to SSU_train vs SSS_train TT activations → combinatorial
+  direction `c^l`. Compares to CatQA-derived `s^l` via cosine similarity, subspace overlap
+  (top-5 PCs), and effective rank.
+- **`safety_probes.py`**: Trains two logistic-regression probes per layer:
+  - Probe A: CatQA safe vs unsafe (content safety)
+  - Probe B: SSS_train vs SSU_train (combinatorial safety)
+  Cross-evaluates on four test sets: HoliSafe eval (TT, VL), CatQA full, and SSU behavioral
+  (predicting refusal vs compliance on held-out SSU).
+
+### Experiment 3 — Behavioral Ground Truth (`behavioral_ground_truth/`)
+- **`generate_responses.py`**: Generates model outputs under all three conditions (VL/TT/CT)
+  using greedy decoding (`max_new_tokens=256`). Checkpoint-based resume.
+- **`classify_responses.py`**: Labels each response as refusal or compliance. Two methods:
+  - `keyword` (default): matches refusal phrases ("I cannot", "I'm sorry", etc.)
+  - `llm`: calls Anthropic/OpenAI API to classify ambiguous cases
+
+### Key Artifacts
+- `data/captions/holisafe_cohesive.json` — CT text per sample
+- `data/holisafe-bench/activations/{model}/sample_{id}_ct.npz` — CT activations
+- `data/holisafe-bench/train_eval_split.json` — stratified 175/group train/eval split
+- `experiment_artifacts/{model}/combinatorial_safety/combinatorial_direction_vectors.npz`
+- `behavioral_ground_truth/outputs/results/holisafe_refusal_labels.json` — refusal ground truth
 
 ## Adding a New Reference Dataset
 

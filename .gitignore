@@ -15,3 +15,7 @@ plans_and_project_descriptions
 # ── Misc. ──────────────────────────────────────
 .env
 nohup.out
+*.bak
+helper_scripts/debug_id_mismatch.py
+helper_scripts/investigate_duplicates.py
+helper_scripts/remap_behavioral_ids.py

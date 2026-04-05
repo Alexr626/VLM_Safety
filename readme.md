@@ -43,14 +43,23 @@ VLM_Safety/
 │   ├── generate_captions.py                # Step 1: Generate image captions
 │   ├── extract_vl.py                       # Step 2: Extract multimodal activations
 │   ├── extract_tt.py                       # Step 3: Extract text-only activations
-│   └── extract_ref_activations.py          # Step 4: Extract reference activations
+│   ├── extract_ref_activations.py          # Step 4: Extract reference activations
+│   ├── generate_cohesive_text.py           # Fuse caption + text into single query (CT)
+│   └── extract_ct.py                       # Extract CT (cohesive text) activations
 │
 ├── diagnostic_experiments/                 # Phase 1: Diagnostic experiments
-│   └── llava-1.5-7b-hf/shift_dc/
-│       ├── experiment_scripts/             # vl_activation_shift.py, sanity_check_tt_baseline.py
-│       ├── plotting_scripts/               # Visualization scripts
-│       ├── outputs/{activations,results,artifacts}/
-│       └── run_shiftdc.sh                  # Full pipeline orchestrator
+│   └── llava-1.5-7b-hf/
+│       ├── shift_dc/                       # Base ShiftDC diagnostic
+│       │   ├── experiment_scripts/
+│       │   ├── plotting_scripts/
+│       │   └── run_shiftdc.sh              # Full pipeline orchestrator
+│       ├── behavioral_ground_truth/        # Exp 3: Model response refusal labels
+│       ├── augmented_baseline/             # Exp 1: TT vs CT projection gaps
+│       ├── combinatorial_safety/           # Exp 2: SSU-vs-SSS direction + probes
+│       ├── run_data_prep.sh                # Cohesive text + CT extraction (GPU)
+│       ├── run_behavioral_ground_truth.sh  # Response gen + refusal classification (GPU)
+│       ├── run_augmented_diagnostics.sh    # Analysis + plots (CPU)
+│       └── run_all_new_experiments.sh      # All of the above, in order
 │
 ├── subspace_analysis/                      # Phase 2: Subspace analysis
 │   ├── llava-1.5-7b-hf/
@@ -79,11 +88,14 @@ Each experiment directory follows a consistent structure:
 ## Quick Start
 
 ```bash
-# Run the full diagnostic pipeline (skips already-completed steps)
+# 1. Run the base diagnostic pipeline (skips already-completed steps)
 bash diagnostic_experiments/llava-1.5-7b-hf/shift_dc/run_shiftdc.sh
 
-# Run subspace analysis experiments (after diagnostic pipeline completes)
+# 2. Run subspace analysis experiments
 bash subspace_analysis/run_followup.sh
+
+# 3. Run augmented diagnostic experiments (Experiments 1-3)
+bash diagnostic_experiments/llava-1.5-7b-hf/run_all_new_experiments.sh
 
 # Override any parameter
 bash diagnostic_experiments/llava-1.5-7b-hf/shift_dc/run_shiftdc.sh \
@@ -126,6 +138,38 @@ python subspace_analysis/llava-1.5-7b-hf/safety_decomposition/experiment_scripts
 python subspace_analysis/llava-1.5-7b-hf/subspace_overlap/experiment_scripts/experiment_c_subspace_overlap.py
 python subspace_analysis/llava-1.5-7b-hf/category_analysis/experiment_scripts/experiment_d_category_analysis.py
 ```
+
+## Augmented Diagnostic Experiments
+
+Three new diagnostic experiments extend the ShiftDC analysis with a
+**cohesive text (CT)** representation (caption + query fused into one natural
+question) and behavioral ground truth.
+
+| Experiment | Directory | Key Question |
+|------------|-----------|--------------|
+| **1. Augmented Baseline** | `augmented_baseline/` | Does CT reveal a safety-direction gap that TT misses? |
+| **2. Combinatorial Safety** | `combinatorial_safety/` | Is the SSU-vs-SSS direction the same as the content-safety direction? Can linear probes separate them? |
+| **3. Behavioral Ground Truth** | `behavioral_ground_truth/` | Under which input condition (VL/TT/CT) does the model actually refuse, and how does this correspond to activation-space signals? |
+
+```bash
+# Run all three experiments in order (GPU required for phases 0 and 1)
+bash diagnostic_experiments/llava-1.5-7b-hf/run_all_new_experiments.sh
+
+# Or phase-by-phase:
+bash diagnostic_experiments/llava-1.5-7b-hf/run_data_prep.sh              # GPU: CT gen + extraction
+bash diagnostic_experiments/llava-1.5-7b-hf/run_behavioral_ground_truth.sh  # GPU: responses + refusal labels
+bash diagnostic_experiments/llava-1.5-7b-hf/run_augmented_diagnostics.sh  # CPU: analysis + plots
+```
+
+**Prerequisites:** The base ShiftDC pipeline (`run_shiftdc.sh`) must have completed.
+Cohesive text generation defaults to Anthropic API (`PROVIDER=anthropic`); set
+`PROVIDER=openai` or `PROVIDER=local` (uses the VLM) to change.
+
+### New data artifacts
+- `data/captions/holisafe_cohesive.json` — fused caption + query per sample
+- `data/holisafe-bench/activations/{model}/sample_{id}_ct.npz` — CT activations
+- `data/holisafe-bench/train_eval_split.json` — stratified train/eval split (175/group)
+- `experiment_artifacts/{model}/combinatorial_safety/combinatorial_direction_vectors.npz`
 
 ## Adding a New Reference Dataset
 

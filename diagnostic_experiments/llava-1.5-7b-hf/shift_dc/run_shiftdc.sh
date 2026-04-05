@@ -71,6 +71,23 @@ python "$PROJECT_ROOT/data_scripts/extract_tt.py" \
     --captions_dir "$CAPTIONS_DIR" \
     --skip_extraction
 
+# NOTE: CT extraction requires cohesive text to be generated first.
+# Run manually before this pipeline:
+#   python data_scripts/generate_cohesive_text.py --provider anthropic
+echo ""
+echo "=== [3b/7] Extract CT activations: $DATASET ==="
+CT_PATH="$PROJECT_ROOT/data/captions/holisafe_cohesive.json"
+if [ -f "$CT_PATH" ]; then
+    python "$PROJECT_ROOT/data_scripts/extract_ct.py" \
+        --model "$MODEL" --dataset "$DATASET" \
+        --output_dir "$HOLISAFE_ACT" \
+        --cohesive_path "$CT_PATH" \
+        --skip_if_exists
+else
+    echo "  Skipping — cohesive text not found at $CT_PATH"
+    echo "  Run: python data_scripts/generate_cohesive_text.py --provider anthropic"
+fi
+
 echo ""
 echo "=== [4/7] Generate captions: $SAFE_REF ==="
 SAFE_REF_TEXT_ONLY=$(cd "$PROJECT_ROOT" && python -c "from src.dataset import REFERENCE_REGISTRY; print(REFERENCE_REGISTRY.get('$SAFE_REF', {}).get('text_only', False))")
