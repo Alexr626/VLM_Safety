@@ -1,0 +1,27 @@
+name: vlm_safety
+channels:
+  - conda-forge
+dependencies:
+  - python=3.14
+  - pip
+  # Scientific stack (conda-forge wheels)
+  - numpy>=2.0
+  - scipy>=1.13
+  - scikit-learn>=1.5
+  - matplotlib>=3.9
+  - pillow>=10.0
+  - tqdm>=4.66
+  - pip:
+      # Deep learning (CUDA 12.8 wheels pulled automatically)
+      - torch==2.10.0
+      - torchvision==0.25.0
+      # HuggingFace stack
+      - transformers>=4.45
+      - accelerate>=1.0
+      - huggingface_hub>=0.25
+      - datasets>=3.0
+      - safetensors>=0.4
+      # LLM API clients (for cohesive-text generation + refusal classification)
+      - anthropic>=0.40
+      - openai>=1.50
+      - python-dotenv>=1.0
