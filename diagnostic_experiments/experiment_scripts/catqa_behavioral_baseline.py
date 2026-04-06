@@ -35,7 +35,8 @@ from src.extraction import cleanup_gpu
 
 # Reuse classifier helpers (classify_responses.py lives in the same dir)
 from classify_responses import (  # type: ignore
-    classify_keyword_twoaxis, classify_llm_twoaxis, make_llm_caller,
+    classify_keyword_twoaxis, classify_llm_twoaxis, classify_llm_twoaxis_batch,
+    make_llm_caller,
 )
 
 _EXPERIMENT_NAME = "behavioral_ground_truth"
@@ -52,6 +53,8 @@ def parse_args():
                    choices=["keyword", "llm_twoaxis"])
     p.add_argument("--provider", default="anthropic", choices=["anthropic", "openai"])
     p.add_argument("--classifier_model", default=None)
+    p.add_argument("--batch_size", type=int, default=10,
+                   help="Number of responses to classify per API call (default: 10)")
     p.add_argument("--skip_if_exists", action="store_true")
     return p.parse_args()
 
@@ -77,21 +80,17 @@ def main():
         pairs = pairs[:args.limit]
     print(f"Loaded {len(pairs)} CatQA contrastive pairs.")
 
-    # Classifier
+    # Classifier setup
+    use_batch = args.method == "llm_twoaxis" and args.batch_size > 1
     if args.method == "llm_twoaxis":
         call_fn = make_llm_caller(args.provider, args.classifier_model)
 
-        def classify(q, r):
-            return classify_llm_twoaxis(q, r, call_fn, max_retries=2, delay=0.0)
-    else:
-        def classify(q, r):
-            return classify_keyword_twoaxis(r)
-
-    # Generate responses + classify
+    # Generate all responses first, then classify in batches
     wrapper = create_wrapper(args.model).load()
     harmful_records = []
     harmless_records = []
 
+    print("Generating responses...")
     for i, pair in enumerate(tqdm(pairs, desc="CatQA responses")):
         cat = pair.get("category", "unknown")
 
@@ -102,10 +101,8 @@ def main():
             print(f"  Warning harmful {i}: {e}")
             resp_h = ""
         cleanup_gpu()
-        label_h = classify(q_h, resp_h)
         harmful_records.append({
-            "idx": i, "category": cat, "question": q_h,
-            "response": resp_h, **label_h,
+            "idx": i, "category": cat, "question": q_h, "response": resp_h,
         })
 
         if args.include_harmless:
@@ -116,11 +113,39 @@ def main():
                 print(f"  Warning harmless {i}: {e}")
                 resp_hl = ""
             cleanup_gpu()
-            label_hl = classify(q_hl, resp_hl)
             harmless_records.append({
-                "idx": i, "category": cat, "question": q_hl,
-                "response": resp_hl, **label_hl,
+                "idx": i, "category": cat, "question": q_hl, "response": resp_hl,
             })
+
+    # Classify responses
+    def _classify_records(records):
+        if not records:
+            return
+        if use_batch:
+            print(f"  Classifying {len(records)} responses in batches of {args.batch_size}...")
+            for batch_start in range(0, len(records), args.batch_size):
+                batch = records[batch_start:batch_start + args.batch_size]
+                items = [(rec["idx"], rec["question"], rec["response"])
+                         for rec in batch]
+                batch_results = classify_llm_twoaxis_batch(
+                    items, call_fn, max_retries=2, delay=0.0)
+                for rec in batch:
+                    rec.update(batch_results[rec["idx"]])
+        elif args.method == "llm_twoaxis":
+            for rec in tqdm(records, desc="  Classifying"):
+                label = classify_llm_twoaxis(
+                    rec["question"], rec["response"], call_fn,
+                    max_retries=2, delay=0.0)
+                rec.update(label)
+        else:
+            for rec in records:
+                rec.update(classify_keyword_twoaxis(rec["response"]))
+
+    print("Classifying harmful responses...")
+    _classify_records(harmful_records)
+    if args.include_harmless:
+        print("Classifying harmless responses...")
+        _classify_records(harmless_records)
 
     # Aggregate
     def _agg(records):
