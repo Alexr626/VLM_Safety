@@ -6,7 +6,8 @@ __pycache__/
 # ── Data directory ────────────────────────────────
 data/catqa-contrastive/activations/
 data/holisafe-bench/
-
+data/llava-instruct-ref
+data/mm-safetybench-ref
 
 # ── Editor ────────────────────────────────────────────
 .vscode/
@@ -22,3 +23,4 @@ helper_scripts/debug_id_mismatch.py
 helper_scripts/investigate_duplicates.py
 helper_scripts/remap_behavioral_ids.py
 diagnostic_experiments/llava-1.5-7b-hf/behavioral_ground_truth/outputs/results/holisafe_responses.json.bak_pre_caption
+diagnostic_experiments/internvl2-8b/behavioral_ground_truth/outputs/results/holisafe_responses.checkpoint.json

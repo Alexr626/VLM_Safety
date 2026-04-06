@@ -41,7 +41,7 @@ def get_last_token_activations(hidden_states) -> Dict[int, np.ndarray]:
         dict mapping layer_idx -> np.ndarray of shape (hidden_dim,), float32
     """
     return {
-        l: hidden_states[l][0, -1, :].cpu().float().numpy()
+        l: hidden_states[l][0, -1, :].detach().cpu().float().numpy()
         for l in range(len(hidden_states))
     }
 
@@ -119,7 +119,7 @@ def extract_cross_modal_attention(
 
     for l, attn_l in enumerate(attentions):
         # attn_l: (1, num_heads, seq_len, seq_len) — causal attention
-        attn_np = attn_l[0].cpu().float().numpy()  # (num_heads, seq_len, seq_len)
+        attn_np = attn_l[0].detach().cpu().float().numpy()  # (num_heads, seq_len, seq_len)
         num_heads, seq_len, _ = attn_np.shape
 
         # Clamp indices to valid range
