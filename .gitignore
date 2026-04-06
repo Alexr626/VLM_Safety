@@ -4,7 +4,9 @@ __pycache__/
 *.pyo
 
 # ── Data directory ────────────────────────────────
-data/
+data/catqa-contrastive/activations/
+data/holisafe-bench/
+
 
 # ── Editor ────────────────────────────────────────────
 .vscode/
