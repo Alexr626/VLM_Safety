@@ -85,6 +85,37 @@ Each experiment directory follows a consistent structure:
 └── run_<group>.sh
 ```
 
+## Setup
+
+### Environment Installation
+
+```bash
+# Create conda environment from environment.yml
+conda env create -f environment.yml
+
+# Activate the environment
+conda activate vlm_safety
+```
+
+The environment includes `libstdcxx-ng` from conda-forge to ensure C++ ABI compatibility with scipy and other compiled dependencies. An activation script automatically sets `LD_LIBRARY_PATH` to prioritize conda's libstdc++ over the system version.
+
+**Troubleshooting:** If you encounter `CXXABI_1.3.15 not found` errors:
+```bash
+# Ensure libstdcxx-ng is installed
+conda install -n vlm_safety -c conda-forge libstdcxx-ng
+
+# The activation script should be auto-created, but if needed:
+mkdir -p $CONDA_PREFIX/etc/conda/activate.d
+cat > $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh << 'EOF'
+#!/bin/sh
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
+EOF
+chmod +x $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh
+
+# Deactivate and reactivate the environment
+conda deactivate && conda activate vlm_safety
+```
+
 ## Quick Start
 
 ```bash

@@ -4,6 +4,8 @@ channels:
 dependencies:
   - python=3.14
   - pip
+  # C++ runtime (ensures ABI compatibility)
+  - libstdcxx-ng
   # Scientific stack (conda-forge wheels)
   - numpy>=2.0
   - scipy>=1.13
