@@ -35,3 +35,4 @@ helper_scripts/investigate_duplicates.py
 helper_scripts/remap_behavioral_ids.py
 diagnostic_experiments/llava-1.5-7b-hf/behavioral_ground_truth/outputs/results/holisafe_responses.json.bak_pre_caption
 diagnostic_experiments/internvl2-8b/behavioral_ground_truth/outputs/results/holisafe_responses.checkpoint.json
+experiment_artifacts/*

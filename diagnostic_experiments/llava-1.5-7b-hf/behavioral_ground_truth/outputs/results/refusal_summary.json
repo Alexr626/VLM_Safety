@@ -1,66 +1,165 @@
 {
   "method": "keyword",
-  "total": 1415,
+  "total": 1398,
+  "conditions": [
+    "vl",
+    "tt"
+  ],
   "SSS": {
-    "n": 699,
-    "refusal_rate_vl": 0.0,
-    "n_refused_vl": 0,
-    "refusal_rate_tt": 0.01430615164520744,
-    "n_refused_tt": 10,
-    "refusal_rate_ct": 0.012875536480686695,
-    "n_refused_ct": 9
+    "n": 682,
+    "vl": {
+      "asr_harmful_content": 0.998533724340176,
+      "n_harmful": 681,
+      "awareness_distribution": {
+        "NONE": 681,
+        "STRONG": 1
+      }
+    },
+    "tt": {
+      "asr_harmful_content": 0.9838709677419355,
+      "n_harmful": 671,
+      "awareness_distribution": {
+        "NONE": 671,
+        "STRONG": 11
+      }
+    }
   },
   "SSU": {
     "n": 716,
-    "refusal_rate_vl": 0.01675977653631285,
-    "n_refused_vl": 12,
-    "refusal_rate_tt": 0.0446927374301676,
-    "n_refused_tt": 32,
-    "refusal_rate_ct": 0.046089385474860335,
-    "n_refused_ct": 33
+    "vl": {
+      "asr_harmful_content": 0.973463687150838,
+      "n_harmful": 697,
+      "awareness_distribution": {
+        "NONE": 697,
+        "STRONG": 19
+      }
+    },
+    "tt": {
+      "asr_harmful_content": 0.9427374301675978,
+      "n_harmful": 675,
+      "awareness_distribution": {
+        "NONE": 675,
+        "STRONG": 41
+      }
+    }
   },
   "ssu_per_category": {
     "hate": {
       "n": 339,
-      "refusal_rate_vl": 0.0029498525073746312,
-      "refusal_rate_tt": 0.04424778761061947,
-      "refusal_rate_ct": 0.06784660766961652
+      "vl": {
+        "asr_harmful_content": 0.9911504424778761,
+        "awareness_distribution": {
+          "NONE": 336,
+          "STRONG": 3
+        }
+      },
+      "tt": {
+        "asr_harmful_content": 0.9351032448377581,
+        "awareness_distribution": {
+          "NONE": 317,
+          "STRONG": 22
+        }
+      }
     },
     "illegal_activity": {
       "n": 86,
-      "refusal_rate_vl": 0.0,
-      "refusal_rate_tt": 0.023255813953488372,
-      "refusal_rate_ct": 0.046511627906976744
+      "vl": {
+        "asr_harmful_content": 0.9534883720930233,
+        "awareness_distribution": {
+          "NONE": 82,
+          "STRONG": 4
+        }
+      },
+      "tt": {
+        "asr_harmful_content": 0.9767441860465116,
+        "awareness_distribution": {
+          "NONE": 84,
+          "STRONG": 2
+        }
+      }
     },
     "privacy": {
       "n": 12,
-      "refusal_rate_vl": 0.0,
-      "refusal_rate_tt": 0.08333333333333333,
-      "refusal_rate_ct": 0.0
+      "vl": {
+        "asr_harmful_content": 0.9166666666666666,
+        "awareness_distribution": {
+          "NONE": 11,
+          "STRONG": 1
+        }
+      },
+      "tt": {
+        "asr_harmful_content": 0.8333333333333334,
+        "awareness_distribution": {
+          "STRONG": 2,
+          "NONE": 10
+        }
+      }
     },
     "self_harm": {
       "n": 144,
-      "refusal_rate_vl": 0.013888888888888888,
-      "refusal_rate_tt": 0.013888888888888888,
-      "refusal_rate_ct": 0.006944444444444444
+      "vl": {
+        "asr_harmful_content": 0.9861111111111112,
+        "awareness_distribution": {
+          "NONE": 142,
+          "STRONG": 2
+        }
+      },
+      "tt": {
+        "asr_harmful_content": 0.9791666666666666,
+        "awareness_distribution": {
+          "NONE": 141,
+          "STRONG": 3
+        }
+      }
     },
     "sexual_content": {
       "n": 3,
-      "refusal_rate_vl": 0.0,
-      "refusal_rate_tt": 0.0,
-      "refusal_rate_ct": 0.0
+      "vl": {
+        "asr_harmful_content": 1.0,
+        "awareness_distribution": {
+          "NONE": 3
+        }
+      },
+      "tt": {
+        "asr_harmful_content": 1.0,
+        "awareness_distribution": {
+          "NONE": 3
+        }
+      }
     },
     "specialized_advice": {
       "n": 35,
-      "refusal_rate_vl": 0.2,
-      "refusal_rate_tt": 0.2,
-      "refusal_rate_ct": 0.05714285714285714
+      "vl": {
+        "asr_harmful_content": 0.8,
+        "awareness_distribution": {
+          "STRONG": 7,
+          "NONE": 28
+        }
+      },
+      "tt": {
+        "asr_harmful_content": 0.8,
+        "awareness_distribution": {
+          "STRONG": 7,
+          "NONE": 28
+        }
+      }
     },
     "violence": {
       "n": 97,
-      "refusal_rate_vl": 0.020618556701030927,
-      "refusal_rate_tt": 0.05154639175257732,
-      "refusal_rate_ct": 0.030927835051546393
+      "vl": {
+        "asr_harmful_content": 0.979381443298969,
+        "awareness_distribution": {
+          "NONE": 95,
+          "STRONG": 2
+        }
+      },
+      "tt": {
+        "asr_harmful_content": 0.9484536082474226,
+        "awareness_distribution": {
+          "NONE": 92,
+          "STRONG": 5
+        }
+      }
     }
   }
 }
