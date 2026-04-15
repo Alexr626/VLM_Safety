@@ -1,0 +1,227 @@
+\documentclass{article}
+
+% NeurIPS 2024 style (optional per professor)
+\usepackage[preprint]{neurips_2024}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{enumitem}
+
+% -----------------------------------------------------------------------
+\title{Modality-Conditioned Safety Representations\\
+       for Vision-Language Models\\[4pt]
+       \large Mid-Project Report --- CSCI 699}
+
+\author{%
+  
+}
+
+\begin{document}
+\maketitle
+
+% -----------------------------------------------------------------------
+100\% AI Generated - I haven’t looked through it at all
+
+\section{Introduction}
+
+Vision-Language Models (VLMs) exhibit safety vulnerabilities that are qualitatively distinct from
+those of their text-only counterparts. Prior work has established that safety-relevant concepts in
+large language models are encoded as linear directions in activation space~\cite{nanda2023emergent,
+arditi2024refusal}, enabling effective safety classification through geometric methods. However,
+VLMs introduce a more complex challenge: the addition of visual inputs induces systematic shifts in
+these safety representations, causing models to perceive multimodal inputs as \emph{safer} than
+equivalent text-only queries~\cite{zou2025shiftdc}. This modality-induced safety distortion
+underlies the effectiveness of image-based jailbreak attacks, where pairing harmful text with
+visually relevant images dramatically increases attack success rates~\cite{liu2024mmsafetybench,
+luo2024jailbreakv}.
+
+Current detection methods treat safety as a single global concept, applying uniform classification
+boundaries regardless of whether the threat originates from text, images, or their interaction. We
+argue that effective VLM safety detection requires \textbf{modality-conditioned safety
+representations}---boundaries that adapt based on the dominant modality contributing to a given
+input. This approach aims to improve both sensitivity (catching image-based jailbreaks that global
+methods miss) and specificity (reducing over-refusal of visually alarming but contextually
+legitimate queries).
+
+% -----------------------------------------------------------------------
+\section{Related Work}
+
+\paragraph{Linear Representation Hypothesis.}
+Nanda et al.~\cite{nanda2023emergent} and Arditi et al.~\cite{arditi2024refusal} demonstrated that
+high-level semantic concepts---including safety features---are encoded as linear directions in
+transformer activation spaces. Crucially, Arditi et al.\ showed that refusal behavior in LLMs is
+mediated by a \emph{single} linear direction, and that ablating this direction reliably suppresses
+refusal across diverse harmful inputs. This geometric structure underpins our representation-based
+approach.
+
+\paragraph{Modality-Induced Safety Distortion.}
+ShiftDC~\cite{zou2025shiftdc} demonstrates that visual inputs cause consistent activation shifts
+that distort safety perception: multimodal inputs appear safer than text-only equivalents in
+hidden-state geometry even when semantic content is held fixed. The authors propose a global
+projection-based correction; a key limitation is that this correction is modality-agnostic. Our
+work addresses this by learning \emph{separate} classification boundaries per modality regime.
+
+\paragraph{Geometric Safety Detection.}
+RCS~\cite{liu2025rcs} frames jailbreak detection as contrastive boundary detection in activation
+space. While effective for text-dominant threats, it does not condition on modality. SPIN~\cite
+{chen2025spin} identifies that attention imbalance---text tokens attend to image tokens less than
+10\% of the time despite images comprising 76--92\% of input---contributes to safety
+vulnerabilities, motivating our use of attention allocation as a conditioning signal.
+
+\paragraph{Benchmarks.}
+HoliSafe-Bench~\cite{lee2025holisafe} provides per-modality safety labels across five image-text
+combinations (e.g., unsafe image + safe text), making it uniquely suited for our differential
+analysis. MSSBench~\cite{zhou2024mss} evaluates situational safety; MM-SafetyBench~\cite
+{liu2024mmsafetybench} and JailBreakV-28K~\cite{luo2024jailbreakv} target adversarial attacks.
+
+% -----------------------------------------------------------------------
+\section{Technical Approach}
+
+Our goal is to learn modality-conditioned safety subspaces $\{\mathcal{S}_m\}$ such that, given an
+input $\mathbf{x} = (\mathbf{x}_\text{img}, \mathbf{x}_\text{txt})$, safety classification uses a
+boundary adapted to the dominant threat modality.
+
+\subsection{Step 1: Characterizing Modality-Specific Safety Directions}
+We extract intermediate-layer activations $\mathbf{h}^{(\ell)}\in\mathbb{R}^d$ from a frozen VLM
+for inputs belonging to each of the five HoliSafe-Bench modality combinations. For combination
+$(i,j)$, we compute a safety direction:
+\begin{equation}
+  \mathbf{r}_{ij} = \mu_\text{unsafe}^{(ij)} - \mu_\text{safe}^{(ij)},
+\end{equation}
+where $\mu$ is the mean activation over the respective subset. We then analyze pairwise cosine
+similarities $\langle\hat{\mathbf{r}}_{ij},\hat{\mathbf{r}}_{i'j'}\rangle$ and use PCA to
+visualize whether modality conditions induce distinguishable geometric structure.
+
+\subsection{Step 2: Modality Conditioning via Attention Signals}
+Following SPIN~\cite{chen2025spin}, we use attention allocation as a lightweight conditioning
+signal. Let $\alpha_\text{img}^{(\ell)}$ be the fraction of attention mass on image tokens in
+layer $\ell$. We define:
+\begin{equation}
+  s_\text{mod}(\mathbf{x}) = \frac{1}{L}\sum_{\ell=1}^{L}\alpha_\text{img}^{(\ell)},
+\end{equation}
+and interpolate between two learned projection matrices:
+\begin{equation}
+  \mathbf{P}(\mathbf{x}) = (1-s_\text{mod})\,\mathbf{P}_\text{txt}
+                          + s_\text{mod}\,\mathbf{P}_\text{img}.
+\end{equation}
+Safety is then classified via
+$f(\mathbf{x}) = \operatorname{sign}\!\bigl(\mathbf{P}(\mathbf{x})\,\mathbf{h}^{(\ell^*)}\cdot\mathbf{w}+b\bigr)$,
+where $\ell^*$ is selected by validation performance.
+
+\subsection{Step 3: Learning Objective}
+We jointly learn $\mathbf{P}_\text{txt}$ and $\mathbf{P}_\text{img}$ to maximize inter-class
+separation within each modality regime:
+\begin{equation}
+  \mathcal{L} = \mathcal{L}_\text{contrastive}
+              + \lambda\,\|\mathbf{P}_\text{txt}-\mathbf{P}_\text{img}\|_F,
+\end{equation}
+where the regularization term encourages the two projections to differ meaningfully.
+
+\subsection{Implementation Details}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Base VLM:} % TODO: e.g., LLaVA-1.5-7B
+  \item \textbf{Primary benchmark:} HoliSafe-Bench (5 modality splits)
+  \item \textbf{Secondary:} MSSBench, MM-SafetyBench
+  \item \textbf{Metrics:} Attack Success Rate (ASR $\downarrow$) on unsafe splits;
+        Refusal Rate (RR $\downarrow$) on safe splits
+  \item \textbf{Hardware:} % TODO: GPU setup
+\end{itemize}
+
+% -----------------------------------------------------------------------
+\section{Progress and Preliminary Results}
+
+\subsection{Experimental Setup}
+% TODO: dataset access, model checkpoint, extraction procedure, framework used
+
+\subsection{Preliminary Observations}
+% TODO: key findings so far, e.g.:
+% - PCA plots of activations across modality conditions
+% - Cosine similarities between safety directions r_ij
+% - Baseline ASR of undefended model on each HoliSafe-Bench split
+\textbf{[To be completed with experimental results.]}
+
+\subsection{Baseline Comparison}
+
+\begin{table}[h]
+\centering
+\caption{Preliminary results on HoliSafe-Bench (\%). Dashes = not yet available.}
+\label{tab:results}
+\begin{tabular}{lcccc}
+\toprule
+ & \multicolumn{2}{c}{Unsafe Img + Safe Text}
+ & \multicolumn{2}{c}{Safe Img + Unsafe Text} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Method & ASR$\downarrow$ & RR$\downarrow$ & ASR$\downarrow$ & RR$\downarrow$ \\
+\midrule
+No defense                           & --- & --- & --- & --- \\
+ShiftDC~\cite{zou2025shiftdc}        & --- & --- & --- & --- \\
+RCS~\cite{liu2025rcs}               & --- & --- & --- & --- \\
+\textbf{Ours}                        & --- & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% -----------------------------------------------------------------------
+\section{Challenges and Risks}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Benchmark access.}
+        % TODO: describe any issues with dataset access or preprocessing.
+
+  \item \textbf{Layer selection sensitivity.}
+        Safety directions vary substantially across transformer layers. Selecting $\ell^*$ without
+        overfitting to validation data requires careful cross-layer analysis.
+
+  \item \textbf{Generalization of linear interpolation.}
+        The interpolation scheme assumes a smooth modality spectrum, which may not hold for
+        compositional attacks (safe image + safe text $\to$ unsafe combined). We may need
+        non-linear conditioning or a discrete three-way classifier.
+
+  \item \textbf{Compute constraints.}
+        Activation extraction on a 7B-parameter model across large benchmarks requires substantial
+        GPU memory.
+        % TODO: describe current setup and mitigation strategy.
+
+  \item \textbf{Scope management.}
+        The project spans direction analysis, projection learning, and conditioning signal design.
+        We will prioritize completing Step 1 first to ensure clean findings regardless of timeline.
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+\section{Next Steps and Timeline}
+
+\begin{table}[h]
+\centering
+\caption{Remaining project milestones.}
+\label{tab:timeline}
+\begin{tabular}{lp{9.5cm}}
+\toprule
+Dates & Milestone \\
+\midrule
+Mar 31 -- Apr 6
+  & Complete activation extraction on HoliSafe-Bench; compute and compare per-modality
+    safety directions $\mathbf{r}_{ij}$ across layers. \\
+Apr 7 -- Apr 13
+  & Implement modality-conditioned projection learning; establish baseline comparisons
+    with ShiftDC and RCS. \\
+Apr 14 -- Apr 20
+  & Evaluate on MSSBench and MM-SafetyBench; run ablation studies (layer choice,
+    $\lambda$, linear vs.\ nonlinear conditioning). \\
+Apr 21 -- Apr 27
+  & PCA visualizations, error analysis, and draft final report. \\
+Apr 28 -- May 4
+  & Final report revisions and submission. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% -----------------------------------------------------------------------
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

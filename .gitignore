@@ -15,6 +15,17 @@ data/mm-safetybench-ref
 # ── Agentic planning scripts ────────────────────────────────────────────
 plans_and_project_descriptions
 
+# ── Large binary / generated outputs ─────────────────
+*.npz
+/outputs/
+/outputs_old/
+.claude/
+.ipynb_checkpoints/
+
+# Intervention: keep summaries + plots, ignore large result files
+# intervention/*/outputs/results/*_results.json
+intervention/*/outputs/results/*.checkpoint.json
+
 # ── Misc. ──────────────────────────────────────
 .env
 nohup.out
