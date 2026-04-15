@@ -202,6 +202,83 @@ Cohesive text generation defaults to Anthropic API (`PROVIDER=anthropic`); set
 - `data/holisafe-bench/train_eval_split.json` — stratified train/eval split (175/group)
 - `experiment_artifacts/{model}/combinatorial_safety/combinatorial_direction_vectors.npz`
 
+## Intervention Experiments (Just for testing)
+
+After establishing the diagnostic picture, we test whether steering the hidden
+state at inference time can reduce the SSU attack success rate.
+
+Two intervention strategies are implemented in `intervention/spherical_shiftdc.py`:
+
+| Method | Formula | Norm preserved? |
+|--------|---------|----------------|
+| **Original ShiftDC** (Zou et al. 2025) | `x̂ = x_vl − proj_{s^l}(m^l)` | ✗ (norm changes ≈ 2%) |
+| **Spherical ShiftDC** (proposed) | Slerp from `x_vl` toward ShiftDC target by `t` | ✓ (exact) |
+
+The motivation for Spherical ShiftDC: LLaVA's LLaMA backbone uses **RMSNorm**,
+which normalises each layer's output; norm-preserving interventions are less
+likely to degrade generation quality.
+
+### Running interventions
+
+```bash
+cd intervention/llava-1.5-7b-hf/experiment_scripts
+
+# Baseline (no intervention)
+python run_intervention.py --method none
+
+# Original ShiftDC (Zou et al.)
+python run_intervention.py --method original --layer 31
+
+# Spherical ShiftDC (proposed, t=1.0 = full rotation)
+python run_intervention.py --method spherical --layer 31 --t 1.0
+
+# Spherical with gate (scale rotation by cosine alignment)
+python run_intervention.py --method spherical --layer 31 --t 1.0 --gate_by_alignment
+```
+
+Results are written to `intervention/llava-1.5-7b-hf/outputs/results/`.
+The script supports **checkpoint-based resume**: if interrupted, re-run the same
+command and it will pick up from the last checkpoint (saved every 20 samples).
+
+### Plotting
+
+```bash
+cd intervention/llava-1.5-7b-hf/plotting_scripts
+python plot_intervention_results.py
+```
+
+Generates bar charts comparing ASR, helpfulness cost, and norm preservation
+across all methods found in the results directory.
+
+### Current results (keyword-based refusal detection, layer 31, eval split)
+
+| Method | SSU ASR ↓ | SSS False-Refusal ↓ | Norm ratio |
+|--------|-----------|---------------------|------------|
+| None (baseline) | 97.2% | 0.15% | — |
+| Original ShiftDC | 97.2% | 0.15% | 1.007 ± 0.009 |
+| Spherical ShiftDC (t=1.0) | 97.2% | 0.15% | **1.000 ± 0.000** |
+
+> **Note:** ASR is measured by keyword-based refusal detection (fast heuristic).
+> The Spherical method perfectly preserves norm (ratio ≈ 1.0000000),
+> while Original ShiftDC introduces ~0.7% norm inflation on SSU samples.
+
+### Intervention directory structure
+
+```
+intervention/
+├── spherical_shiftdc.py                        # Core math: ShiftDC + Spherical ShiftDC
+└── llava-1.5-7b-hf/
+    ├── experiment_scripts/
+    │   └── run_intervention.py                 # Main inference + intervention script
+    ├── plotting_scripts/
+    │   └── plot_intervention_results.py        # Comparison plots
+    └── outputs/results/
+        ├── none_summary.json                   # Baseline aggregate stats
+        ├── original_summary.json               # Original ShiftDC aggregate stats
+        ├── spherical_t1.00_summary.json        # Spherical ShiftDC aggregate stats
+        └── plots/                              # Bar charts (ASR, helpfulness, norm)
+```
+
 ## Adding a New Reference Dataset
 
 1. Write a loader function in `src/dataset.py` returning `List[dict]` with keys:
