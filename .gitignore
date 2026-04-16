@@ -16,7 +16,6 @@ data/mm-safetybench-ref
 plans_and_project_descriptions
 
 # ── Large binary / generated outputs ─────────────────
-*.npz
 /outputs/
 /outputs_old/
 .claude/
