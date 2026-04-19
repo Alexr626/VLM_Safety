@@ -1,0 +1,67 @@
+\begin{thebibliography}{9}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Arditi et~al.(2024)]{arditi2024refusal}
+Andy Arditi et~al.
+\newblock Refusal in language models is mediated by a single direction.
+\newblock 2024.
+\newblock arXiv:2406.11717 — verify full author list before submission.
+
+\bibitem[Chen et~al.(2025)]{PLACEHOLDER_chen2025spin_verify}
+Chen et~al.
+\newblock Todo: verify spin attention imbalance paper.
+\newblock 2025.
+\newblock PLACEHOLDER — could not verify. Verify before submission.
+
+\bibitem[Lee et~al.(2025)]{lee2025holisafe}
+Lee et~al.
+\newblock {HoliSafe-Bench}: Holistic benchmark for safety evaluation of
+  vision-language models.
+\newblock 2025.
+\newblock PLACEHOLDER — verify full author list and venue before submission.
+
+\bibitem[Liu et~al.(2025)]{PLACEHOLDER_liu2025rcs_verify}
+Liu et~al.
+\newblock Todo: verify rcs jailbreak detection paper.
+\newblock 2025.
+\newblock PLACEHOLDER — could not verify. Verify before submission.
+
+\bibitem[Liu et~al.(2023)Liu, Li, Wu, and Lee]{liu2023llava}
+Haotian Liu, Chunyuan Li, Qingyang Wu, and Yong~Jae Lee.
+\newblock Visual instruction tuning.
+\newblock 2023.
+
+\bibitem[Liu et~al.(2024)]{liu2024mmsafetybench}
+Xin Liu et~al.
+\newblock {MM-SafetyBench}: A benchmark for safety evaluation of multimodal
+  large language models.
+\newblock 2024.
+\newblock PLACEHOLDER — verify full author list and venue before submission.
+
+\bibitem[Luo et~al.(2024)]{PLACEHOLDER_luo2024jailbreakv_verify}
+Luo et~al.
+\newblock {JailBreakV-28K}: A benchmark for assessing the robustness of
+  multimodal large language models against jailbreak attacks.
+\newblock 2024.
+\newblock PLACEHOLDER — verify full citation before submission.
+
+\bibitem[Nanda et~al.(2023)]{PLACEHOLDER_nanda2023emergent_verify}
+Nanda et~al.
+\newblock Todo: verify nanda et al. emergent linear representations paper.
+\newblock 2023.
+\newblock PLACEHOLDER — could not confirm exact paper. Possibly "Emergent
+  Linear Representations in World Models of Self-Predicting Sequence Models".
+  Verify on arXiv or Semantic Scholar.
+
+\bibitem[Zou et~al.(2025)]{zou2025shiftdc}
+Andy Zou et~al.
+\newblock Understanding and rectifying safety perception distortion in {VLMs}.
+\newblock 2025.
+\newblock Referenced directly in project codebase. Verify venue/author list
+  before submission.
+
+\end{thebibliography}

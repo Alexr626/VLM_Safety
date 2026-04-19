@@ -406,8 +406,34 @@ class InternVL2Wrapper(VLMWrapperBase):
             self.model = AutoModel.from_pretrained(
                 self.model_id, device_map=self.device_map, **load_kwargs,
             )
-        except Exception:
-            self.model = AutoModel.from_pretrained(self.model_id, **load_kwargs)
+        except (RuntimeError, AttributeError):
+            # Some models (e.g. InternVL2) have two incompatibilities with
+            # transformers 5.x:
+            # 1. .item() calls during __init__ fail on meta tensors
+            #    (transformers 5.x always inits on meta device).
+            # 2. Missing `all_tied_weights_keys` attr expected by
+            #    _finalize_model_loading (custom code targets older API).
+            # Fix both by monkey-patching during loading.
+            from transformers import PreTrainedModel
+            _orig_ctx = PreTrainedModel.get_init_context
+            @classmethod
+            def _no_meta_get_init_context(cls, *args, **kwargs):
+                ctxs = _orig_ctx.__func__(cls, *args, **kwargs)
+                return [c for c in ctxs if c != torch.device("meta")]
+            _orig_mark = PreTrainedModel.mark_tied_weights_as_initialized
+            def _safe_mark(self_inner, loading_info):
+                if not hasattr(self_inner, "all_tied_weights_keys"):
+                    self_inner.all_tied_weights_keys = {}
+                return _orig_mark(self_inner, loading_info)
+            PreTrainedModel.get_init_context = _no_meta_get_init_context
+            PreTrainedModel.mark_tied_weights_as_initialized = _safe_mark
+            try:
+                self.model = AutoModel.from_pretrained(
+                    self.model_id, **load_kwargs,
+                )
+            finally:
+                PreTrainedModel.get_init_context = _orig_ctx
+                PreTrainedModel.mark_tied_weights_as_initialized = _orig_mark
             if torch.cuda.is_available():
                 self.model = self.model.cuda()
         self.model.eval()

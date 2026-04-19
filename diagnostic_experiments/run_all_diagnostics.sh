@@ -32,9 +32,9 @@ python "$SCRIPT_DIR/plotting_scripts/plot_tt_baseline_projections.py" --model "$
 echo "=== Phase 2: Behavioral ground truth ==="
 python "$SCRIPT_DIR/experiment_scripts/generate_responses.py" --model "$MODEL" --skip_if_exists
 python "$SCRIPT_DIR/experiment_scripts/classify_responses.py" --model "$MODEL" \
-    --method llm_twoaxis --provider anthropic
+    --method keyword --provider anthropic
 python "$SCRIPT_DIR/experiment_scripts/catqa_behavioral_baseline.py" --model "$MODEL" \
-    --method llm_twoaxis --provider anthropic --skip_if_exists
+    --method keyword --provider anthropic --skip_if_exists
 python "$SCRIPT_DIR/plotting_scripts/plot_behavioral_ground_truth.py" --model "$MODEL"
 
 echo "=== Phase 3: Combinatorial safety ==="

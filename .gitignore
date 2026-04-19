@@ -4,13 +4,26 @@ __pycache__/
 *.pyo
 
 # ── Data directory ────────────────────────────────
-data/
+data/catqa-contrastive/activations/
+data/holisafe-bench/
+data/llava-instruct-ref
+data/mm-safetybench-ref
 
 # ── Editor ────────────────────────────────────────────
 .vscode/
 
 # ── Agentic planning scripts ────────────────────────────────────────────
 plans_and_project_descriptions
+
+# ── Large binary / generated outputs ─────────────────
+/outputs/
+/outputs_old/
+.claude/
+.ipynb_checkpoints/
+
+# Intervention: keep summaries + plots, ignore large result files
+# intervention/*/outputs/results/*_results.json
+intervention/*/outputs/results/*.checkpoint.json
 
 # ── Misc. ──────────────────────────────────────
 .env
@@ -20,3 +33,7 @@ helper_scripts/debug_id_mismatch.py
 helper_scripts/investigate_duplicates.py
 helper_scripts/remap_behavioral_ids.py
 diagnostic_experiments/llava-1.5-7b-hf/behavioral_ground_truth/outputs/results/holisafe_responses.json.bak_pre_caption
+diagnostic_experiments/internvl2-8b/behavioral_ground_truth/outputs/results/holisafe_responses.checkpoint.json
+experiment_artifacts/*
+export_environment.yml
+original_environment.yml
