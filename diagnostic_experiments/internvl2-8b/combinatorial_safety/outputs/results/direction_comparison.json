@@ -7,194 +7,194 @@
   },
   {
     "layer": 1,
-    "cosine_sim_comb_vs_catqa": 0.06140900333022607,
-    "effective_rank": 40,
-    "subspace_overlap_top5": 0.37375052751699206
+    "cosine_sim_comb_vs_catqa": 0.06765416735713782,
+    "effective_rank": 33,
+    "subspace_overlap_top5": 0.40431968228179593
   },
   {
     "layer": 2,
-    "cosine_sim_comb_vs_catqa": 0.10971546312362433,
-    "effective_rank": 56,
-    "subspace_overlap_top5": 0.5040529563359466
+    "cosine_sim_comb_vs_catqa": -0.02762239804956035,
+    "effective_rank": 53,
+    "subspace_overlap_top5": 0.4463917155361642
   },
   {
     "layer": 3,
-    "cosine_sim_comb_vs_catqa": -0.0024492516911267304,
-    "effective_rank": 64,
-    "subspace_overlap_top5": 0.4616836492029105
+    "cosine_sim_comb_vs_catqa": -0.14120099817014398,
+    "effective_rank": 63,
+    "subspace_overlap_top5": 0.38793287082953753
   },
   {
     "layer": 4,
-    "cosine_sim_comb_vs_catqa": 0.12123245220688457,
-    "effective_rank": 74,
-    "subspace_overlap_top5": 0.43868661828578626
+    "cosine_sim_comb_vs_catqa": -0.06163036412976234,
+    "effective_rank": 75,
+    "subspace_overlap_top5": 0.3835373367950492
   },
   {
     "layer": 5,
-    "cosine_sim_comb_vs_catqa": 0.10753202341611628,
-    "effective_rank": 87,
-    "subspace_overlap_top5": 0.3272150228906897
+    "cosine_sim_comb_vs_catqa": 0.015674850913954465,
+    "effective_rank": 81,
+    "subspace_overlap_top5": 0.3136355695977332
   },
   {
     "layer": 6,
-    "cosine_sim_comb_vs_catqa": 0.26679197123568593,
-    "effective_rank": 82,
-    "subspace_overlap_top5": 0.3538015127999774
+    "cosine_sim_comb_vs_catqa": 0.24304928920680827,
+    "effective_rank": 76,
+    "subspace_overlap_top5": 0.3324144289164045
   },
   {
     "layer": 7,
-    "cosine_sim_comb_vs_catqa": 0.21666763850366583,
-    "effective_rank": 85,
-    "subspace_overlap_top5": 0.2945423363819648
+    "cosine_sim_comb_vs_catqa": 0.1923198866076671,
+    "effective_rank": 81,
+    "subspace_overlap_top5": 0.28980111915121387
   },
   {
     "layer": 8,
-    "cosine_sim_comb_vs_catqa": 0.2159147087495478,
-    "effective_rank": 79,
-    "subspace_overlap_top5": 0.28875518828917
+    "cosine_sim_comb_vs_catqa": 0.20827202155874078,
+    "effective_rank": 77,
+    "subspace_overlap_top5": 0.2756866759042897
   },
   {
     "layer": 9,
-    "cosine_sim_comb_vs_catqa": 0.17887710194560003,
-    "effective_rank": 73,
-    "subspace_overlap_top5": 0.296235933973745
+    "cosine_sim_comb_vs_catqa": 0.13409946211991206,
+    "effective_rank": 70,
+    "subspace_overlap_top5": 0.30343414225680265
   },
   {
     "layer": 10,
-    "cosine_sim_comb_vs_catqa": 0.17334575619331252,
-    "effective_rank": 61,
-    "subspace_overlap_top5": 0.27802201319497755
+    "cosine_sim_comb_vs_catqa": 0.15193306050593713,
+    "effective_rank": 60,
+    "subspace_overlap_top5": 0.3040019681094376
   },
   {
     "layer": 11,
-    "cosine_sim_comb_vs_catqa": 0.22952941747962663,
+    "cosine_sim_comb_vs_catqa": 0.24108122551429992,
     "effective_rank": 64,
-    "subspace_overlap_top5": 0.3112489539296388
+    "subspace_overlap_top5": 0.3268815681357483
   },
   {
     "layer": 12,
-    "cosine_sim_comb_vs_catqa": 0.27903159735566296,
-    "effective_rank": 62,
-    "subspace_overlap_top5": 0.32701547845070567
+    "cosine_sim_comb_vs_catqa": 0.27893934086322075,
+    "effective_rank": 64,
+    "subspace_overlap_top5": 0.3474824030512848
   },
   {
     "layer": 13,
-    "cosine_sim_comb_vs_catqa": 0.2169541805115041,
-    "effective_rank": 58,
-    "subspace_overlap_top5": 0.32813558290739875
+    "cosine_sim_comb_vs_catqa": 0.2672791252538245,
+    "effective_rank": 61,
+    "subspace_overlap_top5": 0.31517842031339255
   },
   {
     "layer": 14,
-    "cosine_sim_comb_vs_catqa": 0.2201354848009125,
-    "effective_rank": 60,
-    "subspace_overlap_top5": 0.3440614556146707
+    "cosine_sim_comb_vs_catqa": 0.26705506235632465,
+    "effective_rank": 65,
+    "subspace_overlap_top5": 0.33721473511338906
   },
   {
     "layer": 15,
-    "cosine_sim_comb_vs_catqa": 0.22861395604963922,
-    "effective_rank": 63,
-    "subspace_overlap_top5": 0.3623503573504469
+    "cosine_sim_comb_vs_catqa": 0.2813753222547196,
+    "effective_rank": 71,
+    "subspace_overlap_top5": 0.34692988386846657
   },
   {
     "layer": 16,
-    "cosine_sim_comb_vs_catqa": 0.14322413065104692,
-    "effective_rank": 63,
-    "subspace_overlap_top5": 0.3400449498321022
+    "cosine_sim_comb_vs_catqa": 0.17023073329512212,
+    "effective_rank": 68,
+    "subspace_overlap_top5": 0.33846966041445536
   },
   {
     "layer": 17,
-    "cosine_sim_comb_vs_catqa": 0.1741396193319444,
-    "effective_rank": 59,
-    "subspace_overlap_top5": 0.35347026150238914
+    "cosine_sim_comb_vs_catqa": 0.19932643446829182,
+    "effective_rank": 63,
+    "subspace_overlap_top5": 0.4052739146115278
   },
   {
     "layer": 18,
-    "cosine_sim_comb_vs_catqa": 0.1905713109514049,
-    "effective_rank": 54,
-    "subspace_overlap_top5": 0.40448399130258483
+    "cosine_sim_comb_vs_catqa": 0.22486003310590355,
+    "effective_rank": 58,
+    "subspace_overlap_top5": 0.45442051343042184
   },
   {
     "layer": 19,
-    "cosine_sim_comb_vs_catqa": 0.2443553456615404,
-    "effective_rank": 58,
-    "subspace_overlap_top5": 0.3980731675919958
+    "cosine_sim_comb_vs_catqa": 0.27944559574664046,
+    "effective_rank": 61,
+    "subspace_overlap_top5": 0.4652737444049693
   },
   {
     "layer": 20,
-    "cosine_sim_comb_vs_catqa": 0.29455799936324706,
-    "effective_rank": 63,
-    "subspace_overlap_top5": 0.40874464247118764
+    "cosine_sim_comb_vs_catqa": 0.34466115583171325,
+    "effective_rank": 66,
+    "subspace_overlap_top5": 0.47157236778995176
   },
   {
     "layer": 21,
-    "cosine_sim_comb_vs_catqa": 0.28297980129559536,
-    "effective_rank": 65,
-    "subspace_overlap_top5": 0.38649131824578575
+    "cosine_sim_comb_vs_catqa": 0.3321937335566363,
+    "effective_rank": 67,
+    "subspace_overlap_top5": 0.43453890949811225
   },
   {
     "layer": 22,
-    "cosine_sim_comb_vs_catqa": 0.295849416670291,
-    "effective_rank": 69,
-    "subspace_overlap_top5": 0.39367604204843576
+    "cosine_sim_comb_vs_catqa": 0.3503578471221193,
+    "effective_rank": 71,
+    "subspace_overlap_top5": 0.43398330219137177
   },
   {
     "layer": 23,
-    "cosine_sim_comb_vs_catqa": 0.30007131925585373,
-    "effective_rank": 71,
-    "subspace_overlap_top5": 0.38467952322700383
+    "cosine_sim_comb_vs_catqa": 0.3518134578334319,
+    "effective_rank": 73,
+    "subspace_overlap_top5": 0.42327177436505237
   },
   {
     "layer": 24,
-    "cosine_sim_comb_vs_catqa": 0.2944913180673358,
-    "effective_rank": 70,
-    "subspace_overlap_top5": 0.3830068648175963
+    "cosine_sim_comb_vs_catqa": 0.3456343930414571,
+    "effective_rank": 72,
+    "subspace_overlap_top5": 0.4234960342715851
   },
   {
     "layer": 25,
-    "cosine_sim_comb_vs_catqa": 0.34045655153883053,
+    "cosine_sim_comb_vs_catqa": 0.40907594236936573,
     "effective_rank": 77,
-    "subspace_overlap_top5": 0.3948266359508711
+    "subspace_overlap_top5": 0.418288994383156
   },
   {
     "layer": 26,
-    "cosine_sim_comb_vs_catqa": 0.3380401263331626,
+    "cosine_sim_comb_vs_catqa": 0.40580321601558667,
     "effective_rank": 81,
-    "subspace_overlap_top5": 0.3588073981757242
+    "subspace_overlap_top5": 0.4168187573818307
   },
   {
     "layer": 27,
-    "cosine_sim_comb_vs_catqa": 0.37669578334269554,
+    "cosine_sim_comb_vs_catqa": 0.4405678316716499,
     "effective_rank": 82,
-    "subspace_overlap_top5": 0.3893058206932721
+    "subspace_overlap_top5": 0.43657231879588876
   },
   {
     "layer": 28,
-    "cosine_sim_comb_vs_catqa": 0.3613516556926333,
-    "effective_rank": 84,
-    "subspace_overlap_top5": 0.389072045154697
+    "cosine_sim_comb_vs_catqa": 0.43197277896663555,
+    "effective_rank": 83,
+    "subspace_overlap_top5": 0.43671842127433963
   },
   {
     "layer": 29,
-    "cosine_sim_comb_vs_catqa": 0.3582790331419481,
-    "effective_rank": 88,
-    "subspace_overlap_top5": 0.3834347793248527
+    "cosine_sim_comb_vs_catqa": 0.4377476251086385,
+    "effective_rank": 86,
+    "subspace_overlap_top5": 0.4342820327562732
   },
   {
     "layer": 30,
-    "cosine_sim_comb_vs_catqa": 0.3613219566870501,
-    "effective_rank": 99,
-    "subspace_overlap_top5": 0.3750620597115061
+    "cosine_sim_comb_vs_catqa": 0.43215169683165366,
+    "effective_rank": 96,
+    "subspace_overlap_top5": 0.4159829380656756
   },
   {
     "layer": 31,
-    "cosine_sim_comb_vs_catqa": 0.369715690853185,
-    "effective_rank": 106,
-    "subspace_overlap_top5": 0.33896926140155303
+    "cosine_sim_comb_vs_catqa": 0.4360605518386653,
+    "effective_rank": 103,
+    "subspace_overlap_top5": 0.4103406099486538
   },
   {
     "layer": 32,
-    "cosine_sim_comb_vs_catqa": 0.40853143355730626,
-    "effective_rank": 108,
-    "subspace_overlap_top5": 0.3370694190645652
+    "cosine_sim_comb_vs_catqa": 0.4747278182542723,
+    "effective_rank": 105,
+    "subspace_overlap_top5": 0.38007929587226175
   }
 ]
