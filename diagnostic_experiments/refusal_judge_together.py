@@ -10,12 +10,12 @@ import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
-from together import AsyncTogether
+from together import AsyncTogether, AuthenticationError, RateLimitError
+from tqdm.asyncio import tqdm_asyncio
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(_REPO_ROOT / ".env")
 load_dotenv(_REPO_ROOT.parent / ".env")
-from tqdm.asyncio import tqdm_asyncio
 
 if not os.environ.get("TOGETHER_API_KEY"):
     print("Missing TOGETHER_API_KEY. Set it in the environment or in VLM_Safety/.env", file=sys.stderr)
@@ -51,8 +51,14 @@ async def judge_refusal(sem, item_id, col, text):
                 )
                 verdict = resp.choices[0].message.content.strip().upper()
                 return (item_id, col, verdict.startswith("YES"))
+            except AuthenticationError as e:
+                print(f"Together authentication failed (not retrying): {e}", file=sys.stderr)
+                raise SystemExit(1) from e
+            except RateLimitError:
+                await asyncio.sleep(delay)
+                delay = min(delay * 2, 60)
             except Exception as e:
-                if "429" in str(e) or "rate_limit" in str(e):
+                if "429" in str(e) or "rate_limit" in str(e).lower():
                     await asyncio.sleep(delay)
                     delay = min(delay * 2, 60)
                 else:
