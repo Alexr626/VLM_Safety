@@ -27,6 +27,7 @@ intervention/*/outputs/results/*.checkpoint.json
 
 # ── Misc. ──────────────────────────────────────
 .env
+.venv-refusal/
 nohup.out
 *.bak
 helper_scripts/debug_id_mismatch.py
