@@ -1,0 +1,482 @@
+{
+  "models": {
+    "internvl2-8b": {
+      "holisafe_responses": "/Users/jvnk/Desktop/699final/VLM_Safety/diagnostic_experiments/internvl2-8b/behavioral_ground_truth/outputs/results/holisafe_responses.json",
+      "refusal_results": "/Users/jvnk/Desktop/699final/VLM_Safety/holisafe_judge/internvl2-8b/refusal_results.json",
+      "overall": {
+        "response_vl": {
+          "refused": 249,
+          "total": 1400
+        },
+        "response_tt": {
+          "refused": 266,
+          "total": 1400
+        },
+        "response_ct": {
+          "refused": 352,
+          "total": 1400
+        }
+      },
+      "by_category": {
+        "hate": {
+          "response_vl": {
+            "refused": 139,
+            "total": 601
+          },
+          "response_tt": {
+            "refused": 152,
+            "total": 601
+          },
+          "response_ct": {
+            "refused": 192,
+            "total": 601
+          }
+        },
+        "privacy": {
+          "response_vl": {
+            "refused": 5,
+            "total": 21
+          },
+          "response_tt": {
+            "refused": 5,
+            "total": 21
+          },
+          "response_ct": {
+            "refused": 5,
+            "total": 21
+          }
+        },
+        "specialized_advice": {
+          "response_vl": {
+            "refused": 4,
+            "total": 151
+          },
+          "response_tt": {
+            "refused": 12,
+            "total": 151
+          },
+          "response_ct": {
+            "refused": 25,
+            "total": 151
+          }
+        },
+        "illegal_activity": {
+          "response_vl": {
+            "refused": 44,
+            "total": 161
+          },
+          "response_tt": {
+            "refused": 42,
+            "total": 161
+          },
+          "response_ct": {
+            "refused": 51,
+            "total": 161
+          }
+        },
+        "violence": {
+          "response_vl": {
+            "refused": 34,
+            "total": 176
+          },
+          "response_tt": {
+            "refused": 32,
+            "total": 176
+          },
+          "response_ct": {
+            "refused": 40,
+            "total": 176
+          }
+        },
+        "self_harm": {
+          "response_vl": {
+            "refused": 22,
+            "total": 286
+          },
+          "response_tt": {
+            "refused": 23,
+            "total": 286
+          },
+          "response_ct": {
+            "refused": 38,
+            "total": 286
+          }
+        },
+        "sexual_content": {
+          "response_vl": {
+            "refused": 1,
+            "total": 4
+          },
+          "response_tt": {
+            "refused": 0,
+            "total": 4
+          },
+          "response_ct": {
+            "refused": 1,
+            "total": 4
+          }
+        }
+      },
+      "num_raw_judgments": 4200
+    },
+    "internvl2.5-8b-mpo": {
+      "holisafe_responses": "/Users/jvnk/Desktop/699final/VLM_Safety/diagnostic_experiments/internvl2.5-8b-mpo/behavioral_ground_truth/outputs/results/holisafe_responses.json",
+      "refusal_results": "/Users/jvnk/Desktop/699final/VLM_Safety/holisafe_judge/internvl2.5-8b-mpo/refusal_results.json",
+      "overall": {
+        "response_vl": {
+          "refused": 37,
+          "total": 1400
+        },
+        "response_tt": {
+          "refused": 166,
+          "total": 1400
+        },
+        "response_ct": {
+          "refused": 234,
+          "total": 1400
+        }
+      },
+      "by_category": {
+        "hate": {
+          "response_vl": {
+            "refused": 9,
+            "total": 601
+          },
+          "response_tt": {
+            "refused": 106,
+            "total": 601
+          },
+          "response_ct": {
+            "refused": 142,
+            "total": 601
+          }
+        },
+        "privacy": {
+          "response_vl": {
+            "refused": 0,
+            "total": 21
+          },
+          "response_tt": {
+            "refused": 2,
+            "total": 21
+          },
+          "response_ct": {
+            "refused": 3,
+            "total": 21
+          }
+        },
+        "specialized_advice": {
+          "response_vl": {
+            "refused": 3,
+            "total": 151
+          },
+          "response_tt": {
+            "refused": 2,
+            "total": 151
+          },
+          "response_ct": {
+            "refused": 11,
+            "total": 151
+          }
+        },
+        "illegal_activity": {
+          "response_vl": {
+            "refused": 16,
+            "total": 161
+          },
+          "response_tt": {
+            "refused": 25,
+            "total": 161
+          },
+          "response_ct": {
+            "refused": 36,
+            "total": 161
+          }
+        },
+        "violence": {
+          "response_vl": {
+            "refused": 8,
+            "total": 176
+          },
+          "response_tt": {
+            "refused": 19,
+            "total": 176
+          },
+          "response_ct": {
+            "refused": 24,
+            "total": 176
+          }
+        },
+        "self_harm": {
+          "response_vl": {
+            "refused": 1,
+            "total": 286
+          },
+          "response_tt": {
+            "refused": 12,
+            "total": 286
+          },
+          "response_ct": {
+            "refused": 18,
+            "total": 286
+          }
+        },
+        "sexual_content": {
+          "response_vl": {
+            "refused": 0,
+            "total": 4
+          },
+          "response_tt": {
+            "refused": 0,
+            "total": 4
+          },
+          "response_ct": {
+            "refused": 0,
+            "total": 4
+          }
+        }
+      },
+      "num_raw_judgments": 4200
+    },
+    "llava-1.5-7b-hf": {
+      "holisafe_responses": "/Users/jvnk/Desktop/699final/VLM_Safety/diagnostic_experiments/llava-1.5-7b-hf/behavioral_ground_truth/outputs/results/holisafe_responses.json",
+      "refusal_results": "/Users/jvnk/Desktop/699final/VLM_Safety/holisafe_judge/llava-1.5-7b-hf/refusal_results.json",
+      "overall": {
+        "response_vl": {
+          "refused": 4,
+          "total": 1398
+        },
+        "response_tt": {
+          "refused": 18,
+          "total": 1398
+        },
+        "response_ct": {
+          "refused": 21,
+          "total": 1398
+        }
+      },
+      "by_category": {
+        "hate": {
+          "response_vl": {
+            "refused": 0,
+            "total": 601
+          },
+          "response_tt": {
+            "refused": 6,
+            "total": 601
+          },
+          "response_ct": {
+            "refused": 7,
+            "total": 601
+          }
+        },
+        "privacy": {
+          "response_vl": {
+            "refused": 0,
+            "total": 21
+          },
+          "response_tt": {
+            "refused": 0,
+            "total": 21
+          },
+          "response_ct": {
+            "refused": 0,
+            "total": 21
+          }
+        },
+        "specialized_advice": {
+          "response_vl": {
+            "refused": 3,
+            "total": 151
+          },
+          "response_tt": {
+            "refused": 5,
+            "total": 151
+          },
+          "response_ct": {
+            "refused": 4,
+            "total": 151
+          }
+        },
+        "illegal_activity": {
+          "response_vl": {
+            "refused": 0,
+            "total": 160
+          },
+          "response_tt": {
+            "refused": 3,
+            "total": 160
+          },
+          "response_ct": {
+            "refused": 6,
+            "total": 160
+          }
+        },
+        "sexual_content": {
+          "response_vl": {
+            "refused": 0,
+            "total": 4
+          },
+          "response_tt": {
+            "refused": 0,
+            "total": 4
+          },
+          "response_ct": {
+            "refused": 0,
+            "total": 4
+          }
+        },
+        "violence": {
+          "response_vl": {
+            "refused": 1,
+            "total": 175
+          },
+          "response_tt": {
+            "refused": 4,
+            "total": 175
+          },
+          "response_ct": {
+            "refused": 2,
+            "total": 175
+          }
+        },
+        "self_harm": {
+          "response_vl": {
+            "refused": 0,
+            "total": 286
+          },
+          "response_tt": {
+            "refused": 0,
+            "total": 286
+          },
+          "response_ct": {
+            "refused": 2,
+            "total": 286
+          }
+        }
+      },
+      "num_raw_judgments": 4194
+    },
+    "qwen2.5-vl-7b-instruct": {
+      "holisafe_responses": "/Users/jvnk/Desktop/699final/VLM_Safety/diagnostic_experiments/qwen2.5-vl-7b-instruct/behavioral_ground_truth/outputs/results/holisafe_responses.json",
+      "refusal_results": "/Users/jvnk/Desktop/699final/VLM_Safety/holisafe_judge/qwen2.5-vl-7b-instruct/refusal_results.json",
+      "overall": {
+        "response_vl": {
+          "refused": 135,
+          "total": 1400
+        },
+        "response_tt": {
+          "refused": 76,
+          "total": 1400
+        },
+        "response_ct": {
+          "refused": 139,
+          "total": 1400
+        }
+      },
+      "by_category": {
+        "hate": {
+          "response_vl": {
+            "refused": 110,
+            "total": 601
+          },
+          "response_tt": {
+            "refused": 46,
+            "total": 601
+          },
+          "response_ct": {
+            "refused": 102,
+            "total": 601
+          }
+        },
+        "privacy": {
+          "response_vl": {
+            "refused": 1,
+            "total": 21
+          },
+          "response_tt": {
+            "refused": 3,
+            "total": 21
+          },
+          "response_ct": {
+            "refused": 1,
+            "total": 21
+          }
+        },
+        "specialized_advice": {
+          "response_vl": {
+            "refused": 0,
+            "total": 151
+          },
+          "response_tt": {
+            "refused": 1,
+            "total": 151
+          },
+          "response_ct": {
+            "refused": 1,
+            "total": 151
+          }
+        },
+        "illegal_activity": {
+          "response_vl": {
+            "refused": 8,
+            "total": 161
+          },
+          "response_tt": {
+            "refused": 16,
+            "total": 161
+          },
+          "response_ct": {
+            "refused": 14,
+            "total": 161
+          }
+        },
+        "violence": {
+          "response_vl": {
+            "refused": 9,
+            "total": 176
+          },
+          "response_tt": {
+            "refused": 8,
+            "total": 176
+          },
+          "response_ct": {
+            "refused": 12,
+            "total": 176
+          }
+        },
+        "self_harm": {
+          "response_vl": {
+            "refused": 7,
+            "total": 286
+          },
+          "response_tt": {
+            "refused": 2,
+            "total": 286
+          },
+          "response_ct": {
+            "refused": 8,
+            "total": 286
+          }
+        },
+        "sexual_content": {
+          "response_vl": {
+            "refused": 0,
+            "total": 4
+          },
+          "response_tt": {
+            "refused": 0,
+            "total": 4
+          },
+          "response_ct": {
+            "refused": 1,
+            "total": 4
+          }
+        }
+      },
+      "num_raw_judgments": 4200
+    }
+  },
+  "judge_script": "/Users/jvnk/Desktop/699final/VLM_Safety/diagnostic_experiments/refusal_judge_together.py",
+  "output_root": "/Users/jvnk/Desktop/699final/VLM_Safety/holisafe_judge"
+}
