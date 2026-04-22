@@ -4,7 +4,7 @@
 # ============================================================
 # Usage:
 #   bash run_behavioral_ground_truth.sh
-#   MODEL="Qwen/Qwen2.5-VL-7B-Instruct" bash run_behavioral_ground_truth.sh
+#   MODEL="Qwen/Qwen2-VL-7B-Instruct" bash run_behavioral_ground_truth.sh
 #   bash run_behavioral_ground_truth.sh CLASSIFY_METHOD=keyword
 # ============================================================
 set -e

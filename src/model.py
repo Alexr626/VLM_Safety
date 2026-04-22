@@ -574,26 +574,80 @@ class InternVL2Wrapper(VLMWrapperBase):
         return self._generate(input_ids, None, max_new_tokens)
 
 
-# ── Qwen2.5-VL wrapper ──────────────────────────────────────────────────────
+# ── Qwen2-VL / Qwen2.5-VL wrapper ───────────────────────────────────────────
+
+_QWEN_VISION_START = "<|vision_start|>"
+_QWEN_VISION_END = "<|vision_end|>"
+_QWEN_IMAGE_PAD = "<|image_pad|>"
+
+_QWEN_FALLBACK_VL_TEMPLATE = (
+    f"USER: {_QWEN_VISION_START}{_QWEN_IMAGE_PAD}{_QWEN_VISION_END}"
+    "{text}\nASSISTANT:"
+)
+_QWEN_FALLBACK_TEXT_TEMPLATE = "USER: {text}\nASSISTANT:"
+
+_QWEN_CONFIGS = {
+    "Qwen/Qwen2-VL-7B": {
+        "model_class": "Qwen2VLForConditionalGeneration",
+        "use_chat_template": True,
+        "fallback_vl_template": _QWEN_FALLBACK_VL_TEMPLATE,
+        "fallback_text_template": _QWEN_FALLBACK_TEXT_TEMPLATE,
+        "caption_prompt": "Describe this image in detail.",
+    },
+    "Qwen/Qwen2-VL-7B-Instruct": {
+        "model_class": "Qwen2VLForConditionalGeneration",
+        "use_chat_template": True,
+        "fallback_vl_template": _QWEN_FALLBACK_VL_TEMPLATE,
+        "fallback_text_template": _QWEN_FALLBACK_TEXT_TEMPLATE,
+        "caption_prompt": "Describe this image in detail.",
+    },
+    "Qwen/Qwen2.5-VL-7B-Instruct": {
+        "model_class": "Qwen2_5_VLForConditionalGeneration",
+        "use_chat_template": True,
+        "fallback_vl_template": _QWEN_FALLBACK_VL_TEMPLATE,
+        "fallback_text_template": _QWEN_FALLBACK_TEXT_TEMPLATE,
+        "caption_prompt": "Describe this image in detail.",
+    },
+}
+
+# Picked when an unknown Qwen model_id is passed.
+_QWEN_DEFAULT_CFG = _QWEN_CONFIGS["Qwen/Qwen2-VL-7B-Instruct"]
+
 
 class Qwen2VLWrapper(VLMWrapperBase):
     """
-    Wrapper for Qwen2.5-VL-7B-Instruct.
+    Wrapper for Qwen2-VL and Qwen2.5-VL families.
 
-    LLM backbone: Qwen2.5-7B, 28 layers, hidden_dim=3584.
-    Visual tokens use a dynamic resolution scheme.
+    Supported:
+      - Qwen/Qwen2-VL-7B            (base, no SFT — chat template falls back
+                                     to a USER/ASSISTANT completion prompt)
+      - Qwen/Qwen2-VL-7B-Instruct
+      - Qwen/Qwen2.5-VL-7B-Instruct
+
+    LLM backbone: Qwen2(.5)-7B, 28 layers, hidden_dim=3584.
+    Visual tokens use a dynamic resolution scheme; the processor expands
+    the <|image_pad|> marker into the correct number of vision tokens.
     """
 
     def __init__(self, model_id: str, **kwargs):
         kwargs.setdefault("torch_dtype", torch.bfloat16)
         super().__init__(model_id, **kwargs)
+        cfg = _QWEN_CONFIGS.get(model_id, _QWEN_DEFAULT_CFG)
+        self._model_class_name = cfg["model_class"]
+        self._use_chat_template = cfg["use_chat_template"]
+        self._fallback_vl_template = cfg["fallback_vl_template"]
+        self._fallback_text_template = cfg["fallback_text_template"]
+        self._caption_prompt = cfg["caption_prompt"]
+        # None until first _build_prompt() call — then True if chat template
+        # works for this checkpoint, False if we permanently fell back.
+        self._chat_template_ok: Optional[bool] = None
 
     def load(self) -> "Qwen2VLWrapper":
         from transformers import AutoProcessor
         print(f"Loading processor from '{self.model_id}'...")
         self.processor = AutoProcessor.from_pretrained(self.model_id)
 
-        print(f"Loading model from '{self.model_id}'...")
+        print(f"Loading model ({self._model_class_name}) from '{self.model_id}'...")
         ModelClass = self._get_model_class()
         self.model = ModelClass.from_pretrained(
             self.model_id,
@@ -605,18 +659,30 @@ class Qwen2VLWrapper(VLMWrapperBase):
         return self
 
     def _get_model_class(self):
-        # Try Qwen2_5_VL first (transformers >= 4.49), fall back to Qwen2VL
-        try:
-            from transformers import Qwen2_5_VLForConditionalGeneration
-            return Qwen2_5_VLForConditionalGeneration
-        except ImportError:
-            from transformers import Qwen2VLForConditionalGeneration
-            return Qwen2VLForConditionalGeneration
+        name = self._model_class_name
+        if name == "Qwen2_5_VLForConditionalGeneration":
+            try:
+                from transformers import Qwen2_5_VLForConditionalGeneration
+                return Qwen2_5_VLForConditionalGeneration
+            except ImportError as e:
+                raise ImportError(
+                    "Qwen2.5-VL requires transformers>=4.49. "
+                    f"Original error: {e}"
+                ) from e
+        if name == "Qwen2VLForConditionalGeneration":
+            try:
+                from transformers import Qwen2VLForConditionalGeneration
+                return Qwen2VLForConditionalGeneration
+            except ImportError as e:
+                raise ImportError(
+                    "Qwen2-VL requires transformers>=4.45. "
+                    f"Original error: {e}"
+                ) from e
+        raise ValueError(f"Unknown Qwen model class: {name}")
 
     # ── Properties ─────────────────────────────────────────────────────────
     @property
     def num_layers(self) -> int:
-        # Qwen2.5-VL config has a nested LLM config
         cfg = self.model.config
         if hasattr(cfg, "text_config") and cfg.text_config is not None:
             return cfg.text_config.num_hidden_layers
@@ -628,6 +694,36 @@ class Qwen2VLWrapper(VLMWrapperBase):
         if hasattr(cfg, "text_config") and cfg.text_config is not None:
             return cfg.text_config.hidden_size
         return cfg.hidden_size
+
+    # ── Image/text token position helpers ──────────────────────────────────
+    def _token_id(self, token: str) -> Optional[int]:
+        tid = self.processor.tokenizer.convert_tokens_to_ids(token)
+        if tid is None or tid == self.processor.tokenizer.unk_token_id:
+            return None
+        return tid
+
+    def get_image_token_span(
+        self, input_ids: torch.Tensor
+    ) -> Tuple[Optional[int], Optional[int]]:
+        vs_id = self._token_id(_QWEN_VISION_START)
+        ve_id = self._token_id(_QWEN_VISION_END)
+        if vs_id is None or ve_id is None:
+            return None, None
+        row = input_ids[0] if input_ids.dim() == 2 else input_ids
+        starts = (row == vs_id).nonzero(as_tuple=True)[0]
+        ends = (row == ve_id).nonzero(as_tuple=True)[0]
+        if len(starts) == 0 or len(ends) == 0:
+            return None, None
+        # Span of the visual tokens between the markers (exclusive of markers).
+        return int(starts[0].item()) + 1, int(ends[0].item())
+
+    def get_text_token_positions(self, input_ids: torch.Tensor) -> List[int]:
+        vs_id = self._token_id(_QWEN_VISION_START)
+        ve_id = self._token_id(_QWEN_VISION_END)
+        pad_id = self._token_id(_QWEN_IMAGE_PAD)
+        vision_ids = {i for i in (vs_id, ve_id, pad_id) if i is not None}
+        row = input_ids[0] if input_ids.dim() == 2 else input_ids
+        return [i for i, tok in enumerate(row.tolist()) if tok not in vision_ids]
 
     # ── Input preparation ──────────────────────────────────────────────────
     def _build_messages_vl(self, image: Image.Image, text: str):
@@ -645,10 +741,47 @@ class Qwen2VLWrapper(VLMWrapperBase):
             "content": [{"type": "text", "text": text}],
         }]
 
+    def _build_prompt(self, kind: str, text: str,
+                      image: Optional[Image.Image] = None) -> str:
+        """Return a prompt string. Tries the chat template when enabled; on
+        failure (e.g. missing template on a base checkpoint) falls back to a
+        USER/ASSISTANT completion template and caches the decision."""
+        if self._use_chat_template and self._chat_template_ok is not False:
+            try:
+                if kind == "vl":
+                    messages = self._build_messages_vl(image, text)
+                else:
+                    messages = self._build_messages_text(text)
+                prompt = self.processor.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=True,
+                )
+                if prompt:
+                    if self._chat_template_ok is None:
+                        self._chat_template_ok = True
+                    return prompt
+            except Exception as e:
+                if self._chat_template_ok is None:
+                    print(
+                        f"[Qwen2VLWrapper] chat template unavailable for "
+                        f"'{self.model_id}' ({type(e).__name__}: {e}) — "
+                        f"falling back to completion template."
+                    )
+                self._chat_template_ok = False
+            else:
+                if self._chat_template_ok is None:
+                    print(
+                        f"[Qwen2VLWrapper] chat template returned empty for "
+                        f"'{self.model_id}' — falling back to completion "
+                        f"template."
+                    )
+                self._chat_template_ok = False
+
+        if kind == "vl":
+            return self._fallback_vl_template.format(text=text)
+        return self._fallback_text_template.format(text=text)
+
     def _prepare_vl(self, image: Image.Image, text: str) -> dict:
-        messages = self._build_messages_vl(image, text)
-        prompt = self.processor.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True)
+        prompt = self._build_prompt("vl", text, image=image)
         inputs = self.processor(
             text=[prompt], images=[image], return_tensors="pt", padding=True,
         )
@@ -656,9 +789,7 @@ class Qwen2VLWrapper(VLMWrapperBase):
                 for k, v in inputs.items()}
 
     def _prepare_text(self, text: str) -> dict:
-        messages = self._build_messages_text(text)
-        prompt = self.processor.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True)
+        prompt = self._build_prompt("text", text)
         inputs = self.processor(
             text=[prompt], return_tensors="pt", padding=True,
         )
@@ -715,7 +846,7 @@ class Qwen2VLWrapper(VLMWrapperBase):
 
     def generate_caption(self, image: Image.Image,
                          max_new_tokens: int = 200) -> str:
-        return self.generate_vl(image, "Describe this image in detail.",
+        return self.generate_vl(image, self._caption_prompt,
                                 max_new_tokens=max_new_tokens)
 
 

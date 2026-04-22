@@ -4,7 +4,7 @@
 # ============================================================
 # Usage:
 #   bash run_combinatorial_safety.sh
-#   MODEL="Qwen/Qwen2.5-VL-7B-Instruct" bash run_combinatorial_safety.sh
+#   MODEL="Qwen/Qwen2-VL-7B-Instruct" bash run_combinatorial_safety.sh
 # ============================================================
 set -e
 

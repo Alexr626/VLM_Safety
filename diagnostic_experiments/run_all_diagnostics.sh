@@ -5,12 +5,13 @@
 # Usage:
 #   MODEL="OpenGVLab/InternVL2-8B"           bash run_all_diagnostics.sh
 #   MODEL="OpenGVLab/InternVL2_5-8B-MPO"     bash run_all_diagnostics.sh
-#   MODEL="Qwen/Qwen2.5-VL-7B-Instruct"      bash run_all_diagnostics.sh
+#   MODEL="Qwen/Qwen2-VL-7B"                 bash run_all_diagnostics.sh
+#   MODEL="Qwen/Qwen2-VL-7B-Instruct"        bash run_all_diagnostics.sh
 #   MODEL="llava-hf/llava-1.5-7b-hf"         bash run_all_diagnostics.sh
 # ============================================================
 set -e
 
-MODEL="${MODEL:-Qwen/Qwen2.5-VL-7B-Instruct}"
+MODEL="${MODEL:-Qwen/Qwen2-VL-7B-Instruct}"
 export MODEL
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"

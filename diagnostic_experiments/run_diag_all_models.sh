@@ -4,7 +4,8 @@
 # ============================================================
 # Runs ALL phases from run_all_diagnostics.sh for each of:
 #   - llava-hf/llava-1.5-7b-hf
-#   - Qwen/Qwen2.5-VL-7B-Instruct
+#   - Qwen/Qwen2-VL-7B
+#   - Qwen/Qwen2-VL-7B-Instruct
 #   - OpenGVLab/InternVL2-8B
 #   - OpenGVLab/InternVL2_5-8B-MPO
 #
@@ -30,8 +31,9 @@ run_all_phases() {
 # ── LLaVA 1.5 ────────────────────────────────────────────────
 run_all_phases "llava-hf/llava-1.5-7b-hf"
 
-# ── Qwen 2.5 VL ──────────────────────────────────────────────
-run_all_phases "Qwen/Qwen2.5-VL-7B-Instruct"
+# ── Qwen 2 VL (base + Instruct, for direct comparison) ──────
+run_all_phases "Qwen/Qwen2-VL-7B"
+run_all_phases "Qwen/Qwen2-VL-7B-Instruct"
 
 # ── InternVL2 ────────────────────────────────────────────────
 run_all_phases "OpenGVLab/InternVL2-8B"

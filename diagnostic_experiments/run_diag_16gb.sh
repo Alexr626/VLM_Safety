@@ -4,8 +4,9 @@
 # ============================================================
 # Runs:
 #   - ALL phases for LLaVA-1.5-7B (fits comfortably in 16 GB)
-#   - Phases 0, 1, 3, 4 for Qwen2.5-VL-7B (skips Phase 2:
-#     generation requires more VRAM due to KV cache + CPU offload)
+#   - Phases 0, 1, 3, 4 for Qwen2-VL-7B (base) and
+#     Qwen2-VL-7B-Instruct (skips Phase 2: generation requires
+#     more VRAM due to KV cache + CPU offload)
 #
 # Phase 2 for Qwen and ALL phases for InternVL2/2.5 should be
 # run on a larger GPU — see run_diag_24gb.sh.
@@ -64,8 +65,9 @@ run_skip_phase2() {
 # ── LLaVA 1.5 — all phases ───────────────────────────────────
 run_all_phases "llava-hf/llava-1.5-7b-hf"
 
-# ── Qwen 2.5 VL — skip Phase 2 ──────────────────────────────
-run_skip_phase2 "Qwen/Qwen2.5-VL-7B-Instruct"
+# ── Qwen 2 VL (base + Instruct) — skip Phase 2 ──────────────
+run_skip_phase2 "Qwen/Qwen2-VL-7B"
+run_skip_phase2 "Qwen/Qwen2-VL-7B-Instruct"
 
 echo ""
 echo "============================================================"

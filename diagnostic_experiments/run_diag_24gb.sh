@@ -3,8 +3,9 @@
 # Diagnostic experiments requiring >=24 GB VRAM (e.g. RTX 5090)
 # ============================================================
 # Runs:
-#   - Phase 2 ONLY for Qwen2.5-VL-7B (generation needs more VRAM
-#     than the 5080 can handle without CPU offloading)
+#   - Phase 2 ONLY for Qwen2-VL-7B (base) and Qwen2-VL-7B-Instruct
+#     (generation needs more VRAM than the 5080 can handle without
+#     CPU offloading)
 #   - ALL phases for InternVL2-8B and InternVL2.5-8B-MPO
 #     (bf16 weights alone fill ~16 GB, so even extraction is slow
 #     on a 16 GB card)
@@ -46,8 +47,9 @@ run_all_phases() {
     MODEL="$MODEL" bash "$SCRIPT_DIR/run_all_diagnostics.sh"
 }
 
-# ── Qwen 2.5 VL — Phase 2 only ──────────────────────────────
-run_phase2_only "Qwen/Qwen2.5-VL-7B-Instruct"
+# ── Qwen 2 VL (base + Instruct) — Phase 2 only ──────────────
+run_phase2_only "Qwen/Qwen2-VL-7B"
+run_phase2_only "Qwen/Qwen2-VL-7B-Instruct"
 
 # ── InternVL2 — all phases ───────────────────────────────────
 run_all_phases "OpenGVLab/InternVL2-8B"
