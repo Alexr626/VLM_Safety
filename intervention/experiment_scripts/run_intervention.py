@@ -3,7 +3,7 @@
 Intervention Inference: ShiftDC vs Spherical ShiftDC
 ======================================================
 For each SSU (and optionally SSS) sample in the eval split, run VL inference
-with one of three intervention modes applied as a forward hook at layer 31:
+with one of three intervention modes applied as a forward hook at a chosen layer:
 
   --method none        : standard VL generation (baseline)
   --method original    : subtract safety-relevant projection of modality shift
@@ -11,35 +11,37 @@ with one of three intervention modes applied as a forward hook at layer 31:
   --method spherical   : rotate toward ShiftDC target via Slerp, preserving norm
                          (Spherical ShiftDC, proposed)
 
+Supports all four models in the project via --model:
+  llava-hf/llava-1.5-7b-hf
+  Qwen/Qwen2.5-VL-7B-Instruct
+  OpenGVLab/InternVL2-8B
+  OpenGVLab/InternVL2_5-8B-MPO
+
 Prerequisites
 -------------
   1. VL and TT activations cached at:
-       data/holisafe-bench/activations/llava-1.5-7b-hf/sample_{id}_{vl|tt}.npz
-     (Alternatively, outputs_old/llava-1.5-7b-hf/activations/holisafe/ as fallback)
+       data/holisafe-bench/activations/{model}/sample_{id}_{vl|tt}.npz
   2. Safety direction vectors at:
-       experiment_artifacts/llava-1.5-7b-hf/vl_activation_shift/safety_direction_vectors.npz
+       experiment_artifacts/{model}/vl_activation_shift/safety_direction_vectors.npz
   3. HoliSafe-Bench dataset loaded via src.dataset
 
-Outputs (under intervention/llava-1.5-7b-hf/outputs/results/)
+Outputs (under intervention/{model}/outputs/results/)
 -------
   {method}_results.json          — per-sample responses + refusal labels
   {method}_summary.json          — aggregate ASR / refusal rates + norm stats
 
 Usage
 -----
-  # Baseline (no intervention)
-  python run_intervention.py --method none
+  # Baseline (no intervention) on LLaVA
+  python run_intervention.py --method none --model llava-hf/llava-1.5-7b-hf
 
-  # Original ShiftDC
-  python run_intervention.py --method original --layer 31
-
-  # Spherical ShiftDC (default)
-  python run_intervention.py --method spherical --layer 31 --t 1.0
+  # Spherical ShiftDC on Qwen
+  python run_intervention.py --method spherical --model Qwen/Qwen2.5-VL-7B-Instruct --layer 27
 
   # Only SSU samples, limit to first 50
   python run_intervention.py --method spherical --labels SSU --limit 50
 
-  # Skip completed samples
+  # Skip if results already exist
   python run_intervention.py --method spherical --skip_if_exists
 """
 
@@ -53,8 +55,8 @@ import torch
 from tqdm import tqdm
 
 _SCRIPT_DIR   = Path(__file__).resolve().parent
-_INTERVENTION = _SCRIPT_DIR.parent.parent       # intervention/
-_PROJECT_ROOT = _INTERVENTION.parent            # VLM_Safety_new/
+_INTERVENTION = _SCRIPT_DIR.parent           # intervention/
+_PROJECT_ROOT = _INTERVENTION.parent         # VLM_Safety_new/
 sys.path.insert(0, str(_PROJECT_ROOT))
 sys.path.insert(0, str(_INTERVENTION))
 
@@ -64,22 +66,21 @@ from src.extraction import ActivationCache, cleanup_gpu
 from diagnostic_experiments.experiment_scripts.classify_responses import (
     REFUSAL_PHRASES, classify_keyword_twoaxis,
 )
-from intervention.spherical_shiftdc import (
+from intervention.steering import (
     compute_shiftdc_calibration,
     compute_spherical_shiftdc,
     calibration_stats,
 )
 
-_MODEL_ID    = "llava-hf/llava-1.5-7b-hf"
-_MODEL_NAME  = _normalize_model_name(_MODEL_ID)
+_DEFAULT_MODEL = "llava-hf/llava-1.5-7b-hf"
 
 # ── Path resolution ────────────────────────────────────────────────────────────
 
-def _resolve_cache_dir() -> Path:
-    """Find the TT/VL activation cache directory."""
+def _resolve_cache_dir(model_name: str) -> Path:
+    """Find the TT/VL activation cache directory for a given model."""
     candidates = [
-        _PROJECT_ROOT / "data" / "holisafe-bench" / "activations" / _MODEL_NAME,
-        _PROJECT_ROOT / "outputs" / _MODEL_NAME / "activations" / "holisafe",
+        _PROJECT_ROOT / "data" / "holisafe-bench" / "activations" / model_name,
+        _PROJECT_ROOT / "outputs" / model_name / "activations" / "holisafe",
     ]
     for p in candidates:
         if p.exists() and any(p.iterdir()):
@@ -91,11 +92,11 @@ def _resolve_cache_dir() -> Path:
     )
 
 
-def _resolve_safety_vecs() -> Path:
+def _resolve_safety_vecs(model_name: str) -> Path:
     candidates = [
-        _PROJECT_ROOT / "experiment_artifacts" / _MODEL_NAME /
+        _PROJECT_ROOT / "experiment_artifacts" / model_name /
             "vl_activation_shift" / "safety_direction_vectors.npz",
-        _PROJECT_ROOT / "outputs" / _MODEL_NAME /
+        _PROJECT_ROOT / "outputs" / model_name /
             "method2_shiftdc" / "safety_direction_vectors.npz",
     ]
     for p in candidates:
@@ -117,36 +118,6 @@ def _load_train_eval_split() -> set:
     return set(split.get("eval", []))
 
 
-def _get_llava_llm_layers(model: torch.nn.Module):
-    """Resolve the decoder `layers` ModuleList on LlavaForConditionalGeneration.
-
-    Current HuggingFace stacks the vision+LLM in ``model.model`` (LlavaModel) with
-    ``language_model`` as the Llama backbone; layers live at
-    ``language_model.layers``. Older checkpoints sometimes used
-    ``language_model.model.layers`` on the top module.
-    """
-    inner = getattr(model, "model", None)
-    if inner is not None and hasattr(inner, "language_model"):
-        lm = inner.language_model
-        if hasattr(lm, "layers"):
-            return lm.layers
-        nested = getattr(lm, "model", None)
-        if nested is not None and hasattr(nested, "layers"):
-            return nested.layers
-    lm = getattr(model, "language_model", None)
-    if lm is not None:
-        nested = getattr(lm, "model", None)
-        if nested is not None and hasattr(nested, "layers"):
-            return nested.layers
-        if hasattr(lm, "layers"):
-            return lm.layers
-    raise AttributeError(
-        "Could not find LLM transformer layers on this model "
-        "(tried model.model.language_model[.model].layers and "
-        "model.language_model[.model].layers)."
-    )
-
-
 # ── Forward hook factory ───────────────────────────────────────────────────────
 
 def make_intervention_hook(
@@ -158,18 +129,16 @@ def make_intervention_hook(
 ):
     """Return a forward hook that modifies the last-token hidden state in place.
 
-    The hook is designed for LLaVA's LLaMA transformer layers, where the
-    module output is either:
+    Compatible with any transformer decoder layer whose output is either:
       - a tuple (hidden_states, ...) with hidden_states: (batch, seq, d)
       - just hidden_states: (batch, seq, d)
 
     Only the last token position is modified.
     """
-    norm_ratios = []   # record for diagnostics
+    norm_ratios = []
 
     def hook_fn(module, input, output):
         h = output[0] if isinstance(output, tuple) else output
-        # h: (batch=1, seq_len, hidden_dim)
         x_vl = h[0, -1, :].detach().cpu().float().numpy()  # (d,)
 
         if method == "original":
@@ -182,12 +151,10 @@ def make_intervention_hook(
         else:
             return output  # no-op
 
-        # Record norm ratio for diagnostics
         norm_vl  = float(np.linalg.norm(x_vl))
         norm_hat = float(np.linalg.norm(x_hat))
         norm_ratios.append(norm_hat / (norm_vl + 1e-12))
 
-        # Write back
         h[0, -1, :] = torch.tensor(x_hat, dtype=h.dtype, device=h.device)
         return (h,) + output[1:] if isinstance(output, tuple) else h
 
@@ -208,11 +175,13 @@ def is_refusal(response: str) -> bool:
 
 def parse_args():
     p = argparse.ArgumentParser()
+    p.add_argument("--model", default=_DEFAULT_MODEL,
+                   help="HuggingFace model ID (default: llava-hf/llava-1.5-7b-hf)")
     p.add_argument("--method", default="spherical",
                    choices=["none", "original", "spherical"],
                    help="Intervention method (default: spherical)")
-    p.add_argument("--layer", type=int, default=31,
-                   help="Transformer layer to intervene at (default: 31)")
+    p.add_argument("--layer", type=int, default=None,
+                   help="Transformer layer to intervene at (default: last layer)")
     p.add_argument("--t", type=float, default=1.0,
                    help="Rotation strength for spherical method, in [0, 1]")
     p.add_argument("--gate_by_alignment", action="store_true",
@@ -226,7 +195,6 @@ def parse_args():
                    help="Override activation cache directory")
     p.add_argument("--skip_if_exists", action="store_true",
                    help="Skip if results file already exists")
-    p.add_argument("--model", default=_MODEL_ID)
     return p.parse_args()
 
 
@@ -274,22 +242,27 @@ def main():
     print(f"  Samples: {sum(s['label']=='SSS' for s in samples)} SSS + "
           f"{sum(s['label']=='SSU' for s in samples)} SSU")
 
+    # ── Load model ────────────────────────────────────────────────────────────
+    print(f"Loading model: {args.model} ...")
+    wrapper = create_wrapper(args.model).load()
+
+    # Resolve intervention layer: default to last layer if not specified
+    layer = args.layer if args.layer is not None else wrapper.num_layers - 1
+    print(f"  Intervention layer: {layer} (model has {wrapper.num_layers} layers)")
+
+    llm_layers = wrapper.llm_layers
+
     # ── Load precomputed TT activations ───────────────────────────────────────
-    cache_dir = Path(args.cache_dir) if args.cache_dir else _resolve_cache_dir()
+    cache_dir = Path(args.cache_dir) if args.cache_dir else _resolve_cache_dir(model_name)
     print(f"Activation cache: {cache_dir}")
     cache = ActivationCache(str(cache_dir))
 
     # ── Load safety direction ─────────────────────────────────────────────────
-    sd_path = _resolve_safety_vecs()
+    sd_path = _resolve_safety_vecs(model_name)
     print(f"Safety directions: {sd_path}")
     safety_vecs = dict(np.load(sd_path))
-    s_l = safety_vecs[f"layer_{args.layer}"].astype(np.float64)
-    print(f"  s^l (layer {args.layer}) shape: {s_l.shape}")
-
-    # ── Load model ────────────────────────────────────────────────────────────
-    print(f"Loading model: {args.model} ...")
-    wrapper = create_wrapper(args.model).load()
-    llm_layers = _get_llava_llm_layers(wrapper.model)
+    s_l = safety_vecs[f"layer_{layer}"].astype(np.float64)
+    print(f"  s^l (layer {layer}) shape: {s_l.shape}")
 
     # ── Checkpoint-based resume ───────────────────────────────────────────────
     checkpoint_path = results_path.with_suffix(".checkpoint.json")
@@ -308,30 +281,28 @@ def main():
             continue
 
         record = {
-            "id":       sid,
-            "label":    sample["label"],
-            "category": sample["category"],
-            "method":   method_tag,
-            "response": "",
+            "id":         sid,
+            "label":      sample["label"],
+            "category":   sample["category"],
+            "method":     method_tag,
+            "response":   "",
             "is_refusal": None,
             "norm_ratio": None,
         }
 
-        # Load precomputed TT activation for this sample at intervention layer
         tt_acts = cache.load_or_none(sid, suffix="tt")
-        if tt_acts is None or args.layer not in tt_acts:
+        if tt_acts is None or layer not in tt_acts:
             print(f"  Warning: TT activations missing for sample {sid} — skipping")
             continue
-        x_tt_layer = tt_acts[args.layer].astype(np.float64)
+        x_tt_layer = tt_acts[layer].astype(np.float64)
 
-        # Register hook (no-op for method='none')
         hook_fn = make_intervention_hook(
             x_tt_layer, s_l,
             method=args.method,
             t=args.t,
             gate_by_alignment=args.gate_by_alignment,
         )
-        hook_handle = llm_layers[args.layer].register_forward_hook(hook_fn)
+        hook_handle = llm_layers[layer].register_forward_hook(hook_fn)
 
         try:
             image = load_image_for_sample(sample)
@@ -356,7 +327,6 @@ def main():
         results.append(record)
         done_ids.add(sid)
 
-        # Checkpoint every 20 samples
         if len(results) % 20 == 0:
             with open(checkpoint_path, "w") as f:
                 json.dump(results, f, indent=2)
@@ -367,7 +337,6 @@ def main():
         checkpoint_path.unlink()
     print(f"Saved → {results_path}")
 
-    # ── Aggregate summary ─────────────────────────────────────────────────────
     summary = _compute_summary(results, method_tag)
     with open(summary_path, "w") as f:
         json.dump(summary, f, indent=2)
@@ -386,13 +355,12 @@ def _compute_summary(results: list, method_tag: str) -> dict:
         n_refusal   = sum(1 for r in group if r["is_refusal"])
         norm_ratios = [r["norm_ratio"] for r in group if r["norm_ratio"] is not None]
         summary[label] = {
-            "n":            n,
-            "refusal_rate": n_refusal / n,
-            "asr":          1.0 - n_refusal / n,   # Attack Success Rate
+            "n":               n,
+            "refusal_rate":    n_refusal / n,
+            "asr":             1.0 - n_refusal / n,
             "mean_norm_ratio": float(np.mean(norm_ratios)) if norm_ratios else None,
             "std_norm_ratio":  float(np.std(norm_ratios))  if norm_ratios else None,
         }
-    # Category breakdown for SSU
     from collections import defaultdict
     cat_stats = defaultdict(lambda: {"n": 0, "n_refusal": 0})
     for r in results:
@@ -422,7 +390,6 @@ def _print_summary(summary: dict):
         g = summary.get(label, {})
         if not g or g.get("n", 0) == 0:
             continue
-        nr = g.get("norm_ratio")
         nr_str = (f"  norm_ratio={g['mean_norm_ratio']:.4f}±{g['std_norm_ratio']:.4f}"
                   if g.get("mean_norm_ratio") is not None else "")
         print(f"  {label} (n={g['n']}): ASR={g['asr']:.1%}  "

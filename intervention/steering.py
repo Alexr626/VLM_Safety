@@ -1,7 +1,7 @@
 """
-Spherical ShiftDC — Core Math
-==============================
-Implements two activation calibration strategies:
+Activation Steering — Core Math
+================================
+Implements two activation steering strategies for safety calibration:
 
   1. **Original ShiftDC** (Zou et al. 2025)
        x_hat = x_vl - proj_{s^l}(m^l)
@@ -21,7 +21,7 @@ Both functions operate on float64 numpy arrays (single sample, single layer).
 
 Usage
 -----
-    from intervention.spherical_shiftdc import (
+    from intervention.steering import (
         compute_shiftdc_calibration,
         compute_spherical_shiftdc,
         slerp,

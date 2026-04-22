@@ -2,7 +2,7 @@
 """
 Plot Intervention Results: ShiftDC vs Spherical ShiftDC
 =========================================================
-Reads summary JSON files from intervention/llava-1.5-7b-hf/outputs/results/
+Reads summary JSON files from intervention/{model}/outputs/results/
 and produces comparison figures:
 
   1. ASR bar chart       — SSU Attack Success Rate across methods
@@ -12,8 +12,8 @@ and produces comparison figures:
 
 Usage
 -----
-  cd intervention/llava-1.5-7b-hf/plotting_scripts/
-  python plot_intervention_results.py
+  python plot_intervention_results.py --model llava-hf/llava-1.5-7b-hf
+  python plot_intervention_results.py --model Qwen/Qwen2.5-VL-7B-Instruct
 
   # Custom results directory
   python plot_intervention_results.py --results_dir /path/to/results
@@ -29,9 +29,11 @@ import matplotlib.patches as mpatches
 import numpy as np
 
 _SCRIPT_DIR   = Path(__file__).resolve().parent
-_MODEL_DIR    = _SCRIPT_DIR.parent
-_PROJECT_ROOT = _MODEL_DIR.parent.parent.parent
+_INTERVENTION = _SCRIPT_DIR.parent           # intervention/
+_PROJECT_ROOT = _INTERVENTION.parent         # VLM_Safety_new/
 sys.path.insert(0, str(_PROJECT_ROOT))
+
+from src.model import _normalize_model_name
 
 # ── Style constants ───────────────────────────────────────────────────────────
 
@@ -299,15 +301,18 @@ def plot_combined_summary(summaries: dict, out_path: Path):
 
 def parse_args():
     p = argparse.ArgumentParser()
+    p.add_argument("--model", default="llava-hf/llava-1.5-7b-hf",
+                   help="HuggingFace model ID (default: llava-hf/llava-1.5-7b-hf)")
     p.add_argument("--results_dir", default=None,
-                   help="Path to results directory (default: auto-resolved)")
+                   help="Path to results directory (default: auto-resolved from --model)")
     return p.parse_args()
 
 
 def main():
     args = parse_args()
+    model_name  = _normalize_model_name(args.model)
     results_dir = (Path(args.results_dir) if args.results_dir
-                   else _MODEL_DIR / "outputs" / "results")
+                   else _INTERVENTION / model_name / "outputs" / "results")
     plots_dir   = results_dir / "plots"
     plots_dir.mkdir(parents=True, exist_ok=True)
 

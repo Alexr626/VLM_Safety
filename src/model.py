@@ -88,6 +88,11 @@ class VLMWrapperBase:
     def hidden_dim(self) -> int:
         raise NotImplementedError
 
+    @property
+    def llm_layers(self):
+        """Return the transformer decoder ModuleList for hook registration."""
+        raise NotImplementedError
+
     # ── Required subclass interface ────────────────────────────────────────
     def load(self) -> "VLMWrapperBase":
         raise NotImplementedError
@@ -216,6 +221,30 @@ class LLaVAWrapper(VLMWrapperBase):
     @property
     def image_token_id(self) -> int:
         return self.model.config.image_token_index
+
+    @property
+    def llm_layers(self):
+        # LlavaForConditionalGeneration → LlavaModel → LlamaModel → layers
+        # Try model.model.language_model[.model].layers first, then
+        # model.language_model[.model].layers for older checkpoints.
+        inner = getattr(self.model, "model", None)
+        if inner is not None and hasattr(inner, "language_model"):
+            lm = inner.language_model
+            if hasattr(lm, "layers"):
+                return lm.layers
+            nested = getattr(lm, "model", None)
+            if nested is not None and hasattr(nested, "layers"):
+                return nested.layers
+        lm = getattr(self.model, "language_model", None)
+        if lm is not None:
+            nested = getattr(lm, "model", None)
+            if nested is not None and hasattr(nested, "layers"):
+                return nested.layers
+            if hasattr(lm, "layers"):
+                return lm.layers
+        raise AttributeError(
+            "Could not resolve llm_layers for this LLaVA model."
+        )
 
     @property
     def num_image_tokens(self) -> int:
@@ -454,7 +483,6 @@ class InternVL2Wrapper(VLMWrapperBase):
     # ── Properties ─────────────────────────────────────────────────────────
     @property
     def num_layers(self) -> int:
-        # LLM submodule holds the transformer layers
         return self.model.language_model.config.num_hidden_layers
 
     @property
@@ -464,6 +492,11 @@ class InternVL2Wrapper(VLMWrapperBase):
     @property
     def num_image_tokens(self) -> int:
         return self._num_image_token
+
+    @property
+    def llm_layers(self):
+        # InternVLChatModel → language_model (InternLM2ForCausalLM) → model → layers
+        return self.model.language_model.model.layers
 
     # ── Image preprocessing ────────────────────────────────────────────────
     def _preprocess_image(self, image: Image.Image) -> torch.Tensor:
@@ -628,6 +661,11 @@ class Qwen2VLWrapper(VLMWrapperBase):
         if hasattr(cfg, "text_config") and cfg.text_config is not None:
             return cfg.text_config.hidden_size
         return cfg.hidden_size
+
+    @property
+    def llm_layers(self):
+        # Qwen2_5_VLForConditionalGeneration → model (Qwen2_5_VLModel) → layers
+        return self.model.model.layers
 
     # ── Input preparation ──────────────────────────────────────────────────
     def _build_messages_vl(self, image: Image.Image, text: str):
