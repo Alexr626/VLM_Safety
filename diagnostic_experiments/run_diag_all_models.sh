@@ -28,18 +28,18 @@ run_all_phases() {
     MODEL="$MODEL" bash "$SCRIPT_DIR/run_all_diagnostics.sh"
 }
 
-# ── LLaVA 1.5 ────────────────────────────────────────────────
-run_all_phases "llava-hf/llava-1.5-7b-hf"
+# # ── LLaVA 1.5 ────────────────────────────────────────────────
+# run_all_phases "llava-hf/llava-1.5-7b-hf"
 
 # ── Qwen 2 VL (base + Instruct, for direct comparison) ──────
 run_all_phases "Qwen/Qwen2-VL-7B"
 run_all_phases "Qwen/Qwen2-VL-7B-Instruct"
 
-# ── InternVL2 ────────────────────────────────────────────────
-run_all_phases "OpenGVLab/InternVL2-8B"
+# # ── InternVL2 ────────────────────────────────────────────────
+# run_all_phases "OpenGVLab/InternVL2-8B"
 
-# ── InternVL2.5 MPO ──────────────────────────────────────────
-run_all_phases "OpenGVLab/InternVL2_5-8B-MPO"
+# # ── InternVL2.5 MPO ──────────────────────────────────────────
+# run_all_phases "OpenGVLab/InternVL2_5-8B-MPO"
 
 echo ""
 echo "============================================================"
