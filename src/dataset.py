@@ -854,5 +854,119 @@ def split_holisafe_train_eval(
     return sss_train, sss_eval, ssu_train, ssu_eval
 
 
+def split_catqa_train_eval(
+    n_samples: int = 550,
+    n_eval: int = 132,
+    seed: int = 42,
+    cache_dir: Optional[str] = None,
+    save_dir: Optional[str] = None,
+) -> Tuple[List[int], List[int]]:
+    """
+    Stratified train/eval split of the CatQA pool used during reference
+    activation extraction, by category.
+
+    Returns indices into the rows of `activation_matrices.npz`. To stay aligned
+    with the rows produced by `extract_ref_activations.py`, the same loader
+    (and same `n_samples`/`seed`) is used here to recover the row order:
+    activation row `i` corresponds to the i-th sample returned by
+    `load_catqa_harmful_reference(n_samples=n_samples, seed=seed)` (whose `id`
+    is `catqa_harmful_{i}`).
+
+    Args:
+        n_samples: must match the `n_samples` used at extraction time (read
+                   from each model's `metadata.json`).
+        n_eval: target total number of eval examples across categories,
+                allocated proportionally. The final eval size is approximate
+                because per-category counts are integer-rounded.
+        seed: random seed; must match extraction-time seed for row alignment.
+        cache_dir: directory containing catqa_contrastive_pairs.json.
+        save_dir: directory to persist the split JSON. Defaults to
+                  `<repo_root>/data/catqa-contrastive/splits/`. The split file
+                  is keyed by (n_samples, seed, n_eval) so different
+                  extractions don't collide.
+
+    Returns:
+        (train_indices, eval_indices) — sorted lists of integer row indices.
+    """
+    repo_root = Path(__file__).resolve().parent.parent
+    if cache_dir is None:
+        cache_dir = str(repo_root / "data" / "catqa-contrastive")
+    if save_dir is None:
+        save_dir = str(repo_root / "data" / "catqa-contrastive" / "splits")
+    split_path = (Path(save_dir) /
+                  f"train_eval_split_n{n_samples}_seed{seed}_neval{n_eval}.json")
+
+    # Use the same loader that extraction used, so id catqa_harmful_i
+    # corresponds to row i of the activation matrix.
+    samples = load_catqa_harmful_reference(
+        n_samples=n_samples, cache_dir=cache_dir, seed=seed
+    )
+    n_total = len(samples)
+    if n_eval >= n_total:
+        raise ValueError(
+            f"n_eval={n_eval} >= n_total={n_total}: not enough samples to split. "
+            "Re-extract reference activations with a larger REF_SAMPLES."
+        )
+    if n_eval > n_total * 0.5:
+        print(f"  WARNING: n_eval={n_eval} is more than half of n_total={n_total}; "
+              "consider re-extracting with a larger REF_SAMPLES.")
+
+    if split_path.exists():
+        with open(split_path) as f:
+            saved = json.load(f)
+        if (saved.get("seed") == seed
+                and saved.get("n_eval") == n_eval
+                and saved.get("n_samples") == n_samples
+                and saved.get("n_total") == n_total):
+            print(f"  Loading saved CatQA split from {split_path}")
+            train_idx = sorted(saved["train_indices"])
+            eval_idx = sorted(saved["eval_indices"])
+            print(f"  CatQA: {len(train_idx)} train, {len(eval_idx)} eval")
+            return train_idx, eval_idx
+
+    import random
+    by_cat: Dict[str, List[int]] = {}
+    for i, s in enumerate(samples):
+        by_cat.setdefault(s.get("category", "unknown"), []).append(i)
+
+    rng = random.Random(seed + 1)  # offset to decouple from loader's RNG
+    train_idx, eval_idx = [], []
+    for cat, idxs in sorted(by_cat.items()):
+        idxs = list(idxs)
+        rng.shuffle(idxs)
+        n_cat_eval = max(1, round(len(idxs) * n_eval / n_total))
+        n_cat_eval = min(n_cat_eval, len(idxs) - 1)
+        eval_idx.extend(idxs[:n_cat_eval])
+        train_idx.extend(idxs[n_cat_eval:])
+
+    train_idx.sort()
+    eval_idx.sort()
+
+    eval_cat_counts = {c: 0 for c in by_cat}
+    train_cat_counts = {c: 0 for c in by_cat}
+    for i in eval_idx:
+        eval_cat_counts[samples[i].get("category", "unknown")] += 1
+    for i in train_idx:
+        train_cat_counts[samples[i].get("category", "unknown")] += 1
+
+    split_data = {
+        "seed": seed,
+        "n_samples": n_samples,
+        "n_eval": n_eval,
+        "n_total": n_total,
+        "train_indices": train_idx,
+        "eval_indices": eval_idx,
+        "train_category_counts": train_cat_counts,
+        "eval_category_counts": eval_cat_counts,
+    }
+    Path(save_dir).mkdir(parents=True, exist_ok=True)
+    with open(split_path, "w") as f:
+        json.dump(split_data, f, indent=2)
+    print(f"  Saved CatQA train/eval split → {split_path}")
+    print(f"  CatQA: {len(train_idx)} train, {len(eval_idx)} eval")
+
+    return train_idx, eval_idx
+
+
 if __name__ == "__main__":
     load_holisafe()

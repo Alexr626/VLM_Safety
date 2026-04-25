@@ -24,7 +24,12 @@ _PROJECT_ROOT = _DIAGNOSTIC_ROOT.parent
 sys.path.insert(0, str(_PROJECT_ROOT))
 
 from src.extraction import ActivationCache, load_activation_matrix, load_json, save_json
-from src.dataset import load_holisafe, filter_subsets, split_holisafe_train_eval
+from src.dataset import (
+    load_holisafe,
+    filter_subsets,
+    split_holisafe_train_eval,
+    split_catqa_train_eval,
+)
 from src.model import _normalize_model_name
 
 _EXPERIMENT_NAME = "combinatorial_safety"
@@ -104,6 +109,7 @@ def main():
     ref_base = _DATA / "catqa-contrastive" / "activations" / model_name
     ref_safe_npz, ref_unsafe_npz = None, None
     safe_prefix, unsafe_prefix = "safe", "unsafe"
+    safe_meta, unsafe_meta = None, None
     for subdir in ref_base.iterdir():
         if subdir.is_dir():
             meta_path = subdir / "metadata.json"
@@ -114,12 +120,28 @@ def main():
                     if meta["role"] == "safe":
                         ref_safe_npz = np.load(npz_path)
                         safe_prefix = meta["role"]
+                        safe_meta = meta
                     elif meta["role"] == "unsafe":
                         ref_unsafe_npz = np.load(npz_path)
                         unsafe_prefix = meta["role"]
+                        unsafe_meta = meta
 
     if ref_safe_npz is None or ref_unsafe_npz is None:
         raise FileNotFoundError("CatQA reference activations not found.")
+
+    # ── Stratified CatQA train/eval split ───────────────────────────────────
+    # Use the same n_samples/seed that extraction used so the split's row
+    # indices align with the activation matrix rows.
+    if (safe_meta["n_samples"] != unsafe_meta["n_samples"]
+            or safe_meta["seed"] != unsafe_meta["seed"]):
+        raise ValueError(
+            "Mismatched n_samples/seed between safe and unsafe CatQA extractions; "
+            "rows are not aligned."
+        )
+    catqa_train_idx, catqa_eval_idx = split_catqa_train_eval(
+        n_samples=safe_meta["n_samples"], seed=safe_meta["seed"]
+    )
+    print(f"CatQA split: {len(catqa_train_idx)} train / {len(catqa_eval_idx)} eval")
 
     # ── Load behavioral labels (optional) ────────────────────────────────────
     refusal_path = (_DIAGNOSTIC_ROOT / model_name / "behavioral_ground_truth" /
@@ -142,8 +164,20 @@ def main():
 
         catqa_safe = ref_safe_npz[f"{safe_prefix}_layer_{l}"].astype(np.float32)
         catqa_unsafe = ref_unsafe_npz[f"{unsafe_prefix}_layer_{l}"].astype(np.float32)
-        X_a_train = np.vstack([catqa_safe, catqa_unsafe])
-        y_a_train = np.array([0] * len(catqa_safe) + [1] * len(catqa_unsafe))
+
+        catqa_safe_train = catqa_safe[catqa_train_idx]
+        catqa_unsafe_train = catqa_unsafe[catqa_train_idx]
+        catqa_safe_eval = catqa_safe[catqa_eval_idx]
+        catqa_unsafe_eval = catqa_unsafe[catqa_eval_idx]
+
+        X_a_train = np.vstack([catqa_safe_train, catqa_unsafe_train])
+        y_a_train = np.array(
+            [0] * len(catqa_safe_train) + [1] * len(catqa_unsafe_train)
+        )
+        X_catqa_eval = np.vstack([catqa_safe_eval, catqa_unsafe_eval])
+        y_catqa_eval = np.array(
+            [0] * len(catqa_safe_eval) + [1] * len(catqa_unsafe_eval)
+        )
 
         try:
             X_sss_train = load_activation_matrix(cache, sss_train_ids, l, suffix="tt")
@@ -173,7 +207,7 @@ def main():
         except FileNotFoundError:
             X_test2, y_test2 = np.empty((0, X_a_train.shape[1])), np.array([])
 
-        X_test3, y_test3 = X_a_train, y_a_train
+        X_test3, y_test3 = X_catqa_eval, y_catqa_eval
 
         X_test4, y_test4 = [], []
         if refusal_map:
@@ -193,7 +227,7 @@ def main():
             for test_name, X_test, y_test in [
                 ("holisafe_eval_tt", X_test1, y_test1),
                 ("holisafe_eval_vl", X_test2, y_test2),
-                ("catqa_full", X_test3, y_test3),
+                ("catqa_eval", X_test3, y_test3),
                 ("ssu_behavioral", X_test4, y_test4),
             ]:
                 metrics = _evaluate(probe, X_test, y_test)
@@ -207,7 +241,7 @@ def main():
     if all_results:
         print(f"\nProbe Results Summary (best layer):")
         for probe in ["content_probe", "combinatorial_probe"]:
-            for test in ["holisafe_eval_tt", "holisafe_eval_vl", "catqa_full", "ssu_behavioral"]:
+            for test in ["holisafe_eval_tt", "holisafe_eval_vl", "catqa_eval", "ssu_behavioral"]:
                 key = f"{probe}__{test}__accuracy"
                 accs = [(r["layer"], r.get(key)) for r in all_results if r.get(key) is not None]
                 if accs:

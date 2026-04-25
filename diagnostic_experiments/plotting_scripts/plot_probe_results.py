@@ -18,17 +18,17 @@ from src.model import _normalize_model_name
 _EXPERIMENT_NAME = "combinatorial_safety"
 PROBES = ["content_probe", "combinatorial_probe"]
 PROBE_LABELS = {"content_probe": "Content (CatQA)", "combinatorial_probe": "Combinatorial (SSU-vs-SSS)"}
-TESTS = ["holisafe_eval_tt", "holisafe_eval_vl", "catqa_full", "ssu_behavioral"]
+TESTS = ["holisafe_eval_tt", "holisafe_eval_vl", "catqa_eval", "ssu_behavioral"]
 TEST_LABELS = {
     "holisafe_eval_tt": "HoliSafe Eval (TT)",
     "holisafe_eval_vl": "HoliSafe Eval (VL)",
-    "catqa_full": "CatQA (full)",
+    "catqa_eval": "CatQA Eval",
     "ssu_behavioral": "SSU Behavioral",
 }
 PROBE_COLORS = {"content_probe": "#2563eb", "combinatorial_probe": "#dc2626"}
 TEST_STYLES = {
     "holisafe_eval_tt": ("o", "-"), "holisafe_eval_vl": ("s", "--"),
-    "catqa_full": ("^", ":"), "ssu_behavioral": ("D", "-."),
+    "catqa_eval": ("^", ":"), "ssu_behavioral": ("D", "-."),
 }
 
 
