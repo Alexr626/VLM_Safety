@@ -1,0 +1,176 @@
+[
+  {
+    "layer": 0,
+    "cosine_sim_comb_vs_catqa": 1.0,
+    "effective_rank": 0,
+    "subspace_overlap_top5": 1.0
+  },
+  {
+    "layer": 1,
+    "cosine_sim_comb_vs_catqa": 0.05567620590913626,
+    "effective_rank": 56,
+    "subspace_overlap_top5": 0.297615081301021
+  },
+  {
+    "layer": 2,
+    "cosine_sim_comb_vs_catqa": 0.036532778897587645,
+    "effective_rank": 77,
+    "subspace_overlap_top5": 0.34426428151596195
+  },
+  {
+    "layer": 3,
+    "cosine_sim_comb_vs_catqa": 0.20243711687092592,
+    "effective_rank": 81,
+    "subspace_overlap_top5": 0.3536415422998714
+  },
+  {
+    "layer": 4,
+    "cosine_sim_comb_vs_catqa": 0.14740699638176252,
+    "effective_rank": 85,
+    "subspace_overlap_top5": 0.3414644890999921
+  },
+  {
+    "layer": 5,
+    "cosine_sim_comb_vs_catqa": 0.4530128836303576,
+    "effective_rank": 67,
+    "subspace_overlap_top5": 0.3594758470535814
+  },
+  {
+    "layer": 6,
+    "cosine_sim_comb_vs_catqa": 0.3753709720219153,
+    "effective_rank": 59,
+    "subspace_overlap_top5": 0.41428500109567185
+  },
+  {
+    "layer": 7,
+    "cosine_sim_comb_vs_catqa": 0.447245249061914,
+    "effective_rank": 63,
+    "subspace_overlap_top5": 0.35472996151948066
+  },
+  {
+    "layer": 8,
+    "cosine_sim_comb_vs_catqa": 0.35412113807367956,
+    "effective_rank": 63,
+    "subspace_overlap_top5": 0.3153323227443833
+  },
+  {
+    "layer": 9,
+    "cosine_sim_comb_vs_catqa": 0.20500632633027302,
+    "effective_rank": 58,
+    "subspace_overlap_top5": 0.32579532918308496
+  },
+  {
+    "layer": 10,
+    "cosine_sim_comb_vs_catqa": 0.5242539357776864,
+    "effective_rank": 52,
+    "subspace_overlap_top5": 0.4650611792334206
+  },
+  {
+    "layer": 11,
+    "cosine_sim_comb_vs_catqa": 0.4323279377171925,
+    "effective_rank": 51,
+    "subspace_overlap_top5": 0.4230635411038248
+  },
+  {
+    "layer": 12,
+    "cosine_sim_comb_vs_catqa": -0.1690087602010047,
+    "effective_rank": 51,
+    "subspace_overlap_top5": 0.37121164612791724
+  },
+  {
+    "layer": 13,
+    "cosine_sim_comb_vs_catqa": 0.34237127788207855,
+    "effective_rank": 54,
+    "subspace_overlap_top5": 0.3503567116245905
+  },
+  {
+    "layer": 14,
+    "cosine_sim_comb_vs_catqa": 0.3401525139244533,
+    "effective_rank": 56,
+    "subspace_overlap_top5": 0.31399388079985463
+  },
+  {
+    "layer": 15,
+    "cosine_sim_comb_vs_catqa": 0.33302407407700113,
+    "effective_rank": 53,
+    "subspace_overlap_top5": 0.3134372202141183
+  },
+  {
+    "layer": 16,
+    "cosine_sim_comb_vs_catqa": 0.3168249135990618,
+    "effective_rank": 52,
+    "subspace_overlap_top5": 0.31700278005469357
+  },
+  {
+    "layer": 17,
+    "cosine_sim_comb_vs_catqa": 0.2901712314318488,
+    "effective_rank": 51,
+    "subspace_overlap_top5": 0.3145467557453485
+  },
+  {
+    "layer": 18,
+    "cosine_sim_comb_vs_catqa": 0.2732870331686265,
+    "effective_rank": 53,
+    "subspace_overlap_top5": 0.29326806744220707
+  },
+  {
+    "layer": 19,
+    "cosine_sim_comb_vs_catqa": 0.2948416423509066,
+    "effective_rank": 55,
+    "subspace_overlap_top5": 0.3459877743865215
+  },
+  {
+    "layer": 20,
+    "cosine_sim_comb_vs_catqa": 0.2823448968942087,
+    "effective_rank": 56,
+    "subspace_overlap_top5": 0.3681916552993151
+  },
+  {
+    "layer": 21,
+    "cosine_sim_comb_vs_catqa": 0.3134677277677324,
+    "effective_rank": 61,
+    "subspace_overlap_top5": 0.37819835374673016
+  },
+  {
+    "layer": 22,
+    "cosine_sim_comb_vs_catqa": 0.254322207755371,
+    "effective_rank": 64,
+    "subspace_overlap_top5": 0.3812852178527417
+  },
+  {
+    "layer": 23,
+    "cosine_sim_comb_vs_catqa": 0.3036189399224708,
+    "effective_rank": 75,
+    "subspace_overlap_top5": 0.35998029668384035
+  },
+  {
+    "layer": 24,
+    "cosine_sim_comb_vs_catqa": 0.31303236976632604,
+    "effective_rank": 84,
+    "subspace_overlap_top5": 0.35509542678688505
+  },
+  {
+    "layer": 25,
+    "cosine_sim_comb_vs_catqa": 0.3764194904336749,
+    "effective_rank": 93,
+    "subspace_overlap_top5": 0.3386017746073314
+  },
+  {
+    "layer": 26,
+    "cosine_sim_comb_vs_catqa": 0.37686207398533633,
+    "effective_rank": 98,
+    "subspace_overlap_top5": 0.35523849104882216
+  },
+  {
+    "layer": 27,
+    "cosine_sim_comb_vs_catqa": 0.3593956016098925,
+    "effective_rank": 110,
+    "subspace_overlap_top5": 0.3317471747310439
+  },
+  {
+    "layer": 28,
+    "cosine_sim_comb_vs_catqa": 0.4808291292951046,
+    "effective_rank": 94,
+    "subspace_overlap_top5": 0.3830262871052056
+  }
+]
