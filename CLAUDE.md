@@ -14,6 +14,29 @@ m^l = x_vl^l - x_tt^l
 
 The shift vector `m^l` is projected onto a **safety direction** `s^l` (derived via PCA from safe/unsafe reference datasets) to compare SSS (Safe→Safe) vs SSU (Safe→Unsafe) groups across transformer layers.
 
+## Supported Models
+
+The pipeline supports ten VLMs via `create_wrapper()` in `src/model.py`:
+
+| Model ID                              | Short name                | Wrapper class        |
+|---------------------------------------|---------------------------|---------------------|
+| `llava-hf/llava-1.5-7b-hf`            | `llava-1.5-7b-hf`         | `LLaVAWrapper`      |
+| `llava-hf/llava-v1.6-vicuna-7b-hf`    | `llava-v1.6-vicuna-7b-hf` | `LLaVAWrapper`      |
+| `Lin-Chen/ShareGPT4V-7B`              | `sharegpt4v-7b`            | `ShareGPT4VWrapper` |
+| `Vision-CAIR/MiniGPT-4`               | `minigpt-4`               | `MiniGPT4Wrapper`*  |
+| `Qwen/Qwen-VL-Chat`                   | `qwen-vl-chat`            | `QwenVLWrapper`     |
+| `Qwen/Qwen2-VL-7B`                    | `qwen2-vl-7b`             | `Qwen2VLWrapper`    |
+| `Qwen/Qwen2-VL-7B-Instruct`           | `qwen2-vl-7b-instruct`    | `Qwen2VLWrapper`    |
+| `Qwen/Qwen2.5-VL-7B-Instruct`         | `qwen2.5-vl-7b-instruct`  | `Qwen2VLWrapper`    |
+| `OpenGVLab/InternVL2-8B`              | `internvl2-8b`            | `InternVL2Wrapper`  |
+| `OpenGVLab/InternVL2_5-8B-MPO`        | `internvl2.5-8b-mpo`      | `InternVL2Wrapper`  |
+
+*\* MiniGPT-4 requires the [Vision-CAIR/MiniGPT-4](https://github.com/Vision-CAIR/MiniGPT-4) repo
+in PYTHONPATH and a downloaded checkpoint (set `MINIGPT4_CKPT` env var).*
+
+The short name is used as the directory key under `data/*/activations/{model}/`,
+`experiment_artifacts/{model}/`, `diagnostic_experiments/{model}/`, etc.
+
 ## Key Datasets
 
 ### Main Evaluation Dataset
@@ -23,145 +46,165 @@ The shift vector `m^l` is projected onto a **safety direction** `s^l` (derived v
     - **SSU**: Safe image + Safe text → Unsafe output (the anomaly)
 
 ### Reference Datasets (for safety direction computation)
-- **CatQA-Harmful** (unsafe reference): contrastive harmful questions
-- **CatQA-Harmless** (safe reference): contrastive harmless counterparts
-- **MM-SafetyBench** (alternative unsafe reference): PKU-Alignment/MM-SafetyBench
-- **LLaVA-Instruct-80k** (alternative safe reference): liuhaotian/LLaVA-Instruct-150K
+- **CatQA-Harmful** (unsafe reference): contrastive harmful questions (text-only)
+- **CatQA-Harmless** (safe reference): contrastive harmless counterparts (text-only)
+- **MM-SafetyBench** (alternative unsafe reference): PKU-Alignment/MM-SafetyBench (has images)
+- **LLaVA-Instruct-80k** (alternative safe reference): liuhaotian/LLaVA-Instruct-150K (has images)
 
 ## Project Structure
 
 ```
 VLM_Safety/
 ├── src/                                    # Core library modules
-│   ├── model.py                            # VLMWrapper: model loading, forward passes, caption generation
+│   ├── model.py                            # VLMWrapperBase + per-model wrappers
 │   ├── dataset.py                          # Dataset loaders + REFERENCE_REGISTRY
 │   └── extraction.py                       # ActivationCache, SVD utilities, helpers
 │
 ├── data/                                   # All datasets + their activations
-│   ├── holisafe-bench/                     # HoliSafe-Bench dataset (downloaded on first run)
-│   │   └── activations/{model}/            # Per-sample VL/TT .npz + sample_metadata.json
-│   ├── captions/                           # Generated image captions ({dataset}.json)
-│   └── catqa-contrastive/                  # Contrastive QA pairs + reference activations
-│       ├── catqa_contrastive_pairs.json
-│       └── activations/{model}/            # catqa-harmful/ + catqa-harmless/ activation matrices
+│   ├── holisafe-bench/                     # Main evaluation dataset + activations/{model}/
+│   ├── captions/                           # Generated captions + cohesive-text fusions
+│   ├── catqa-contrastive/                  # Contrastive QA pairs + activations/{model}/
+│   ├── llava-instruct-ref/                 # Alternative safe-reference dataset
+│   └── mm-safetybench-ref/                 # Alternative unsafe-reference dataset
 │
-├── experiment_artifacts/                   # Artifacts produced by experiments, organized by model
-│   └── llava-1.5-7b-hf/
-│       ├── vl_activation_shift/            # safety_direction_vectors.npz
-│       ├── effective_rank/                 # singular_spectra.npz
-│       ├── safety_decomposition/           # safety_subspace_bases.npz, safety_subspace_spectra.npz
-│       └── subspace_overlap/               # integration_spectra.npz, integration_subspace_bases.npz
+├── experiment_artifacts/{model}/           # .npz artifacts, organised per model
+│   ├── vl_activation_shift/                # safety_direction_vectors.npz
+│   └── combinatorial_safety/               # combinatorial_direction_vectors.npz
 │
-├── data_scripts/                           # GPU-based data generation & extraction scripts
-│   ├── generate_captions.py                # Generate image captions for text-only counterparts
-│   ├── extract_vl.py                       # Extract multimodal (VL) activations
-│   ├── extract_tt.py                       # Extract text-only (TT) activations using captions
-│   ├── extract_ref_activations.py          # Extract reference dataset activations (safe & unsafe)
-│   ├── generate_catqa_harmless_pairs.py    # Generate contrastive QA pairs via LLM
-│   ├── generate_cohesive_text.py           # Fuse caption + query into cohesive text (CT)
-│   └── extract_ct.py                       # Extract CT activations (cohesive text, text-only forward)
+├── data_scripts/                           # GPU-based data generation & extraction
+│   ├── generate_captions.py                # Generate image captions
+│   ├── extract_vl.py                       # Extract multimodal activations
+│   ├── extract_tt.py                       # Extract text-only activations
+│   ├── extract_ref_activations.py          # Extract reference activations
+│   ├── generate_cohesive_text.py           # Fuse caption + text into single query (CT)
+│   ├── extract_ct.py                       # Extract CT (cohesive text) activations
+│   └── generate_catqa_harmless_pairs.py    # Generate contrastive QA pairs via LLM
 │
 ├── diagnostic_experiments/                 # Phase 1: Diagnostic experiments
-│   └── llava-1.5-7b-hf/
-│       ├── shift_dc/                       # ShiftDC modality shift analysis
-│       │   ├── experiment_scripts/
-│       │   │   ├── vl_activation_shift.py  # Compute safety direction, project shifts
-│       │   │   └── sanity_check_tt_baseline.py
-│       │   ├── plotting_scripts/
-│       │   │   ├── plot_vl_activation_shift_projections.py
-│       │   │   └── plot_tt_baseline_projections.py
-│       │   ├── outputs/
-│       │   │   ├── activations/            # Per-sample VL/TT .npz files
-│       │   │   ├── artifacts/              # safety_direction_vectors.npz
-│       │   │   └── results/                # aggregate_stats.json, plots/
-│       │   └── run_shiftdc.sh              # Base ShiftDC pipeline orchestrator
-│       ├── behavioral_ground_truth/        # Exp 3: Model refusal labels for VL/TT/CT
-│       │   ├── experiment_scripts/{generate_responses,classify_responses}.py
-│       │   ├── plotting_scripts/plot_behavioral_ground_truth.py
-│       │   └── outputs/results/            # holisafe_responses.json, refusal_labels.json
-│       ├── augmented_baseline/             # Exp 1: TT vs CT projection gaps
-│       │   ├── experiment_scripts/augmented_baseline_projections.py
-│       │   ├── plotting_scripts/plot_augmented_baseline.py
-│       │   └── outputs/{results,artifacts}/
-│       ├── combinatorial_safety/           # Exp 2: SSU-vs-SSS direction + probes
-│       │   ├── experiment_scripts/{combinatorial_direction,safety_probes}.py
-│       │   ├── plotting_scripts/{plot_direction_comparison,plot_probe_results}.py
-│       │   └── outputs/{results,artifacts}/
-│       ├── run_data_prep.sh                # Cohesive text + CT extraction (GPU)
-│       ├── run_behavioral_ground_truth.sh  # Responses + refusal classification (GPU)
-│       ├── run_augmented_diagnostics.sh    # Augmented analysis + plots (CPU)
-│       └── run_all_new_experiments.sh      # All three augmented experiments, in order
-│
-├── subspace_analysis/                      # Phase 2: Subspace analysis experiments
-│   ├── llava-1.5-7b-hf/
-│   │   ├── effective_rank/                 # Experiment A: Effective rank of shift spaces
-│   │   │   ├── experiment_scripts/
-│   │   │   ├── plotting_scripts/
-│   │   │   └── outputs/{results,artifacts}/
-│   │   ├── safety_decomposition/           # Experiment B: Multi-dimensional safety decomposition
-│   │   │   ├── experiment_scripts/
-│   │   │   ├── plotting_scripts/
-│   │   │   └── outputs/{results,artifacts}/
-│   │   ├── subspace_overlap/               # Experiment C: Integration vs safety subspace overlap
-│   │   │   ├── experiment_scripts/
-│   │   │   ├── plotting_scripts/
-│   │   │   └── outputs/{results,artifacts}/
-│   │   └── category_analysis/              # Experiment D: Per-harm-category breakdown
-│   │       ├── experiment_scripts/
-│   │       ├── plotting_scripts/
-│   │       └── outputs/{results}/
-│   └── run_followup.sh                    # Run all subspace analysis experiments
+│   ├── experiment_scripts/                 # Shared across models
+│   │   ├── vl_activation_shift.py          # Core ShiftDC analysis
+│   │   ├── sanity_check_tt_baseline.py
+│   │   ├── augmented_baseline_projections.py
+│   │   ├── combinatorial_direction.py
+│   │   ├── safety_probes.py
+│   │   ├── generate_responses.py
+│   │   ├── classify_responses.py
+│   │   └── catqa_behavioral_baseline.py
+│   ├── plotting_scripts/                   # Shared across models
+│   │   ├── plot_vl_activation_shift_projections.py
+│   │   ├── plot_tt_baseline_projections.py
+│   │   ├── plot_combinatorial_shift_projections.py
+│   │   ├── plot_direction_comparison.py
+│   │   ├── plot_probe_results.py
+│   │   ├── plot_augmented_baseline.py
+│   │   └── plot_behavioral_ground_truth.py
+│   ├── {model}/                            # Per-model outputs (one per supported model)
+│   │   ├── shift_dc/outputs/               # ShiftDC results + plots
+│   │   ├── behavioral_ground_truth/outputs/
+│   │   ├── combinatorial_safety/outputs/
+│   │   └── augmented_baseline/outputs/     # (llava only)
+│   ├── run_shiftdc.sh                      # ShiftDC pipeline (extraction + safety direction)
+│   ├── run_all_diagnostics.sh              # All diagnostic phases for a given MODEL
+│   ├── run_data_prep.sh                    # Cohesive text + CT extraction (GPU)
+│   ├── run_behavioral_ground_truth.sh      # Response gen + refusal classification (GPU)
+│   ├── run_combinatorial_safety.sh         # Combinatorial direction + probes (CPU)
+│   ├── run_augmented_diagnostics.sh        # TT-vs-CT safety-projection gap (CPU)
+│   ├── run_all_new_experiments.sh          # Augmented experiments end-to-end
+│   ├── run_diag_16gb.sh                    # Models that fit on 16 GB GPUs
+│   ├── run_diag_24gb.sh                    # Models that need >=24 GB VRAM
+│   └── run_diag_all_models.sh              # All models sequentially
 │
 ├── helper_scripts/                         # Utility scripts
 │   ├── check_data_integrity.py
-│   └── download_missing_images.py
+│   ├── download_missing_images.py
+│   ├── add_captions_to_responses.py
+│   ├── extract_refusal_responses.py
+│   ├── debug_id_mismatch.py
+│   ├── investigate_duplicates.py
+│   └── remap_behavioral_ids.py
 │
 ├── plans_and_project_descriptions/         # Planning docs & experiment design notes
 │
+├── environment.yml / requirements.txt      # Environment specs
 ├── CLAUDE.md                               # This file
 └── readme.md                               # User-facing documentation
 ```
 
 ## Experiment Directory Convention
 
-Each experiment group follows this structure:
+Per-model output directories under `diagnostic_experiments/{model}/{experiment}/outputs/`
+contain two subfolders:
+
 ```
-<experiment_group>/<model_name>/<experiment_name>/
-├── experiment_scripts/         # Python scripts that run the experiment
-├── plotting_scripts/           # Python scripts that generate plots
-├── outputs/
-│   ├── results/                # JSON results + plots/ subdirectory
-│   └── artifacts/              # Intermediate .npz files (bases, spectra, etc.)
-└── run_<group>.sh              # Shell script to run all experiments in the group
+outputs/
+├── results/           # JSON results + plots/
+└── artifacts/         # Intermediate .npz files
 ```
+
+Shared analysis scripts in `experiment_scripts/` / `plotting_scripts/` take `--model`
+and dispatch paths using the model's short name.
 
 ## Core Modules
 
-### `src/model.py` — VLMWrapper
-Primary target: `llava-hf/llava-1.5-7b-hf` (LLaVA 1.5)
+### `src/model.py` — VLM Wrappers
+
+**Architecture:** Abstract base `VLMWrapperBase` with concrete subclasses per model family.
+
+**`VLMWrapperBase` (abstract):**
+- `load()`: Load model + processor, show GPU diagnostics
+- `forward_vl(image, text, output_attentions=False)`: Multimodal forward pass → hidden_states, attentions
+- `forward_text(text, output_attentions=False)`: Text-only forward pass
+- `generate_vl(image, text, max_new_tokens=256)`: Generate response from image + text (greedy)
+- `generate_text(text, max_new_tokens=256)`: Generate response from text-only prompt (greedy)
+- `generate_caption(image, max_new_tokens=200)`: Generate image caption
+- `generate_captions_batch(images, max_new_tokens=200)`: Batch caption generation
+- `cleanup()`: Free GPU memory
+- **Properties:** `model_name`, `device`, `num_layers`, `hidden_dim`
+
+**`LLaVAWrapper`** — for `llava-hf/llava-1.5-7b-hf` and `llava-v1.6-vicuna-7b-hf`
 - LlavaForConditionalGeneration (transformers >= 4.37)
 - CLIP ViT-L/14@336px → 576 image tokens (24x24 grid)
 - LLaMA-2 LLM backbone: 32 layers, hidden_dim=4096
 - Image token ID: 32000
+- Additional methods: `get_image_token_span(input_ids)`, `get_text_token_positions(input_ids)`
+- Additional properties: `num_attention_heads`, `image_token_id`, `num_image_tokens`
 
-**Key Methods:**
-- `load()`: Load model + processor, show GPU diagnostics
-- `forward_vl(image, text)`: Multimodal forward pass → hidden_states, attentions
-- `forward_text(text)`: Text-only forward pass
-- `generate_caption(image)`: Generate image caption
-- `generate_captions_batch(images)`: Batch caption generation
-- `generate_vl(image, text, max_new_tokens=256)`: Generate response from image + text (greedy)
-- `generate_text(text, max_new_tokens=256)`: Generate response from text-only prompt (greedy)
-- `get_image_token_span(input_ids)`: Find image token positions in expanded sequence
-- `get_text_token_positions(input_ids)`: Get non-image (text) token positions
+**`ShareGPT4VWrapper`** — for `Lin-Chen/ShareGPT4V-7B`
+- Same architecture as LLaVA-1.5 (CLIP ViT-L/14@336 + 2-layer MLP projector + Vicuna-7B)
+- Components loaded manually: `LlamaForCausalLM` backbone, `CLIPVisionModel` tower, MLP projector weights
+- LLaMA-2 LLM backbone: 32 layers, hidden_dim=4096
+- Forward passes go through the LLaMA backbone directly with spliced visual embeddings
 
-**Properties:**
-- `num_layers`, `hidden_dim`, `num_attention_heads`, `image_token_id`, `num_image_tokens`, `model_name`, `device`
+**`MiniGPT4Wrapper`** — for `Vision-CAIR/MiniGPT-4`
+- BLIP-2 ViT-G/14 + Q-Former + single linear projection + Vicuna-7B
+- Requires external MiniGPT-4 repo (import guard with setup instructions)
+- LLM backbone (Vicuna-7B): 32 layers, hidden_dim=4096
+- Forward passes go through `self.model.llama_model` with visual embeddings spliced in
+
+**`InternVL2Wrapper`** — for `OpenGVLab/InternVL2-8B` and `OpenGVLab/InternVL2_5-8B-MPO`
+- InternVL2 architecture with InternViT vision encoder
+- Additional property: `num_image_tokens`
+
+**`QwenVLWrapper`** — for `Qwen/Qwen-VL-Chat` (original Qwen-VL)
+- Qwen-7B backbone with integrated vision encoder, fixed 448x448 resolution
+- Loaded via `AutoModelForCausalLM` with `trust_remote_code=True`
+- Custom tokenizer with `from_list_format()` for image handling (images saved to temp files)
+- LLM backbone: Qwen-7B, 32 layers, hidden_dim=4096
+- Distinct from Qwen2-VL (different architecture, tokenizer, and image handling)
+
+**`Qwen2VLWrapper`** — for `Qwen/Qwen2-VL-7B`, `Qwen/Qwen2-VL-7B-Instruct`, and `Qwen/Qwen2.5-VL-7B-Instruct`
+- Qwen2VLForConditionalGeneration (Qwen2-VL) / Qwen2_5_VLForConditionalGeneration (Qwen2.5-VL)
+- LLM backbone: Qwen2(.5)-7B, 28 layers, hidden_dim=3584
+- Dynamic resolution vision encoding; chat template with fallback for base (non-Instruct) models
+
+**Factory:** `create_wrapper(model_id, **kwargs)` returns the correct wrapper. `VLMWrapper()` is a backward-compatible alias.
 
 ### `src/dataset.py` — Dataset Loading
 **HoliSafe-Bench:**
 - `load_holisafe()`: Download/load HoliSafe-Bench to `data/holisafe-bench/`
 - `filter_subsets(entries, images_base)`: Filter to SSS and SSU subsets
+- `filter_reference_subsets(entries, images_base)`: Returns all 5 HoliSafe subsets (SSS, SSU, USS, UUS, UUU)
+- `load_image_for_sample(sample, hf_repo)`: Load/download image for a single sample
 - Sample dict schema:
   ```python
   {
@@ -179,6 +222,10 @@ Primary target: `llava-hf/llava-1.5-7b-hf` (LLaVA 1.5)
 
 **Reference Datasets:**
 - `REFERENCE_REGISTRY`: Maps dataset name → `{role, loader, text_only}`
+  - `"catqa-harmful"`: role=unsafe, text_only=True
+  - `"catqa-harmless"`: role=safe, text_only=True
+  - `"mm-safetybench"`: role=unsafe, text_only=False (has images)
+  - `"llava-instruct"`: role=safe, text_only=False (has images)
 
 **Train/Eval Split:**
 - `split_holisafe_train_eval(sss, ssu, n_train=175, seed=42)`: Stratified-by-category split into train/eval. Persists to `data/holisafe-bench/train_eval_split.json`. Reuses saved split on subsequent calls with matching seed/n_train.
@@ -206,7 +253,7 @@ Primary target: `llava-hf/llava-1.5-7b-hf` (LLaVA 1.5)
 - `load_activation_matrix(cache, sample_ids, layer, suffix)`: Load multiple samples → `(N, hidden_dim)`
 - `load_modality_shift_matrix(cache, sample_ids, layer)`: Compute VL - TT shifts → `(N, hidden_dim)`
 - `effective_rank(matrix, tau=0.9)`: Compute effective rank (# singular values explaining >= tau variance)
-- `extract_subspace(matrix, k)`: Extract top-k principal components via SVD → `(k, hidden_dim)`
+- `extract_subspace(matrix, k, center=True)`: Extract top-k principal components via SVD → `(k, hidden_dim)`
 - `principal_angles(V1, V2)`: Compute principal angles between two subspaces
 - `subspace_overlap(V1, V2)`: Mean cosine of principal angles (1.0 = identical, 0.0 = orthogonal)
 
@@ -220,22 +267,22 @@ Primary target: `llava-hf/llava-1.5-7b-hf` (LLaVA 1.5)
 
 ### Data (data/)
 Each dataset directory contains the raw data and model-specific activations extracted from it:
-- `data/holisafe-bench/activations/{model}/` — VL/TT per-sample .npz + sample_metadata.json
+- `data/holisafe-bench/activations/{model}/` — VL/TT/CT per-sample .npz + sample_metadata.json
 - `data/catqa-contrastive/activations/{model}/` — reference activation matrices per dataset
 - `data/captions/{dataset}.json` — generated image captions
+- `data/captions/holisafe_cohesive.json` — CT (caption + query fused)
 
 ### Experiment Artifacts (experiment_artifacts/)
 Artifacts produced by experiments, organized by `{model}/{experiment_name}/`:
-- `vl_activation_shift/safety_direction_vectors.npz` — consumed by all subspace experiments
-- `effective_rank/singular_spectra.npz`
-- `safety_decomposition/safety_subspace_bases.npz`, `safety_subspace_spectra.npz`
-- `subspace_overlap/integration_spectra.npz`, `integration_subspace_bases.npz`
+- `vl_activation_shift/safety_direction_vectors.npz` — consumed by downstream experiments
+- `combinatorial_safety/combinatorial_direction_vectors.npz` — SSU-vs-SSS direction
 
 ### Phase 0: Data Extraction (data_scripts/)
 ```
 data_scripts/generate_captions.py       → data/captions/{dataset}.json
 data_scripts/extract_vl.py              → data/holisafe-bench/activations/{model}/
 data_scripts/extract_tt.py              → data/holisafe-bench/activations/{model}/
+data_scripts/extract_ct.py              → data/holisafe-bench/activations/{model}/ (CT)
 data_scripts/extract_ref_activations.py → data/catqa-contrastive/activations/{model}/
 ```
 
@@ -244,24 +291,57 @@ data_scripts/extract_ref_activations.py → data/catqa-contrastive/activations/{
 run_shiftdc.sh orchestrates:
   1. generate_captions        (→ data/captions/)
   2-3. extract_vl/tt          (→ data/holisafe-bench/activations/{model}/)
+  3b. extract_ct              (→ data/holisafe-bench/activations/{model}/, if CT exists)
   4-6. ref captions + extract (→ data/catqa-contrastive/activations/{model}/)
   7. vl_activation_shift.py
      reads: data/holisafe-bench/activations/, data/catqa-contrastive/activations/
      writes: experiment_artifacts/{model}/vl_activation_shift/safety_direction_vectors.npz
-     writes: shift_dc/outputs/results/vl_activation_shift/ (JSON results + plots)
+     writes: {model}/shift_dc/outputs/results/ (JSON results + plots)
 ```
 
-### Phase 2: Subspace Analysis (subspace_analysis/)
-Each experiment reads:
-- `data/holisafe-bench/activations/{model}/` — VL/TT activations + sample_metadata
-- `data/catqa-contrastive/activations/{model}/` — reference matrices (experiments B, C, D)
-- `experiment_artifacts/{model}/vl_activation_shift/safety_direction_vectors.npz`
+## Typical Workflow
 
-Each saves results to its own `outputs/results/` and artifacts to `experiment_artifacts/{model}/{experiment_name}/`.
+### Per-model full diagnostic pipeline
 
-## Pipeline: run_shiftdc.sh
+```bash
+# Every diagnostic phase for one model (data extraction + ShiftDC + behavioral +
+# combinatorial + combinatorial-direction ShiftDC)
+MODEL="llava-hf/llava-1.5-7b-hf"         bash diagnostic_experiments/run_all_diagnostics.sh
+MODEL="Qwen/Qwen2-VL-7B"                bash diagnostic_experiments/run_all_diagnostics.sh
+MODEL="Qwen/Qwen2-VL-7B-Instruct"       bash diagnostic_experiments/run_all_diagnostics.sh
+MODEL="Qwen/Qwen2.5-VL-7B-Instruct"      bash diagnostic_experiments/run_all_diagnostics.sh
+MODEL="OpenGVLab/InternVL2-8B"           bash diagnostic_experiments/run_all_diagnostics.sh
+MODEL="OpenGVLab/InternVL2_5-8B-MPO"     bash diagnostic_experiments/run_all_diagnostics.sh
+```
 
-Located at: `diagnostic_experiments/llava-1.5-7b-hf/shift_dc/run_shiftdc.sh`
+### VRAM-batched launchers
+
+```bash
+# 16 GB GPU: LLaVA (all phases) + Qwen (all except response generation)
+bash diagnostic_experiments/run_diag_16gb.sh
+
+# 24 GB GPU: Qwen response generation + InternVL2 / InternVL2.5 (all phases)
+bash diagnostic_experiments/run_diag_24gb.sh
+```
+
+### Piecewise
+
+```bash
+# ShiftDC only (captioning, VL/TT extraction, reference activations, safety direction)
+bash diagnostic_experiments/run_shiftdc.sh
+
+# Augmented pipeline: data prep + behavioral + combinatorial + augmented baseline
+bash diagnostic_experiments/run_all_new_experiments.sh
+
+# Override any parameter on any script
+bash diagnostic_experiments/run_shiftdc.sh \
+    MODEL=OpenGVLab/InternVL2-8B DATASET=holisafe \
+    SAFE_REF=catqa-harmless UNSAFE_REF=catqa-harmful
+```
+
+## Pipeline Configuration
+
+Located at: `diagnostic_experiments/run_shiftdc.sh`
 
 **Configuration (edit at top of script):**
 ```bash
@@ -276,7 +356,7 @@ MAX_NEW_TOKENS=100
 
 **Override at runtime:**
 ```bash
-bash run_shiftdc.sh MODEL=other-org/model DATASET=my-dataset
+bash diagnostic_experiments/run_shiftdc.sh MODEL=other-org/model DATASET=my-dataset
 ```
 
 **Skip Flags:**
@@ -284,37 +364,32 @@ bash run_shiftdc.sh MODEL=other-org/model DATASET=my-dataset
 - `--skip_extraction`: Skip if activation cache exists
 - `--skip_safety_dir`: Skip safety direction computation (reuse existing)
 
-## Typical Workflow
+## Pipeline Steps
 
-### 1. Run Base Diagnostic Pipeline
-```bash
-bash diagnostic_experiments/llava-1.5-7b-hf/shift_dc/run_shiftdc.sh
-```
+### ShiftDC pipeline (`run_shiftdc.sh`)
 
-### 2. Run Subspace Analysis (after pipeline completes)
-```bash
-bash subspace_analysis/run_followup.sh
-```
+| Step | Script                                                     | Device |
+|------|------------------------------------------------------------|--------|
+| 1    | `data_scripts/generate_captions.py` (main dataset)         | GPU    |
+| 2    | `data_scripts/extract_vl.py`                               | GPU    |
+| 3    | `data_scripts/extract_tt.py`                               | GPU    |
+| 3b   | `data_scripts/extract_ct.py` (if cohesive text exists)     | GPU    |
+| 4-5  | `data_scripts/generate_captions.py` (reference datasets)   | GPU    |
+| 6    | `data_scripts/extract_ref_activations.py`                  | GPU    |
+| 7    | `diagnostic_experiments/experiment_scripts/vl_activation_shift.py` | CPU |
 
-### 3. Run Augmented Diagnostic Experiments
-```bash
-# All three new experiments (data prep + behavioral + analysis)
-bash diagnostic_experiments/llava-1.5-7b-hf/run_all_new_experiments.sh
+All scripts accept `--skip_if_exists` or `--skip_extraction` to make reruns cheap.
 
-# Phase-by-phase:
-bash diagnostic_experiments/llava-1.5-7b-hf/run_data_prep.sh                # GPU
-bash diagnostic_experiments/llava-1.5-7b-hf/run_behavioral_ground_truth.sh  # GPU
-bash diagnostic_experiments/llava-1.5-7b-hf/run_augmented_diagnostics.sh    # CPU
-```
+### Full multi-phase pipeline (`run_all_diagnostics.sh`)
 
-### 4. Run Individual Experiments or Plots
-```bash
-# Single experiment
-python subspace_analysis/llava-1.5-7b-hf/effective_rank/experiment_scripts/experiment_a_effective_rank.py
+Runs, for a single `MODEL`:
 
-# Single plot
-python subspace_analysis/llava-1.5-7b-hf/effective_rank/plotting_scripts/plot_effective_rank.py
-```
+1. **Data extraction** — VL / TT / reference activations
+2. **ShiftDC diagnostic** — `vl_activation_shift.py`, `sanity_check_tt_baseline.py` + plots
+3. **Behavioral ground truth** — `generate_responses.py`, `classify_responses.py`,
+   `catqa_behavioral_baseline.py` + plots
+4. **Combinatorial safety** — `combinatorial_direction.py`, `safety_probes.py` + plots
+5. **ShiftDC with combinatorial direction** — reruns step 2 using `c^l` in place of `s^l`
 
 ## Augmented Diagnostic Experiments
 
@@ -349,13 +424,105 @@ also splits SSU samples by refused/complied and compares projections within SSU.
 - **`classify_responses.py`**: Labels each response as refusal or compliance. Two methods:
   - `keyword` (default): matches refusal phrases ("I cannot", "I'm sorry", etc.)
   - `llm`: calls Anthropic/OpenAI API to classify ambiguous cases
+- **`catqa_behavioral_baseline.py`**: Generates and classifies CatQA responses as a baseline.
+
+```bash
+# All three experiments in order (GPU required for data prep + behavioral)
+bash diagnostic_experiments/run_all_new_experiments.sh
+
+# Or phase-by-phase:
+bash diagnostic_experiments/run_data_prep.sh              # GPU: CT generation + extraction
+bash diagnostic_experiments/run_behavioral_ground_truth.sh # GPU: responses + refusal labels
+bash diagnostic_experiments/run_combinatorial_safety.sh   # CPU: direction + probes
+bash diagnostic_experiments/run_augmented_diagnostics.sh  # CPU: projection-gap analysis
+```
+
+**Prerequisites:** The base ShiftDC pipeline (`run_shiftdc.sh`) must have completed.
+Cohesive text generation defaults to Anthropic API (`PROVIDER=anthropic`); set
+`PROVIDER=openai` or `PROVIDER=local` (uses the VLM itself) to change.
 
 ### Key Artifacts
 - `data/captions/holisafe_cohesive.json` — CT text per sample
 - `data/holisafe-bench/activations/{model}/sample_{id}_ct.npz` — CT activations
 - `data/holisafe-bench/train_eval_split.json` — stratified 175/group train/eval split
 - `experiment_artifacts/{model}/combinatorial_safety/combinatorial_direction_vectors.npz`
-- `behavioral_ground_truth/outputs/results/holisafe_refusal_labels.json` — refusal ground truth
+- `{model}/behavioral_ground_truth/outputs/results/holisafe_refusal_labels.json` — refusal ground truth
+
+## Key Output Formats
+
+### Data directory (`data/`)
+```
+holisafe-bench/
+├── holisafe_bench.json                    # Dataset metadata
+├── images/                                # Images by category
+├── train_eval_split.json                  # 175/group stratified split
+└── activations/{model}/
+    ├── sample_{id}_{vl|tt|ct}.npz         # Per-sample hidden states
+    └── sample_metadata.json               # id / label / category
+
+captions/
+├── {dataset}.json                         # {sample_id: caption_str}
+└── holisafe_cohesive.json                 # CT (caption + query fused)
+
+catqa-contrastive/
+├── catqa_contrastive_pairs.json           # Harmless/harmful QA pairs
+└── activations/{model}/{ref_name}/
+    ├── activation_matrices.npz            # {role}_layer_{l}: (N, hidden_dim)
+    └── metadata.json
+
+llava-instruct-ref/   mm-safetybench-ref/  # Alt. safe/unsafe reference pools
+├── images/
+└── samples_n160_seed42.json
+```
+
+### Experiment artifacts (`experiment_artifacts/{model}/{experiment}/`)
+```
+vl_activation_shift/safety_direction_vectors.npz    # Per-layer s^l
+combinatorial_safety/combinatorial_direction_vectors.npz  # Per-layer c^l
+```
+
+### Experiment results (under each experiment's `outputs/results/`)
+```
+{model}/shift_dc/outputs/results/
+├── vl_activation_shift/
+│   ├── aggregate_stats.json, per_sample_shifts.json, sample_metadata.json
+│   └── plots/
+└── sanity_check_tt_baseline/
+    ├── tt_baseline_projections.json
+    └── plots/
+
+{model}/behavioral_ground_truth/outputs/results/
+├── holisafe_responses.json                # {id: {vl, tt, ct}} greedy generations
+├── holisafe_refusal_labels.json           # refusal / compliance per condition
+├── catqa_behavioral_baseline.json
+├── refusal_summary.json
+└── plots/
+
+{model}/combinatorial_safety/outputs/
+├── artifacts/                              # Per-layer SSU-vs-SSS direction data
+└── results/                                # Direction comparison + probe results
+```
+
+### Activation .npz
+```python
+np.load("sample_{id}_vl.npz")
+# Keys: "layer_0", "layer_1", ..., "layer_{N-1}"
+# Each value: np.ndarray of shape (hidden_dim,), dtype float32
+```
+
+### Reference Activation Matrices
+```python
+data = np.load("activation_matrices.npz")
+# Keys: "{role}_layer_0", "{role}_layer_1", ..., "{role}_layer_{N-1}"
+# Each value: (N_ref_samples, hidden_dim)
+```
+
+### Safety Direction Vectors
+```python
+data = np.load("safety_direction_vectors.npz")
+# Keys: "layer_0", "layer_1", ..., "layer_{N-1}"
+# Each value: (hidden_dim,) — the top-1 PC from PCA(safe vs unsafe)
+```
 
 ## Adding a New Reference Dataset
 
@@ -385,80 +552,18 @@ also splits SSU samples by refused/complied and compares projections within SSU.
 
 3. **Run the pipeline:**
    ```bash
-   bash diagnostic_experiments/llava-1.5-7b-hf/shift_dc/run_shiftdc.sh SAFE_REF=my-dataset-safe
+   bash diagnostic_experiments/run_shiftdc.sh SAFE_REF=my-dataset-safe
    ```
 
-## Adding a New Experiment Group
+## Adding a New Model
 
-1. Create the directory structure:
-   ```
-   new_experiment_group/
-   └── llava-1.5-7b-hf/
-       └── experiment_name/
-           ├── experiment_scripts/
-           ├── plotting_scripts/
-           ├── outputs/
-           │   ├── results/
-           │   │   └── plots/
-           │   └── artifacts/
-           └── (optional: run_experiments.sh)
-   ```
+Edit `src/model.py`:
+1. If the model uses an existing architecture (LLaVA, InternVL2, Qwen2VL), add its config to the corresponding `_*_CONFIGS` dict.
+2. If it's a new architecture, create a new `VLMWrapperBase` subclass implementing `forward_vl`, `forward_text`, `generate_vl`, `generate_text`, `generate_caption`, and `generate_captions_batch`.
+3. Register it in `create_wrapper()`.
 
-2. In experiment scripts, use this path convention:
-   ```python
-   _SCRIPT_DIR = Path(__file__).resolve().parent
-   _EXPERIMENT_DIR = _SCRIPT_DIR.parent                      # experiment_name/
-   _MODEL_NAME = _EXPERIMENT_DIR.parent.name                 # llava-1.5-7b-hf
-   _PROJECT_ROOT = _EXPERIMENT_DIR.parent.parent.parent      # VLM_Safety/
-   sys.path.insert(0, str(_PROJECT_ROOT))
-   ```
-
-3. To reference shared data and artifacts:
-   ```python
-   _DATA = _PROJECT_ROOT / "data"
-   cache = ActivationCache(str(_DATA / "holisafe-bench" / "activations" / _MODEL_NAME))
-   metadata = load_json(str(_DATA / "holisafe-bench" / "activations" / _MODEL_NAME / "sample_metadata.json"))
-   safety_vecs = np.load(
-       _PROJECT_ROOT / "experiment_artifacts" / _MODEL_NAME / "vl_activation_shift" / "safety_direction_vectors.npz")
-   ```
-
-4. To save experiment artifacts:
-   ```python
-   _EXPERIMENT_ARTIFACTS = _PROJECT_ROOT / "experiment_artifacts" / _MODEL_NAME / "my_experiment"
-   _EXPERIMENT_ARTIFACTS.mkdir(parents=True, exist_ok=True)
-   save_npz(my_data, str(_EXPERIMENT_ARTIFACTS / "my_artifact.npz"))
-   ```
-
-## Key File Formats
-
-### Captions JSON
-```json
-{
-  "sample_id": "generated caption text",
-  ...
-}
-```
-
-### Activation .npz
-```python
-np.load("sample_{id}_vl.npz")
-# Keys: "layer_0", "layer_1", ..., "layer_31"
-# Each value: np.ndarray of shape (hidden_dim,), dtype float32
-```
-
-### Reference Activation Matrices
-```python
-data = np.load("activation_matrices.npz")
-# Keys: "{role}_layer_0", "{role}_layer_1", ..., "{role}_layer_31"
-# Each value: (N_ref_samples, hidden_dim)
-```
-
-### Safety Direction Vectors
-```python
-data = np.load("safety_direction_vectors.npz")
-# Keys: "layer_0", "layer_1", ..., "layer_31"
-# Each value: (hidden_dim,) — the top-1 PC from PCA(safe vs unsafe)
-```
+After that, every shared script (extraction, ShiftDC, behavioral, combinatorial, plotting) picks
+it up via `--model <hf-id>` and writes outputs under the model's short name.
 
 ## Important Implementation Details
 
@@ -468,13 +573,13 @@ data = np.load("safety_direction_vectors.npz")
 - **GPU cleanup**: `cleanup_gpu()` called after each sample to avoid OOM.
 
 ### Caption Generation
-- **Prompt**: `"USER: <image>\nDescribe this image in detail.\nASSISTANT:"`
-- **Parameters**: `max_new_tokens=100`, `do_sample=False` (greedy decoding)
+- **Prompt**: Model-specific (handled by each wrapper's `generate_caption()`)
+- **Parameters**: `max_new_tokens=200`, `do_sample=False` (greedy decoding)
 - **Batch processing**: `generate_captions_batch()` for efficiency
 
 ### Text-Only Counterpart (TT)
 - Uses generated caption as replacement for image
-- Prompt: `"USER: {caption}\n{original_text}\nASSISTANT:"`
+- Model-specific prompt templates (each wrapper's text-only template)
 - Same tokenization, but no visual tokens injected
 
 ### Safety Direction Computation
@@ -482,28 +587,30 @@ data = np.load("safety_direction_vectors.npz")
 - Top-1 principal component = safety direction `s^l` per layer
 - Shift projection: `dot(m^l, s^l)` where `m^l = x_vl - x_tt`
 
-### Image Token Handling
+### Image Token Handling (LLaVA-specific)
 - LLaVA 1.5: Single `<image>` placeholder (token 32000) in input_ids
 - After vision projection: expanded to 576 consecutive visual tokens
 - `get_image_token_span()` returns (start, end) in expanded sequence
 - `get_text_token_positions()` returns indices of non-image tokens for cross-modal attention
 
-## Model Support
+## Setup
 
-### Currently Implemented
-- `llava-hf/llava-1.5-7b-hf` (primary)
-- `llava-hf/llava-v1.6-vicuna-7b-hf` (optional)
+### Environment Installation
 
-### Adding New Models
-Edit `_MODEL_CONFIGS` in `src/model.py`:
-```python
-"new-org/new-model": {
-    "model_class": "LlavaForConditionalGeneration",
-    "num_image_tokens": 576,
-    "prompt_template": "USER: <image>\n{text}\nASSISTANT:",
-    "text_only_template": "USER: {text}\nASSISTANT:",
-    "caption_prompt": "Describe this image in detail.",
-}
+```bash
+# Create conda environment from environment.yml
+conda env create -f environment.yml
+
+# Activate the environment
+conda activate vlm_safety
+```
+
+The environment includes `libstdcxx-ng` from conda-forge to ensure C++ ABI compatibility with scipy and other compiled dependencies. An activation script automatically sets `LD_LIBRARY_PATH` to prioritize conda's libstdc++ over the system version.
+
+**Troubleshooting:** If you encounter `CXXABI_1.3.15 not found` errors:
+```bash
+conda install -n vlm_safety -c conda-forge libstdcxx-ng
+conda deactivate && conda activate vlm_safety
 ```
 
 ## Common Issues & Solutions
