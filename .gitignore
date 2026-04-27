@@ -40,3 +40,5 @@ export_environment.yml
 original_environment.yml
 MiniGPT-4
 logs
+data/mm-safetybench
+data/figstep
