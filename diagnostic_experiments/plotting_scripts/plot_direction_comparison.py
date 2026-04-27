@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Plot Direction Comparison: Combinatorial vs Content Safety Direction"""
+"""Plot Direction Comparison: Compositional Safety vs Semantic Safety Direction"""
 
 import argparse
 import json
@@ -15,7 +15,7 @@ _PROJECT_ROOT = _DIAGNOSTIC_ROOT.parent
 sys.path.insert(0, str(_PROJECT_ROOT))
 from src.model import _normalize_model_name
 
-_EXPERIMENT_NAME = "combinatorial_safety"
+_EXPERIMENT_NAME = "compositional_safety"
 
 
 def parse_args():
@@ -51,11 +51,11 @@ def main():
         print(f"Saved -> {path}")
         plt.close(fig)
 
-    cos_vals = np.array([d["cosine_sim_comb_vs_catqa"] for d in data])
+    cos_vals = np.array([d["cosine_sim_compositional_vs_semantic"] for d in data])
     fig, ax = plt.subplots(figsize=(14, 5))
     ax.bar(x, np.abs(cos_vals), width=0.6, color="#7c3aed", alpha=0.8)
     ax.set_ylabel("|Cosine Similarity|")
-    ax.set_title(f"Combinatorial vs Content Safety Direction: |cos(c^l, s^l)|\n{model_name}")
+    ax.set_title(f"Compositional Safety vs Semantic Safety Direction: |cos(c^l, s^l)|\n{model_name}")
     ax.set_xticks(x)
     ax.set_xticklabels([str(l) for l in layers], fontsize=8)
     ax.set_xlabel("Transformer Layer")
@@ -80,7 +80,7 @@ def main():
         fig, ax = plt.subplots(figsize=(14, 5))
         ax.plot(x[valid], overlap[valid], "o-", color="#2563eb", markersize=6, linewidth=1.8)
         ax.set_ylabel("Subspace Overlap (top-5 PCs)")
-        ax.set_title(f"Subspace Overlap: Combinatorial vs Content\n{model_name}")
+        ax.set_title(f"Subspace Overlap: Compositional Safety vs Semantic Safety\n{model_name}")
         ax.set_xticks(x)
         ax.set_xticklabels([str(l) for l in layers], fontsize=8)
         ax.set_xlabel("Transformer Layer")

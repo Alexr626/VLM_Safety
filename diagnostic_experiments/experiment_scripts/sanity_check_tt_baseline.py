@@ -5,9 +5,9 @@ Sanity Check: Text-Only Baseline Positions
 Test whether SSU text-only (caption + text) activations already sit closer
 to the "unsafe" side of the safety boundary than SSS text-only activations.
 
-When --combinatorial_dir is passed, also projects TT activations onto the
-combinatorial direction c^l and reports SSS-vs-SSU baseline statistics for
-that direction.
+When --compositional_safety_dir is passed, also projects TT activations onto
+the compositional safety direction c^l and reports SSS-vs-SSU baseline
+statistics for that direction.
 
 Outputs (under diagnostic_experiments/{model}/shift_dc/outputs/results/
           sanity_check_tt_baseline/)
@@ -37,8 +37,8 @@ _EXPERIMENT_NAME = "shift_dc"
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--model", default="llava-hf/llava-1.5-7b-hf")
-    p.add_argument("--combinatorial_dir", action="store_true",
-                   help="Also compute TT projections onto combinatorial direction c^l")
+    p.add_argument("--compositional_safety_dir", action="store_true",
+                   help="Also compute TT projections onto compositional safety direction c^l")
     return p.parse_args()
 
 
@@ -50,7 +50,7 @@ def _cosine_rows(X: np.ndarray, v: np.ndarray) -> np.ndarray:
 
 
 def _compute_layer_row(l, s_l, X_sss_tt, X_ssu_tt, prefix):
-    """Projection + cosine stats for one direction. prefix='' or prefix='comb_'."""
+    """Projection + cosine stats for one direction. prefix='' or prefix='comp_'."""
     s_norm_sq = float(np.dot(s_l, s_l))
     row = {}
     if s_norm_sq < 1e-12:
@@ -100,15 +100,17 @@ def main():
     safety_vecs = np.load(experiment_artifacts / "safety_direction_vectors.npz")
     layers = sorted(int(k.replace("layer_", "")) for k in safety_vecs.files)
 
-    comb_vecs = None
-    if args.combinatorial_dir:
-        comb_path = (_PROJECT_ROOT / "experiment_artifacts" / model_name /
-                     "combinatorial_safety" / "combinatorial_direction_vectors.npz")
-        if not comb_path.exists():
-            print(f"ERROR: --combinatorial_dir requested but {comb_path} does not exist.")
+    comp_vecs = None
+    if args.compositional_safety_dir:
+        comp_path = (_PROJECT_ROOT / "experiment_artifacts" / model_name /
+                     "compositional_safety" /
+                     "compositional_safety_direction_vectors.npz")
+        if not comp_path.exists():
+            print(f"ERROR: --compositional_safety_dir requested but "
+                  f"{comp_path} does not exist.")
             sys.exit(1)
-        comb_vecs = np.load(comb_path)
-        print(f"Loaded combinatorial direction for {len(comb_vecs.files)} layers")
+        comp_vecs = np.load(comp_path)
+        print(f"Loaded compositional safety direction for {len(comp_vecs.files)} layers")
 
     metadata = load_json(str(_DATA / "holisafe-bench" / "activations" / model_name / "sample_metadata.json"))
     sss_ids_all = [s["id"] for s in metadata if s["label"] == "SSS"]
@@ -134,9 +136,9 @@ def main():
         row = {"layer": l}
         row.update(_compute_layer_row(l, s_l, X_sss_tt, X_ssu_tt, prefix=""))
 
-        if comb_vecs is not None and f"layer_{l}" in comb_vecs.files:
-            c_l = comb_vecs[f"layer_{l}"].astype(np.float64)
-            row.update(_compute_layer_row(l, c_l, X_sss_tt, X_ssu_tt, prefix="comb_"))
+        if comp_vecs is not None and f"layer_{l}" in comp_vecs.files:
+            c_l = comp_vecs[f"layer_{l}"].astype(np.float64)
+            row.update(_compute_layer_row(l, c_l, X_sss_tt, X_ssu_tt, prefix="comp_"))
 
         if "SSS_mean_tt_projection" in row:
             print(f"  Layer {l:2d}: "

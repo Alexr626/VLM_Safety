@@ -766,20 +766,23 @@ REFERENCE_REGISTRY: Dict[str, dict] = {
 def split_holisafe_train_eval(
     sss_samples: List[dict],
     ssu_samples: List[dict],
-    n_train: int = 175,
+    n_eval: int = 175,
     seed: int = 42,
     save_dir: Optional[str] = None,
 ) -> Tuple[List[dict], List[dict], List[dict], List[dict]]:
     """
     Partition SSS and SSU samples into train/eval sets, stratified by harm category.
 
-    On subsequent calls with matching seed and n_train, loads the saved split
+    On subsequent calls with matching seed and n_eval, loads the saved split
     rather than recomputing.
 
     Args:
         sss_samples: list of SSS sample dicts
         ssu_samples: list of SSU sample dicts
-        n_train: number of training samples per group (SSS and SSU each)
+        n_eval: target number of evaluation samples per group (SSS and SSU each).
+                Allocated proportionally per category. The rest of each group goes
+                to training. Default 175 ≈ 25% eval for the typical HoliSafe pool
+                (yielding the desired 75/25 train/eval split for the probes).
         seed: random seed for reproducibility
         save_dir: directory to save/load the split JSON.
                   Defaults to <repo_root>/data/holisafe-bench/
@@ -798,11 +801,12 @@ def split_holisafe_train_eval(
     sss_by_id = {s["id"]: s for s in sss_samples}
     ssu_by_id = {s["id"]: s for s in ssu_samples}
 
-    # Try loading existing split
+    # Try loading existing split (only honor it if it was saved with the new
+    # n_eval-keyed schema and matches; older n_train-keyed splits are discarded).
     if split_path.exists():
         with open(split_path) as f:
             saved = json.load(f)
-        if saved.get("seed") == seed and saved.get("n_train") == n_train:
+        if saved.get("seed") == seed and saved.get("n_eval") == n_eval:
             print(f"  Loading saved train/eval split from {split_path}")
             sss_train = [sss_by_id[i] for i in saved["sss_train_ids"] if i in sss_by_id]
             sss_eval = [sss_by_id[i] for i in saved["sss_eval_ids"] if i in sss_by_id]
@@ -812,8 +816,8 @@ def split_holisafe_train_eval(
             print(f"  SSU: {len(ssu_train)} train, {len(ssu_eval)} eval")
             return sss_train, sss_eval, ssu_train, ssu_eval
 
-    def _stratified_split(samples, n_train_group, rng):
-        """Split samples stratified by category, allocating n_train_group to train."""
+    def _stratified_split(samples, n_eval_group, rng):
+        """Split samples stratified by category, allocating n_eval_group to eval."""
         by_cat = {}
         for s in samples:
             by_cat.setdefault(s["category"], []).append(s)
@@ -823,22 +827,22 @@ def split_holisafe_train_eval(
 
         for cat, cat_samples in sorted(by_cat.items()):
             rng.shuffle(cat_samples)
-            # Proportional allocation
-            n_cat_train = max(1, round(len(cat_samples) * n_train_group / total))
-            n_cat_train = min(n_cat_train, len(cat_samples) - 1)  # keep at least 1 for eval
-            train_ids.extend(cat_samples[:n_cat_train])
-            eval_ids.extend(cat_samples[n_cat_train:])
+            # Proportional allocation of eval; rest goes to train.
+            n_cat_eval = max(1, round(len(cat_samples) * n_eval_group / total))
+            n_cat_eval = min(n_cat_eval, len(cat_samples) - 1)  # keep at least 1 for train
+            eval_ids.extend(cat_samples[:n_cat_eval])
+            train_ids.extend(cat_samples[n_cat_eval:])
 
         return train_ids, eval_ids
 
     rng = random.Random(seed)
-    sss_train, sss_eval = _stratified_split(sss_samples, n_train, rng)
-    ssu_train, ssu_eval = _stratified_split(ssu_samples, n_train, rng)
+    sss_train, sss_eval = _stratified_split(sss_samples, n_eval, rng)
+    ssu_train, ssu_eval = _stratified_split(ssu_samples, n_eval, rng)
 
     # Persist
     split_data = {
         "seed": seed,
-        "n_train": n_train,
+        "n_eval": n_eval,
         "sss_train_ids": [s["id"] for s in sss_train],
         "sss_eval_ids": [s["id"] for s in sss_eval],
         "ssu_train_ids": [s["id"] for s in ssu_train],

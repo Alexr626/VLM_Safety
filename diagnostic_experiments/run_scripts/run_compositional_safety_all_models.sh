@@ -1,12 +1,12 @@
 #!/bin/bash
 # ============================================================
-# Run the combinatorial safety experiment on every supported model
+# Run the compositional safety experiment on every supported model
 # ============================================================
 # For each MODEL listed below, runs:
-#   - combinatorial_direction.py  (+ plot_direction_comparison.py)
+#   - compositional_safety_direction.py  (+ plot_direction_comparison.py)
 #   - safety_probes.py            (+ plot_probe_results.py)
 #
-# Use this to regenerate the combinatorial-safety results across
+# Use this to regenerate the compositional-safety results across
 # all models — e.g. after changes to the CatQA train/eval split or
 # the content probe.
 #
@@ -45,24 +45,24 @@ failed=()
 for MODEL in "${MODELS[@]}"; do
     echo ""
     echo "============================================================"
-    echo "  Combinatorial safety: $MODEL"
+    echo "  Compositional safety: $MODEL"
     echo "============================================================"
     if [ "$CONTINUE_ON_ERROR" = "1" ]; then
-        if ! MODEL="$MODEL" bash "$SCRIPT_DIR/run_combinatorial_safety.sh"; then
+        if ! MODEL="$MODEL" bash "$SCRIPT_DIR/run_compositional_safety.sh"; then
             echo "  WARNING: failed for $MODEL — continuing."
             failed+=("$MODEL")
         fi
     else
-        MODEL="$MODEL" bash "$SCRIPT_DIR/run_combinatorial_safety.sh"
+        MODEL="$MODEL" bash "$SCRIPT_DIR/run_compositional_safety.sh"
     fi
 done
 
 echo ""
 echo "============================================================"
 if [ ${#failed[@]} -eq 0 ]; then
-    echo "  Combinatorial safety run complete for all models."
+    echo "  Compositional safety run complete for all models."
 else
-    echo "  Combinatorial safety run complete with failures:"
+    echo "  Compositional safety run complete with failures:"
     for m in "${failed[@]}"; do
         echo "    - $m"
     done

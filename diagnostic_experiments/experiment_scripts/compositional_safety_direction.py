@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 """
-Combinatorial Safety Direction
+Compositional Safety Direction
 ===============================
 Extract a direction from SSU-vs-SSS contrastive data (CAST-style PCA on
-TT activations), then compare it to the CatQA-derived safety direction.
+TT activations), then compare it to the CatQA-derived semantic safety
+direction.
+
+Uses the full HoliSafe SSS+SSU pool — no train/eval split, since the
+direction itself is not evaluated against held-out HoliSafe samples here.
+The held-out evaluation lives in safety_probes.py.
 
 Outputs
 -------
-  experiment_artifacts/{model}/combinatorial_safety/combinatorial_direction_vectors.npz
-  diagnostic_experiments/{model}/combinatorial_safety/outputs/results/direction_comparison.json
-  diagnostic_experiments/{model}/combinatorial_safety/outputs/artifacts/combinatorial_direction_vectors.npz
+  experiment_artifacts/{model}/compositional_safety/compositional_safety_direction_vectors.npz
+  diagnostic_experiments/{model}/compositional_safety/outputs/results/direction_comparison.json
+  diagnostic_experiments/{model}/compositional_safety/outputs/artifacts/compositional_safety_direction_vectors.npz
 """
 
 import argparse
@@ -28,10 +33,10 @@ from src.extraction import (
     extract_subspace, subspace_overlap,
     load_json, save_json, save_npz,
 )
-from src.dataset import load_holisafe, filter_subsets, split_holisafe_train_eval
+from src.dataset import load_holisafe, filter_subsets
 from src.model import _normalize_model_name
 
-_EXPERIMENT_NAME = "combinatorial_safety"
+_EXPERIMENT_NAME = "compositional_safety"
 
 
 def parse_args():
@@ -57,33 +62,25 @@ def main():
     results_dir = experiment_dir / "outputs" / "results"
     local_artifacts = experiment_dir / "outputs" / "artifacts"
     for d in [results_dir, local_artifacts,
-              shared_artifacts / "combinatorial_safety"]:
+              shared_artifacts / "compositional_safety"]:
         d.mkdir(parents=True, exist_ok=True)
 
-    # ── Load train/eval split ────────────────────────────────────────────────
-    split_path = _DATA / "holisafe-bench" / "train_eval_split.json"
-    if split_path.exists():
-        split = load_json(str(split_path))
-        sss_train_ids = split["sss_train_ids"]
-        ssu_train_ids = split["ssu_train_ids"]
-        print(f"Loaded split: {len(sss_train_ids)} SSS train, {len(ssu_train_ids)} SSU train")
-    else:
-        print("No saved split found; creating one...")
-        entries, images_base = load_holisafe()
-        sss, ssu = filter_subsets(entries, images_base)
-        sss_train, _, ssu_train, _ = split_holisafe_train_eval(sss, ssu)
-        sss_train_ids = [s["id"] for s in sss_train]
-        ssu_train_ids = [s["id"] for s in ssu_train]
+    # ── Load ALL HoliSafe SSS + SSU samples (no train/eval split) ──────────
+    entries, images_base = load_holisafe()
+    sss_samples, ssu_samples = filter_subsets(entries, images_base)
+    sss_ids = [s["id"] for s in sss_samples]
+    ssu_ids = [s["id"] for s in ssu_samples]
+    print(f"Loaded full HoliSafe pool: {len(sss_ids)} SSS, {len(ssu_ids)} SSU")
 
-    # ── Load CatQA safety direction ──────────────────────────────────────────
+    # ── Load semantic safety direction (CatQA-derived) ─────────────────────
     sd_path = shared_artifacts / "vl_activation_shift" / "safety_direction_vectors.npz"
     if not sd_path.exists():
-        raise FileNotFoundError(f"Safety direction not found: {sd_path}")
+        raise FileNotFoundError(f"Semantic safety direction not found: {sd_path}")
     safety_dir = dict(np.load(sd_path))
     layers = sorted(int(k.replace("layer_", "")) for k in safety_dir)
-    print(f"Loaded CatQA safety direction for {len(layers)} layers")
+    print(f"Loaded semantic safety direction for {len(layers)} layers")
 
-    # ── Load CatQA reference activations ─────────────────────────────────────
+    # ── Load CatQA reference activations (for subspace-overlap metric) ─────
     ref_base = _DATA / "catqa-contrastive" / "activations" / model_name
     ref_safe_npz, ref_unsafe_npz = None, None
     for subdir in ref_base.iterdir():
@@ -98,15 +95,15 @@ def main():
                     elif meta["role"] == "unsafe":
                         ref_unsafe_npz = np.load(npz_path)
 
-    # ── Compute combinatorial direction per layer ────────────────────────────
+    # ── Compute compositional safety direction per layer ───────────────────
     cache = ActivationCache(str(_DATA / "holisafe-bench" / "activations" / model_name))
-    comb_dir = {}
+    comp_dir = {}
     results = []
 
     for l in layers:
         try:
-            H_sss = load_activation_matrix(cache, sss_train_ids, l, suffix="tt")
-            H_ssu = load_activation_matrix(cache, ssu_train_ids, l, suffix="tt")
+            H_sss = load_activation_matrix(cache, sss_ids, l, suffix="tt")
+            H_ssu = load_activation_matrix(cache, ssu_ids, l, suffix="tt")
         except FileNotFoundError as e:
             print(f"  Skipping layer {l}: {e}")
             continue
@@ -121,18 +118,22 @@ def main():
         if np.dot(vector, H_sss.mean(axis=0) - H_ssu.mean(axis=0)) < 0:
             vector = -vector
 
-        comb_dir[f"layer_{l}"] = vector.astype(np.float32)
+        comp_dir[f"layer_{l}"] = vector.astype(np.float32)
 
         s_l = safety_dir[f"layer_{l}"].astype(np.float64)
         cos_sim = _cosine_sim(vector, s_l)
         combined = np.concatenate([H_sss - mu, H_ssu - mu], axis=0)
         eff_rank = effective_rank(combined, tau=0.9)
 
-        row = {"layer": l, "cosine_sim_comb_vs_catqa": cos_sim, "effective_rank": eff_rank}
+        row = {
+            "layer": l,
+            "cosine_sim_compositional_vs_semantic": cos_sim,
+            "effective_rank": eff_rank,
+        }
 
         k = 5
         try:
-            V_comb = extract_subspace(combined, k=k)
+            V_comp = extract_subspace(combined, k=k)
             if ref_safe_npz is not None and ref_unsafe_npz is not None:
                 safe_key = f"safe_layer_{l}"
                 unsafe_key = f"unsafe_layer_{l}"
@@ -141,24 +142,26 @@ def main():
                     H_ref_unsafe = ref_unsafe_npz[unsafe_key].astype(np.float64)
                     mu_ref = (H_ref_safe.mean(axis=0) + H_ref_unsafe.mean(axis=0)) / 2
                     M_ref = np.concatenate([H_ref_safe - mu_ref, H_ref_unsafe - mu_ref], axis=0)
-                    V_catqa = extract_subspace(M_ref, k=k)
-                    row["subspace_overlap_top5"] = subspace_overlap(V_comb, V_catqa)
+                    V_semantic = extract_subspace(M_ref, k=k)
+                    row["subspace_overlap_top5"] = subspace_overlap(V_comp, V_semantic)
         except Exception:
             pass
 
         results.append(row)
 
-    # ── Save ─────────────────────────────────────────────────────────────────
-    shared_path = shared_artifacts / "combinatorial_safety" / "combinatorial_direction_vectors.npz"
-    save_npz(comb_dir, str(shared_path))
-    save_npz(comb_dir, str(local_artifacts / "combinatorial_direction_vectors.npz"))
+    # ── Save ───────────────────────────────────────────────────────────────
+    shared_path = (shared_artifacts / "compositional_safety"
+                   / "compositional_safety_direction_vectors.npz")
+    save_npz(comp_dir, str(shared_path))
+    save_npz(comp_dir,
+             str(local_artifacts / "compositional_safety_direction_vectors.npz"))
     save_json(results, str(results_dir / "direction_comparison.json"))
 
-    # ── Summary ──────────────────────────────────────────────────────────────
-    cos_vals = [r["cosine_sim_comb_vs_catqa"] for r in results
-                if not np.isnan(r["cosine_sim_comb_vs_catqa"])]
+    # ── Summary ────────────────────────────────────────────────────────────
+    cos_vals = [r["cosine_sim_compositional_vs_semantic"] for r in results
+                if not np.isnan(r["cosine_sim_compositional_vs_semantic"])]
     if cos_vals:
-        print(f"\nCosine similarity (combinatorial vs CatQA):")
+        print(f"\nCosine similarity (compositional safety vs semantic safety):")
         print(f"  Mean: {np.mean(cos_vals):.4f}")
         print(f"  Min:  {np.min(cos_vals):.4f} | Max: {np.max(cos_vals):.4f}")
 

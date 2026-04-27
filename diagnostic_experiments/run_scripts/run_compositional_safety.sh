@@ -1,10 +1,10 @@
 #!/bin/bash
 # ============================================================
-# Combinatorial Safety Diagnostic (CPU Analysis)
+# Compositional Safety Diagnostic (CPU Analysis)
 # ============================================================
 # Usage:
-#   bash run_combinatorial_safety.sh
-#   MODEL="Qwen/Qwen2-VL-7B-Instruct" bash run_combinatorial_safety.sh
+#   bash run_compositional_safety.sh
+#   MODEL="Qwen/Qwen2-VL-7B-Instruct" bash run_compositional_safety.sh
 # ============================================================
 set -e
 
@@ -18,7 +18,7 @@ MODEL_NAME=$(cd "$PROJECT_ROOT" && python -c "from src.model import _normalize_m
 ARTIFACTS_DIR="$PROJECT_ROOT/experiment_artifacts/$MODEL_NAME"
 
 echo "======================================================"
-echo " Combinatorial Safety Diagnostic   model=$MODEL"
+echo " Compositional Safety Diagnostic   model=$MODEL"
 echo "======================================================"
 
 if [ ! -f "$ARTIFACTS_DIR/vl_activation_shift/safety_direction_vectors.npz" ]; then
@@ -27,8 +27,8 @@ if [ ! -f "$ARTIFACTS_DIR/vl_activation_shift/safety_direction_vectors.npz" ]; t
     exit 1
 fi
 
-echo "=== [1/2] Combinatorial safety direction ==="
-python "$DIAGNOSTIC_ROOT/experiment_scripts/combinatorial_direction.py" --model "$MODEL"
+echo "=== [1/2] Compositional safety direction ==="
+python "$DIAGNOSTIC_ROOT/experiment_scripts/compositional_safety_direction.py" --model "$MODEL"
 python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_direction_comparison.py" --model "$MODEL"
 
 echo "=== [2/2] Safety probes ==="

@@ -4,7 +4,7 @@ ShiftDC Analysis: VL Activation Shift
 ======================================
 Implements the ShiftDC diagnostic.
 
-Step 1 — Safety direction (content):
+Step 1 — Semantic safety direction:
   s^l computed via CAST-style PCA on safe vs unsafe reference activations.
 
 Step 2 — Per-sample modality shift:
@@ -12,8 +12,8 @@ Step 2 — Per-sample modality shift:
   cosine_sim^l = cosine(m^l, s^l)
   proj_mag^l   = dot(m^l, s^l) / ||s^l||^2
 
-When --combinatorial_dir is passed, also project onto the combinatorial
-direction c^l and record comb_cosine_sim / comb_proj_mag.
+When --compositional_safety_dir is passed, also project onto the
+compositional safety direction c^l and record comp_cosine_sim / comp_proj_mag.
 
 Outputs (under diagnostic_experiments/{model}/shift_dc/outputs/)
 -------
@@ -96,11 +96,11 @@ def _projection(m, s):
     return float(np.dot(m, s) / s2)
 
 
-def compute_shifts(samples, safety_dir, cache, layers, comb_dir=None):
+def compute_shifts(samples, safety_dir, cache, layers, comp_dir=None):
     per_sample = []
     layer_data = {l: {"sss_cos": [], "sss_proj": [], "ssu_cos": [], "ssu_proj": [],
-                      "sss_comb_cos": [], "sss_comb_proj": [],
-                      "ssu_comb_cos": [], "ssu_comb_proj": []}
+                      "sss_comp_cos": [], "sss_comp_proj": [],
+                      "ssu_comp_cos": [], "ssu_comp_proj": []}
                   for l in layers}
 
     for sample in tqdm(samples, desc="Computing shifts"):
@@ -128,17 +128,17 @@ def compute_shifts(samples, safety_dir, cache, layers, comb_dir=None):
             if not np.isnan(proj):
                 layer_data[l][f"{key}_proj"].append(proj)
 
-            # Combinatorial projections
-            if comb_dir is not None and f"layer_{l}" in comb_dir:
-                c = comb_dir[f"layer_{l}"].astype(np.float64)
-                comb_cos = _cosine(m, c)
-                comb_proj = _projection(m, c)
-                entry["comb_cosine_sim"] = comb_cos
-                entry["comb_proj_mag"] = comb_proj
-                if not np.isnan(comb_cos):
-                    layer_data[l][f"{key}_comb_cos"].append(comb_cos)
-                if not np.isnan(comb_proj):
-                    layer_data[l][f"{key}_comb_proj"].append(comb_proj)
+            # Compositional safety projections
+            if comp_dir is not None and f"layer_{l}" in comp_dir:
+                c = comp_dir[f"layer_{l}"].astype(np.float64)
+                comp_cos = _cosine(m, c)
+                comp_proj = _projection(m, c)
+                entry["comp_cosine_sim"] = comp_cos
+                entry["comp_proj_mag"] = comp_proj
+                if not np.isnan(comp_cos):
+                    layer_data[l][f"{key}_comp_cos"].append(comp_cos)
+                if not np.isnan(comp_proj):
+                    layer_data[l][f"{key}_comp_proj"].append(comp_proj)
 
             record["per_layer"][str(l)] = entry
 
@@ -148,7 +148,7 @@ def compute_shifts(samples, safety_dir, cache, layers, comb_dir=None):
 
 # ── Aggregate + t-test ────────────────────────────────────────────────────────
 
-def aggregate(layer_data, layers, has_comb=False):
+def aggregate(layer_data, layers, has_comp=False):
     def _ttest(a, b):
         if len(a) < 2 or len(b) < 2:
             return float("nan")
@@ -171,18 +171,18 @@ def aggregate(layer_data, layers, has_comb=False):
             "p_proj": _ttest(sss_proj, ssu_proj),
             "n_sss": len(sss_cos), "n_ssu": len(ssu_cos),
         }
-        if has_comb:
-            sss_cc = np.array(d["sss_comb_cos"])
-            ssu_cc = np.array(d["ssu_comb_cos"])
-            sss_cp = np.array(d["sss_comb_proj"])
-            ssu_cp = np.array(d["ssu_comb_proj"])
+        if has_comp:
+            sss_cc = np.array(d["sss_comp_cos"])
+            ssu_cc = np.array(d["ssu_comp_cos"])
+            sss_cp = np.array(d["sss_comp_proj"])
+            ssu_cp = np.array(d["ssu_comp_proj"])
             row.update({
-                "SSS_mean_comb_cosine": float(sss_cc.mean()) if len(sss_cc) else None,
-                "SSU_mean_comb_cosine": float(ssu_cc.mean()) if len(ssu_cc) else None,
-                "SSS_mean_comb_proj": float(sss_cp.mean()) if len(sss_cp) else None,
-                "SSU_mean_comb_proj": float(ssu_cp.mean()) if len(ssu_cp) else None,
-                "p_comb_cosine": _ttest(sss_cc, ssu_cc),
-                "p_comb_proj": _ttest(sss_cp, ssu_cp),
+                "SSS_mean_comp_cosine": float(sss_cc.mean()) if len(sss_cc) else None,
+                "SSU_mean_comp_cosine": float(ssu_cc.mean()) if len(ssu_cc) else None,
+                "SSS_mean_comp_proj": float(sss_cp.mean()) if len(sss_cp) else None,
+                "SSU_mean_comp_proj": float(ssu_cp.mean()) if len(ssu_cp) else None,
+                "p_comp_cosine": _ttest(sss_cc, ssu_cc),
+                "p_comp_proj": _ttest(sss_cp, ssu_cp),
             })
         results.append(row)
     return results
@@ -201,8 +201,8 @@ def parse_args():
     p.add_argument("--safe_ref", default="catqa-harmless",
                    help="Subdirectory name under data/catqa-contrastive/activations/{model}/")
     p.add_argument("--unsafe_ref", default="catqa-harmful")
-    p.add_argument("--combinatorial_dir", action="store_true",
-                   help="Also project shifts onto the combinatorial direction c^l")
+    p.add_argument("--compositional_safety_dir", action="store_true",
+                   help="Also project shifts onto the compositional safety direction c^l")
     return p.parse_args()
 
 
@@ -232,17 +232,20 @@ def main():
         save_npz(safety_dir, str(sd_path))
         print(f"  → {len(layers)} layers saved to {sd_path}")
 
-    # ── Load combinatorial direction (optional) ─────────────────────────────
-    comb_dir = None
-    if args.combinatorial_dir:
-        comb_path = (_PROJECT_ROOT / "experiment_artifacts" / model_name /
-                     "combinatorial_safety" / "combinatorial_direction_vectors.npz")
-        if not comb_path.exists():
-            print(f"ERROR: --combinatorial_dir requested but {comb_path} does not exist.")
-            print("Run diagnostic_experiments/experiment_scripts/combinatorial_direction.py first.")
+    # ── Load compositional safety direction (optional) ──────────────────────
+    comp_dir = None
+    if args.compositional_safety_dir:
+        comp_path = (_PROJECT_ROOT / "experiment_artifacts" / model_name /
+                     "compositional_safety" /
+                     "compositional_safety_direction_vectors.npz")
+        if not comp_path.exists():
+            print(f"ERROR: --compositional_safety_dir requested but "
+                  f"{comp_path} does not exist.")
+            print("Run diagnostic_experiments/experiment_scripts/"
+                  "compositional_safety_direction.py first.")
             sys.exit(1)
-        comb_dir = dict(np.load(comb_path))
-        print(f"Loaded combinatorial direction for {len(comb_dir)} layers")
+        comp_dir = dict(np.load(comp_path))
+        print(f"Loaded compositional safety direction for {len(comp_dir)} layers")
 
     # ── Step 2: Load samples ─────────────────────────────────────────────────
     entries, images_base = load_holisafe(cache_dir=args.cache_dir)
@@ -255,8 +258,8 @@ def main():
     # ── Step 3: Compute shifts ───────────────────────────────────────────────
     cache = ActivationCache(str(
         _PROJECT_ROOT / "data" / "holisafe-bench" / "activations" / model_name))
-    per_sample, layer_data = compute_shifts(samples, safety_dir, cache, layers, comb_dir)
-    agg = aggregate(layer_data, layers, has_comb=comb_dir is not None)
+    per_sample, layer_data = compute_shifts(samples, safety_dir, cache, layers, comp_dir)
+    agg = aggregate(layer_data, layers, has_comp=comp_dir is not None)
 
     # ── Save ─────────────────────────────────────────────────────────────────
     save_json(per_sample, str(out_dir / "per_sample_shifts.json"))

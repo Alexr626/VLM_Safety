@@ -50,7 +50,7 @@ VLM_Safety/
 │
 ├── experiment_artifacts/{model}/           # .npz artifacts, organised per model
 │   ├── vl_activation_shift/                # safety_direction_vectors.npz
-│   ├── combinatorial_safety/               # combinatorial_direction_vectors.npz
+│   ├── compositional_safety/               # compositional_safety_direction_vectors.npz
 │   ├── effective_rank/                     # singular_spectra.npz             (llava only)
 │   ├── safety_decomposition/               # subspace bases + spectra         (llava only)
 │   └── subspace_overlap/                   # integration bases + spectra      (llava only)
@@ -69,7 +69,7 @@ VLM_Safety/
 │   │   ├── vl_activation_shift.py          # Core ShiftDC analysis
 │   │   ├── sanity_check_tt_baseline.py
 │   │   ├── augmented_baseline_projections.py
-│   │   ├── combinatorial_direction.py
+│   │   ├── compositional_safety_direction.py
 │   │   ├── safety_probes.py
 │   │   ├── generate_responses.py
 │   │   ├── classify_responses.py
@@ -77,7 +77,7 @@ VLM_Safety/
 │   ├── plotting_scripts/                   # Shared across models
 │   │   ├── plot_vl_activation_shift_projections.py
 │   │   ├── plot_tt_baseline_projections.py
-│   │   ├── plot_combinatorial_shift_projections.py
+│   │   ├── plot_compositional_safety_shift_projections.py
 │   │   ├── plot_direction_comparison.py
 │   │   ├── plot_probe_results.py
 │   │   ├── plot_augmented_baseline.py
@@ -85,13 +85,13 @@ VLM_Safety/
 │   ├── {model}/                            # Per-model outputs (one per supported model)
 │   │   ├── shift_dc/outputs/               # ShiftDC results + plots
 │   │   ├── behavioral_ground_truth/outputs/
-│   │   ├── combinatorial_safety/outputs/
+│   │   ├── compositional_safety/outputs/
 │   │   └── augmented_baseline/outputs/     # (llava only)
 │   ├── run_shiftdc.sh                      # ShiftDC pipeline (extraction + safety direction)
 │   ├── run_all_diagnostics.sh              # All diagnostic phases for a given MODEL
 │   ├── run_data_prep.sh                    # Cohesive text + CT extraction (GPU)
 │   ├── run_behavioral_ground_truth.sh      # Response gen + refusal classification (GPU)
-│   ├── run_combinatorial_safety.sh         # Combinatorial direction + probes (CPU)
+│   ├── run_compositional_safety.sh         # Compositional safety direction + probes (CPU)
 │   ├── run_augmented_diagnostics.sh        # TT-vs-CT safety-projection gap (CPU)
 │   ├── run_all_new_experiments.sh          # Augmented experiments end-to-end
 │   ├── run_diag_16gb.sh                    # Models that fit on 16 GB GPUs
@@ -165,7 +165,7 @@ conda deactivate && conda activate vlm_safety
 
 ```bash
 # Every diagnostic phase for one model (data extraction + ShiftDC + behavioral +
-# combinatorial + combinatorial-direction ShiftDC)
+# compositional safety + compositional-safety ShiftDC)
 MODEL="llava-hf/llava-1.5-7b-hf"         bash diagnostic_experiments/run_scripts/run_all_diagnostics.sh
 MODEL="Qwen/Qwen2.5-VL-7B-Instruct"      bash diagnostic_experiments/run_scripts/run_all_diagnostics.sh
 MODEL="OpenGVLab/InternVL2-8B"           bash diagnostic_experiments/run_scripts/run_all_diagnostics.sh
@@ -188,7 +188,7 @@ bash diagnostic_experiments/run_scripts/run_diag_24gb.sh
 # ShiftDC only (captioning, VL/TT extraction, reference activations, safety direction)
 bash diagnostic_experiments/run_scripts/run_shiftdc.sh
 
-# Augmented pipeline: data prep + behavioral + combinatorial + augmented baseline
+# Augmented pipeline: data prep + behavioral + compositional safety + augmented baseline
 bash diagnostic_experiments/run_scripts/run_all_new_experiments.sh
 
 # Subspace analysis (llava only, CPU)
@@ -236,8 +236,8 @@ Runs, for a single `MODEL`:
 2. **ShiftDC diagnostic** — `vl_activation_shift.py`, `sanity_check_tt_baseline.py` + plots
 3. **Behavioral ground truth** — `generate_responses.py`, `classify_responses.py`,
    `catqa_behavioral_baseline.py` + plots
-4. **Combinatorial safety** — `combinatorial_direction.py`, `safety_probes.py` + plots
-5. **ShiftDC with combinatorial direction** — reruns step 2 using `c^l` in place of `s^l`
+4. **Compositional safety** — `compositional_safety_direction.py`, `safety_probes.py` + plots
+5. **ShiftDC with compositional safety direction** — reruns step 2 using `c^l` in place of `s^l`
 
 ## Subspace Analysis (llava-1.5-7b-hf only)
 
@@ -263,7 +263,7 @@ ground truth.
 | Experiment | Directory | Key Question |
 |------------|-----------|--------------|
 | **1. Augmented Baseline**    | `{model}/augmented_baseline/`    | Does CT reveal a safety-direction gap that TT misses? |
-| **2. Combinatorial Safety**  | `{model}/combinatorial_safety/`  | Is the SSU-vs-SSS direction the same as the content-safety direction? Can linear probes separate them? |
+| **2. Compositional Safety**  | `{model}/compositional_safety/`  | Is the SSU-vs-SSS direction the same as the semantic-safety direction? Can linear probes separate them? |
 | **3. Behavioral Ground Truth** | `{model}/behavioral_ground_truth/` | Under which input condition (VL/TT/CT) does the model actually refuse, and how does this correspond to activation-space signals? |
 
 ```bash
@@ -273,7 +273,7 @@ bash diagnostic_experiments/run_scripts/run_all_new_experiments.sh
 # Or phase-by-phase:
 bash diagnostic_experiments/run_scripts/run_data_prep.sh              # GPU: CT generation + extraction
 bash diagnostic_experiments/run_scripts/run_behavioral_ground_truth.sh # GPU: responses + refusal labels
-bash diagnostic_experiments/run_scripts/run_combinatorial_safety.sh   # CPU: direction + probes
+bash diagnostic_experiments/run_scripts/run_compositional_safety.sh   # CPU: direction + probes
 bash diagnostic_experiments/run_scripts/run_augmented_diagnostics.sh  # CPU: projection-gap analysis
 ```
 
@@ -285,7 +285,7 @@ Cohesive text generation defaults to Anthropic API (`PROVIDER=anthropic`); set
 - `data/captions/holisafe_cohesive.json` — fused caption + query per sample
 - `data/holisafe-bench/activations/{model}/sample_{id}_ct.npz` — CT activations
 - `data/holisafe-bench/train_eval_split.json` — stratified train/eval split (175/group)
-- `experiment_artifacts/{model}/combinatorial_safety/combinatorial_direction_vectors.npz`
+- `experiment_artifacts/{model}/compositional_safety/compositional_safety_direction_vectors.npz`
 
 ## Adding a New Reference Dataset
 
@@ -307,7 +307,7 @@ Cohesive text generation defaults to Anthropic API (`PROVIDER=anthropic`); set
 
 Edit `_MODEL_CONFIGS` in [src/model.py](src/model.py) with the model's class,
 prompt templates, visual-token count, and caption prompt. After that, every
-shared script (extraction, ShiftDC, behavioral, combinatorial, plotting) picks
+shared script (extraction, ShiftDC, behavioral, compositional safety, plotting) picks
 it up via `--model <hf-id>` and writes outputs under the model's short name.
 
 ## Key Output Formats
@@ -340,7 +340,7 @@ llava-instruct-ref/   mm-safetybench-ref/  # Alt. safe/unsafe reference pools
 ### Experiment artifacts (`experiment_artifacts/{model}/{experiment}/`)
 ```
 vl_activation_shift/safety_direction_vectors.npz    # Per-layer s^l
-combinatorial_safety/combinatorial_direction_vectors.npz  # Per-layer c^l
+compositional_safety/compositional_safety_direction_vectors.npz  # Per-layer c^l
 effective_rank/singular_spectra.npz                 # (llava only)
 safety_decomposition/{safety_subspace_bases,safety_subspace_spectra}.npz
 subspace_overlap/{integration_spectra,integration_subspace_bases}.npz
@@ -363,7 +363,7 @@ subspace_overlap/{integration_spectra,integration_subspace_bases}.npz
 ├── refusal_summary.json
 └── plots/
 
-{model}/combinatorial_safety/outputs/
+{model}/compositional_safety/outputs/
 ├── artifacts/                              # Per-layer SSU-vs-SSS direction data
 └── results/                                # Direction comparison + probe results
 ```

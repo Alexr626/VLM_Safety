@@ -39,15 +39,15 @@ python "$DIAGNOSTIC_ROOT/experiment_scripts/catqa_behavioral_baseline.py" --mode
     --method keyword --provider anthropic --skip_if_exists
 python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_behavioral_ground_truth.py" --model "$MODEL"
 
-echo "=== Phase 3: Combinatorial safety ==="
-python "$DIAGNOSTIC_ROOT/experiment_scripts/combinatorial_direction.py" --model "$MODEL"
+echo "=== Phase 3: Compositional safety ==="
+python "$DIAGNOSTIC_ROOT/experiment_scripts/compositional_safety_direction.py" --model "$MODEL"
 python "$DIAGNOSTIC_ROOT/experiment_scripts/safety_probes.py" --model "$MODEL"
 python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_direction_comparison.py" --model "$MODEL"
 python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_probe_results.py" --model "$MODEL"
 
-echo "=== Phase 4: ShiftDC with combinatorial direction ==="
-python "$DIAGNOSTIC_ROOT/experiment_scripts/vl_activation_shift.py" --model "$MODEL" --combinatorial_dir
-python "$DIAGNOSTIC_ROOT/experiment_scripts/sanity_check_tt_baseline.py" --model "$MODEL" --combinatorial_dir
-python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_combinatorial_shift_projections.py" --model "$MODEL"
+echo "=== Phase 4: ShiftDC with compositional safety direction ==="
+python "$DIAGNOSTIC_ROOT/experiment_scripts/vl_activation_shift.py" --model "$MODEL" --compositional_safety_dir
+python "$DIAGNOSTIC_ROOT/experiment_scripts/sanity_check_tt_baseline.py" --model "$MODEL" --compositional_safety_dir
+python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_compositional_safety_shift_projections.py" --model "$MODEL"
 
 echo "=== Done: $MODEL ==="
