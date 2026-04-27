@@ -858,6 +858,117 @@ def split_holisafe_train_eval(
     return sss_train, sss_eval, ssu_train, ssu_eval
 
 
+def extend_holisafe_eval_compositional(
+    reference_subsets: dict,
+    n_eval: int = 175,
+    seed: int = 42,
+    save_dir: Optional[str] = None,
+    subsets: Optional[List[str]] = None,
+) -> dict:
+    """
+    Append eval-only id lists for the compositional-unsafety subsets
+    (USU, SUU, UUU) to the existing train_eval_split.json.
+
+    Each list is stratified by harm category to mirror the proportions in the
+    full pool of that subset, and is sized at ~n_eval. Idempotent: keys that
+    are already present (and non-empty) are not regenerated. SSS/SSU keys
+    are never touched.
+
+    Args:
+        reference_subsets: output of `filter_reference_subsets(entries, ...)`.
+                           A dict keyed by raw HoliSafe `type` string
+                           (SSS / SSU / SUU / USU / UUU) with sample lists.
+        n_eval: target eval-set size per subset.
+        seed: master seed; per-subset deterministic streams are derived from it.
+        save_dir: directory holding train_eval_split.json. Defaults to
+                  <repo_root>/data/holisafe-bench/.
+        subsets: subsets to add (defaults to ["SUU", "USU", "UUU"]).
+
+    Returns:
+        The full updated split dict (after read-modify-write).
+
+    Raises:
+        FileNotFoundError if train_eval_split.json does not exist (call
+        `split_holisafe_train_eval` first).
+        ValueError if the existing split's seed/n_eval don't match.
+    """
+    import random
+
+    if subsets is None:
+        subsets = ["SUU", "USU", "UUU"]
+
+    repo_root = Path(__file__).resolve().parent.parent
+    if save_dir is None:
+        save_dir = str(repo_root / "data" / "holisafe-bench")
+    split_path = Path(save_dir) / "train_eval_split.json"
+
+    if not split_path.exists():
+        raise FileNotFoundError(
+            f"{split_path} not found. Run split_holisafe_train_eval(...) first "
+            "to create the SSS/SSU split."
+        )
+
+    with open(split_path) as f:
+        split = json.load(f)
+
+    if split.get("seed") != seed or split.get("n_eval") != n_eval:
+        raise ValueError(
+            f"Existing split has seed={split.get('seed')}, "
+            f"n_eval={split.get('n_eval')}; refusing to extend with "
+            f"seed={seed}, n_eval={n_eval}. Either rerun "
+            "split_holisafe_train_eval with these values, or pass matching "
+            "seed/n_eval here."
+        )
+
+    def _stratified_eval_only(samples: List[dict], n_eval_target: int,
+                              rng: "random.Random") -> List[dict]:
+        """Pick a stratified-by-category subset of ~n_eval_target samples."""
+        by_cat: Dict[str, List[dict]] = {}
+        for s in samples:
+            by_cat.setdefault(s.get("category", "unknown"), []).append(s)
+        total = len(samples)
+        out: List[dict] = []
+        for cat, cat_samples in sorted(by_cat.items()):
+            cat_samples = list(cat_samples)
+            rng.shuffle(cat_samples)
+            n_cat = max(1, round(len(cat_samples) * n_eval_target / total))
+            n_cat = min(n_cat, len(cat_samples))
+            out.extend(cat_samples[:n_cat])
+        return out
+
+    changed = False
+    for subset in subsets:
+        key = f"{subset.lower()}_eval_ids"
+        if split.get(key):
+            print(f"  [{subset}] {key} already present "
+                  f"({len(split[key])} ids); skipping.")
+            continue
+        samples = reference_subsets.get(subset)
+        if not samples:
+            print(f"  [{subset}] no samples available in reference_subsets; "
+                  "skipping.")
+            continue
+        rng_seed = seed + sum(ord(c) for c in subset)
+        rng = random.Random(rng_seed)
+        picked = _stratified_eval_only(samples, n_eval, rng)
+        split[key] = sorted(s["id"] for s in picked)
+        print(f"  [{subset}] picked {len(picked)} eval samples (target {n_eval}, "
+              f"pool {len(samples)})")
+        changed = True
+
+    if changed:
+        # Atomic-ish write: write to .tmp then rename.
+        tmp_path = split_path.with_suffix(".json.tmp")
+        with open(tmp_path, "w") as f:
+            json.dump(split, f, indent=2)
+        tmp_path.replace(split_path)
+        print(f"  Saved extended split → {split_path}")
+    else:
+        print("  No new keys added; train_eval_split.json unchanged.")
+
+    return split
+
+
 def split_catqa_train_eval(
     n_samples: int = 550,
     n_eval: int = 132,
@@ -973,4 +1084,30 @@ def split_catqa_train_eval(
 
 
 if __name__ == "__main__":
-    load_holisafe()
+    import argparse
+
+    p = argparse.ArgumentParser(
+        description="Extend HoliSafe train_eval_split.json with eval-only "
+                    "id lists for the compositional-unsafety subsets "
+                    "(USU/SUU/UUU). Idempotent: existing keys are kept."
+    )
+    p.add_argument("--n_eval", type=int, default=175,
+                   help="Target eval-set size per subset (matches the SSS/SSU "
+                        "split's n_eval; default 175).")
+    p.add_argument("--seed", type=int, default=42,
+                   help="Master seed for stratified sampling. Must match the "
+                        "seed used by split_holisafe_train_eval.")
+    p.add_argument("--cache_dir", default=None,
+                   help="HuggingFace cache dir for HoliSafe download.")
+    p.add_argument("--subsets", nargs="+", default=["SUU", "USU", "UUU"],
+                   choices=["SSS", "SSU", "SUU", "USU", "UUU"],
+                   help="Subsets to add (default: SUU USU UUU).")
+    args = p.parse_args()
+
+    entries, images_base = load_holisafe(cache_dir=args.cache_dir)
+    refs = filter_reference_subsets(entries, images_base)
+    print("Pool sizes per subset:",
+          {k: len(v) for k, v in sorted(refs.items())})
+    extend_holisafe_eval_compositional(
+        refs, n_eval=args.n_eval, seed=args.seed, subsets=args.subsets,
+    )
