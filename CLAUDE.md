@@ -103,16 +103,18 @@ VLM_Safety/
 │   │   ├── behavioral_ground_truth/outputs/
 │   │   ├── combinatorial_safety/outputs/
 │   │   └── augmented_baseline/outputs/     # (llava only)
-│   ├── run_shiftdc.sh                      # ShiftDC pipeline (extraction + safety direction)
-│   ├── run_all_diagnostics.sh              # All diagnostic phases for a given MODEL
-│   ├── run_data_prep.sh                    # Cohesive text + CT extraction (GPU)
-│   ├── run_behavioral_ground_truth.sh      # Response gen + refusal classification (GPU)
-│   ├── run_combinatorial_safety.sh         # Combinatorial direction + probes (CPU)
-│   ├── run_augmented_diagnostics.sh        # TT-vs-CT safety-projection gap (CPU)
-│   ├── run_all_new_experiments.sh          # Augmented experiments end-to-end
-│   ├── run_diag_16gb.sh                    # Models that fit on 16 GB GPUs
-│   ├── run_diag_24gb.sh                    # Models that need >=24 GB VRAM
-│   └── run_diag_all_models.sh              # All models sequentially
+│   └── run_scripts/                        # Shell launchers for the pipelines
+│       ├── run_shiftdc.sh                          # ShiftDC pipeline (extraction + safety direction)
+│       ├── run_all_diagnostics.sh                  # All diagnostic phases for a given MODEL
+│       ├── run_data_prep.sh                        # Cohesive text + CT extraction (GPU)
+│       ├── run_behavioral_ground_truth.sh          # Response gen + refusal classification (GPU)
+│       ├── run_combinatorial_safety.sh             # Combinatorial direction + probes (CPU)
+│       ├── run_combinatorial_safety_all_models.sh  # Combinatorial-safety run across all supported models (CPU)
+│       ├── run_augmented_diagnostics.sh            # TT-vs-CT safety-projection gap (CPU)
+│       ├── run_all_new_experiments.sh              # Augmented experiments end-to-end
+│       ├── run_diag_16gb.sh                        # Models that fit on 16 GB GPUs
+│       ├── run_diag_24gb.sh                        # Models that need >=24 GB VRAM
+│       └── run_diag_all_models.sh                  # All models sequentially
 │
 ├── helper_scripts/                         # Utility scripts
 │   ├── check_data_integrity.py
@@ -306,42 +308,42 @@ run_shiftdc.sh orchestrates:
 ```bash
 # Every diagnostic phase for one model (data extraction + ShiftDC + behavioral +
 # combinatorial + combinatorial-direction ShiftDC)
-MODEL="llava-hf/llava-1.5-7b-hf"         bash diagnostic_experiments/run_all_diagnostics.sh
-MODEL="Qwen/Qwen2-VL-7B"                bash diagnostic_experiments/run_all_diagnostics.sh
-MODEL="Qwen/Qwen2-VL-7B-Instruct"       bash diagnostic_experiments/run_all_diagnostics.sh
-MODEL="Qwen/Qwen2.5-VL-7B-Instruct"      bash diagnostic_experiments/run_all_diagnostics.sh
-MODEL="OpenGVLab/InternVL2-8B"           bash diagnostic_experiments/run_all_diagnostics.sh
-MODEL="OpenGVLab/InternVL2_5-8B-MPO"     bash diagnostic_experiments/run_all_diagnostics.sh
+MODEL="llava-hf/llava-1.5-7b-hf"         bash diagnostic_experiments/run_scripts/run_all_diagnostics.sh
+MODEL="Qwen/Qwen2-VL-7B"                bash diagnostic_experiments/run_scripts/run_all_diagnostics.sh
+MODEL="Qwen/Qwen2-VL-7B-Instruct"       bash diagnostic_experiments/run_scripts/run_all_diagnostics.sh
+MODEL="Qwen/Qwen2.5-VL-7B-Instruct"      bash diagnostic_experiments/run_scripts/run_all_diagnostics.sh
+MODEL="OpenGVLab/InternVL2-8B"           bash diagnostic_experiments/run_scripts/run_all_diagnostics.sh
+MODEL="OpenGVLab/InternVL2_5-8B-MPO"     bash diagnostic_experiments/run_scripts/run_all_diagnostics.sh
 ```
 
 ### VRAM-batched launchers
 
 ```bash
 # 16 GB GPU: LLaVA (all phases) + Qwen (all except response generation)
-bash diagnostic_experiments/run_diag_16gb.sh
+bash diagnostic_experiments/run_scripts/run_diag_16gb.sh
 
 # 24 GB GPU: Qwen response generation + InternVL2 / InternVL2.5 (all phases)
-bash diagnostic_experiments/run_diag_24gb.sh
+bash diagnostic_experiments/run_scripts/run_diag_24gb.sh
 ```
 
 ### Piecewise
 
 ```bash
 # ShiftDC only (captioning, VL/TT extraction, reference activations, safety direction)
-bash diagnostic_experiments/run_shiftdc.sh
+bash diagnostic_experiments/run_scripts/run_shiftdc.sh
 
 # Augmented pipeline: data prep + behavioral + combinatorial + augmented baseline
-bash diagnostic_experiments/run_all_new_experiments.sh
+bash diagnostic_experiments/run_scripts/run_all_new_experiments.sh
 
 # Override any parameter on any script
-bash diagnostic_experiments/run_shiftdc.sh \
+bash diagnostic_experiments/run_scripts/run_shiftdc.sh \
     MODEL=OpenGVLab/InternVL2-8B DATASET=holisafe \
     SAFE_REF=catqa-harmless UNSAFE_REF=catqa-harmful
 ```
 
 ## Pipeline Configuration
 
-Located at: `diagnostic_experiments/run_shiftdc.sh`
+Located at: `diagnostic_experiments/run_scripts/run_shiftdc.sh`
 
 **Configuration (edit at top of script):**
 ```bash
@@ -356,7 +358,7 @@ MAX_NEW_TOKENS=100
 
 **Override at runtime:**
 ```bash
-bash diagnostic_experiments/run_shiftdc.sh MODEL=other-org/model DATASET=my-dataset
+bash diagnostic_experiments/run_scripts/run_shiftdc.sh MODEL=other-org/model DATASET=my-dataset
 ```
 
 **Skip Flags:**
@@ -428,13 +430,13 @@ also splits SSU samples by refused/complied and compares projections within SSU.
 
 ```bash
 # All three experiments in order (GPU required for data prep + behavioral)
-bash diagnostic_experiments/run_all_new_experiments.sh
+bash diagnostic_experiments/run_scripts/run_all_new_experiments.sh
 
 # Or phase-by-phase:
-bash diagnostic_experiments/run_data_prep.sh              # GPU: CT generation + extraction
-bash diagnostic_experiments/run_behavioral_ground_truth.sh # GPU: responses + refusal labels
-bash diagnostic_experiments/run_combinatorial_safety.sh   # CPU: direction + probes
-bash diagnostic_experiments/run_augmented_diagnostics.sh  # CPU: projection-gap analysis
+bash diagnostic_experiments/run_scripts/run_data_prep.sh              # GPU: CT generation + extraction
+bash diagnostic_experiments/run_scripts/run_behavioral_ground_truth.sh # GPU: responses + refusal labels
+bash diagnostic_experiments/run_scripts/run_combinatorial_safety.sh   # CPU: direction + probes
+bash diagnostic_experiments/run_scripts/run_augmented_diagnostics.sh  # CPU: projection-gap analysis
 ```
 
 **Prerequisites:** The base ShiftDC pipeline (`run_shiftdc.sh`) must have completed.
@@ -552,7 +554,7 @@ data = np.load("safety_direction_vectors.npz")
 
 3. **Run the pipeline:**
    ```bash
-   bash diagnostic_experiments/run_shiftdc.sh SAFE_REF=my-dataset-safe
+   bash diagnostic_experiments/run_scripts/run_shiftdc.sh SAFE_REF=my-dataset-safe
    ```
 
 ## Adding a New Model

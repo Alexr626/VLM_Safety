@@ -2,12 +2,12 @@
 """
 Cross-Evaluation Safety Probes
 ===============================
-Train & cross-evaluate linear probes for content-level (CatQA) and
-combinatorial (SSU-vs-SSS) safety classification.
+Train & cross-evaluate linear probes for semantic safety (CatQA) and
+compositional safety (SSU-vs-SSS) classification.
 
 Outputs
 -------
-  diagnostic_experiments/{model}/combinatorial_safety/outputs/results/probe_results.json
+  diagnostic_experiments/{model}/compositional_safety/outputs/results/probe_results.json
 """
 
 import argparse
@@ -32,7 +32,7 @@ from src.dataset import (
 )
 from src.model import _normalize_model_name
 
-_EXPERIMENT_NAME = "combinatorial_safety"
+_EXPERIMENT_NAME = "compositional_safety"
 
 
 def parse_args():
@@ -223,7 +223,10 @@ def main():
             X_test4 = np.array(X_test4) if X_test4 else np.empty((0, X_a_train.shape[1]))
             y_test4 = np.array(y_test4) if y_test4 else np.array([])
 
-        for probe_name, probe in [("content_probe", probe_a), ("combinatorial_probe", probe_b)]:
+        for probe_name, probe in [
+            ("semantic_safety_probe", probe_a),
+            ("compositional_safety_probe", probe_b),
+        ]:
             for test_name, X_test, y_test in [
                 ("holisafe_eval_tt", X_test1, y_test1),
                 ("holisafe_eval_vl", X_test2, y_test2),
@@ -240,7 +243,7 @@ def main():
 
     if all_results:
         print(f"\nProbe Results Summary (best layer):")
-        for probe in ["content_probe", "combinatorial_probe"]:
+        for probe in ["semantic_safety_probe", "compositional_safety_probe"]:
             for test in ["holisafe_eval_tt", "holisafe_eval_vl", "catqa_eval", "ssu_behavioral"]:
                 key = f"{probe}__{test}__accuracy"
                 accs = [(r["layer"], r.get(key)) for r in all_results if r.get(key) is not None]

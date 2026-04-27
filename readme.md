@@ -166,36 +166,36 @@ conda deactivate && conda activate vlm_safety
 ```bash
 # Every diagnostic phase for one model (data extraction + ShiftDC + behavioral +
 # combinatorial + combinatorial-direction ShiftDC)
-MODEL="llava-hf/llava-1.5-7b-hf"         bash diagnostic_experiments/run_all_diagnostics.sh
-MODEL="Qwen/Qwen2.5-VL-7B-Instruct"      bash diagnostic_experiments/run_all_diagnostics.sh
-MODEL="OpenGVLab/InternVL2-8B"           bash diagnostic_experiments/run_all_diagnostics.sh
-MODEL="OpenGVLab/InternVL2_5-8B-MPO"     bash diagnostic_experiments/run_all_diagnostics.sh
+MODEL="llava-hf/llava-1.5-7b-hf"         bash diagnostic_experiments/run_scripts/run_all_diagnostics.sh
+MODEL="Qwen/Qwen2.5-VL-7B-Instruct"      bash diagnostic_experiments/run_scripts/run_all_diagnostics.sh
+MODEL="OpenGVLab/InternVL2-8B"           bash diagnostic_experiments/run_scripts/run_all_diagnostics.sh
+MODEL="OpenGVLab/InternVL2_5-8B-MPO"     bash diagnostic_experiments/run_scripts/run_all_diagnostics.sh
 ```
 
 ### VRAM-batched launchers
 
 ```bash
 # 16 GB GPU: LLaVA (all phases) + Qwen (all except response generation)
-bash diagnostic_experiments/run_diag_16gb.sh
+bash diagnostic_experiments/run_scripts/run_diag_16gb.sh
 
 # 24 GB GPU: Qwen response generation + InternVL2 / InternVL2.5 (all phases)
-bash diagnostic_experiments/run_diag_24gb.sh
+bash diagnostic_experiments/run_scripts/run_diag_24gb.sh
 ```
 
 ### Piecewise
 
 ```bash
 # ShiftDC only (captioning, VL/TT extraction, reference activations, safety direction)
-bash diagnostic_experiments/run_shiftdc.sh
+bash diagnostic_experiments/run_scripts/run_shiftdc.sh
 
 # Augmented pipeline: data prep + behavioral + combinatorial + augmented baseline
-bash diagnostic_experiments/run_all_new_experiments.sh
+bash diagnostic_experiments/run_scripts/run_all_new_experiments.sh
 
 # Subspace analysis (llava only, CPU)
 bash subspace_analysis/run_followup.sh
 
 # Override any parameter on any script
-bash diagnostic_experiments/run_shiftdc.sh \
+bash diagnostic_experiments/run_scripts/run_shiftdc.sh \
     MODEL=OpenGVLab/InternVL2-8B DATASET=holisafe \
     SAFE_REF=catqa-harmless UNSAFE_REF=catqa-harmful
 ```
@@ -268,13 +268,13 @@ ground truth.
 
 ```bash
 # All three experiments in order (GPU required for data prep + behavioral)
-bash diagnostic_experiments/run_all_new_experiments.sh
+bash diagnostic_experiments/run_scripts/run_all_new_experiments.sh
 
 # Or phase-by-phase:
-bash diagnostic_experiments/run_data_prep.sh              # GPU: CT generation + extraction
-bash diagnostic_experiments/run_behavioral_ground_truth.sh # GPU: responses + refusal labels
-bash diagnostic_experiments/run_combinatorial_safety.sh   # CPU: direction + probes
-bash diagnostic_experiments/run_augmented_diagnostics.sh  # CPU: projection-gap analysis
+bash diagnostic_experiments/run_scripts/run_data_prep.sh              # GPU: CT generation + extraction
+bash diagnostic_experiments/run_scripts/run_behavioral_ground_truth.sh # GPU: responses + refusal labels
+bash diagnostic_experiments/run_scripts/run_combinatorial_safety.sh   # CPU: direction + probes
+bash diagnostic_experiments/run_scripts/run_augmented_diagnostics.sh  # CPU: projection-gap analysis
 ```
 
 **Prerequisites:** The base ShiftDC pipeline (`run_shiftdc.sh`) must have completed.
