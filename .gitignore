@@ -39,3 +39,4 @@ experiment_artifacts/*
 export_environment.yml
 original_environment.yml
 MiniGPT-4
+logs

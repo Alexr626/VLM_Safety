@@ -205,7 +205,8 @@ and dispatch paths using the model's short name.
 **HoliSafe-Bench:**
 - `load_holisafe()`: Download/load HoliSafe-Bench to `data/holisafe-bench/`
 - `filter_subsets(entries, images_base)`: Filter to SSS and SSU subsets
-- `filter_reference_subsets(entries, images_base)`: Returns all 5 HoliSafe subsets (SSS, SSU, USS, UUS, UUU)
+- `filter_reference_subsets(entries, images_base)`: Returns all 5 HoliSafe subsets (SSS, SSU, SUU, USU, UUU) keyed by raw `type` string. Naming convention is [Image][Text][Output]: e.g. USU = unsafe-image + safe-text → unsafe-output.
+- `extend_holisafe_eval_compositional(reference_subsets, n_eval=175, seed=42, save_dir=None, subsets=None)`: Append eval-only id lists for the compositional-unsafety subsets (USU/SUU/UUU) to `train_eval_split.json`. Idempotent; never touches SSS/SSU keys. CLI: `python -m src.dataset --n_eval 175 --seed 42`.
 - `load_image_for_sample(sample, hf_repo)`: Load/download image for a single sample
 - Sample dict schema:
   ```python

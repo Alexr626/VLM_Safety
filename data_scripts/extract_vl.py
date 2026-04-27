@@ -28,18 +28,50 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 _PROJECT_ROOT = _SCRIPT_DIR.parent
 sys.path.insert(0, str(_PROJECT_ROOT))
 
-from src.dataset import load_holisafe, filter_subsets, load_image_for_sample, inspect_schema
+import json
+
+from src.dataset import (
+    load_holisafe, filter_subsets, filter_reference_subsets,
+    load_image_for_sample, inspect_schema,
+)
 from src.model import create_wrapper, _normalize_model_name
 from src.extraction import ActivationCache, get_last_token_activations, cleanup_gpu, save_json
 
 
-def load_samples(dataset, cache_dir, limit):
+def load_samples(dataset, cache_dir, limit,
+                 holisafe_subsets=None, holisafe_eval_only=False):
     if dataset == "holisafe":
         entries, images_base = load_holisafe(cache_dir=cache_dir)
-        sss, ssu = filter_subsets(entries, images_base)
-        if limit:
-            sss, ssu = sss[:limit], ssu[:limit]
-        return sss + ssu
+        if holisafe_subsets is None and not holisafe_eval_only:
+            sss, ssu = filter_subsets(entries, images_base)
+            if limit:
+                sss, ssu = sss[:limit], ssu[:limit]
+            return sss + ssu
+        buckets = filter_reference_subsets(entries, images_base)
+        wanted = (set(holisafe_subsets) if holisafe_subsets
+                  else set(buckets.keys()))
+        samples = [s for k, lst in buckets.items() if k in wanted
+                   for s in lst]
+        if holisafe_eval_only:
+            split_path = (_PROJECT_ROOT / "data" / "holisafe-bench"
+                          / "train_eval_split.json")
+            if not split_path.exists():
+                raise FileNotFoundError(
+                    "--holisafe_eval_only requires "
+                    f"{split_path}. Run: python -m src.dataset"
+                )
+            with open(split_path) as f:
+                split = json.load(f)
+            eval_ids = set()
+            for k in ("sss", "ssu", "suu", "usu", "uuu"):
+                eval_ids.update(split.get(f"{k}_eval_ids", []))
+            samples = [s for s in samples if s["id"] in eval_ids]
+        # Each sample built via filter_reference_subsets has label="OTHER";
+        # promote it to the raw subset_type so downstream consumers (and
+        # sample_metadata.json) carry useful labels.
+        for s in samples:
+            s["label"] = s.get("subset_type") or s.get("label", "OTHER")
+        return samples[:limit] if limit else samples
     raise ValueError(f"Unknown dataset: {dataset}")
 
 
@@ -53,6 +85,13 @@ def parse_args():
     p.add_argument("--limit", type=int, default=None)
     p.add_argument("--inspect", action="store_true")
     p.add_argument("--skip_extraction", action="store_true")
+    p.add_argument("--holisafe_eval_only", action="store_true",
+                   help="When --dataset=holisafe, restrict to samples in the "
+                        "eval splits of train_eval_split.json.")
+    p.add_argument("--holisafe_subsets", nargs="+", default=None,
+                   choices=["SSS", "SSU", "SUU", "USU", "UUU"],
+                   help="When --dataset=holisafe, restrict to samples whose "
+                        "raw HoliSafe `type` matches one of these.")
     return p.parse_args()
 
 
@@ -68,16 +107,34 @@ def main():
         inspect_schema(entries)
         sys.exit(0)
 
-    samples = load_samples(args.dataset, args.cache_dir, args.limit)
-    save_json(
-        [{"id": s["id"], "label": s["label"], "category": s["category"]} for s in samples],
-        str(act_dir / "sample_metadata.json"),
+    samples = load_samples(
+        args.dataset, args.cache_dir, args.limit,
+        holisafe_subsets=args.holisafe_subsets,
+        holisafe_eval_only=args.holisafe_eval_only,
     )
+
+    # Merge sample_metadata.json by id so prior runs (e.g. SSS+SSU) are
+    # preserved when this run extends with new subsets.
+    meta_path = act_dir / "sample_metadata.json"
+    merged: dict = {}
+    if meta_path.exists():
+        with open(meta_path) as f:
+            for r in json.load(f):
+                merged[r["id"]] = r
+    for s in samples:
+        merged[s["id"]] = {
+            "id": s["id"], "label": s["label"], "category": s["category"],
+        }
+    save_json(list(merged.values()), str(meta_path))
 
     cache = ActivationCache(str(act_dir))
     wrapper = create_wrapper(args.model).load()
 
-    todo = [s for s in samples if not (args.skip_extraction and cache.exists(s["id"], "vl"))]
+    # Always skip samples whose VL activations are already cached. Prior
+    # behavior was to skip only when --skip_extraction was set; that flag
+    # is now redundant (kept for CLI backward compat) since the cache check
+    # is cheap and avoids wasted re-extraction when extending to new subsets.
+    todo = [s for s in samples if not cache.exists(s["id"], "vl")]
     print(f"Extracting VL activations: {len(todo)}/{len(samples)} samples")
 
     for sample in tqdm(todo):

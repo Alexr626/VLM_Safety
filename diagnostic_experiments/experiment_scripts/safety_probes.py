@@ -86,6 +86,7 @@ def main():
 
     # ── Load split ───────────────────────────────────────────────────────────
     split_path = _DATA / "holisafe-bench" / "train_eval_split.json"
+    split: dict = {}
     if split_path.exists():
         split = load_json(str(split_path))
         sss_train_ids = split["sss_train_ids"]
@@ -104,6 +105,16 @@ def main():
 
     print(f"Split: SSS {len(sss_train_ids)} train / {len(sss_eval_ids)} eval, "
           f"SSU {len(ssu_train_ids)} train / {len(ssu_eval_ids)} eval")
+
+    # ── Compositional eval pools (USU / SUU / UUU) ──────────────────────────
+    # Populated by `python -m src.dataset` after the SSS/SSU split exists.
+    new_eval_ids = {
+        "usu": split.get("usu_eval_ids", []),
+        "suu": split.get("suu_eval_ids", []),
+        "uuu": split.get("uuu_eval_ids", []),
+    }
+    print(f"Compositional eval pools: "
+          f"{ {k: len(v) for k, v in new_eval_ids.items()} }")
 
     # ── Load CatQA reference activations ─────────────────────────────────────
     ref_base = _DATA / "catqa-contrastive" / "activations" / model_name
@@ -223,16 +234,37 @@ def main():
             X_test4 = np.array(X_test4) if X_test4 else np.empty((0, X_a_train.shape[1]))
             y_test4 = np.array(y_test4) if y_test4 else np.array([])
 
+        # Compositional eval pairs at this layer: SSS_eval vs {USU,SUU,UUU}_eval
+        # at both TT and VL suffixes. Skip silently when activations are missing.
+        new_tests: dict = {}
+        for subset_key, ids in new_eval_ids.items():
+            if not ids:
+                continue
+            for suffix in ("tt", "vl"):
+                try:
+                    X_sss = load_activation_matrix(
+                        cache, sss_eval_ids, l, suffix=suffix)
+                    X_neg = load_activation_matrix(
+                        cache, ids, l, suffix=suffix)
+                except FileNotFoundError as e:
+                    print(f"  layer {l} {subset_key}/{suffix}: skip ({e})")
+                    continue
+                X = np.vstack([X_sss, X_neg])
+                y = np.array([0] * len(X_sss) + [1] * len(X_neg))
+                new_tests[f"holisafe_eval_sss_vs_{subset_key}_{suffix}"] = (X, y)
+
+        test_iter = [
+            ("holisafe_eval_tt", X_test1, y_test1),
+            ("holisafe_eval_vl", X_test2, y_test2),
+            ("catqa_eval", X_test3, y_test3),
+            ("ssu_behavioral", X_test4, y_test4),
+        ] + [(name, X, y) for name, (X, y) in new_tests.items()]
+
         for probe_name, probe in [
             ("semantic_safety_probe", probe_a),
             ("compositional_safety_probe", probe_b),
         ]:
-            for test_name, X_test, y_test in [
-                ("holisafe_eval_tt", X_test1, y_test1),
-                ("holisafe_eval_vl", X_test2, y_test2),
-                ("catqa_eval", X_test3, y_test3),
-                ("ssu_behavioral", X_test4, y_test4),
-            ]:
+            for test_name, X_test, y_test in test_iter:
                 metrics = _evaluate(probe, X_test, y_test)
                 for k, v in metrics.items():
                     row[f"{probe_name}__{test_name}__{k}"] = v
@@ -243,8 +275,14 @@ def main():
 
     if all_results:
         print(f"\nProbe Results Summary (best layer):")
+        summary_tests = [
+            "holisafe_eval_tt", "holisafe_eval_vl", "catqa_eval", "ssu_behavioral",
+        ]
+        for subset_key in ("usu", "suu", "uuu"):
+            for suffix in ("tt", "vl"):
+                summary_tests.append(f"holisafe_eval_sss_vs_{subset_key}_{suffix}")
         for probe in ["semantic_safety_probe", "compositional_safety_probe"]:
-            for test in ["holisafe_eval_tt", "holisafe_eval_vl", "catqa_eval", "ssu_behavioral"]:
+            for test in summary_tests:
                 key = f"{probe}__{test}__accuracy"
                 accs = [(r["layer"], r.get(key)) for r in all_results if r.get(key) is not None]
                 if accs:
