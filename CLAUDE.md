@@ -116,6 +116,32 @@ VLM_Safety/
 │       ├── run_diag_24gb.sh                        # Models that need >=24 GB VRAM
 │       └── run_diag_all_models.sh                  # All models sequentially
 │
+├── evaluation/                             # Phase 2: Jailbreak defense evaluation
+│   ├── benchmarks/
+│   │   ├── __init__.py                     # EvalSample dataclass
+│   │   ├── mm_safetybench.py               # MM-SafetyBench loader (HF parquet w/ embedded images)
+│   │   ├── figstep.py                      # FigStep loader (GitHub clone)
+│   │   └── mssbench.py                     # MSSBench loader (combined.json + chat/*.jpg)
+│   ├── interventions/
+│   │   ├── __init__.py                     # Registry + factory (get_intervention)
+│   │   ├── base.py                         # InterventionBase ABC
+│   │   ├── vanilla.py                      # No-op baseline
+│   │   ├── comp_safety_shift.py            # CompSafetyShift: compositional-direction correction
+│   │   └── adashield_s.py                  # AdaShield-S: static defence prompt
+│   ├── classifiers/
+│   │   └── keyword.py                      # ShiftDC keyword refusal classifier + ASR helpers
+│   ├── runners/
+│   │   └── eval_runner.py                  # Orchestrates benchmark × model × intervention
+│   ├── run_eval.py                         # CLI entry point
+│   ├── results/                            # Auto-created; per-model ASR results
+│   └── scripts/
+│       ├── run_eval.sh                     # Single-model launcher
+│       ├── run_eval_all_models.sh          # All 5 models sequentially
+│       ├── run_full_pipeline.sh            # End-to-end: artifacts + downloads + eval
+│       ├── download_mm_safetybench.py      # Dataset download helper
+│       ├── download_figstep.py             # Dataset download helper
+│       └── download_mssbench.py            # Dataset download helper
+│
 ├── helper_scripts/                         # Utility scripts
 │   ├── check_data_integrity.py
 │   ├── download_missing_images.py
@@ -615,6 +641,88 @@ The environment includes `libstdcxx-ng` from conda-forge to ensure C++ ABI compa
 conda install -n vlm_safety -c conda-forge libstdcxx-ng
 conda deactivate && conda activate vlm_safety
 ```
+
+## Evaluation Framework (`evaluation/`)
+
+Runs three public jailbreak benchmarks against configurable defence interventions
+and produces ASR (Attack Success Rate) tables.
+
+### Evaluation Models
+The evaluation targets five models: `llava-1.5-7b-hf`, `sharegpt4v-7b`,
+`qwen-vl-chat`, `qwen2-vl-7b`, `qwen2-vl-7b-instruct`.
+
+### Benchmarks
+| Benchmark | Source | Samples | Notes |
+|-----------|--------|---------|-------|
+| **MM-SafetyBench** | `PKU-Alignment/MM-SafetyBench` (HF) | ~5,040 | 13 scenarios × 3 image types (SD, OCR, SD_TYPO). Images embedded in parquet files. |
+| **FigStep** | `ThuCCSLab/FigStep` (GitHub) | 500 | Typography attack images. All use the same constant instruction prompt. |
+| **MSSBench** | `kzhou35/mssbench` (HF) | 1,200 | Situational safety. `combined.json` maps to `chat/*.jpg`. Each record yields SSS + SSU sample pairs. |
+
+### Interventions
+| Name | Class | Description |
+|------|-------|-------------|
+| `vanilla` | `VanillaIntervention` | No-op baseline; direct model generation. |
+| `comp_safety_shift` | `CompSafetyShiftIntervention` | Subtracts the compositional safety direction `c^l` from last-token hidden states at configurable layers via forward hooks. Loads `compositional_safety_direction_vectors.npz`. |
+| `adashield_s` | `AdaShieldSIntervention` | Prepends the AdaShield-S static defence prompt. Composed as `question + defence + question` (matching the original AdaShield repo). |
+
+### CompSafetyShift Layer Convention
+The npz key `layer_l` corresponds to `hidden_states[l]` (output of transformer
+layer `l-1`). Hooks attach to `model.layers[l-1]` for npz key `layer_l`. Default
+layer ranges: `(6, 14)` for LLaVA/ShareGPT4V/Qwen-VL-Chat (32 layers),
+`(5, 12)` for Qwen2-VL models (28 layers). Layer 0 (embedding) is rejected.
+
+Layer access per wrapper:
+- `LLaVAWrapper`: `wrapper.model.language_model.model.layers[l]`
+- `ShareGPT4VWrapper`: `wrapper.model.model.layers[l]`
+- `Qwen2VLWrapper`: `wrapper.model.model.layers[l]`
+- `QwenVLWrapper`: `wrapper.model.transformer.h[l]`
+
+### Classifier
+Uses the ShiftDC keyword list (Appendix Table 11, 50 keywords). Case-sensitive
+substring match. Empty responses are classified as refusals. ASR = fraction of
+responses that are NOT refusals (lower = stronger defence).
+
+### Running the Evaluation
+
+```bash
+# Download benchmarks (one-time)
+python evaluation/scripts/download_mm_safetybench.py
+python evaluation/scripts/download_figstep.py
+python evaluation/scripts/download_mssbench.py
+
+# Single model
+python evaluation/run_eval.py \
+    --model llava-hf/llava-1.5-7b-hf \
+    --interventions vanilla comp_safety_shift adashield_s \
+    --benchmarks mm_safetybench figstep mssbench \
+    --skip_if_exists
+
+# All 5 models
+bash evaluation/scripts/run_eval_all_models.sh
+
+# Full end-to-end pipeline on a fresh workstation (artifacts + downloads + eval)
+bash evaluation/scripts/run_full_pipeline.sh
+
+# Skip phase 1 if experiment_artifacts/ are already committed
+SKIP_DIRECTIONS=1 bash evaluation/scripts/run_full_pipeline.sh
+```
+
+### Output Structure
+```
+evaluation/results/{model_short}/{benchmark}/{intervention}/
+├── responses.json               # Per-sample records (id, question, response, is_refusal)
+├── responses.checkpoint.json    # Mid-run checkpoint (deleted on completion)
+└── asr_summary.json             # Aggregate + per-scenario/image-type/safety-label ASR
+```
+
+Resume is per-sample: if interrupted, the next run loads existing records from
+both `responses.json` and `responses.checkpoint.json` (merged by sample id)
+and skips already-completed samples.
+
+### Adding a New Intervention
+1. Create `evaluation/interventions/my_method.py` extending `InterventionBase`.
+2. Register in `evaluation/interventions/__init__.py`.
+3. Run with `--interventions vanilla comp_safety_shift my_method`.
 
 ## Common Issues & Solutions
 

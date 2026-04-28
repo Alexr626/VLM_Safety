@@ -20,14 +20,20 @@ reference datasets) and compare SSS vs SSU groups across layers.
 
 ## Supported Models
 
-The pipeline supports four VLMs (see `_MODEL_CONFIGS` in [src/model.py](src/model.py)):
+The pipeline supports ten VLMs via `create_wrapper()` in [src/model.py](src/model.py):
 
-| Model ID                              | Short name                |
-|---------------------------------------|---------------------------|
-| `llava-hf/llava-1.5-7b-hf`            | `llava-1.5-7b-hf`         |
-| `Qwen/Qwen2.5-VL-7B-Instruct`         | `qwen2.5-vl-7b-instruct`  |
-| `OpenGVLab/InternVL2-8B`              | `internvl2-8b`            |
-| `OpenGVLab/InternVL2_5-8B-MPO`        | `internvl2.5-8b-mpo`      |
+| Model ID                              | Short name                | Wrapper class        |
+|---------------------------------------|---------------------------|---------------------|
+| `llava-hf/llava-1.5-7b-hf`            | `llava-1.5-7b-hf`         | `LLaVAWrapper`      |
+| `llava-hf/llava-v1.6-vicuna-7b-hf`    | `llava-v1.6-vicuna-7b-hf` | `LLaVAWrapper`      |
+| `Lin-Chen/ShareGPT4V-7B`              | `sharegpt4v-7b`            | `ShareGPT4VWrapper` |
+| `Vision-CAIR/MiniGPT-4`               | `minigpt-4`               | `MiniGPT4Wrapper`   |
+| `Qwen/Qwen-VL-Chat`                   | `qwen-vl-chat`            | `QwenVLWrapper`     |
+| `Qwen/Qwen2-VL-7B`                    | `qwen2-vl-7b`             | `Qwen2VLWrapper`    |
+| `Qwen/Qwen2-VL-7B-Instruct`           | `qwen2-vl-7b-instruct`    | `Qwen2VLWrapper`    |
+| `Qwen/Qwen2.5-VL-7B-Instruct`         | `qwen2.5-vl-7b-instruct`  | `Qwen2VLWrapper`    |
+| `OpenGVLab/InternVL2-8B`              | `internvl2-8b`            | `InternVL2Wrapper`  |
+| `OpenGVLab/InternVL2_5-8B-MPO`        | `internvl2.5-8b-mpo`      | `InternVL2Wrapper`  |
 
 The short name is used as the directory key under `data/*/activations/{model}/`,
 `experiment_artifacts/{model}/`, `diagnostic_experiments/{model}/`, etc.
@@ -104,6 +110,15 @@ VLM_Safety/
 │   │   ├── subspace_overlap/               # Exp C: Integration vs safety overlap
 │   │   └── category_analysis/              # Exp D: Per-harm-category breakdown
 │   └── run_followup.sh                     # Run all subspace experiments
+│
+├── evaluation/                             # Phase 2: Jailbreak defense evaluation
+│   ├── benchmarks/                         # MM-SafetyBench, FigStep, MSSBench loaders
+│   ├── interventions/                      # vanilla, comp_safety_shift, adashield_s
+│   ├── classifiers/                        # ShiftDC keyword refusal classifier + ASR
+│   ├── runners/                            # Evaluation orchestration
+│   ├── run_eval.py                         # CLI entry point
+│   ├── results/                            # Per-model ASR results (auto-created)
+│   └── scripts/                            # Launchers + dataset download helpers
 │
 ├── helper_scripts/                         # Utility scripts
 │   ├── check_data_integrity.py
@@ -286,6 +301,56 @@ Cohesive text generation defaults to Anthropic API (`PROVIDER=anthropic`); set
 - `data/holisafe-bench/activations/{model}/sample_{id}_ct.npz` — CT activations
 - `data/holisafe-bench/train_eval_split.json` — stratified train/eval split (175/group)
 - `experiment_artifacts/{model}/compositional_safety/compositional_safety_direction_vectors.npz`
+
+## Evaluation Framework
+
+Evaluates inference-time defense interventions against three public jailbreak
+benchmarks, producing ASR (Attack Success Rate) tables comparable to the
+ShiftDC / ECSO / AdaShield literature.
+
+### Benchmarks
+
+| Benchmark | Source | Samples |
+|-----------|--------|---------|
+| **MM-SafetyBench** | `PKU-Alignment/MM-SafetyBench` (HF) | ~5,040 (13 scenarios × 3 image types) |
+| **FigStep** | `ThuCCSLab/FigStep` (GitHub) | 500 |
+| **MSSBench** | `kzhou35/mssbench` (HF) | 1,200 (600 SSS + 600 SSU) |
+
+### Interventions
+
+| Name | Description |
+|------|-------------|
+| `vanilla` | No-op baseline |
+| `comp_safety_shift` | Removes compositional safety direction `c^l` from hidden states via forward hooks |
+| `adashield_s` | Prepends static defence prompt (AdaShield-S, Wang et al. ECCV 2024) |
+
+### Quick Start
+
+```bash
+# 1. Download benchmarks
+python evaluation/scripts/download_mm_safetybench.py
+python evaluation/scripts/download_figstep.py
+python evaluation/scripts/download_mssbench.py
+
+# 2. Run evaluation (single model)
+python evaluation/run_eval.py \
+    --model llava-hf/llava-1.5-7b-hf \
+    --interventions vanilla comp_safety_shift adashield_s \
+    --benchmarks mm_safetybench figstep mssbench \
+    --skip_if_exists
+
+# 3. Run all 5 models
+bash evaluation/scripts/run_eval_all_models.sh
+
+# 4. Full pipeline on a fresh workstation (artifacts + downloads + eval)
+bash evaluation/scripts/run_full_pipeline.sh
+
+# Skip direction-vector regeneration if experiment_artifacts/ is committed
+SKIP_DIRECTIONS=1 bash evaluation/scripts/run_full_pipeline.sh
+```
+
+Results are written to `evaluation/results/{model}/{benchmark}/{intervention}/asr_summary.json`.
+Per-sample resume is automatic — interrupted runs pick up from the last completed sample.
 
 ## Adding a New Reference Dataset
 
