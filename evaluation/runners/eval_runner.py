@@ -119,19 +119,26 @@ def _run_one(
         print(f"  [skip] Existing results at {responses_path}")
         return _load_json(summary_path)
 
-    # Resume from checkpoint if available.
-    completed_ids: set[str] = set()
-    records: list[dict] = []
-    if checkpoint_path.exists():
-        try:
-            records = _load_json(checkpoint_path)
-            completed_ids = {r["id"] for r in records}
-            print(f"  [resume] {len(completed_ids)} samples already in checkpoint")
-        except Exception:
-            records = []
-            completed_ids = set()
+    # Resume: merge records from both responses.json (partial prior run) and
+    # responses.checkpoint.json (mid-run checkpoint), keyed by sample id so
+    # duplicates are impossible. This handles every crash/interrupt scenario.
+    records_by_id: dict[str, dict] = {}
+    for src_path in (responses_path, checkpoint_path):
+        if src_path.exists():
+            try:
+                for r in _load_json(src_path):
+                    records_by_id[r["id"]] = r
+            except Exception:
+                pass
+    records = list(records_by_id.values())
+    completed_ids = set(records_by_id.keys())
+    n_todo = sum(1 for s in samples if s.id not in completed_ids)
+    if completed_ids:
+        print(f"  [resume] {len(completed_ids)}/{len(samples)} already done, "
+              f"{n_todo} remaining")
 
     t0 = time.time()
+    n_done_this_run = 0
     for i, sample in enumerate(samples, 1):
         if sample.id in completed_ids:
             continue
@@ -148,13 +155,18 @@ def _run_one(
         rec["response"] = response
         rec["is_refusal"] = is_refusal_keyword(response)
         records.append(rec)
+        n_done_this_run += 1
         cleanup_gpu()
 
-        if i % _CHECKPOINT_EVERY == 0:
-            _save_json(records, checkpoint_path)
+        # Checkpoint after every sample — disk I/O is negligible vs. a VLM
+        # forward pass, and losing work on interrupt is not.
+        _save_json(records, checkpoint_path)
+
+        if n_done_this_run % _CHECKPOINT_EVERY == 0:
             elapsed = time.time() - t0
-            rate = i / elapsed if elapsed > 0 else 0.0
-            print(f"  [{i}/{len(samples)}]  {rate:.2f} samples/s")
+            rate = n_done_this_run / elapsed if elapsed > 0 else 0.0
+            print(f"  [{i}/{len(samples)}]  {rate:.2f} samples/s  "
+                  f"({n_done_this_run} new this run)")
 
     _save_json(records, responses_path)
     summary = {

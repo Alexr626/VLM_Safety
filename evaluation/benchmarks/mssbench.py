@@ -99,10 +99,23 @@ def load_mssbench(
     splits = splits or _DEFAULT_SPLITS
 
     with open(records_path) as f:
-        records = json.load(f)
-    if not isinstance(records, list):
-        raise ValueError(f"Expected combined.json to be a list, got "
-                         f"{type(records).__name__}")
+        raw = json.load(f)
+    # combined.json is {"chat": [...], "embodied": [...]}.
+    # Flatten the requested splits into one record list.
+    if isinstance(raw, dict):
+        records: list[dict] = []
+        for split in splits:
+            if split in raw and isinstance(raw[split], list):
+                records.extend(raw[split])
+        if not records:
+            raise ValueError(
+                f"No records found in combined.json for splits {splits}. "
+                f"Available keys: {list(raw.keys())}"
+            )
+    elif isinstance(raw, list):
+        records = raw
+    else:
+        raise ValueError(f"Unexpected combined.json type: {type(raw).__name__}")
 
     wanted_labels = set(safety_labels) if safety_labels else {"SSS", "SSU"}
 

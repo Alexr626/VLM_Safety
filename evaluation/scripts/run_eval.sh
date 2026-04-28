@@ -11,7 +11,7 @@ set -euo pipefail
 
 MODEL="${MODEL:-llava-hf/llava-1.5-7b-hf}"
 BENCHMARKS="${BENCHMARKS:-mm_safetybench figstep mssbench}"
-INTERVENTIONS="${INTERVENTIONS:-vanilla comp_safety_shift adashield_s}"
+INTERVENTIONS="${INTERVENTIONS:-vanilla adashield_s comp_safety_shift}"
 MAX_NEW_TOKENS="${MAX_NEW_TOKENS:-256}"
 OUTPUT_DIR="${OUTPUT_DIR:-evaluation/results}"
 LIMIT="${LIMIT:-}"
