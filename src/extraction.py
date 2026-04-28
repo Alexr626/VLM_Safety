@@ -358,6 +358,79 @@ def extract_subspace(matrix: np.ndarray, k: int,
     return Vt[:k]  # (k, d)
 
 
+# ── Pairwise (paired-reference) helpers ──────────────────────────────────────
+
+def _parse_int_suffix(sample_id, prefix: str) -> Optional[int]:
+    """Strip prefix from a sample id and parse the trailing int. Returns None
+    if the id does not start with prefix or the suffix is non-integer."""
+    sid = str(sample_id)
+    if not sid.startswith(prefix):
+        return None
+    try:
+        return int(sid[len(prefix):])
+    except ValueError:
+        return None
+
+
+def is_paired_source(safe_ids: List, unsafe_ids: List,
+                     safe_prefix: str, unsafe_prefix: str,
+                     min_overlap_frac: float = 0.9) -> bool:
+    """Return True iff every id in both lists matches its prefix and the
+    trailing-int sets overlap by at least `min_overlap_frac` of the smaller
+    list. Used to dispatch joint-vs-pairwise PCA in safety-direction
+    extraction.
+    """
+    if not safe_ids or not unsafe_ids:
+        return False
+    safe_keys = [_parse_int_suffix(s, safe_prefix) for s in safe_ids]
+    unsafe_keys = [_parse_int_suffix(s, unsafe_prefix) for s in unsafe_ids]
+    if any(k is None for k in safe_keys) or any(k is None for k in unsafe_keys):
+        return False
+    shared = set(safe_keys) & set(unsafe_keys)
+    if not shared:
+        return False
+    return len(shared) >= min_overlap_frac * min(len(safe_keys), len(unsafe_keys))
+
+
+def pairwise_difference_matrix(
+    H_safe: np.ndarray, safe_ids: List,
+    H_unsafe: np.ndarray, unsafe_ids: List,
+    safe_prefix: str = "catqa_harmless_",
+    unsafe_prefix: str = "catqa_harmful_",
+    min_overlap_frac: float = 0.9,
+) -> Tuple[Optional[np.ndarray], int]:
+    """Build a row-aligned per-pair difference matrix `D = H_safe' - H_unsafe'`,
+    where H_safe' and H_unsafe' are reordered so their i-th rows correspond
+    to the same pair (matched by parsed integer id suffix).
+
+    Returns:
+        (D, n_pairs): D has shape (n_pairs, hidden_dim) when pair structure
+        is detected; (None, 0) otherwise.
+
+    Pair structure is considered absent when ids don't match the prefixes or
+    the trailing-int intersection is empty / smaller than min_overlap_frac of
+    the smaller input.
+    """
+    if H_safe.shape[0] != len(safe_ids) or H_unsafe.shape[0] != len(unsafe_ids):
+        raise ValueError(
+            f"id/row count mismatch: H_safe={H_safe.shape[0]} ids={len(safe_ids)}, "
+            f"H_unsafe={H_unsafe.shape[0]} ids={len(unsafe_ids)}"
+        )
+    safe_keys = [_parse_int_suffix(s, safe_prefix) for s in safe_ids]
+    unsafe_keys = [_parse_int_suffix(s, unsafe_prefix) for s in unsafe_ids]
+    if any(k is None for k in safe_keys) or any(k is None for k in unsafe_keys):
+        return None, 0
+    safe_idx = {k: i for i, k in enumerate(safe_keys)}
+    unsafe_idx = {k: i for i, k in enumerate(unsafe_keys)}
+    shared = sorted(set(safe_keys) & set(unsafe_keys))
+    if not shared or len(shared) < min_overlap_frac * min(len(safe_keys), len(unsafe_keys)):
+        return None, 0
+    safe_rows = np.array([safe_idx[k] for k in shared], dtype=np.int64)
+    unsafe_rows = np.array([unsafe_idx[k] for k in shared], dtype=np.int64)
+    D = H_safe[safe_rows] - H_unsafe[unsafe_rows]
+    return D, len(shared)
+
+
 def principal_angles(V1: np.ndarray, V2: np.ndarray) -> np.ndarray:
     """Compute principal angles between two subspaces.
 

@@ -30,7 +30,7 @@ sys.path.insert(0, str(_PROJECT_ROOT))
 
 from src.extraction import (
     ActivationCache, load_activation_matrix, effective_rank,
-    extract_subspace, subspace_overlap,
+    extract_subspace, subspace_overlap, pairwise_difference_matrix,
     load_json, save_json, save_npz,
 )
 from src.dataset import load_holisafe, filter_subsets
@@ -83,6 +83,8 @@ def main():
     # ── Load CatQA reference activations (for subspace-overlap metric) ─────
     ref_base = _DATA / "catqa-contrastive" / "activations" / model_name
     ref_safe_npz, ref_unsafe_npz = None, None
+    ref_safe_ids, ref_unsafe_ids = [], []
+    ref_safe_name, ref_unsafe_name = None, None
     for subdir in ref_base.iterdir():
         if subdir.is_dir():
             meta_path = subdir / "metadata.json"
@@ -92,8 +94,31 @@ def main():
                 if npz_path.exists():
                     if meta["role"] == "safe":
                         ref_safe_npz = np.load(npz_path)
+                        ref_safe_ids = meta.get("sample_ids", [])
+                        ref_safe_name = meta.get("source", subdir.name)
                     elif meta["role"] == "unsafe":
                         ref_unsafe_npz = np.load(npz_path)
+                        ref_unsafe_ids = meta.get("sample_ids", [])
+                        ref_unsafe_name = meta.get("source", subdir.name)
+
+    # Decide whether the semantic subspace will be built pairwise or joint.
+    semantic_recipe = "joint"
+    semantic_safe_prefix = semantic_unsafe_prefix = None
+    if ref_safe_ids and ref_unsafe_ids and ref_safe_name and ref_unsafe_name:
+        semantic_safe_prefix = f"{ref_safe_name.replace('-', '_')}_"
+        semantic_unsafe_prefix = f"{ref_unsafe_name.replace('-', '_')}_"
+        # Probe pair structure on layer 0 to set the recipe consistently.
+        l0 = layers[0]
+        H_safe0 = ref_safe_npz[f"safe_layer_{l0}"].astype(np.float64)
+        H_unsafe0 = ref_unsafe_npz[f"unsafe_layer_{l0}"].astype(np.float64)
+        D0, _ = pairwise_difference_matrix(
+            H_safe0, ref_safe_ids, H_unsafe0, ref_unsafe_ids,
+            safe_prefix=semantic_safe_prefix,
+            unsafe_prefix=semantic_unsafe_prefix,
+        )
+        if D0 is not None:
+            semantic_recipe = "pairwise"
+    print(f"Semantic top-5 subspace recipe: {semantic_recipe.upper()}")
 
     # ── Compute compositional safety direction per layer ───────────────────
     cache = ActivationCache(str(_DATA / "holisafe-bench" / "activations" / model_name))
@@ -133,6 +158,8 @@ def main():
 
         k = 5
         try:
+            # HoliSafe (compositional) subspace stays joint — c^l is intentionally
+            # the joint-PCA estimate, since SSS/SSU are not paired.
             V_comp = extract_subspace(combined, k=k)
             if ref_safe_npz is not None and ref_unsafe_npz is not None:
                 safe_key = f"safe_layer_{l}"
@@ -140,10 +167,20 @@ def main():
                 if safe_key in ref_safe_npz.files and unsafe_key in ref_unsafe_npz.files:
                     H_ref_safe = ref_safe_npz[safe_key].astype(np.float64)
                     H_ref_unsafe = ref_unsafe_npz[unsafe_key].astype(np.float64)
-                    mu_ref = (H_ref_safe.mean(axis=0) + H_ref_unsafe.mean(axis=0)) / 2
-                    M_ref = np.concatenate([H_ref_safe - mu_ref, H_ref_unsafe - mu_ref], axis=0)
-                    V_semantic = extract_subspace(M_ref, k=k)
+                    if semantic_recipe == "pairwise":
+                        D_ref, _ = pairwise_difference_matrix(
+                            H_ref_safe, ref_safe_ids,
+                            H_ref_unsafe, ref_unsafe_ids,
+                            safe_prefix=semantic_safe_prefix,
+                            unsafe_prefix=semantic_unsafe_prefix,
+                        )
+                        V_semantic = extract_subspace(D_ref, k=k, center=True)
+                    else:
+                        mu_ref = (H_ref_safe.mean(axis=0) + H_ref_unsafe.mean(axis=0)) / 2
+                        M_ref = np.concatenate([H_ref_safe - mu_ref, H_ref_unsafe - mu_ref], axis=0)
+                        V_semantic = extract_subspace(M_ref, k=k)
                     row["subspace_overlap_top5"] = subspace_overlap(V_comp, V_semantic)
+                    row["semantic_subspace_recipe"] = semantic_recipe
         except Exception:
             pass
 
