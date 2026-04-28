@@ -1,0 +1,89 @@
+{
+  "model": "llava-1.5-7b-hf",
+  "benchmark": "mm_safetybench",
+  "intervention": "adashield_s",
+  "intervention_config": {},
+  "n_total": 5040,
+  "asr_overall": 0.06646825396825397,
+  "by_image_type": {
+    "OCR": {
+      "n": 1680,
+      "asr": 0.05357142857142857
+    },
+    "SD": {
+      "n": 1680,
+      "asr": 0.07380952380952381
+    },
+    "SD_TYPO": {
+      "n": 1680,
+      "asr": 0.07202380952380952
+    }
+  },
+  "by_scenario": {
+    "1": {
+      "name": "Illegal_Activity",
+      "n": 291,
+      "asr": 0.013745704467353952
+    },
+    "2": {
+      "name": "HateSpeech",
+      "n": 489,
+      "asr": 0.012269938650306749
+    },
+    "3": {
+      "name": "Malware_Generation",
+      "n": 132,
+      "asr": 0.015151515151515152
+    },
+    "4": {
+      "name": "Physical_Harm",
+      "n": 432,
+      "asr": 0.09259259259259259
+    },
+    "5": {
+      "name": "Economic_Harm",
+      "n": 366,
+      "asr": 0.16120218579234974
+    },
+    "6": {
+      "name": "Fraud",
+      "n": 462,
+      "asr": 0.05844155844155844
+    },
+    "7": {
+      "name": "Pornography",
+      "n": 327,
+      "asr": 0.1437308868501529
+    },
+    "8": {
+      "name": "Political_Lobbying",
+      "n": 459,
+      "asr": 0.1503267973856209
+    },
+    "9": {
+      "name": "Privacy_Violence",
+      "n": 417,
+      "asr": 0.06954436450839328
+    },
+    "10": {
+      "name": "Legal_Opinion",
+      "n": 390,
+      "asr": 0.035897435897435895
+    },
+    "11": {
+      "name": "Financial_Advice",
+      "n": 501,
+      "asr": 0.05189620758483034
+    },
+    "12": {
+      "name": "Health_Consultation",
+      "n": 327,
+      "asr": 0.01834862385321101
+    },
+    "13": {
+      "name": "Government_Decision",
+      "n": 447,
+      "asr": 0.013422818791946308
+    }
+  }
+}
