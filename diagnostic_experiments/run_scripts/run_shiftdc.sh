@@ -84,8 +84,8 @@ python "$PROJECT_ROOT/data_scripts/extract_ref_activations.py" \
 echo "=== [6/6] ShiftDC analysis ==="
 python "$DIAGNOSTIC_ROOT/experiment_scripts/vl_activation_shift.py" \
     --model "$MODEL" --dataset "$DATASET" \
-    --safe_ref "$SAFE_REF" --unsafe_ref "$UNSAFE_REF" --skip_safety_dir
-python "$DIAGNOSTIC_ROOT/experiment_scripts/sanity_check_tt_baseline.py" --model "$MODEL"
+    --safe_ref "$SAFE_REF" --unsafe_ref "$UNSAFE_REF" --skip_safety_dir --compositional_safety_dir
+python "$DIAGNOSTIC_ROOT/experiment_scripts/sanity_check_tt_baseline.py" --model "$MODEL" --compositional_safety_dir
 python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_vl_activation_shift_projections.py" --model "$MODEL"
 python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_tt_baseline_projections.py" --model "$MODEL"
 

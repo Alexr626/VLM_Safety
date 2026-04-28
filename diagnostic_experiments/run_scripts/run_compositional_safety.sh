@@ -29,20 +29,20 @@ fi
 
 CAPTION_PROVIDER="${CAPTION_PROVIDER:-anthropic}"
 
-echo "=== [1/3] Compositional safety direction ==="
-python "$DIAGNOSTIC_ROOT/experiment_scripts/compositional_safety_direction.py" --model "$MODEL"
-python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_direction_comparison.py" --model "$MODEL"
+# echo "=== [1/3] Compositional safety direction ==="
+# python "$DIAGNOSTIC_ROOT/experiment_scripts/compositional_safety_direction.py" --model "$MODEL"
+# python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_direction_comparison.py" --model "$MODEL"
 
 echo "=== [2/3] Compositional eval prep (data) ==="
 # Append usu_/suu_/uuu_eval_ids to train_eval_split.json (idempotent).
 python -m src.dataset --n_eval 175 --seed 42
 
-# Caption USU/SUU/UUU eval samples (resume-safe; merges into holisafe.json).
-python "$PROJECT_ROOT/data_scripts/generate_captions.py" \
-    --dataset holisafe \
-    --holisafe_eval_only \
-    --holisafe_subsets SUU USU UUU \
-    --provider "$CAPTION_PROVIDER"
+# # Caption USU/SUU/UUU eval samples (resume-safe; merges into holisafe.json).
+# python "$PROJECT_ROOT/data_scripts/generate_captions.py" \
+#     --dataset holisafe \
+#     --holisafe_eval_only \
+#     --holisafe_subsets SUU USU UUU \
+#     --provider "$CAPTION_PROVIDER"
 
 # Extract VL + TT activations for the new eval samples (per-sample cache; no-op for cached).
 python "$PROJECT_ROOT/data_scripts/extract_vl.py" \

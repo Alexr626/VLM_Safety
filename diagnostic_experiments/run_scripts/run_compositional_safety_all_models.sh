@@ -31,13 +31,13 @@ MODELS=(
     "llava-hf/llava-1.5-7b-hf"
     # "llava-hf/llava-v1.6-vicuna-7b-hf"
     "Lin-Chen/ShareGPT4V-7B"
-    "Vision-CAIR/MiniGPT-4"
+    # "Vision-CAIR/MiniGPT-4"
     "Qwen/Qwen-VL-Chat"
     "Qwen/Qwen2-VL-7B"
     "Qwen/Qwen2-VL-7B-Instruct"
-    "Qwen/Qwen2.5-VL-7B-Instruct"
-    "OpenGVLab/InternVL2-8B"
-    "OpenGVLab/InternVL2_5-8B-MPO"
+    # "Qwen/Qwen2.5-VL-7B-Instruct"
+    # "OpenGVLab/InternVL2-8B"
+    # "OpenGVLab/InternVL2_5-8B-MPO"
 )
 
 failed=()
