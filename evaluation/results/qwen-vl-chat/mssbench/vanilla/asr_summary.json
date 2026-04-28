@@ -1,0 +1,18 @@
+{
+  "model": "qwen-vl-chat",
+  "benchmark": "mssbench",
+  "intervention": "vanilla",
+  "intervention_config": {},
+  "n_total": 1200,
+  "asr_overall": 0.6875,
+  "by_safety_label": {
+    "SSS": {
+      "n": 600,
+      "asr": 0.6366666666666667
+    },
+    "SSU": {
+      "n": 600,
+      "asr": 0.7383333333333333
+    }
+  }
+}
