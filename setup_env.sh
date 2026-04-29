@@ -15,9 +15,9 @@
 
 set -euo pipefail
 
-ENV_NAME="vlm_safety"
+ENV_NAME="cloudspace"
 FLASH_ATTN_VERSION="2.8.3"
-CUDA_WHEEL="cu124"   # change to cu128 for CUDA 12.8 wheels
+CUDA_WHEEL="cu128"   # cu128 for CUDA 12.8 wheels
 
 # ── Parse args ────────────────────────────────────────────────────────────────
 UPDATE_MODE=false
@@ -26,18 +26,8 @@ if [[ "${1:-}" == "--update" ]]; then
 fi
 
 # ── Step 1: Create or update the conda environment ───────────────────────────
-if $UPDATE_MODE; then
-    echo "[1/3] Updating existing environment: $ENV_NAME"
-    conda env update --name "$ENV_NAME" --file environment.yml --prune
-else
-    echo "[1/3] Creating environment: $ENV_NAME"
-    # Remove existing env if present (ensures a clean, reproducible build)
-    if conda info --envs | grep -q "^${ENV_NAME}\b"; then
-        echo "      Removing existing environment first..."
-        conda env remove --name "$ENV_NAME" --yes
-    fi
-    conda env create --file environment.yml
-fi
+echo "[1/3] Updating environment: $ENV_NAME"
+conda env update --name "$ENV_NAME" --file environment.yml
 
 # ── Step 2: Verify torch can see CUDA before building flash-attn ──────────────
 echo "[2/3] Verifying CUDA visibility..."

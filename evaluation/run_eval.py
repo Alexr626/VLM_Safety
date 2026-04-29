@@ -19,6 +19,12 @@ import argparse
 import sys
 from pathlib import Path
 
+import torch
+# A100/Ampere+ supports TF32 for ~2x faster matmuls with negligible precision loss.
+# These flags are False by default in PyTorch >= 1.12 for reproducibility.
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+
 _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))

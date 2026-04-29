@@ -1,4 +1,4 @@
-name: vlm_safety
+name: cloudspace
 
 # ─────────────────────────────────────────────────────────────────────────────
 # VLM Safety — reproducible conda environment
@@ -67,7 +67,7 @@ dependencies:
       #
       # To use CUDA 12.8 wheels instead (also supported on 50xx), change to:
       #   --extra-index-url https://download.pytorch.org/whl/cu128
-      - --extra-index-url https://download.pytorch.org/whl/cu124
+      - --extra-index-url https://download.pytorch.org/whl/cu128
 
       # ── PyTorch core ────────────────────────────────────────────────────────
       # Always pin all three companion packages together. Mismatching minor

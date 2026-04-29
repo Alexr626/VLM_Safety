@@ -43,6 +43,7 @@ _BENCHMARK_LOADERS = {
 }
 
 _CHECKPOINT_EVERY = 50
+_CLEANUP_EVERY = 100
 
 
 # ── Sample → record helpers ───────────────────────────────────────────────────
@@ -156,11 +157,12 @@ def _run_one(
         rec["is_refusal"] = is_refusal_keyword(response)
         records.append(rec)
         n_done_this_run += 1
-        cleanup_gpu()
 
-        # Checkpoint after every sample — disk I/O is negligible vs. a VLM
-        # forward pass, and losing work on interrupt is not.
-        _save_json(records, checkpoint_path)
+        if n_done_this_run % _CLEANUP_EVERY == 0:
+            cleanup_gpu()
+
+        if n_done_this_run % _CHECKPOINT_EVERY == 0:
+            _save_json(records, checkpoint_path)
 
         if n_done_this_run % _CHECKPOINT_EVERY == 0:
             elapsed = time.time() - t0

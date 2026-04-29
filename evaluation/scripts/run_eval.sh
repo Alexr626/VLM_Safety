@@ -22,11 +22,11 @@ if [[ -n "$LIMIT" ]]; then
 fi
 
 # Activate the conda env if running outside of it.
-if [[ -z "${CONDA_DEFAULT_ENV:-}" || "$CONDA_DEFAULT_ENV" != "vlm_safety" ]]; then
+if [[ -z "${CONDA_DEFAULT_ENV:-}" || "$CONDA_DEFAULT_ENV" != "cloudspace" ]]; then
     # shellcheck disable=SC1091
     if command -v conda >/dev/null 2>&1; then
         eval "$(conda shell.bash hook)"
-        conda activate vlm_safety
+        conda activate cloudspace
     fi
 fi
 
