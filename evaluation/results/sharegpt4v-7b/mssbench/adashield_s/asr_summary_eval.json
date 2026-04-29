@@ -1,0 +1,22 @@
+{
+  "subset": "mssbench_eval",
+  "n_eval_ids": 304,
+  "n_responses_total": 304,
+  "n_responses_in_eval": 304,
+  "n_total": 304,
+  "asr_overall": 0.23684210526315788,
+  "by_safety_label": {
+    "SSS": {
+      "n": 152,
+      "asr": 0.23684210526315788
+    },
+    "SSU": {
+      "n": 152,
+      "asr": 0.23684210526315788
+    }
+  },
+  "model": "sharegpt4v-7b",
+  "benchmark": "mssbench",
+  "intervention": "adashield_s",
+  "intervention_config": {}
+}

@@ -1,0 +1,28 @@
+{
+  "subset": "mssbench_eval",
+  "n_eval_ids": 304,
+  "n_responses_total": 304,
+  "n_responses_in_eval": 304,
+  "n_total": 304,
+  "asr_overall": 0.7171052631578947,
+  "by_safety_label": {
+    "SSS": {
+      "n": 152,
+      "asr": 0.7171052631578947
+    },
+    "SSU": {
+      "n": 152,
+      "asr": 0.7171052631578947
+    }
+  },
+  "model": "sharegpt4v-7b",
+  "benchmark": "mssbench",
+  "intervention": "comp_safety_shift",
+  "intervention_config": {
+    "alpha": 1.0,
+    "layer_start": 6,
+    "layer_end": 14,
+    "direction_source": "mssbench_vl",
+    "direction_npz": "/teamspace/studios/this_studio/VLM_Safety_alex/experiment_artifacts/sharegpt4v-7b/compositional_safety/mssbench_vl/compositional_safety_direction_vectors.npz"
+  }
+}
