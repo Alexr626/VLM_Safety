@@ -83,6 +83,26 @@ def parse_args() -> argparse.Namespace:
              "evaluation/results/{model}/{benchmark}/comp_safety_shift_{source}/. "
              "Default: ['mssbench_vl'].",
     )
+    p.add_argument(
+        "--mssbench_compare_on_eval", action="store_true", default=True,
+        help="In addition to asr_summary.json (full MSSBench coverage of the "
+             "responses produced this run), also write asr_summary_eval.json "
+             "filtered to the eval split. Lets vanilla / adashield_s runs "
+             "(which generated full-dataset responses) be compared on the same "
+             "304-sample eval subset that comp_safety_shift_mssbench_* uses. "
+             "Default ON when --benchmarks includes mssbench.",
+    )
+    p.add_argument(
+        "--no_mssbench_compare_on_eval",
+        dest="mssbench_compare_on_eval", action="store_false",
+        help="Disable the eval-only summary side-file.",
+    )
+    p.add_argument(
+        "--mssbench_view", choices=["full", "eval", "both"], default="eval",
+        help="Which MSSBench column(s) the comparison table at the end of the "
+             "run should display. 'eval' (default) reads asr_summary_eval.json; "
+             "'full' reads asr_summary.json; 'both' shows two columns.",
+    )
     return p.parse_args()
 
 
@@ -100,9 +120,13 @@ def main() -> None:
         mm_safetybench_image_types=_split_csv(args.mm_image_types),
         mssbench_safety_labels=_split_csv(args.mssbench_labels),
         mssbench_eval_only=args.mssbench_eval_only,
+        mssbench_compare_on_eval=args.mssbench_compare_on_eval,
         comp_safety_sources=args.comp_safety_sources,
     )
-    print_comparison_table(out["model_short"], args.output_dir)
+    print_comparison_table(
+        out["model_short"], args.output_dir,
+        mssbench_view=args.mssbench_view,
+    )
 
 
 if __name__ == "__main__":

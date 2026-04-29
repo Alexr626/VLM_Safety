@@ -1,0 +1,27 @@
+{
+  "subset": "mssbench_eval",
+  "n_eval_ids": 304,
+  "n_responses_total": 1200,
+  "n_responses_in_eval": 304,
+  "n_total": 304,
+  "asr_overall": 0.7598684210526315,
+  "by_safety_label": {
+    "SSS": {
+      "n": 152,
+      "asr": 0.7763157894736842
+    },
+    "SSU": {
+      "n": 152,
+      "asr": 0.743421052631579
+    }
+  },
+  "model": "llava-1.5-7b-hf",
+  "benchmark": "mssbench",
+  "intervention": "comp_safety_shift",
+  "intervention_config": {
+    "alpha": 1.0,
+    "layer_start": 6,
+    "layer_end": 14,
+    "direction_npz": "/home/alex/dev/VLM_Safety/experiment_artifacts/llava-1.5-7b-hf/compositional_safety/compositional_safety_direction_vectors.npz"
+  }
+}

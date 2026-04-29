@@ -99,6 +99,58 @@ def _load_json(path: Path):
         return json.load(f)
 
 
+def _load_mssbench_eval_ids(project_root: Path) -> Optional[set[str]]:
+    """Return the set of EvalSample.id strings in the MSSBench eval split,
+    or None if the split file doesn't exist."""
+    split_path = project_root / "data" / "mssbench" / "train_eval_split.json"
+    if not split_path.exists():
+        return None
+    with open(split_path) as f:
+        split = json.load(f)
+    ids = split.get("eval_sample_ids") or []
+    return set(ids) if ids else None
+
+
+def write_eval_only_asr_summary(
+    out_dir: Path,
+    eval_ids: set,
+    base_summary: Optional[dict] = None,
+    subset_label: str = "mssbench_eval",
+) -> Optional[dict]:
+    """Filter `responses.json` in `out_dir` to records whose id is in
+    `eval_ids`, recompute ASR via `compute_asr_records`, and persist the
+    result as `asr_summary_eval.json`.
+
+    Used both inline (immediately after a generation run) and post-hoc (by
+    `evaluation/scripts/recompute_mssbench_eval_asr.py`) — the operation is
+    a pure function of `responses.json`, so the existing responses are
+    reused without any model load.
+
+    Returns the summary dict that was written, or None if `responses.json`
+    is missing.
+    """
+    responses_path = out_dir / "responses.json"
+    if not responses_path.exists():
+        return None
+    records = _load_json(responses_path)
+    if not isinstance(records, list):
+        return None
+    filtered = [r for r in records if r.get("id") in eval_ids]
+    eval_summary: dict = {
+        "subset": subset_label,
+        "n_eval_ids": len(eval_ids),
+        "n_responses_total": len(records),
+        "n_responses_in_eval": len(filtered),
+        **compute_asr_records(filtered),
+    }
+    if base_summary is not None:
+        for k in ("model", "benchmark", "intervention", "intervention_config"):
+            if k in base_summary:
+                eval_summary.setdefault(k, base_summary[k])
+    _save_json(eval_summary, out_dir / "asr_summary_eval.json")
+    return eval_summary
+
+
 # ── Per-(benchmark, intervention) drive ───────────────────────────────────────
 
 def _run_one(
@@ -110,6 +162,7 @@ def _run_one(
     skip_if_exists: bool,
     benchmark_name: str,
     model_short: str,
+    mssbench_eval_ids: Optional[set] = None,
 ) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     responses_path = out_dir / "responses.json"
@@ -118,6 +171,13 @@ def _run_one(
 
     if skip_if_exists and responses_path.exists() and summary_path.exists():
         print(f"  [skip] Existing results at {responses_path}")
+        # Even on skip, refresh the eval-only summary so changes to the split
+        # propagate without forcing a full regeneration.
+        if benchmark_name == "mssbench" and mssbench_eval_ids:
+            write_eval_only_asr_summary(
+                out_dir, mssbench_eval_ids,
+                base_summary=_load_json(summary_path),
+            )
         return _load_json(summary_path)
 
     # Resume: merge records from both responses.json (partial prior run) and
@@ -184,6 +244,15 @@ def _run_one(
         except OSError:
             pass
 
+    if benchmark_name == "mssbench" and mssbench_eval_ids:
+        eval_summary = write_eval_only_asr_summary(
+            out_dir, mssbench_eval_ids, base_summary=summary,
+        )
+        if eval_summary:
+            print(f"  [done] {benchmark_name} × {intervention.name} eval-only: "
+                  f"asr={eval_summary['asr_overall']:.3f} "
+                  f"(n={eval_summary['n_responses_in_eval']})")
+
     print(f"  [done] {benchmark_name} × {intervention.name}: "
           f"asr={summary['asr_overall']:.3f} (n={summary['n_total']})")
     return summary
@@ -203,6 +272,7 @@ def run_evaluation(
     mm_safetybench_image_types: Optional[list[str]] = None,
     mssbench_safety_labels: Optional[list[str]] = None,
     mssbench_eval_only: bool = False,
+    mssbench_compare_on_eval: bool = True,
     comp_safety_sources: Optional[list[str]] = None,
 ) -> dict:
     interventions = interventions or list(ALL_INTERVENTIONS)
@@ -217,7 +287,18 @@ def run_evaluation(
     if "comp_safety_shift" in interventions:
         print(f"  comp_safety_sources: {comp_safety_sources}")
     if "mssbench" in benchmarks:
-        print(f"  mssbench_eval_only: {mssbench_eval_only}")
+        print(f"  mssbench_eval_only:        {mssbench_eval_only}")
+        print(f"  mssbench_compare_on_eval:  {mssbench_compare_on_eval}")
+
+    # Pre-load the MSSBench eval id set once (cheap; same set used by every
+    # per-(intervention, sample) write).
+    mssbench_eval_ids: Optional[set] = None
+    if "mssbench" in benchmarks and mssbench_compare_on_eval:
+        mssbench_eval_ids = _load_mssbench_eval_ids(_PROJECT_ROOT)
+        if mssbench_eval_ids is None:
+            print("  WARN: --mssbench_compare_on_eval requested but "
+                  "data/mssbench/train_eval_split.json is missing. "
+                  "Run: python -m src.dataset --mssbench_split")
 
     # ── Pre-flight checks (fail fast before model load) ──────────────────────
     opts = {
@@ -273,6 +354,7 @@ def run_evaluation(
                 skip_if_exists=skip_if_exists,
                 benchmark_name=b_name,
                 model_short=model_short,
+                mssbench_eval_ids=(mssbench_eval_ids if b_name == "mssbench" else None),
             )
     return {
         "model": model_id,
@@ -283,44 +365,94 @@ def run_evaluation(
 
 # ── Comparison table ──────────────────────────────────────────────────────────
 
-_TABLE_COLUMNS = [
-    ("MM(SD)",        "mm_safetybench", lambda s: s.get("by_image_type", {}).get("SD",      {}).get("asr")),
-    ("MM(OCR)",       "mm_safetybench", lambda s: s.get("by_image_type", {}).get("OCR",     {}).get("asr")),
-    ("MM(SD_TYPO)",   "mm_safetybench", lambda s: s.get("by_image_type", {}).get("SD_TYPO", {}).get("asr")),
-    ("FigStep",       "figstep",        lambda s: s.get("asr_overall")),
-    ("MSSB(SSU)",     "mssbench",       lambda s: s.get("by_safety_label", {}).get("SSU", {}).get("asr") or s.get("asr_overall")),
+def _mssb_ssu(s: dict) -> Optional[float]:
+    return s.get("by_safety_label", {}).get("SSU", {}).get("asr") or s.get("asr_overall")
+
+
+# (column header, benchmark, getter, source_file).
+# source_file=None -> always read asr_summary.json
+# source_file="eval" -> read asr_summary_eval.json (the held-out subset)
+_TABLE_COLUMNS_FULL = [
+    ("MM(SD)",          "mm_safetybench", lambda s: s.get("by_image_type", {}).get("SD",      {}).get("asr"), None),
+    ("MM(OCR)",         "mm_safetybench", lambda s: s.get("by_image_type", {}).get("OCR",     {}).get("asr"), None),
+    ("MM(SD_TYPO)",     "mm_safetybench", lambda s: s.get("by_image_type", {}).get("SD_TYPO", {}).get("asr"), None),
+    ("FigStep",         "figstep",        lambda s: s.get("asr_overall"),                                    None),
+    ("MSSB(SSU)",       "mssbench",       _mssb_ssu,                                                         None),
 ]
+_MSSBENCH_EVAL_COL = ("MSSB(eval/SSU)", "mssbench", _mssb_ssu, "eval")
 
 
-def print_comparison_table(model_short: str, results_root: str | Path) -> None:
-    """Read all asr_summary.json files for a model and print a comparison table."""
+def print_comparison_table(
+    model_short: str,
+    results_root: str | Path,
+    mssbench_view: str = "eval",
+) -> None:
+    """Read all asr_summary*.json files for a model and print a comparison table.
+
+    `mssbench_view`:
+      - "full" : MSSB column reads asr_summary.json (responses across the
+                 full MSSBench).
+      - "eval" : MSSB column reads asr_summary_eval.json (responses filtered
+                 to the held-out eval split). Default — matches the fair-
+                 comparison setup used when comp_safety_shift is trained on
+                 MSSBench.
+      - "both" : show both columns side by side.
+    """
+    if mssbench_view not in ("full", "eval", "both"):
+        raise ValueError(
+            f"mssbench_view must be one of 'full', 'eval', 'both' "
+            f"(got {mssbench_view!r})"
+        )
+
     root = Path(results_root) / model_short
     if not root.exists():
         print(f"No results found at {root}")
         return
 
+    # Build the column list according to mssbench_view.
+    columns: list[tuple] = []
+    for col in _TABLE_COLUMNS_FULL:
+        header, benchmark, getter, _ = col
+        if benchmark == "mssbench":
+            if mssbench_view == "full":
+                columns.append(col)
+            elif mssbench_view == "eval":
+                columns.append(_MSSBENCH_EVAL_COL)
+            else:  # both
+                columns.append(col)                   # full
+                columns.append(_MSSBENCH_EVAL_COL)    # eval-only
+        else:
+            columns.append(col)
+
     interventions: list[str] = []
-    by_iv: dict[str, dict[str, dict]] = {}
+    # by_iv[iv][benchmark][source] = summary dict
+    # source ∈ {"full", "eval"} so a single iv dir can carry both.
+    by_iv: dict[str, dict[str, dict[str, dict]]] = {}
     for benchmark_dir in sorted(p for p in root.iterdir() if p.is_dir()):
         b_name = benchmark_dir.name
         for iv_dir in sorted(p for p in benchmark_dir.iterdir() if p.is_dir()):
             iv = iv_dir.name
-            summary_path = iv_dir / "asr_summary.json"
-            if not summary_path.exists():
+            full_path = iv_dir / "asr_summary.json"
+            eval_path = iv_dir / "asr_summary_eval.json"
+            if not full_path.exists() and not eval_path.exists():
                 continue
             if iv not in interventions:
                 interventions.append(iv)
-            by_iv.setdefault(iv, {})[b_name] = _load_json(summary_path)
+            slot = by_iv.setdefault(iv, {}).setdefault(b_name, {})
+            if full_path.exists():
+                slot["full"] = _load_json(full_path)
+            if eval_path.exists():
+                slot["eval"] = _load_json(eval_path)
 
     if not interventions:
-        print(f"No asr_summary.json files under {root}")
+        print(f"No asr_summary*.json files under {root}")
         return
 
     label_w = max(len(iv) for iv in interventions) + 2
-    col_headers = [c[0] for c in _TABLE_COLUMNS]
+    col_headers = [c[0] for c in columns]
     col_w = [max(len(h), 9) for h in col_headers]
 
-    print(f"\nModel: {model_short}")
+    print(f"\nModel: {model_short}  (mssbench_view={mssbench_view})")
     header = " " * label_w + "".join(
         h.rjust(w + 2) for h, w in zip(col_headers, col_w)
     )
@@ -328,8 +460,14 @@ def print_comparison_table(model_short: str, results_root: str | Path) -> None:
     print(" " * label_w + "".join("-" * (w + 2) for w in col_w))
     for iv in interventions:
         cells = []
-        for (_, b_name, getter), w in zip(_TABLE_COLUMNS, col_w):
-            s = by_iv.get(iv, {}).get(b_name)
+        for col, w in zip(columns, col_w):
+            _, b_name, getter, source = col
+            slot = by_iv.get(iv, {}).get(b_name) or {}
+            src = source or "full"
+            s = slot.get(src)
+            # Graceful fallback: when "eval" requested but missing, leave
+            # blank so the user sees that the eval summary hasn't been
+            # written yet (e.g. forgot to run the post-hoc tool).
             val = getter(s) if s else None
             cells.append(("--" if val is None else f"{val * 100:.1f}%").rjust(w + 2))
         print(iv.ljust(label_w) + "".join(cells))
