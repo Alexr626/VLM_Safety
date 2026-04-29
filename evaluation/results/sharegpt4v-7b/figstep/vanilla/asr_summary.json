@@ -1,0 +1,8 @@
+{
+  "model": "sharegpt4v-7b",
+  "benchmark": "figstep",
+  "intervention": "vanilla",
+  "intervention_config": {},
+  "n_total": 500,
+  "asr_overall": 1.0
+}

@@ -1,0 +1,18 @@
+{
+  "model": "sharegpt4v-7b",
+  "benchmark": "mssbench",
+  "intervention": "adashield_s",
+  "intervention_config": {},
+  "n_total": 304,
+  "asr_overall": 0.24342105263157895,
+  "by_safety_label": {
+    "SSS": {
+      "n": 152,
+      "asr": 0.24342105263157895
+    },
+    "SSU": {
+      "n": 152,
+      "asr": 0.24342105263157895
+    }
+  }
+}
