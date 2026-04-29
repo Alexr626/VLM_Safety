@@ -5,9 +5,24 @@ __pycache__/
 
 # ── Data directory ────────────────────────────────
 data/catqa-contrastive/activations/
-data/holisafe-bench/
 data/llava-instruct-ref
 data/mm-safetybench-ref
+data/mssbench/.cache
+data/mssbench/activations
+data/mssbench/chat
+data/mssbench/embodied
+data/mssbench/.gitattributes
+data/mssbench/README.md
+data/mm-safetybench/data
+data/mm-safetybench/.cache
+data/mm-safetybench/README.md
+data/mm-safetybench/.gitattributes
+data/holisafe-bench/data
+data/holisafe-bench/images
+data/holisafe-bench/.cache
+data/holisafe-bench/activations
+data/holisafe-bench/.gitattributes
+data/holisafe-bench/README.md
 
 # ── Editor ────────────────────────────────────────────
 .vscode/
@@ -39,6 +54,3 @@ export_environment.yml
 original_environment.yml
 MiniGPT-4
 logs
-data/mm-safetybench
-data/figstep
-data/mssbench
