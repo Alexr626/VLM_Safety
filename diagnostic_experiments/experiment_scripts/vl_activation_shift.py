@@ -299,8 +299,15 @@ def parse_args():
     p.add_argument("--safe_ref", default="catqa-harmless",
                    help="Subdirectory name under data/catqa-contrastive/activations/{model}/")
     p.add_argument("--unsafe_ref", default="catqa-harmful")
-    p.add_argument("--compositional_safety_dir", action="store_true",
-                   help="Also project shifts onto the compositional safety direction c^l")
+    p.add_argument("--comp_source",
+                   choices=["none", "holisafe_tt", "holisafe_vl",
+                            "mssbench_tt", "mssbench_vl"],
+                   default="none",
+                   help="Optional compositional direction to also project shifts "
+                        "onto. 'none' (default) skips this projection. Otherwise "
+                        "loads experiment_artifacts/{model}/compositional_safety/"
+                        "{comp_source}/compositional_safety_direction_vectors.npz "
+                        "and records comp_cosine_sim/comp_proj_mag per layer.")
     return p.parse_args()
 
 
@@ -351,18 +358,21 @@ def main():
 
     # ── Load compositional safety direction (optional) ──────────────────────
     comp_dir = None
-    if args.compositional_safety_dir:
+    if args.comp_source != "none":
         comp_path = (_PROJECT_ROOT / "experiment_artifacts" / model_name /
-                     "compositional_safety" /
+                     "compositional_safety" / args.comp_source /
                      "compositional_safety_direction_vectors.npz")
         if not comp_path.exists():
-            print(f"ERROR: --compositional_safety_dir requested but "
+            print(f"ERROR: --comp_source={args.comp_source} requested but "
                   f"{comp_path} does not exist.")
-            print("Run diagnostic_experiments/experiment_scripts/"
-                  "compositional_safety_direction.py first.")
+            print(f"Run: python diagnostic_experiments/experiment_scripts/"
+                  f"compositional_safety_direction.py "
+                  f"--source {args.comp_source.split('_')[0]} "
+                  f"--representation {args.comp_source.split('_')[1]}")
             sys.exit(1)
         comp_dir = dict(np.load(comp_path))
-        print(f"Loaded compositional safety direction for {len(comp_dir)} layers")
+        print(f"Loaded compositional safety direction ({args.comp_source}) "
+              f"for {len(comp_dir)} layers")
 
     # ── Step 2: Load samples ─────────────────────────────────────────────────
     entries, images_base = load_holisafe(cache_dir=args.cache_dir)

@@ -38,13 +38,15 @@ sys.path.insert(0, str(_PROJECT_ROOT))
 
 from src.dataset import (
     load_holisafe, filter_subsets, filter_reference_subsets,
+    load_mssbench, DATASET_DATA_DIRS,
 )
 from src.model import create_wrapper, _normalize_model_name
 from src.extraction import ActivationCache, get_last_token_activations, cleanup_gpu
 
 
 def load_samples(dataset, cache_dir, limit,
-                 holisafe_subsets=None, holisafe_eval_only=False):
+                 holisafe_subsets=None, holisafe_eval_only=False,
+                 mssbench_split: str = "all"):
     if dataset == "holisafe":
         entries, images_base = load_holisafe(cache_dir=cache_dir)
         if holisafe_subsets is None and not holisafe_eval_only:
@@ -74,6 +76,20 @@ def load_samples(dataset, cache_dir, limit,
         for s in samples:
             s["label"] = s.get("subset_type") or s.get("label", "OTHER")
         return samples[:limit] if limit else samples
+    if dataset == "mssbench":
+        samples = load_mssbench()
+        if mssbench_split != "all":
+            split_path = _PROJECT_ROOT / "data" / "mssbench" / "train_eval_split.json"
+            if not split_path.exists():
+                raise FileNotFoundError(
+                    f"--mssbench_split={mssbench_split} requires {split_path}. "
+                    "Run: python -m src.dataset --mssbench_split"
+                )
+            with open(split_path) as f:
+                split = json.load(f)
+            wanted = set(split[f"{mssbench_split}_sample_ids"])
+            samples = [s for s in samples if s["id"] in wanted]
+        return samples[:limit] if limit else samples
     raise ValueError(f"Unknown dataset: {dataset}")
 
 
@@ -98,14 +114,19 @@ def parse_args():
                    choices=["SSS", "SSU", "SUU", "USU", "UUU"],
                    help="When --dataset=holisafe, restrict to samples whose "
                         "raw HoliSafe `type` matches one of these.")
+    p.add_argument("--mssbench_split", choices=["all", "train", "eval"],
+                   default="all",
+                   help="When --dataset=mssbench, restrict to a split. "
+                        "Defaults to 'all' (extracts both train and eval).")
     return p.parse_args()
 
 
 def main():
     args = parse_args()
     model_name = _normalize_model_name(args.model)
+    dataset_dir = DATASET_DATA_DIRS.get(args.dataset, args.dataset)
     act_dir = Path(args.output_dir) if args.output_dir else (
-        _PROJECT_ROOT / "data" / "holisafe-bench" / "activations" / model_name)
+        _PROJECT_ROOT / "data" / dataset_dir / "activations" / model_name)
     captions_path = Path(args.captions_dir) / f"{args.dataset}.json"
 
     if not captions_path.exists():
@@ -118,6 +139,7 @@ def main():
         args.dataset, args.cache_dir, args.limit,
         holisafe_subsets=args.holisafe_subsets,
         holisafe_eval_only=args.holisafe_eval_only,
+        mssbench_split=args.mssbench_split,
     )
     with open(captions_path) as f:
         captions = json.load(f)

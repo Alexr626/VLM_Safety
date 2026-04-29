@@ -80,6 +80,8 @@ def load_mssbench(
     safety_labels: Optional[list[str]] = None,
     limit: Optional[int] = None,
     splits: Optional[tuple[str, ...]] = None,
+    eval_only: bool = False,
+    train_eval_split_path: Optional[str | Path] = None,
 ) -> list[EvalSample]:
     """
     Args:
@@ -90,6 +92,15 @@ def load_mssbench(
             ("chat",) — the chat/conversation split. Pass ("chat", "embodied")
             to also include embodied images (their schema is similar enough
             to be loaded as long as combined.json paths resolve).
+        eval_only: if True, restrict samples to those listed in the eval
+            split of {data_dir}/train_eval_split.json (or
+            train_eval_split_path if provided). The split is produced by
+            `python -m src.dataset --mssbench_split` on the diagnostic side
+            and is shared with safety_probes.py. Used for refusal eval to
+            avoid contamination with samples that trained the
+            comp_safety_shift direction.
+        train_eval_split_path: explicit override for the split JSON. Defaults
+            to {data_dir}/train_eval_split.json.
     """
     data_dir = Path(data_dir)
     records_path = data_dir / "combined.json"
@@ -97,6 +108,23 @@ def load_mssbench(
         raise FileNotFoundError(_missing(data_dir))
 
     splits = splits or _DEFAULT_SPLITS
+
+    eval_ids: Optional[set[str]] = None
+    if eval_only:
+        split_path = (Path(train_eval_split_path) if train_eval_split_path
+                      else data_dir / "train_eval_split.json")
+        if not split_path.exists():
+            raise FileNotFoundError(
+                f"--mssbench_eval_only requires {split_path}.\n"
+                "Run: python -m src.dataset --mssbench_split"
+            )
+        with open(split_path) as f:
+            split = json.load(f)
+        eval_ids = set(split.get("eval_sample_ids", []))
+        if not eval_ids:
+            raise ValueError(
+                f"{split_path} has no eval_sample_ids; regenerate the split."
+            )
 
     with open(records_path) as f:
         raw = json.load(f)
@@ -149,8 +177,11 @@ def load_mssbench(
             for q_idx, question in enumerate(queries):
                 if not isinstance(question, str) or not question.strip():
                     continue
+                sid = f"mssbench_{rec_idx:04d}_{variant_label}_{stem}_q{q_idx}"
+                if eval_ids is not None and sid not in eval_ids:
+                    continue
                 samples.append(EvalSample(
-                    id=f"mssbench_{rec_idx:04d}_{variant_label}_{stem}_q{q_idx}",
+                    id=sid,
                     question=question,
                     image=image,
                     benchmark="mssbench",

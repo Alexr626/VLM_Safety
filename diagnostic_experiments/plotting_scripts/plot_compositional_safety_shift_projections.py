@@ -6,8 +6,9 @@ Side-by-side comparison: semantic safety direction projections vs
 compositional safety direction projections across layers, for both VL shift
 (from aggregate_stats.json) and TT baseline (from tt_baseline_projections.json).
 
-Requires vl_activation_shift.py and sanity_check_tt_baseline.py to have
-been run with --compositional_safety_dir.
+Requires vl_activation_shift.py and sanity_check_tt_baseline.py to have been
+run with one of `--comp_source {holisafe_tt,holisafe_vl,mssbench_tt,mssbench_vl}`
+so that the SSS_/SSU_mean_comp_* fields are populated in the aggregate JSONs.
 """
 
 import argparse
@@ -46,7 +47,7 @@ def main():
 
     if not agg_path.exists():
         print(f"ERROR: {agg_path} not found. "
-              "Run vl_activation_shift.py --compositional_safety_dir first.")
+              "Run vl_activation_shift.py --comp_source <source> first.")
         sys.exit(1)
 
     with open(agg_path) as f:
@@ -55,7 +56,7 @@ def main():
 
     if "SSS_mean_comp_proj" not in agg[0]:
         print("ERROR: aggregate_stats.json does not contain comp_* fields.")
-        print("  Re-run vl_activation_shift.py with --compositional_safety_dir")
+        print("  Re-run vl_activation_shift.py with --comp_source <source>")
         sys.exit(1)
 
     plt.rcParams.update({

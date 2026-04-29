@@ -3,13 +3,15 @@ CompSafetyShift intervention: subtract the projection of each last-token hidden
 state onto a per-layer compositional safety direction `c^l`.
 
 The compositional direction is loaded from
-`experiment_artifacts/{model_short}/compositional_safety/compositional_safety_direction_vectors.npz`,
-where key `layer_l` was estimated at the residual stream `hidden_states[l]`,
-i.e. the OUTPUT of transformer layer (l-1). Therefore, to apply the correction
-at the same point where the direction was estimated, we hook the module that
-PRODUCES `hidden_states[l]` — that is `model.layers[l-1]`. Layer index 0
-(embedding output) is not addressable via a transformer-layer hook and is
-rejected if requested.
+`experiment_artifacts/{model_short}/compositional_safety/{direction_source}/compositional_safety_direction_vectors.npz`,
+where `direction_source` is one of "holisafe_tt" / "holisafe_vl" /
+"mssbench_tt" / "mssbench_vl" (default: "mssbench_vl"). Key `layer_l` was
+estimated at the residual stream `hidden_states[l]`, i.e. the OUTPUT of
+transformer layer (l-1). Therefore, to apply the correction at the same
+point where the direction was estimated, we hook the module that PRODUCES
+`hidden_states[l]` — that is `model.layers[l-1]`. Layer index 0 (embedding
+output) is not addressable via a transformer-layer hook and is rejected if
+requested.
 
 Correction (per layer, last token only):
     x_corrected = x - alpha * dot(x, c^l) * c^l        (c^l is unit-normalised)
@@ -46,12 +48,15 @@ class CompSafetyShiftIntervention(InterventionBase):
         layer_start: Optional[int] = None,
         layer_end: Optional[int] = None,
         project_root: Optional[str] = None,
+        direction_source: str = "mssbench_vl",
+        direction_path: Optional[str] = None,
     ):
         from src.model import _normalize_model_name
 
         self._model_id = model_id
         self._model_short = _normalize_model_name(model_id)
         self.alpha = float(alpha)
+        self._direction_source = direction_source
 
         default_start, default_end = self._DEFAULT_LAYER_RANGES.get(
             self._model_short, (5, 14)
@@ -71,16 +76,22 @@ class CompSafetyShiftIntervention(InterventionBase):
             )
 
         root = Path(project_root) if project_root else Path(__file__).resolve().parents[2]
-        npz_path = (
-            root / "experiment_artifacts" / self._model_short
-            / "compositional_safety"
-            / "compositional_safety_direction_vectors.npz"
-        )
+        if direction_path is not None:
+            npz_path = Path(direction_path)
+        else:
+            npz_path = (
+                root / "experiment_artifacts" / self._model_short
+                / "compositional_safety" / direction_source
+                / "compositional_safety_direction_vectors.npz"
+            )
         if not npz_path.exists():
             raise FileNotFoundError(
                 f"Compositional safety direction vectors not found: {npz_path}\n"
-                "Run diagnostic_experiments/run_scripts/run_compositional_safety.sh "
-                f"for {model_id} first (or run_overnight_comp_directions.sh)."
+                f"Run: python diagnostic_experiments/experiment_scripts/"
+                f"compositional_safety_direction.py "
+                f"--model {model_id} "
+                f"--source {direction_source.split('_')[0]} "
+                f"--representation {direction_source.split('_')[1]}"
             )
         data = np.load(str(npz_path))
         self._directions: dict[int, torch.Tensor] = {}
@@ -108,6 +119,7 @@ class CompSafetyShiftIntervention(InterventionBase):
             "alpha": self.alpha,
             "layer_start": self.layer_start,
             "layer_end": self.layer_end,
+            "direction_source": self._direction_source,
             "direction_npz": str(self._npz_path),
         }
 

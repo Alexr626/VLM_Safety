@@ -81,6 +81,7 @@ def _benchmark_kwargs(name: str, opts: dict) -> dict:
         return {
             "safety_labels": opts.get("mssbench_safety_labels"),
             "limit": opts.get("limit"),
+            "eval_only": opts.get("mssbench_eval_only", False),
         }
     return {}
 
@@ -201,15 +202,22 @@ def run_evaluation(
     mm_safetybench_scenarios: Optional[list[int]] = None,
     mm_safetybench_image_types: Optional[list[str]] = None,
     mssbench_safety_labels: Optional[list[str]] = None,
+    mssbench_eval_only: bool = False,
+    comp_safety_sources: Optional[list[str]] = None,
 ) -> dict:
     interventions = interventions or list(ALL_INTERVENTIONS)
     benchmarks = benchmarks or list(_BENCHMARK_LOADERS)
+    comp_safety_sources = comp_safety_sources or ["mssbench_vl"]
 
     output_dir = Path(output_dir)
     model_short = _normalize_model_name(model_id)
     print(f"\n=== Evaluating {model_id} ({model_short}) ===")
     print(f"  benchmarks   : {benchmarks}")
     print(f"  interventions: {interventions}")
+    if "comp_safety_shift" in interventions:
+        print(f"  comp_safety_sources: {comp_safety_sources}")
+    if "mssbench" in benchmarks:
+        print(f"  mssbench_eval_only: {mssbench_eval_only}")
 
     # ── Pre-flight checks (fail fast before model load) ──────────────────────
     opts = {
@@ -217,6 +225,7 @@ def run_evaluation(
         "mm_safetybench_scenarios": mm_safetybench_scenarios,
         "mm_safetybench_image_types": mm_safetybench_image_types,
         "mssbench_safety_labels": mssbench_safety_labels,
+        "mssbench_eval_only": mssbench_eval_only,
     }
     benchmark_samples: dict[str, list] = {}
     for b in benchmarks:
@@ -224,11 +233,22 @@ def run_evaluation(
         benchmark_samples[b] = _load_benchmark(b, **_benchmark_kwargs(b, opts))
         print(f"    -> {len(benchmark_samples[b])} samples")
 
-    # Validate intervention artefacts before loading the model.
-    intervention_objs: dict[str, "InterventionBase"] = {}
+    # Build (output_subdir, intervention_obj) tuples in execution order.
+    # comp_safety_shift expands into one entry per --comp_safety_sources value;
+    # other interventions appear once at their canonical name.
+    iv_runs: list[tuple[str, "InterventionBase"]] = []
     for iv_name in interventions:
-        intervention_objs[iv_name] = get_intervention(iv_name, model_id=model_id)
-    print(f"  interventions ready: {list(intervention_objs)}")
+        if iv_name == "comp_safety_shift":
+            for source in comp_safety_sources:
+                iv = get_intervention(
+                    "comp_safety_shift", model_id=model_id,
+                    direction_source=source,
+                )
+                iv_runs.append((f"comp_safety_shift_{source}", iv))
+        else:
+            iv = get_intervention(iv_name, model_id=model_id)
+            iv_runs.append((iv_name, iv))
+    print(f"  interventions ready: {[name for name, _ in iv_runs]}")
 
     # ── Load model once and reuse across all (benchmark, intervention) ───────
     print(f"  loading wrapper for {model_id} ...")
@@ -236,7 +256,7 @@ def run_evaluation(
     print(f"    num_layers={wrapper.num_layers}  hidden_dim={wrapper.hidden_dim}")
 
     # Validate CompSafetyShift direction shape against the loaded model.
-    for iv in intervention_objs.values():
+    for _, iv in iv_runs:
         if iv.name == "comp_safety_shift":
             iv._validate_hidden_dim(wrapper)
 
@@ -244,11 +264,10 @@ def run_evaluation(
     summaries: dict[tuple[str, str], dict] = {}
     for b_name in benchmarks:
         samples = benchmark_samples[b_name]
-        for iv_name in interventions:
-            iv = intervention_objs[iv_name]
-            out_dir = output_dir / model_short / b_name / iv_name
-            print(f"\n--- {b_name} × {iv_name} ---")
-            summaries[(b_name, iv_name)] = _run_one(
+        for output_subdir, iv in iv_runs:
+            out_dir = output_dir / model_short / b_name / output_subdir
+            print(f"\n--- {b_name} × {output_subdir} ---")
+            summaries[(b_name, output_subdir)] = _run_one(
                 wrapper, iv, samples, out_dir,
                 max_new_tokens=max_new_tokens,
                 skip_if_exists=skip_if_exists,

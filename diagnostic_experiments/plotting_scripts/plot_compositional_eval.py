@@ -32,25 +32,37 @@ from src.model import _normalize_model_name
 
 _EXPERIMENT_NAME = "compositional_safety"
 
-PROBES = ["semantic_safety_probe", "compositional_safety_probe"]
+PROBES = [
+    "semantic_safety_probe",
+    "compositional_safety_probe_holisafe_tt",
+    "compositional_safety_probe_holisafe_vl",
+    "compositional_safety_probe_mssbench_tt",
+    "compositional_safety_probe_mssbench_vl",
+]
 PROBE_TITLES = {
-    "semantic_safety_probe":      "Probe A — Semantic Safety (CatQA-trained)",
-    "compositional_safety_probe": "Probe B — Compositional Safety (SSS/SSU-trained)",
+    "semantic_safety_probe":                  "Semantic (CatQA)",
+    "compositional_safety_probe_holisafe_tt": "Comp. HoliSafe TT",
+    "compositional_safety_probe_holisafe_vl": "Comp. HoliSafe VL",
+    "compositional_safety_probe_mssbench_tt": "Comp. MSSBench TT",
+    "compositional_safety_probe_mssbench_vl": "Comp. MSSBench VL",
 }
 
-# (test_key, label, color) per modality. The TT panel additionally includes CatQA.
+# (test_key, label, color) per modality. The TT panel additionally includes
+# CatQA; both panels surface MSSBench-eval when present.
 PAIRS_TT = [
-    ("holisafe_eval_tt",            "SSS vs SSU", "#1f77b4"),
-    ("holisafe_eval_sss_vs_usu_tt", "SSS vs USU", "#ff7f0e"),
-    ("holisafe_eval_sss_vs_suu_tt", "SSS vs SUU", "#2ca02c"),
-    ("holisafe_eval_sss_vs_uuu_tt", "SSS vs UUU", "#d62728"),
-    ("catqa_eval",                  "CatQA",      "#7f7f7f"),
+    ("holisafe_eval_tt",            "SSS vs SSU",      "#1f77b4"),
+    ("holisafe_eval_sss_vs_usu_tt", "SSS vs USU",      "#ff7f0e"),
+    ("holisafe_eval_sss_vs_suu_tt", "SSS vs SUU",      "#2ca02c"),
+    ("holisafe_eval_sss_vs_uuu_tt", "SSS vs UUU",      "#d62728"),
+    ("catqa_eval",                  "CatQA",           "#7f7f7f"),
+    ("mssbench_eval_tt",            "MSSBench Eval",   "#7c3aed"),
 ]
 PAIRS_VL = [
-    ("holisafe_eval_vl",            "SSS vs SSU", "#1f77b4"),
-    ("holisafe_eval_sss_vs_usu_vl", "SSS vs USU", "#ff7f0e"),
-    ("holisafe_eval_sss_vs_suu_vl", "SSS vs SUU", "#2ca02c"),
-    ("holisafe_eval_sss_vs_uuu_vl", "SSS vs UUU", "#d62728"),
+    ("holisafe_eval_vl",            "SSS vs SSU",      "#1f77b4"),
+    ("holisafe_eval_sss_vs_usu_vl", "SSS vs USU",      "#ff7f0e"),
+    ("holisafe_eval_sss_vs_suu_vl", "SSS vs SUU",      "#2ca02c"),
+    ("holisafe_eval_sss_vs_uuu_vl", "SSS vs UUU",      "#d62728"),
+    ("mssbench_eval_vl",            "MSSBench Eval",   "#7c3aed"),
 ]
 
 
@@ -75,28 +87,46 @@ def _accuracy_series(rows, probe, test_key):
 
 
 def _plot_modality(rows, pairs, modality_label, out_path):
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5), sharey=True)
-    plotted_any = False
-    for ax, probe in zip(axes, PROBES):
+    """Grid of probe panels (one per available probe) showing per-test
+    layer-wise accuracy curves. Probes without any data are skipped."""
+    # Filter PROBES to only those with data for at least one test in `pairs`.
+    present = []
+    for probe in PROBES:
+        for test_key, _, _ in pairs:
+            if _accuracy_series(rows, probe, test_key)[0] is not None:
+                present.append(probe)
+                break
+    if not present:
+        print(f"  [warn] no curves plotted for {modality_label}")
+        return
+
+    n = len(present)
+    n_cols = min(3, n)
+    n_rows = (n + n_cols - 1) // n_cols
+    fig, axes = plt.subplots(n_rows, n_cols,
+                             figsize=(5.5 * n_cols, 4.2 * n_rows),
+                             sharey=True, squeeze=False)
+    flat = [ax for row in axes for ax in row]
+    for ax in flat[n:]:
+        ax.axis("off")
+    for ax, probe in zip(flat[:n], present):
         for test_key, label, color in pairs:
             xs, ys = _accuracy_series(rows, probe, test_key)
             if xs is None:
                 continue
             ax.plot(xs, ys, marker="o", linewidth=1.6, markersize=4.5,
                     color=color, label=label)
-            plotted_any = True
         ax.axhline(0.5, ls="--", color="gray", alpha=0.5, linewidth=1)
         ax.set_xlabel("Layer")
-        ax.set_title(PROBE_TITLES[probe], fontsize=11)
+        ax.set_title(PROBE_TITLES[probe], fontsize=10)
         ax.set_ylim(0.35, 1.05)
         ax.grid(True, alpha=0.25)
-        ax.legend(fontsize=8, loc="lower right")
-    axes[0].set_ylabel("Accuracy")
+        ax.legend(fontsize=7, loc="lower right")
+    for ax in axes[:, 0]:
+        ax.set_ylabel("Accuracy")
     fig.suptitle(f"Compositional Eval — {modality_label} activations",
                  fontsize=13)
     fig.tight_layout()
-    if not plotted_any:
-        print(f"  [warn] no curves plotted for {modality_label}")
     fig.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"  Saved → {out_path}")
