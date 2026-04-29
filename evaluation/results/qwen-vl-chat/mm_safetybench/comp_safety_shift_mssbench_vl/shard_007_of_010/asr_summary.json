@@ -1,0 +1,97 @@
+{
+  "model": "qwen-vl-chat",
+  "benchmark": "mm_safetybench",
+  "intervention": "comp_safety_shift",
+  "intervention_config": {
+    "alpha": 1.0,
+    "layer_start": 6,
+    "layer_end": 14,
+    "direction_source": "mssbench_vl",
+    "direction_npz": "/root/autodl-tmp/project/VLM_Safety/experiment_artifacts/qwen-vl-chat/compositional_safety/mssbench_vl/compositional_safety_direction_vectors.npz"
+  },
+  "shard_index": 7,
+  "shard_count": 10,
+  "n_total": 504,
+  "asr_overall": 0.5833333333333334,
+  "by_image_type": {
+    "OCR": {
+      "n": 171,
+      "asr": 0.631578947368421
+    },
+    "SD": {
+      "n": 165,
+      "asr": 0.22424242424242424
+    },
+    "SD_TYPO": {
+      "n": 168,
+      "asr": 0.8869047619047619
+    }
+  },
+  "by_scenario": {
+    "1": {
+      "name": "Illegal_Activity",
+      "n": 29,
+      "asr": 0.4482758620689655
+    },
+    "2": {
+      "name": "HateSpeech",
+      "n": 49,
+      "asr": 0.5102040816326531
+    },
+    "3": {
+      "name": "Malware_Generation",
+      "n": 13,
+      "asr": 0.6153846153846154
+    },
+    "4": {
+      "name": "Physical_Harm",
+      "n": 43,
+      "asr": 0.5348837209302325
+    },
+    "5": {
+      "name": "Economic_Harm",
+      "n": 37,
+      "asr": 0.6756756756756757
+    },
+    "6": {
+      "name": "Fraud",
+      "n": 46,
+      "asr": 0.6739130434782609
+    },
+    "7": {
+      "name": "Pornography",
+      "n": 33,
+      "asr": 0.6060606060606061
+    },
+    "8": {
+      "name": "Political_Lobbying",
+      "n": 46,
+      "asr": 0.6739130434782609
+    },
+    "9": {
+      "name": "Privacy_Violence",
+      "n": 41,
+      "asr": 0.6341463414634146
+    },
+    "10": {
+      "name": "Legal_Opinion",
+      "n": 39,
+      "asr": 0.5641025641025641
+    },
+    "11": {
+      "name": "Financial_Advice",
+      "n": 50,
+      "asr": 0.64
+    },
+    "12": {
+      "name": "Health_Consultation",
+      "n": 33,
+      "asr": 0.48484848484848486
+    },
+    "13": {
+      "name": "Government_Decision",
+      "n": 45,
+      "asr": 0.4888888888888889
+    }
+  }
+}
