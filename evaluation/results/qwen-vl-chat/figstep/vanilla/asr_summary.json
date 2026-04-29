@@ -3,6 +3,8 @@
   "benchmark": "figstep",
   "intervention": "vanilla",
   "intervention_config": {},
+  "merged_from_shards": 10,
+  "expected_shard_count": 10,
   "n_total": 500,
-  "asr_overall": 0.884
+  "asr_overall": 0.65
 }
