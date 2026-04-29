@@ -48,26 +48,50 @@ PROBE_COLORS = {
     "compositional_safety_probe_mssbench_tt": "#059669",
     "compositional_safety_probe_mssbench_vl": "#7c3aed",
 }
-TESTS = [
-    "holisafe_eval_tt", "holisafe_eval_vl",
-    "catqa_eval", "ssu_behavioral",
-    "mssbench_eval_tt", "mssbench_eval_vl",
+TESTS_TT = [
+    "catqa_eval",
+    "holisafe_eval_tt",
+    "ssu_behavioral",
+    "holisafe_eval_sss_vs_usu_tt",
+    "holisafe_eval_sss_vs_suu_tt",
+    "holisafe_eval_sss_vs_uuu_tt",
+    "mssbench_eval_tt",
 ]
+TESTS_VL = [
+    "holisafe_eval_vl",
+    "holisafe_eval_sss_vs_usu_vl",
+    "holisafe_eval_sss_vs_suu_vl",
+    "holisafe_eval_sss_vs_uuu_vl",
+    "mssbench_eval_vl",
+]
+TESTS = TESTS_TT + TESTS_VL  # used for the cross-evaluation heatmap
 TEST_LABELS = {
-    "holisafe_eval_tt": "HoliSafe Eval (TT)",
-    "holisafe_eval_vl": "HoliSafe Eval (VL)",
-    "catqa_eval": "CatQA Eval",
-    "ssu_behavioral": "SSU Behavioral",
-    "mssbench_eval_tt": "MSSBench Eval (TT)",
-    "mssbench_eval_vl": "MSSBench Eval (VL)",
+    "catqa_eval":                    "CatQA Eval",
+    "holisafe_eval_tt":              "HoliSafe Eval SSS/SSU (TT)",
+    "ssu_behavioral":                "SSU Behavioral",
+    "holisafe_eval_sss_vs_usu_tt":   "HoliSafe SSS-vs-USU (TT)",
+    "holisafe_eval_sss_vs_suu_tt":   "HoliSafe SSS-vs-SUU (TT)",
+    "holisafe_eval_sss_vs_uuu_tt":   "HoliSafe SSS-vs-UUU (TT)",
+    "mssbench_eval_tt":              "MSSBench Eval (TT)",
+    "holisafe_eval_vl":              "HoliSafe Eval SSS/SSU (VL)",
+    "holisafe_eval_sss_vs_usu_vl":   "HoliSafe SSS-vs-USU (VL)",
+    "holisafe_eval_sss_vs_suu_vl":   "HoliSafe SSS-vs-SUU (VL)",
+    "holisafe_eval_sss_vs_uuu_vl":   "HoliSafe SSS-vs-UUU (VL)",
+    "mssbench_eval_vl":              "MSSBench Eval (VL)",
 }
 TEST_STYLES = {
-    "holisafe_eval_tt": ("o", "-"),
-    "holisafe_eval_vl": ("s", "--"),
-    "catqa_eval":       ("^", ":"),
-    "ssu_behavioral":   ("D", "-."),
-    "mssbench_eval_tt": ("v", "-"),
-    "mssbench_eval_vl": ("P", "--"),
+    "catqa_eval":                    ("^", ":",  "#7f7f7f"),
+    "holisafe_eval_tt":              ("o", "-",  "#1f77b4"),
+    "ssu_behavioral":                ("D", "-.", "#9467bd"),
+    "holisafe_eval_sss_vs_usu_tt":   ("v", "-",  "#ff7f0e"),
+    "holisafe_eval_sss_vs_suu_tt":   ("v", "-",  "#2ca02c"),
+    "holisafe_eval_sss_vs_uuu_tt":   ("v", "-",  "#d62728"),
+    "mssbench_eval_tt":              ("P", "-",  "#7c3aed"),
+    "holisafe_eval_vl":              ("s", "--", "#1f77b4"),
+    "holisafe_eval_sss_vs_usu_vl":   ("v", "-",  "#ff7f0e"),
+    "holisafe_eval_sss_vs_suu_vl":   ("v", "-",  "#2ca02c"),
+    "holisafe_eval_sss_vs_uuu_vl":   ("v", "-",  "#d62728"),
+    "mssbench_eval_vl":              ("P", "--", "#7c3aed"),
 }
 
 
@@ -75,18 +99,6 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--model", default="llava-hf/llava-1.5-7b-hf")
     return p.parse_args()
-
-
-def _filter_present(rows, names, key_fn):
-    """Return the subset of `names` for which any row has a non-None value."""
-    out = []
-    for n in names:
-        for r in rows:
-            v = r.get(key_fn(n))
-            if v is not None and not np.isnan(v):
-                out.append(n)
-                break
-    return out
 
 
 def main():
@@ -117,21 +129,23 @@ def main():
 
     # Subset PROBES/TESTS to those that actually have data (avoids empty rows
     # when MSSBench probes/tests are not yet computed for a model).
-    present_probes = _filter_present(
-        data, PROBES,
-        lambda p: f"{p}__holisafe_eval_tt__accuracy",
-    )
-    if not present_probes:
-        # Fallback: keep semantic if it has any test
-        present_probes = _filter_present(
-            data, PROBES,
-            lambda p: f"{p}__catqa_eval__accuracy",
-        ) or PROBES
-    present_tests = _filter_present(
-        data, TESTS,
-        lambda t: any(f"{p}__{t}__accuracy" in r for r in data for p in present_probes)
-              and f"{present_probes[0]}__{t}__accuracy",
-    )
+    def _has_any(probe_or_test_key: str) -> bool:
+        return any(probe_or_test_key in r for r in data)
+
+    present_probes = []
+    for probe in PROBES:
+        for test in TESTS:
+            if _has_any(f"{probe}__{test}__accuracy"):
+                present_probes.append(probe)
+                break
+
+    def _present_subset(test_list):
+        return [t for t in test_list if any(
+            _has_any(f"{p}__{t}__accuracy") for p in present_probes)]
+
+    present_tests = _present_subset(TESTS)
+    present_tests_tt = _present_subset(TESTS_TT)
+    present_tests_vl = _present_subset(TESTS_VL)
 
     # ── Cross-evaluation heatmap at the best HoliSafe-TT layer ─────────────
     best_key = "compositional_safety_probe_holisafe_tt__holisafe_eval_tt__accuracy"
@@ -170,35 +184,51 @@ def main():
         fig.tight_layout()
         _save(fig, "cross_evaluation_heatmap.png")
 
-    # ── Per-probe layer-wise accuracy curves ───────────────────────────────
-    for probe in present_probes:
+    # ── Per-probe layer-wise accuracy curves (split by representation) ─────
+    # Two folders so users can browse one modality at a time:
+    #   plots/accuracy_curves_tt/{probe_id}.png — text-only test sets
+    #   plots/accuracy_curves_vl/{probe_id}.png — image+text test sets
+    def _plot_probe_curves(probe: str, tests: list, modality: str):
+        if not tests:
+            return
         fig, ax = plt.subplots(figsize=(14, 5))
         plotted = False
-        for test in present_tests:
+        for test in tests:
             key = f"{probe}__{test}__accuracy"
             vals = [d.get(key) for d in data]
             mask = np.array([v is not None for v in vals])
             if not any(mask):
                 continue
             arr = np.array([v if v is not None else float("nan") for v in vals])
-            marker, ls = TEST_STYLES.get(test, ("o", "-"))
+            style = TEST_STYLES.get(test, ("o", "-", None))
+            marker, ls = style[0], style[1]
+            color = style[2] if len(style) >= 3 and style[2] else None
             ax.plot(x[mask], arr[mask], marker=marker, linestyle=ls,
-                    markersize=5, linewidth=1.5, label=TEST_LABELS[test], alpha=0.85)
+                    markersize=5, linewidth=1.5,
+                    color=color, label=TEST_LABELS[test], alpha=0.85)
             plotted = True
         if not plotted:
             plt.close(fig)
-            continue
+            return
         ax.axhline(0.5, color="#888", linewidth=1, linestyle=":", alpha=0.5,
                    label="Chance")
         ax.set_ylabel("Accuracy")
-        ax.set_title(f"Layer-wise: {PROBE_LABELS[probe]} · {model_name}")
+        ax.set_title(
+            f"Layer-wise · {PROBE_LABELS[probe]} · {modality.upper()} test sets · {model_name}"
+        )
         ax.set_xticks(x)
         ax.set_xticklabels([str(l) for l in layers], fontsize=8)
         ax.set_xlabel("Transformer Layer")
         ax.set_ylim(0.35, 1.05)
         ax.legend(loc="upper left", framealpha=0.9, fontsize=9, ncol=2)
         fig.tight_layout()
-        _save(fig, f"accuracy_curves_{probe}.png")
+        sub = out_dir / f"accuracy_curves_{modality}"
+        sub.mkdir(parents=True, exist_ok=True)
+        _save(fig, str(Path(f"accuracy_curves_{modality}") / f"{probe}.png"))
+
+    for probe in present_probes:
+        _plot_probe_curves(probe, present_tests_tt, "tt")
+        _plot_probe_curves(probe, present_tests_vl, "vl")
 
 
 if __name__ == "__main__":

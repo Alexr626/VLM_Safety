@@ -86,50 +86,37 @@ def _accuracy_series(rows, probe, test_key):
     return np.array(xs), np.array(ys)
 
 
-def _plot_modality(rows, pairs, modality_label, out_path):
-    """Grid of probe panels (one per available probe) showing per-test
-    layer-wise accuracy curves. Probes without any data are skipped."""
-    # Filter PROBES to only those with data for at least one test in `pairs`.
-    present = []
-    for probe in PROBES:
-        for test_key, _, _ in pairs:
-            if _accuracy_series(rows, probe, test_key)[0] is not None:
-                present.append(probe)
-                break
-    if not present:
-        print(f"  [warn] no curves plotted for {modality_label}")
-        return
-
-    n = len(present)
-    n_cols = min(3, n)
-    n_rows = (n + n_cols - 1) // n_cols
-    fig, axes = plt.subplots(n_rows, n_cols,
-                             figsize=(5.5 * n_cols, 4.2 * n_rows),
-                             sharey=True, squeeze=False)
-    flat = [ax for row in axes for ax in row]
-    for ax in flat[n:]:
-        ax.axis("off")
-    for ax, probe in zip(flat[:n], present):
-        for test_key, label, color in pairs:
-            xs, ys = _accuracy_series(rows, probe, test_key)
-            if xs is None:
-                continue
-            ax.plot(xs, ys, marker="o", linewidth=1.6, markersize=4.5,
-                    color=color, label=label)
-        ax.axhline(0.5, ls="--", color="gray", alpha=0.5, linewidth=1)
-        ax.set_xlabel("Layer")
-        ax.set_title(PROBE_TITLES[probe], fontsize=10)
-        ax.set_ylim(0.35, 1.05)
-        ax.grid(True, alpha=0.25)
-        ax.legend(fontsize=7, loc="lower right")
-    for ax in axes[:, 0]:
-        ax.set_ylabel("Accuracy")
-    fig.suptitle(f"Compositional Eval — {modality_label} activations",
-                 fontsize=13)
+def _plot_probe_modality(rows, probe, pairs, modality_label, model_name, out_path):
+    """One probe × one modality → one PNG. Probes/test_keys without data are
+    silently skipped; nothing is written if the probe has no curves at all."""
+    fig, ax = plt.subplots(figsize=(7.5, 5))
+    plotted = False
+    for test_key, label, color in pairs:
+        xs, ys = _accuracy_series(rows, probe, test_key)
+        if xs is None:
+            continue
+        ax.plot(xs, ys, marker="o", linewidth=1.6, markersize=4.5,
+                color=color, label=label)
+        plotted = True
+    if not plotted:
+        plt.close(fig)
+        return False
+    ax.axhline(0.5, ls="--", color="gray", alpha=0.5, linewidth=1, label="Chance")
+    ax.set_xlabel("Layer")
+    ax.set_ylabel("Accuracy")
+    ax.set_title(
+        f"Compositional Eval · {PROBE_TITLES[probe]} · {modality_label} · {model_name}",
+        fontsize=11,
+    )
+    ax.set_ylim(0.35, 1.05)
+    ax.grid(True, alpha=0.25)
+    ax.legend(fontsize=8, loc="lower right")
     fig.tight_layout()
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"  Saved → {out_path}")
+    return True
 
 
 def main():
@@ -153,8 +140,21 @@ def main():
         raise RuntimeError(f"No usable rows in {results_path}.")
 
     plt.rcParams.update({"font.size": 10})
-    _plot_modality(rows, PAIRS_TT, "TT", out_dir / "compositional_eval_tt.png")
-    _plot_modality(rows, PAIRS_VL, "VL", out_dir / "compositional_eval_vl.png")
+    # One PNG per (probe, modality) so each can be browsed in isolation.
+    # Folder layout:
+    #   plots/compositional_eval_tt/{probe_id}.png
+    #   plots/compositional_eval_vl/{probe_id}.png
+    n_written = 0
+    for modality_label, pairs in (("TT", PAIRS_TT), ("VL", PAIRS_VL)):
+        sub = out_dir / f"compositional_eval_{modality_label.lower()}"
+        for probe in PROBES:
+            out_path = sub / f"{probe}.png"
+            if _plot_probe_modality(rows, probe, pairs, modality_label,
+                                    model_name, out_path):
+                n_written += 1
+    if n_written == 0:
+        print("  [warn] no compositional-eval curves were plotted "
+              "(no matching probe×test data in probe_results.json)")
 
 
 if __name__ == "__main__":
