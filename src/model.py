@@ -1229,23 +1229,47 @@ class QwenVLWrapper(VLMWrapperBase):
     # ── Generation ─────────────────────────────────────────────────────────
     def generate_vl(self, image: Image.Image, text: str,
                     max_new_tokens: int = 256) -> str:
-        input_ids, img_path = self._prepare_vl(image, text)
-        input_len = input_ids.shape[1]
+        img_path = self._save_image_temp(image)
+        query = self.tokenizer.from_list_format([
+            {"image": img_path},
+            {"text": text},
+        ])
+        gen_config = getattr(self.model, "generation_config", None)
+        old_max_new_tokens = getattr(gen_config, "max_new_tokens", None)
+        old_do_sample = getattr(gen_config, "do_sample", None)
         try:
+            # Qwen-VL-Chat expects its chat API for generation; raw generate()
+            # behaves like continuation and can produce OCR-like repetition.
+            if gen_config is not None:
+                gen_config.max_new_tokens = max_new_tokens
+                gen_config.do_sample = False
             with torch.no_grad():
-                generated = self.model.generate(
-                    input_ids=input_ids,
-                    max_new_tokens=max_new_tokens,
-                    do_sample=False, use_cache=True,
+                response, _ = self.model.chat(
+                    self.tokenizer,
+                    query=query,
+                    history=None,
                 )
         finally:
+            if gen_config is not None:
+                if old_max_new_tokens is None:
+                    try:
+                        delattr(gen_config, "max_new_tokens")
+                    except AttributeError:
+                        pass
+                else:
+                    gen_config.max_new_tokens = old_max_new_tokens
+                if old_do_sample is None:
+                    try:
+                        delattr(gen_config, "do_sample")
+                    except AttributeError:
+                        pass
+                else:
+                    gen_config.do_sample = old_do_sample
             try:
                 os.unlink(img_path)
             except OSError:
                 pass
-        return self.tokenizer.decode(
-            generated[0][input_len:], skip_special_tokens=True,
-        ).strip()
+        return response.strip()
 
     def generate_text(self, text: str, max_new_tokens: int = 256) -> str:
         input_ids = self._prepare_text(text)
