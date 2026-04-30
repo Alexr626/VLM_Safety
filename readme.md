@@ -15,8 +15,23 @@ m^l = x_vl^l - x_tt^l
 - `x_vl`: activations from image + text (real multimodal input)
 - `x_tt`: activations from caption + text (text-only counterpart)
 
-Project `m^l` onto a **safety direction** `s^l` (derived via PCA from safe/unsafe
-reference datasets) and compare SSS vs SSU groups across layers.
+Project `m^l` onto safety directions and compare SSS vs SSU groups across layers.
+
+### Two safety directions
+
+- **Semantic safety direction `s^l`** — top-1 PC of the centered per-pair
+  difference matrix `D_i = H_safe[i] − H_unsafe[i]` over CatQA harmless/harmful
+  minimal-edit pairs (**pairwise PCA**). Pairs cancel topic/style residual
+  that joint PCA absorbs. The legacy joint estimate is also persisted as
+  `safety_direction_vectors_joint.npz` plus `recipe_sanity.json` (per-layer
+  `cos(s_pair, s_joint)`).
+- **Compositional safety direction `c^l`** — computed in **four variants**
+  parameterised by `(source ∈ {holisafe, mssbench}, representation ∈ {tt, vl})`.
+  HoliSafe variants use joint PCA over the SSS+SSU pool; MSSBench variants
+  use pairwise PCA over `(rec_idx, q_idx)`-matched paired samples (the same
+  text query asked of both image variants). **`mssbench_vl`** is the
+  canonical compositional direction consumed by the `comp_safety_shift`
+  refusal-eval intervention.
 
 ## Supported Models
 
@@ -48,21 +63,27 @@ VLM_Safety/
 │   └── extraction.py                       # ActivationCache, SVD utilities, helpers
 │
 ├── data/                                   # All datasets + their activations
-│   ├── holisafe-bench/                     # Main evaluation dataset + activations/{model}/
-│   ├── captions/                           # Generated captions + cohesive-text fusions
+│   ├── holisafe-bench/                     # Main HoliSafe pool + activations/{model}/
+│   ├── mssbench/                           # MSSBench (paired SSS/SSU diagnostic + eval)
+│   │   ├── combined.json, chat/, embodied/
+│   │   ├── train_eval_split.json           # 75/25 record-level split (seed=42)
+│   │   └── activations/{model}/sample_mssbench_*_{vl,tt}.npz
+│   ├── captions/                           # Generated captions (mssbench.json uses image-stem dedup)
 │   ├── catqa-contrastive/                  # Contrastive QA pairs + activations/{model}/
 │   ├── llava-instruct-ref/                 # Alternative safe-reference dataset
 │   └── mm-safetybench-ref/                 # Alternative unsafe-reference dataset
 │
 ├── experiment_artifacts/{model}/           # .npz artifacts, organised per model
-│   ├── vl_activation_shift/                # safety_direction_vectors.npz
-│   ├── compositional_safety/               # compositional_safety_direction_vectors.npz
-│   ├── effective_rank/                     # singular_spectra.npz             (llava only)
-│   ├── safety_decomposition/               # subspace bases + spectra         (llava only)
-│   └── subspace_overlap/                   # integration bases + spectra      (llava only)
+│   ├── vl_activation_shift/
+│   │   ├── safety_direction_vectors.npz             # canonical pairwise s^l
+│   │   └── safety_direction_vectors_joint.npz       # joint sanity copy
+│   └── compositional_safety/
+│       ├── holisafe_tt/  holisafe_vl/               # joint PCA c^l
+│       └── mssbench_tt/  mssbench_vl/               # pairwise PCA c^l (+ _joint sanity)
+│           # mssbench_vl is the canonical comp_safety_shift direction.
 │
 ├── data_scripts/                           # GPU-based data generation & extraction
-│   ├── generate_captions.py                # Generate image captions
+│   ├── generate_captions.py                # Captions; --dataset {holisafe,mssbench,...}
 │   ├── extract_vl.py                       # Extract multimodal activations
 │   ├── extract_tt.py                       # Extract text-only activations
 │   ├── extract_ref_activations.py          # Extract reference activations
@@ -72,36 +93,43 @@ VLM_Safety/
 │
 ├── diagnostic_experiments/                 # Phase 1: Diagnostic experiments
 │   ├── experiment_scripts/                 # Shared across models
-│   │   ├── vl_activation_shift.py          # Core ShiftDC analysis
+│   │   ├── vl_activation_shift.py                # Core ShiftDC; pairwise s^l
 │   │   ├── sanity_check_tt_baseline.py
 │   │   ├── augmented_baseline_projections.py
-│   │   ├── compositional_safety_direction.py
-│   │   ├── safety_probes.py
+│   │   ├── compositional_safety_direction.py     # --source {holisafe,mssbench} --representation {tt,vl}
+│   │   ├── compare_compositional_directions.py   # 5×5 cross-direction cosine matrix
+│   │   ├── safety_probes.py                      # 5 probes × ~12 test sets
 │   │   ├── generate_responses.py
-│   │   ├── classify_responses.py
+│   │   ├── classify_responses.py                 # ShiftDC keywords + flat refused_{cond} schema
 │   │   └── catqa_behavioral_baseline.py
 │   ├── plotting_scripts/                   # Shared across models
 │   │   ├── plot_vl_activation_shift_projections.py
 │   │   ├── plot_tt_baseline_projections.py
 │   │   ├── plot_compositional_safety_shift_projections.py
-│   │   ├── plot_direction_comparison.py
-│   │   ├── plot_probe_results.py
+│   │   ├── plot_direction_comparison.py          # source-aware
+│   │   ├── plot_cross_direction_cosine.py        # 5×5 |cos| heatmap
+│   │   ├── plot_recipe_sanity.py                 # cos(s_pair, s_joint) per layer
+│   │   ├── plot_probe_results.py                 # accuracy_curves_{tt,vl}/ + heatmap
+│   │   ├── plot_compositional_eval.py            # compositional_eval_{tt,vl}/{probe}.png
+│   │   ├── plot_behavioral_eval.py               # behavioral_eval_{tt,vl}.png (2-panel)
 │   │   ├── plot_augmented_baseline.py
 │   │   └── plot_behavioral_ground_truth.py
 │   ├── {model}/                            # Per-model outputs (one per supported model)
-│   │   ├── shift_dc/outputs/               # ShiftDC results + plots
+│   │   ├── shift_dc/outputs/               # ShiftDC + recipe_sanity.json
 │   │   ├── behavioral_ground_truth/outputs/
 │   │   ├── compositional_safety/outputs/
 │   │   └── augmented_baseline/outputs/     # (llava only)
-│   ├── run_shiftdc.sh                      # ShiftDC pipeline (extraction + safety direction)
-│   ├── run_all_diagnostics.sh              # All diagnostic phases for a given MODEL
-│   ├── run_data_prep.sh                    # Cohesive text + CT extraction (GPU)
-│   ├── run_behavioral_ground_truth.sh      # Response gen + refusal classification (GPU)
-│   ├── run_compositional_safety.sh         # Compositional safety direction + probes (CPU)
-│   ├── run_augmented_diagnostics.sh        # TT-vs-CT safety-projection gap (CPU)
-│   ├── run_all_new_experiments.sh          # Augmented experiments end-to-end
-│   ├── run_diag_16gb.sh                    # Models that fit on 16 GB GPUs
-│   └── run_diag_24gb.sh                    # Models that need >=24 GB VRAM
+│   ├── run_scripts/
+│   │   ├── run_shiftdc.sh                          # ShiftDC pipeline (extraction + safety direction)
+│   │   ├── run_all_diagnostics.sh                  # All diagnostic phases for a given MODEL
+│   │   ├── run_compositional_safety_v2.sh          # ★ multi-source v2: 4 c^l + cross + probes + plots
+│   │   ├── run_compositional_safety.sh             # legacy single-source compositional pipeline
+│   │   ├── run_data_prep.sh                        # Cohesive text + CT extraction (GPU)
+│   │   ├── run_behavioral_ground_truth.sh          # Response gen + refusal classification (GPU)
+│   │   ├── run_augmented_diagnostics.sh            # TT-vs-CT safety-projection gap (CPU)
+│   │   ├── run_all_new_experiments.sh              # Augmented experiments end-to-end
+│   │   ├── run_diag_16gb.sh                        # Models that fit on 16 GB GPUs
+│   │   └── run_diag_24gb.sh                        # Models that need >=24 GB VRAM
 │
 ├── subspace_analysis/                      # Phase 2: Subspace analysis (llava-1.5-7b-hf only)
 │   ├── llava-1.5-7b-hf/
@@ -112,15 +140,21 @@ VLM_Safety/
 │   └── run_followup.sh                     # Run all subspace experiments
 │
 ├── evaluation/                             # Phase 2: Jailbreak defense evaluation
-│   ├── benchmarks/                         # MM-SafetyBench, FigStep, MSSBench loaders
-│   ├── interventions/                      # vanilla, comp_safety_shift, adashield_s
-│   ├── classifiers/                        # ShiftDC keyword refusal classifier + ASR
-│   ├── runners/                            # Evaluation orchestration
-│   ├── run_eval.py                         # CLI entry point
+│   ├── benchmarks/                         # MM-SafetyBench, FigStep, MSSBench (+ eval_only)
+│   ├── interventions/                      # comp_safety_shift takes direction_source kwarg
+│   ├── classifiers/                        # ShiftDC keyword classifier (single source of truth)
+│   ├── runners/                            # Per-source comp_safety_shift expansion;
+│   │                                       # writes asr_summary{,_eval}.json
+│   ├── run_eval.py                         # CLI: --comp_safety_sources, --mssbench_view, …
 │   ├── results/                            # Per-model ASR results (auto-created)
-│   └── scripts/                            # Launchers + dataset download helpers
+│   └── scripts/
+│       ├── run_eval.sh, run_eval_all_models.sh, run_full_pipeline.sh
+│       ├── run_mssbench_vl_pipeline_for_teammate.sh   # End-to-end MSSBench-VL setup for one model
+│       ├── recompute_mssbench_eval_asr.py             # Post-hoc eval-only ASR from existing responses
+│       └── download_{mm_safetybench,figstep,mssbench}.py
 │
 ├── helper_scripts/                         # Utility scripts
+│   ├── build_mssbench_refusal_labels.py    # eval responses → diagnostic refusal_map
 │   ├── check_data_integrity.py
 │   ├── download_missing_images.py
 │   ├── add_captions_to_responses.py
@@ -200,10 +234,15 @@ bash diagnostic_experiments/run_scripts/run_diag_24gb.sh
 ### Piecewise
 
 ```bash
-# ShiftDC only (captioning, VL/TT extraction, reference activations, safety direction)
+# ShiftDC only (captioning, VL/TT extraction, reference activations, pairwise s^l)
 bash diagnostic_experiments/run_scripts/run_shiftdc.sh
 
-# Augmented pipeline: data prep + behavioral + compositional safety + augmented baseline
+# Multi-source compositional pipeline (single MODEL):
+#   MSSBench split + captions + extraction → 4 c^l directions →
+#   cross-direction cosine matrix → 5-probe cross-evaluation → all plots.
+MODEL=llava-hf/llava-1.5-7b-hf bash diagnostic_experiments/run_scripts/run_compositional_safety_v2.sh
+
+# Legacy single-source augmented pipeline
 bash diagnostic_experiments/run_scripts/run_all_new_experiments.sh
 
 # Subspace analysis (llava only, CPU)
@@ -298,9 +337,11 @@ Cohesive text generation defaults to Anthropic API (`PROVIDER=anthropic`); set
 
 ### New data artifacts
 - `data/captions/holisafe_cohesive.json` — fused caption + query per sample
+- `data/captions/mssbench.json` — image-stem-deduplicated MSSBench captions
 - `data/holisafe-bench/activations/{model}/sample_{id}_ct.npz` — CT activations
-- `data/holisafe-bench/train_eval_split.json` — stratified train/eval split (175/group)
-- `experiment_artifacts/{model}/compositional_safety/compositional_safety_direction_vectors.npz`
+- `data/holisafe-bench/train_eval_split.json` — HoliSafe stratified 175/group split
+- `data/mssbench/train_eval_split.json` — MSSBench 75/25 record-level split
+- `experiment_artifacts/{model}/compositional_safety/{holisafe,mssbench}_{tt,vl}/...` — 4 c^l variants
 
 ## Evaluation Framework
 
@@ -314,15 +355,38 @@ ShiftDC / ECSO / AdaShield literature.
 |-----------|--------|---------|
 | **MM-SafetyBench** | `PKU-Alignment/MM-SafetyBench` (HF) | ~5,040 (13 scenarios × 3 image types) |
 | **FigStep** | `ThuCCSLab/FigStep` (GitHub) | 500 |
-| **MSSBench** | `kzhou35/mssbench` (HF) | 1,200 (600 SSS + 600 SSU) |
+| **MSSBench** | `kzhou35/mssbench` (HF) | 1,200 (600 SSS + 600 SSU); held-out eval split = 304 samples |
 
 ### Interventions
 
 | Name | Description |
 |------|-------------|
 | `vanilla` | No-op baseline |
-| `comp_safety_shift` | Removes compositional safety direction `c^l` from hidden states via forward hooks |
+| `comp_safety_shift` | Removes compositional safety direction `c^l` from hidden states via forward hooks. Configurable via `direction_source ∈ {holisafe_tt, holisafe_vl, mssbench_tt, mssbench_vl}` (CLI flag `--comp_safety_sources`); **default `mssbench_vl`**. |
 | `adashield_s` | Prepends static defence prompt (AdaShield-S, Wang et al. ECCV 2024) |
+
+When `comp_safety_shift` is in `--interventions`, the runner expands it
+into one run per source listed in `--comp_safety_sources`, writing each
+to `evaluation/results/{model}/{benchmark}/comp_safety_shift_{source}/`.
+
+### MSSBench train/eval split awareness
+
+For fair comparison against `comp_safety_shift_mssbench_*` (whose
+direction is trained on the MSSBench *train* split), MSSBench is treated
+specially:
+
+- `--mssbench_eval_only` (default ON; `--mssbench_full` to disable) —
+  generation filter at sample-load time.
+- `--mssbench_compare_on_eval` (default ON) — also writes
+  `asr_summary_eval.json` filtered to the 304 eval-split ids alongside
+  the canonical `asr_summary.json`. Lets vanilla / adashield_s runs that
+  generated full-dataset responses be re-scored on the same 304 samples
+  comp_safety_shift_mssbench_* operates on.
+- `--mssbench_view {full, eval, both}` — controls the comparison-table
+  column(s) (default `eval`).
+- Post-hoc: `python evaluation/scripts/recompute_mssbench_eval_asr.py
+  --model {hf_id}` adds `asr_summary_eval.json` to existing response
+  directories without re-running generation.
 
 ### Quick Start
 
@@ -332,25 +396,40 @@ python evaluation/scripts/download_mm_safetybench.py
 python evaluation/scripts/download_figstep.py
 python evaluation/scripts/download_mssbench.py
 
-# 2. Run evaluation (single model)
+# 2. Run evaluation (single model, canonical default = mssbench_vl)
 python evaluation/run_eval.py \
     --model llava-hf/llava-1.5-7b-hf \
     --interventions vanilla comp_safety_shift adashield_s \
     --benchmarks mm_safetybench figstep mssbench \
     --skip_if_exists
 
-# 3. Run all 5 models
+# 2'. Ablation across all 4 compositional sources side-by-side
+python evaluation/run_eval.py \
+    --model llava-hf/llava-1.5-7b-hf \
+    --interventions vanilla comp_safety_shift adashield_s \
+    --benchmarks mm_safetybench figstep mssbench \
+    --comp_safety_sources holisafe_tt holisafe_vl mssbench_tt mssbench_vl \
+    --skip_if_exists
+
+# 3. Single-model end-to-end (downloads + extraction + directions + eval)
+bash evaluation/scripts/run_mssbench_vl_pipeline_for_teammate.sh \
+    MODEL=Qwen/Qwen-VL-Chat
+
+# 4. All 5 models
 bash evaluation/scripts/run_eval_all_models.sh
 
-# 4. Full pipeline on a fresh workstation (artifacts + downloads + eval)
+# 5. Full pipeline on a fresh workstation
 bash evaluation/scripts/run_full_pipeline.sh
-
-# Skip direction-vector regeneration if experiment_artifacts/ is committed
 SKIP_DIRECTIONS=1 bash evaluation/scripts/run_full_pipeline.sh
+
+# Retroactive eval-only ASR for old vanilla / adashield_s responses
+python evaluation/scripts/recompute_mssbench_eval_asr.py --all_models
 ```
 
-Results are written to `evaluation/results/{model}/{benchmark}/{intervention}/asr_summary.json`.
-Per-sample resume is automatic — interrupted runs pick up from the last completed sample.
+Results are written to
+`evaluation/results/{model}/{benchmark}/{intervention_or_source}/asr_summary{,_eval}.json`.
+Per-sample resume is automatic — interrupted runs pick up from the last
+completed sample.
 
 ## Adding a New Reference Dataset
 
