@@ -15,8 +15,12 @@ classification:
   - holisafe_eval_{tt,vl}                  (SSS_eval vs SSU_eval)
   - holisafe_eval_sss_vs_{usu,suu,uuu}_{tt,vl}  (compositional pairs)
   - catqa_eval                             (text-only)
-  - ssu_behavioral                         (HoliSafe SSU TT activations,
-                                            label = refusal)
+  - ssu_behavioral_{tt,vl}                 (HoliSafe SSU eval activations
+                                            at each modality, label =
+                                            VL-response refusal)
+  - mssbench_behavioral_{tt,vl}            (MSSBench eval-split activations,
+                                            label = VL-response refusal from
+                                            evaluation/results .../vanilla/)
   - mssbench_eval_{tt,vl}                  (MSSBench held-out SSS vs SSU)
 
 Output
@@ -189,13 +193,18 @@ def main():
     print(f"CatQA split: {len(catqa_train_idx)} train / {len(catqa_eval_idx)} eval")
 
     # ── Behavioral labels (optional) ────────────────────────────────────────
-    refusal_path = (_DIAGNOSTIC_ROOT / model_name / "behavioral_ground_truth" /
-                    "outputs" / "results" / "holisafe_refusal_labels.json")
+    behavioral_dir = (_DIAGNOSTIC_ROOT / model_name / "behavioral_ground_truth"
+                      / "outputs" / "results")
+    refusal_path = behavioral_dir / "holisafe_refusal_labels.json"
     refusal_map: dict = {}
     if refusal_path.exists():
-        refusal_data = load_json(str(refusal_path))
-        refusal_map = {r["id"]: r for r in refusal_data}
-        print(f"Loaded behavioral labels for {len(refusal_map)} samples")
+        refusal_map = {r["id"]: r for r in load_json(str(refusal_path))}
+        print(f"Loaded HoliSafe behavioral labels for {len(refusal_map)} samples")
+    mssbench_refusal_path = behavioral_dir / "mssbench_refusal_labels.json"
+    mssbench_refusal_map: dict = {}
+    if mssbench_refusal_path.exists():
+        mssbench_refusal_map = {r["id"]: r for r in load_json(str(mssbench_refusal_path))}
+        print(f"Loaded MSSBench behavioral labels for {len(mssbench_refusal_map)} samples")
 
     # ── Caches per dataset ──────────────────────────────────────────────────
     holisafe_cache = ActivationCache(str(
@@ -270,26 +279,45 @@ def main():
         )
         tests.append(("catqa_eval", X_catqa_eval, y_catqa_eval))
 
-        # SSU behavioral (HoliSafe TT activations, label = refusal)
-        if refusal_map:
+        # Behavioral test sets — refusal label is always read from the VL
+        # response (target = "did the model refuse when asked with the
+        # image?"); the activations modality varies across {tt, vl}.
+        def _behavioral_test(rmap, ids, cache, suffix):
             X_b, y_b = [], []
-            for sid in ssu_eval_ids:
-                if sid not in refusal_map:
+            for sid in ids:
+                entry = rmap.get(sid)
+                if not entry:
                     continue
-                acts = holisafe_cache.load_or_none(sid, "tt")
-                if acts is None or layer not in acts:
-                    continue
-                refused = _read_refusal_key(refusal_map[sid], "vl")
+                refused = _read_refusal_key(entry, "vl")
                 if refused is None:
+                    continue
+                acts = cache.load_or_none(sid, suffix)
+                if acts is None or layer not in acts:
                     continue
                 X_b.append(acts[layer])
                 y_b.append(0 if refused else 1)
             if X_b:
-                tests.append(("ssu_behavioral", np.array(X_b), np.array(y_b)))
-            else:
-                tests.append(("ssu_behavioral", *empty))
-        else:
-            tests.append(("ssu_behavioral", *empty))
+                return np.array(X_b), np.array(y_b)
+            return empty
+
+        # HoliSafe SSU behavioral × {tt, vl}
+        for suffix in ("tt", "vl"):
+            test_name = f"ssu_behavioral_{suffix}"
+            if not refusal_map:
+                tests.append((test_name, *empty))
+                continue
+            X, y = _behavioral_test(refusal_map, ssu_eval_ids,
+                                    holisafe_cache, suffix)
+            tests.append((test_name, X, y))
+
+        # MSSBench behavioral × {tt, vl} — only available when the eval
+        # pipeline + helper bridge has been run for this model.
+        if mssbench_refusal_map and mssbench_cache is not None:
+            ids = list(mssbench_refusal_map.keys())
+            for suffix in ("tt", "vl"):
+                X, y = _behavioral_test(mssbench_refusal_map, ids,
+                                        mssbench_cache, suffix)
+                tests.append((f"mssbench_behavioral_{suffix}", X, y))
 
         # Compositional pairs (USU/SUU/UUU vs SSS_eval) at TT and VL
         for subset_key, ids in new_eval_ids.items():

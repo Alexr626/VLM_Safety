@@ -48,46 +48,68 @@ PROBE_COLORS = {
     "compositional_safety_probe_mssbench_tt": "#059669",
     "compositional_safety_probe_mssbench_vl": "#7c3aed",
 }
-TESTS_TT = [
+# The per-probe accuracy_curves_{tt,vl}/{probe}.png plots show ONLY safety-label
+# classification tests. Behavioral refusal-rate predictions live in their own
+# dedicated figures (plot_behavioral_eval.py) so the two evaluation regimes
+# (predict the dataset's safety label vs. predict the model's actual refusal)
+# don't share an axis. The cross-evaluation heatmap still surfaces every test.
+TESTS_TT_CLASSIFICATION = [
     "catqa_eval",
     "holisafe_eval_tt",
-    "ssu_behavioral",
     "holisafe_eval_sss_vs_usu_tt",
     "holisafe_eval_sss_vs_suu_tt",
     "holisafe_eval_sss_vs_uuu_tt",
     "mssbench_eval_tt",
 ]
-TESTS_VL = [
+TESTS_TT_BEHAVIORAL = [
+    "ssu_behavioral_tt",
+    "mssbench_behavioral_tt",
+]
+TESTS_VL_CLASSIFICATION = [
     "holisafe_eval_vl",
     "holisafe_eval_sss_vs_usu_vl",
     "holisafe_eval_sss_vs_suu_vl",
     "holisafe_eval_sss_vs_uuu_vl",
     "mssbench_eval_vl",
 ]
+TESTS_VL_BEHAVIORAL = [
+    "ssu_behavioral_vl",
+    "mssbench_behavioral_vl",
+]
+TESTS_TT = TESTS_TT_CLASSIFICATION + TESTS_TT_BEHAVIORAL
+TESTS_VL = TESTS_VL_CLASSIFICATION + TESTS_VL_BEHAVIORAL
 TESTS = TESTS_TT + TESTS_VL  # used for the cross-evaluation heatmap
 TEST_LABELS = {
     "catqa_eval":                    "CatQA Eval",
     "holisafe_eval_tt":              "HoliSafe Eval SSS/SSU (TT)",
-    "ssu_behavioral":                "SSU Behavioral",
+    "ssu_behavioral_tt":             "HoliSafe SSU Behavioral (TT)",
+    "mssbench_behavioral_tt":        "MSSBench Behavioral (TT)",
     "holisafe_eval_sss_vs_usu_tt":   "HoliSafe SSS-vs-USU (TT)",
     "holisafe_eval_sss_vs_suu_tt":   "HoliSafe SSS-vs-SUU (TT)",
     "holisafe_eval_sss_vs_uuu_tt":   "HoliSafe SSS-vs-UUU (TT)",
     "mssbench_eval_tt":              "MSSBench Eval (TT)",
     "holisafe_eval_vl":              "HoliSafe Eval SSS/SSU (VL)",
+    "ssu_behavioral_vl":             "HoliSafe SSU Behavioral (VL)",
+    "mssbench_behavioral_vl":        "MSSBench Behavioral (VL)",
     "holisafe_eval_sss_vs_usu_vl":   "HoliSafe SSS-vs-USU (VL)",
     "holisafe_eval_sss_vs_suu_vl":   "HoliSafe SSS-vs-SUU (VL)",
     "holisafe_eval_sss_vs_uuu_vl":   "HoliSafe SSS-vs-UUU (VL)",
     "mssbench_eval_vl":              "MSSBench Eval (VL)",
 }
+# (marker, linestyle, color). Behavioral tests get distinct markers (D and *)
+# so they're easy to spot against the SSS/SSU eval lines.
 TEST_STYLES = {
     "catqa_eval":                    ("^", ":",  "#7f7f7f"),
     "holisafe_eval_tt":              ("o", "-",  "#1f77b4"),
-    "ssu_behavioral":                ("D", "-.", "#9467bd"),
+    "ssu_behavioral_tt":             ("D", "-.", "#9467bd"),
+    "mssbench_behavioral_tt":        ("*", "-.", "#e377c2"),
     "holisafe_eval_sss_vs_usu_tt":   ("v", "-",  "#ff7f0e"),
     "holisafe_eval_sss_vs_suu_tt":   ("v", "-",  "#2ca02c"),
     "holisafe_eval_sss_vs_uuu_tt":   ("v", "-",  "#d62728"),
     "mssbench_eval_tt":              ("P", "-",  "#7c3aed"),
     "holisafe_eval_vl":              ("s", "--", "#1f77b4"),
+    "ssu_behavioral_vl":             ("D", "-.", "#9467bd"),
+    "mssbench_behavioral_vl":        ("*", "-.", "#e377c2"),
     "holisafe_eval_sss_vs_usu_vl":   ("v", "-",  "#ff7f0e"),
     "holisafe_eval_sss_vs_suu_vl":   ("v", "-",  "#2ca02c"),
     "holisafe_eval_sss_vs_uuu_vl":   ("v", "-",  "#d62728"),
@@ -144,8 +166,9 @@ def main():
             _has_any(f"{p}__{t}__accuracy") for p in present_probes)]
 
     present_tests = _present_subset(TESTS)
-    present_tests_tt = _present_subset(TESTS_TT)
-    present_tests_vl = _present_subset(TESTS_VL)
+    # Per-probe curves: classification only (behavioral lives in plot_behavioral_eval.py).
+    present_tests_tt = _present_subset(TESTS_TT_CLASSIFICATION)
+    present_tests_vl = _present_subset(TESTS_VL_CLASSIFICATION)
 
     # ── Cross-evaluation heatmap at the best HoliSafe-TT layer ─────────────
     best_key = "compositional_safety_probe_holisafe_tt__holisafe_eval_tt__accuracy"

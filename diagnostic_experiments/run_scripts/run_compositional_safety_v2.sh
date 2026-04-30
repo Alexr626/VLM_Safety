@@ -99,9 +99,35 @@ python "$DIAGNOSTIC_ROOT/experiment_scripts/compare_compositional_directions.py"
 # ── [4/4] Probes + plots (CPU) ──────────────────────────────
 echo ""
 echo "=== [4/4] Probes + plots (CPU) ==="
+
+# Behavioral refusal-label prep — populates the inputs that
+# safety_probes.py needs for ssu_behavioral_{tt,vl} and
+# mssbench_behavioral_{tt,vl}. Each step is a no-op (and gracefully skips)
+# when its upstream source isn't available for this model:
+#   - classify_responses.py needs holisafe_responses.json from the separate
+#     behavioral_ground_truth/generate_responses.py run.
+#   - build_mssbench_refusal_labels.py needs the eval pipeline's vanilla
+#     MSSBench responses.json.
+HOLISAFE_RESPONSES="$DIAGNOSTIC_ROOT/$MODEL_NAME/behavioral_ground_truth/outputs/results/holisafe_responses.json"
+if [ -f "$HOLISAFE_RESPONSES" ]; then
+    python "$DIAGNOSTIC_ROOT/experiment_scripts/classify_responses.py" \
+        --model "$MODEL" --method keyword
+else
+    echo "  [skip classify_responses] $HOLISAFE_RESPONSES not found"
+fi
+
+MSSB_VANILLA_RESPONSES="$PROJECT_ROOT/evaluation/results/$MODEL_NAME/mssbench/vanilla/responses.json"
+if [ -f "$MSSB_VANILLA_RESPONSES" ]; then
+    python "$PROJECT_ROOT/helper_scripts/build_mssbench_refusal_labels.py" \
+        --model "$MODEL"
+else
+    echo "  [skip build_mssbench_refusal_labels] $MSSB_VANILLA_RESPONSES not found"
+fi
+
 python "$DIAGNOSTIC_ROOT/experiment_scripts/safety_probes.py" --model "$MODEL"
 python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_probe_results.py" --model "$MODEL"
 python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_compositional_eval.py" --model "$MODEL"
+python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_behavioral_eval.py" --model "$MODEL"
 python "$DIAGNOSTIC_ROOT/plotting_scripts/plot_direction_comparison.py" --model "$MODEL" || true
 
 echo ""
