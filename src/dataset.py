@@ -1307,6 +1307,29 @@ DATASET_DATA_DIRS: Dict[str, str] = {
 }
 
 
+def model_data_root(benchmark: str, model_short: str,
+                    project_root: Optional[Path] = None) -> Path:
+    """Return data/{benchmark_dir}/{model_short}/.
+
+    Convention: every per-model artifact under a benchmark lives at
+        data/{benchmark_dir}/{model_short}/{activations|responses}/...
+    """
+    root = project_root or Path(__file__).resolve().parent.parent
+    return root / "data" / DATASET_DATA_DIRS.get(benchmark, benchmark) / model_short
+
+
+def model_activations_dir(benchmark: str, model_short: str,
+                          project_root: Optional[Path] = None) -> Path:
+    return model_data_root(benchmark, model_short, project_root) / "activations"
+
+
+def model_responses_dir(benchmark: str, model_short: str,
+                        intervention: str = "vanilla",
+                        project_root: Optional[Path] = None) -> Path:
+    """Return data/{benchmark_dir}/{model_short}/responses/{intervention}/."""
+    return model_data_root(benchmark, model_short, project_root) / "responses" / intervention
+
+
 if __name__ == "__main__":
     import argparse
 

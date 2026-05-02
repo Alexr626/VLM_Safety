@@ -138,7 +138,7 @@ def main():
     model_name = _normalize_model_name(args.model)
     dataset_dir = DATASET_DATA_DIRS.get(args.dataset, args.dataset)
     act_dir = Path(args.output_dir) if args.output_dir else (
-        _PROJECT_ROOT / "data" / dataset_dir / "activations" / model_name)
+        _PROJECT_ROOT / "data" / dataset_dir / model_name / "activations")
     captions_path = Path(args.captions_dir) / f"{args.dataset}.json"
 
     if not captions_path.exists():

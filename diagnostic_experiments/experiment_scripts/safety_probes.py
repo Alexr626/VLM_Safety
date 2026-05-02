@@ -208,8 +208,8 @@ def main():
 
     # ── Caches per dataset ──────────────────────────────────────────────────
     holisafe_cache = ActivationCache(str(
-        _DATA / DATASET_DATA_DIRS["holisafe"] / "activations" / model_name))
-    mssbench_cache_dir = _DATA / DATASET_DATA_DIRS["mssbench"] / "activations" / model_name
+        _DATA / DATASET_DATA_DIRS["holisafe"] / model_name / "activations"))
+    mssbench_cache_dir = _DATA / DATASET_DATA_DIRS["mssbench"] / model_name / "activations"
     mssbench_cache = ActivationCache(str(mssbench_cache_dir)) \
         if mssbench_cache_dir.exists() else None
 

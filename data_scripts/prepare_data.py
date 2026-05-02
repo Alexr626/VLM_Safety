@@ -78,13 +78,13 @@ def _caption_path(benchmark: str) -> Path:
 
 def _activation_dir(benchmark: str, model_short: str) -> Path:
     dataset_dir = DATASET_DATA_DIRS.get(benchmark, benchmark)
-    return _PROJECT_ROOT / "data" / dataset_dir / "activations" / model_short
+    return _PROJECT_ROOT / "data" / dataset_dir / model_short / "activations"
 
 
 def _response_path(model_short: str, benchmark: str) -> Path:
     dataset_dir = DATASET_DATA_DIRS.get(benchmark, benchmark)
-    return (_PROJECT_ROOT / "data" / dataset_dir
-            / model_short / "vanilla" / "responses.json")
+    return (_PROJECT_ROOT / "data" / dataset_dir / model_short
+            / "responses" / "vanilla" / "responses.json")
 
 
 def _count_captions(benchmark: str) -> int:

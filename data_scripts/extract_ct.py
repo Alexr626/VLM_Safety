@@ -64,7 +64,7 @@ def main():
     args = parse_args()
     model_name = _normalize_model_name(args.model)
     act_dir = Path(args.output_dir) if args.output_dir else (
-        _PROJECT_ROOT / "data" / "holisafe-bench" / "activations" / model_name)
+        _PROJECT_ROOT / "data" / "holisafe-bench" / model_name / "activations")
     cohesive_path = Path(args.cohesive_path) if args.cohesive_path else (
         _PROJECT_ROOT / "data" / "captions" / "holisafe_cohesive.json")
 

@@ -95,7 +95,7 @@ def main():
     experiment_dir = _DIAGNOSTIC_ROOT / model_name / _EXPERIMENT_NAME
     experiment_artifacts = _PROJECT_ROOT / "experiment_artifacts" / model_name / "vl_activation_shift"
 
-    cache = ActivationCache(str(_DATA / "holisafe-bench" / "activations" / model_name))
+    cache = ActivationCache(str(_DATA / "holisafe-bench" / model_name / "activations"))
 
     safety_vecs = np.load(experiment_artifacts / "safety_direction_vectors.npz")
     layers = sorted(int(k.replace("layer_", "")) for k in safety_vecs.files)
@@ -112,7 +112,7 @@ def main():
         comp_vecs = np.load(comp_path)
         print(f"Loaded compositional safety direction for {len(comp_vecs.files)} layers")
 
-    metadata = load_json(str(_DATA / "holisafe-bench" / "activations" / model_name / "sample_metadata.json"))
+    metadata = load_json(str(_DATA / "holisafe-bench" / model_name / "activations" / "sample_metadata.json"))
     sss_ids_all = [s["id"] for s in metadata if s["label"] == "SSS"]
     ssu_ids_all = [s["id"] for s in metadata if s["label"] == "SSU"]
     sss_ids = [sid for sid in sss_ids_all if cache.exists(sid, "tt")]

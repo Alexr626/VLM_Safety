@@ -84,7 +84,7 @@ def main():
     layers = sorted(int(k.replace("layer_", "")) for k in safety_dir)
     print(f"Loaded safety directions for {len(layers)} layers")
 
-    meta_path = _DATA / "holisafe-bench" / "activations" / model_name / "sample_metadata.json"
+    meta_path = _DATA / "holisafe-bench" / model_name / "activations" / "sample_metadata.json"
     if not meta_path.exists():
         raise FileNotFoundError(f"Sample metadata not found: {meta_path}")
     metadata = load_json(str(meta_path))
@@ -103,7 +103,7 @@ def main():
         refusal_map = {r["id"]: r for r in refusal_data}
         print(f"Loaded behavioral labels for {len(refusal_map)} samples")
 
-    cache = ActivationCache(str(_DATA / "holisafe-bench" / "activations" / model_name))
+    cache = ActivationCache(str(_DATA / "holisafe-bench" / model_name / "activations"))
 
     has_ct = cache.exists(all_ids[0], "ct") if all_ids else False
     suffixes = ["tt"]

@@ -206,7 +206,7 @@ def main():
     print(f"  Semantic top-5 subspace recipe: {semantic_recipe.upper()}")
 
     # ── Per-layer compositional direction extraction ────────────────────────
-    cache_dir = _DATA / DATASET_DATA_DIRS[source] / "activations" / model_name
+    cache_dir = _DATA / DATASET_DATA_DIRS[source] / model_name / "activations"
     cache = ActivationCache(str(cache_dir))
     print(f"  Activation cache: {cache_dir}")
 

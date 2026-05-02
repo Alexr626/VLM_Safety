@@ -384,7 +384,7 @@ def main():
 
     # ── Step 3: Compute shifts ───────────────────────────────────────────────
     cache = ActivationCache(str(
-        _PROJECT_ROOT / "data" / "holisafe-bench" / "activations" / model_name))
+        _PROJECT_ROOT / "data" / "holisafe-bench" / model_name / "activations"))
     per_sample, layer_data = compute_shifts(samples, safety_dir, cache, layers, comp_dir)
     agg = aggregate(layer_data, layers, has_comp=comp_dir is not None)
 

@@ -5,24 +5,43 @@ __pycache__/
 
 # ── Data directory ────────────────────────────────
 data/catqa-contrastive/activations/
-data/llava-instruct-ref
-data/mm-safetybench-ref
+
 data/mssbench/.cache
 data/mssbench/activations
 data/mssbench/chat
 data/mssbench/embodied
 data/mssbench/.gitattributes
 data/mssbench/README.md
+data/mssbench/llava-1.5-7b-hf/activations
+data/mssbench/qwen-vl-chat/activations
+data/mssbench/qwen2-vl-7b/activations
+data/mssbench/qwen2-vl-7b-instruct/activations
+data/mssbench/qwen2.5-vl-7b-instruct/activations
+data/mssbench/sharegpt4v-7b/activations
+
 data/mm-safetybench/data
 data/mm-safetybench/.cache
 data/mm-safetybench/README.md
 data/mm-safetybench/.gitattributes
+data/mm-safetybench/llava-1.5-7b-hf/activations
+data/mm-safetybench/qwen-vl-chat/activations
+data/mm-safetybench/qwen2-vl-7b/activations
+data/mm-safetybench/qwen2-vl-7b-instruct/activations
+data/mm-safetybench/qwen2.5-vl-7b-instruct/activations
+data/mm-safetybench/sharegpt4v-7b/activations
+
 data/holisafe-bench/data
 data/holisafe-bench/images
 data/holisafe-bench/.cache
-data/holisafe-bench/activations
+data/holisafe-bench/llava-1.5-7b-hf/activations
+data/holisafe-bench/qwen-vl-chat/activations
+data/holisafe-bench/qwen2-vl-7b/activations
+data/holisafe-bench/qwen2-vl-7b-instruct/activations
+data/holisafe-bench/qwen2.5-vl-7b-instruct/activations
+data/holisafe-bench/sharegpt4v-7b/activations
 data/holisafe-bench/.gitattributes
 data/holisafe-bench/README.md
+
 
 # ── Editor ────────────────────────────────────────────
 .vscode/
