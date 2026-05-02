@@ -42,8 +42,32 @@ fi
 
 SKIP_CAPTIONS="${SKIP_CAPTIONS:-0}"
 SKIP_TT="${SKIP_TT:-0}"
-CAPTION_PROVIDER="${CAPTION_PROVIDER:-anthropic}"
-CAPTION_MODEL="${CAPTION_MODEL:-claude-sonnet-4-6}"
+
+# Kill all child processes (caption subshell + python processes) on
+# Ctrl+C, SIGTERM, or normal exit. Without this, the background caption
+# subshell would be orphaned and keep running after Ctrl+C.
+_cleanup() {
+    local rc=$?
+    if [[ -n "${CAPTION_PID:-}" ]] && kill -0 "$CAPTION_PID" 2>/dev/null; then
+        echo "Killing caption subshell (PID $CAPTION_PID) and its children..."
+        # Kill the entire process group of the caption subshell
+        pkill -P "$CAPTION_PID" 2>/dev/null || true
+        kill "$CAPTION_PID" 2>/dev/null || true
+    fi
+    # Belt-and-suspenders: kill any straggler python jobs spawned by us
+    pkill -P $$ 2>/dev/null || true
+    exit $rc
+}
+trap _cleanup EXIT INT TERM
+# Default to local LLaVA-1.5-7B for captioning. Override with
+# CAPTION_PROVIDER=anthropic (and CAPTION_MODEL=claude-sonnet-4-6) to use API.
+CAPTION_PROVIDER="${CAPTION_PROVIDER:-local}"
+CAPTION_MODEL="${CAPTION_MODEL:-llava-hf/llava-1.5-7b-hf}"
+# RTX 5080 has 15.5 GB VRAM and the model uses ~13.2 GB on its own,
+# leaving very little headroom. Default batch_size=1 + expandable_segments
+# to avoid fragmentation OOM.
+CAPTION_BATCH_SIZE="${CAPTION_BATCH_SIZE:-1}"
+export PYTORCH_ALLOC_CONF="${PYTORCH_ALLOC_CONF:-expandable_segments:True}"
 
 MODELS=(
     "llava-hf/llava-1.5-7b-hf"
@@ -78,10 +102,18 @@ if [[ "$SKIP_CAPTIONS" != "1" ]]; then
         for BM in "${BENCHMARKS[@]}"; do
             echo
             echo "--- Captioning: $BM  $(date) ---"
-            python "$PROJECT_ROOT/data_scripts/generate_captions.py" \
-                --dataset "$BM" \
-                # --provider "$CAPTION_PROVIDER" \
-                # --api_model "$CAPTION_MODEL"
+            if [[ "$CAPTION_PROVIDER" == "local" ]]; then
+                python "$PROJECT_ROOT/data_scripts/generate_captions.py" \
+                    --dataset "$BM" \
+                    --provider local \
+                    --model "$CAPTION_MODEL" \
+                    --batch_size "$CAPTION_BATCH_SIZE"
+            else
+                python "$PROJECT_ROOT/data_scripts/generate_captions.py" \
+                    --dataset "$BM" \
+                    --provider "$CAPTION_PROVIDER" \
+                    --api_model "$CAPTION_MODEL"
+            fi
         done
         elapsed_s=$(( $(date +%s) - T1 ))
         printf "\nCaptions done. Elapsed: %02d:%02d:%02d\n" \
