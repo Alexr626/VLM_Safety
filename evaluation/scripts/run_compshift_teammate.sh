@@ -230,6 +230,24 @@ if [[ "$SKIP_EVAL" != "1" ]]; then
     echo "=== [3/3] CompShift evaluation: vanilla + adashield_s + comp_safety_shift ==="
     echo "  direction sources: mssbench_vl, mssbench_tt"
     T3=$(sec)
+
+    # Clear out stale CompShift results (from earlier, pre-fix runs) for ALL
+    # supported models. Forces --skip_if_exists to regenerate them with the
+    # corrected intervention math. Vanilla / adashield_s results are kept
+    # since they don't depend on the CompShift fix.
+    echo "  Removing stale comp_safety_* result directories..."
+    rm -rf evaluation/results/qwen-vl-chat/mm_safetybench/comp_safety*
+    rm -rf evaluation/results/qwen-vl-chat/figstep/comp_safety*
+    rm -rf evaluation/results/qwen-vl-chat/mssbench/comp_safety*
+
+    rm -rf evaluation/results/llava-1.5-7b-hf/mm_safetybench/comp_safety*
+    rm -rf evaluation/results/llava-1.5-7b-hf/figstep/comp_safety*
+    rm -rf evaluation/results/llava-1.5-7b-hf/mssbench/comp_safety*
+
+    rm -rf evaluation/results/sharegpt4v-7b/mm_safetybench/comp_safety*
+    rm -rf evaluation/results/sharegpt4v-7b/figstep/comp_safety*
+    rm -rf evaluation/results/sharegpt4v-7b/mssbench/comp_safety*
+
     python "$PROJECT_ROOT/evaluation/run_eval.py" \
         --model "$MODEL" \
         --interventions comp_safety_shift vanilla adashield_s \
