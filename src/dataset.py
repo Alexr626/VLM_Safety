@@ -233,8 +233,10 @@ def _build_sample(
             candidate = os.path.join(images_base, "images", raw_img_str)
             if os.path.exists(candidate):
                 return candidate
-            # Fall back to direct join
-            return os.path.join(images_base, raw_img_str)
+            # Fall back to the same images/<rel> shape so downstream HF-download
+            # logic can reconstruct the repo-relative path even when nothing
+            # exists locally.
+            return os.path.join(images_base, "images", raw_img_str)
         return raw_img_str
 
     if image_field and image_field in entry:
