@@ -119,7 +119,8 @@ VLM_Safety/
 │           # mssbench_vl is the canonical comp_safety_shift direction.
 │
 ├── data_scripts/                           # GPU-based data generation & extraction
-│   ├── generate_captions.py                # Captions; --dataset {holisafe,mssbench,...}
+│   ├── prepare_data.py                     # ★ Master script: captions + activations + responses
+│   ├── generate_captions.py                # Captions; --dataset {holisafe,mssbench,mm_safetybench,figstep,...}
 │   ├── extract_vl.py                       # Extract multimodal activations
 │   ├── extract_tt.py                       # Extract text-only activations
 │   ├── extract_ref_activations.py          # Extract reference activations
@@ -429,6 +430,37 @@ run_shiftdc.sh orchestrates:
      writes: experiment_artifacts/{model}/vl_activation_shift/safety_direction_vectors.npz
      writes: {model}/shift_dc/outputs/results/ (JSON results + plots)
 ```
+
+## Master Data Preparation (`data_scripts/prepare_data.py`)
+
+Single entry point that ensures captions, activations, and vanilla responses
+exist for all benchmarks and models before running experiments. Run this
+**first** on a fresh workstation.
+
+```bash
+# Everything (default models + all benchmarks):
+python data_scripts/prepare_data.py
+
+# Just captions for eval benchmarks:
+python data_scripts/prepare_data.py --benchmarks mm_safetybench figstep --phases captions
+
+# Activations + responses for one model:
+python data_scripts/prepare_data.py \
+    --models llava-hf/llava-1.5-7b-hf --phases activations responses
+```
+
+**Flags:**
+- `--benchmarks`: `holisafe`, `mssbench`, `mm_safetybench`, `figstep` (default: all)
+- `--models`: HF model IDs (default: `llava-1.5-7b-hf`, `ShareGPT4V-7B`, `Qwen-VL-Chat`)
+- `--phases`: `captions`, `activations`, `responses` (default: all three)
+- `--caption_provider`: `anthropic` | `openai` | `local` (default: `anthropic`)
+
+**Output convention:**
+- Captions: `data/captions/{benchmark}.json`
+- Activations: `data/{benchmark_dir}/activations/{model}/sample_{id}_{vl,tt}.npz`
+- Responses: `data/{benchmark_dir}/{model}/vanilla/responses.json`
+
+Each phase is idempotent — existing artifacts are never overwritten.
 
 ## Typical Workflow
 
@@ -852,7 +884,7 @@ The evaluation targets five models: `llava-1.5-7b-hf`, `sharegpt4v-7b`,
 | Name | Class | Description |
 |------|-------|-------------|
 | `vanilla` | `VanillaIntervention` | No-op baseline; direct model generation. |
-| `comp_safety_shift` | `CompSafetyShiftIntervention` | Subtracts the compositional safety direction `c^l` from last-token hidden states at configurable layers via forward hooks. Loads `experiment_artifacts/{model}/compositional_safety/{direction_source}/compositional_safety_direction_vectors.npz`. **Default `direction_source = mssbench_vl`.** Configurable per-run via `--comp_safety_sources`. |
+| `comp_safety_shift` | `CompSafetyShiftIntervention` | Projects the **modality-induced shift** `m^l = x_vl - x_tt` onto `c^l` and subtracts: `x_corrected = x_vl - alpha * dot(m^l, c^l) * c^l`. Requires captions for TT forward pass (loaded from `data/captions/{benchmark}.json`). Loads direction from `experiment_artifacts/{model}/compositional_safety/{direction_source}/compositional_safety_direction_vectors.npz`. **Default `direction_source = mssbench_vl`.** |
 | `adashield_s` | `AdaShieldSIntervention` | Prepends the AdaShield-S static defence prompt. Composed as `question + defence + question` (matching the original AdaShield repo). |
 
 ### Per-source comp_safety_shift expansion

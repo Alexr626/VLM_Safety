@@ -163,6 +163,7 @@ def _run_one(
     benchmark_name: str,
     model_short: str,
     mssbench_eval_ids: Optional[set] = None,
+    captions: Optional[dict] = None,
 ) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     responses_path = out_dir / "responses.json"
@@ -203,10 +204,14 @@ def _run_one(
     for i, sample in enumerate(samples, 1):
         if sample.id in completed_ids:
             continue
+        caption = None
+        if captions:
+            caption = captions.get(str(sample.id)) or captions.get(sample.id)
         try:
             response = intervention.generate(
                 wrapper, sample.image, sample.question,
                 max_new_tokens=max_new_tokens,
+                caption=caption,
             )
         except Exception as e:
             print(f"  [error] sample {sample.id}: {type(e).__name__}: {e}")
@@ -341,10 +346,28 @@ def run_evaluation(
         if iv.name == "comp_safety_shift":
             iv._validate_hidden_dim(wrapper)
 
+    # ── Load captions (needed by CompSafetyShift for TT forward pass) ──────
+    benchmark_captions: dict[str, dict] = {}
+    for b_name in benchmarks:
+        caption_path = _PROJECT_ROOT / "data" / "captions" / f"{b_name}.json"
+        if caption_path.exists():
+            benchmark_captions[b_name] = _load_json(caption_path)
+            print(f"  captions for {b_name}: {len(benchmark_captions[b_name])} loaded")
+        else:
+            benchmark_captions[b_name] = {}
+            needs_captions = any(iv.name == "comp_safety_shift" for _, iv in iv_runs)
+            if needs_captions:
+                print(f"  WARN: no captions at {caption_path}; "
+                      f"comp_safety_shift will run without modality-shift "
+                      f"correction. Generate captions first: "
+                      f"python data_scripts/prepare_data.py "
+                      f"--benchmarks {b_name} --phases captions")
+
     # ── Drive ────────────────────────────────────────────────────────────────
     summaries: dict[tuple[str, str], dict] = {}
     for b_name in benchmarks:
         samples = benchmark_samples[b_name]
+        captions = benchmark_captions.get(b_name, {})
         for output_subdir, iv in iv_runs:
             out_dir = output_dir / model_short / b_name / output_subdir
             print(f"\n--- {b_name} × {output_subdir} ---")
@@ -355,6 +378,7 @@ def run_evaluation(
                 benchmark_name=b_name,
                 model_short=model_short,
                 mssbench_eval_ids=(mssbench_eval_ids if b_name == "mssbench" else None),
+                captions=captions,
             )
     return {
         "model": model_id,

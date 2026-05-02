@@ -90,7 +90,19 @@ def load_samples(dataset, cache_dir, limit,
             wanted = set(split[f"{mssbench_split}_sample_ids"])
             samples = [s for s in samples if s["id"] in wanted]
         return samples[:limit] if limit else samples
-    raise ValueError(f"Unknown dataset: {dataset}")
+    if dataset == "mm_safetybench":
+        from evaluation.benchmarks import load_mm_safetybench
+        evals = load_mm_safetybench(limit_per_scenario=limit)
+    elif dataset == "figstep":
+        from evaluation.benchmarks import load_figstep
+        evals = load_figstep(limit=limit)
+    else:
+        raise ValueError(f"Unknown dataset: {dataset}. "
+                         f"Supported: holisafe, mssbench, mm_safetybench, figstep")
+    return [{"id": s.id, "image_pil": s.image, "text": s.question,
+             "label": s.safety_label or s.image_type or "eval",
+             "category": s.scenario_name or s.benchmark}
+            for s in evals if s.image is not None]
 
 
 def build_tt_prompt(text, caption):

@@ -14,7 +14,7 @@ class VanillaIntervention(InterventionBase):
         return "vanilla"
 
     def generate(self, wrapper, image: Optional[Image.Image], question: str,
-                 max_new_tokens: int = 256) -> str:
+                 max_new_tokens: int = 256, caption: Optional[str] = None) -> str:
         if image is not None:
             return wrapper.generate_vl(image, question,
                                        max_new_tokens=max_new_tokens)

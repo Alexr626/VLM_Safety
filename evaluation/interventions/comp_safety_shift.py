@@ -1,20 +1,25 @@
 """
-CompSafetyShift intervention: subtract the projection of each last-token hidden
-state onto a per-layer compositional safety direction `c^l`.
+CompSafetyShift intervention: subtract the projection of the **modality-induced
+shift** onto a per-layer compositional safety direction `c^l`.
+
+The modality-induced shift is:
+    m^l = x_vl^l - x_tt^l
+where x_vl is the VL (image + text) hidden state and x_tt is the TT (caption +
+text) hidden state at the same layer. The correction removes the component of
+this shift that lies along the compositional safety direction:
+
+    x_corrected = x_vl - alpha * dot(m^l, c^l) * c^l
+
+To compute x_tt, the intervention performs a single text-only forward pass
+(using the image caption) BEFORE generation begins, and caches the last-token
+hidden state at each intervention layer.
 
 The compositional direction is loaded from
 `experiment_artifacts/{model_short}/compositional_safety/{direction_source}/compositional_safety_direction_vectors.npz`,
 where `direction_source` is one of "holisafe_tt" / "holisafe_vl" /
 "mssbench_tt" / "mssbench_vl" (default: "mssbench_vl"). Key `layer_l` was
 estimated at the residual stream `hidden_states[l]`, i.e. the OUTPUT of
-transformer layer (l-1). Therefore, to apply the correction at the same
-point where the direction was estimated, we hook the module that PRODUCES
-`hidden_states[l]` — that is `model.layers[l-1]`. Layer index 0 (embedding
-output) is not addressable via a transformer-layer hook and is rejected if
-requested.
-
-Correction (per layer, last token only):
-    x_corrected = x - alpha * dot(x, c^l) * c^l        (c^l is unit-normalised)
+transformer layer (l-1). Hooks attach to `model.layers[l-1]`.
 """
 
 from contextlib import contextmanager
@@ -152,7 +157,15 @@ class CompSafetyShiftIntervention(InterventionBase):
             )
 
     @contextmanager
-    def _apply_hooks(self, wrapper):
+    def _apply_hooks(self, wrapper, x_tt_cache: Optional[dict] = None):
+        """Register forward hooks that apply the CompShift correction.
+
+        Args:
+            x_tt_cache: {npz_layer: Tensor(hidden_dim,)} — precomputed
+                last-token TT hidden states. When provided, hooks compute
+                m^l = x_vl - x_tt and project THAT onto c^l. When None,
+                no correction is applied (hooks are no-ops).
+        """
         self._validate_hidden_dim(wrapper)
         device = next(wrapper.model.parameters()).device
         handles = []
@@ -161,17 +174,21 @@ class CompSafetyShiftIntervention(InterventionBase):
             for npz_layer, direction_cpu in self._directions.items():
                 transformer_idx = npz_layer - 1  # see module docstring
                 module = self._get_layer_module(wrapper, transformer_idx)
-                # Move direction to the device of THIS module's output
-                # (under accelerate device_map, layers can live on different devices).
                 try:
                     module_device = next(module.parameters()).device
                 except StopIteration:
                     module_device = device
                 direction = direction_cpu.to(module_device)
                 alpha = self.alpha
+                # x_tt for this layer (may be None if cache absent)
+                x_tt_l = (x_tt_cache[npz_layer].to(module_device)
+                          if x_tt_cache and npz_layer in x_tt_cache
+                          else None)
 
-                def make_hook(d, a):
+                def make_hook(d, a, tt_l):
                     def hook(_module, _input, output):
+                        if tt_l is None:
+                            return output  # no TT baseline → skip correction
                         if isinstance(output, tuple):
                             hidden = output[0]
                             rest = output[1:]
@@ -180,13 +197,12 @@ class CompSafetyShiftIntervention(InterventionBase):
                             rest = None
                         if hidden is None or hidden.dim() < 2:
                             return output
-                        # Cast direction to the hidden's dtype/device for the math.
                         d_local = d.to(dtype=hidden.dtype, device=hidden.device)
-                        x = hidden[:, -1, :]                            # (B, H)
-                        coef = (x * d_local).sum(dim=-1, keepdim=True)  # (B, 1)
-                        x_new = x - a * coef * d_local                  # (B, H)
-                        # Some HF layer outputs are non-contiguous / non-leaf;
-                        # clone to be safe before in-place assignment.
+                        tt_local = tt_l.to(dtype=hidden.dtype, device=hidden.device)
+                        x_vl = hidden[:, -1, :]                   # (B, H)
+                        m = x_vl - tt_local.unsqueeze(0)          # (B, H) modality shift
+                        coef = (m * d_local).sum(dim=-1, keepdim=True)  # dot(m, c^l)
+                        x_new = x_vl - a * coef * d_local         # (B, H)
                         new_hidden = hidden.clone()
                         new_hidden[:, -1, :] = x_new
                         if rest is None:
@@ -194,7 +210,7 @@ class CompSafetyShiftIntervention(InterventionBase):
                         return (new_hidden,) + rest
                     return hook
 
-                h = module.register_forward_hook(make_hook(direction, alpha))
+                h = module.register_forward_hook(make_hook(direction, alpha, x_tt_l))
                 handles.append(h)
             yield
         finally:
@@ -202,8 +218,22 @@ class CompSafetyShiftIntervention(InterventionBase):
                 h.remove()
 
     def generate(self, wrapper, image: Optional[Image.Image], question: str,
-                 max_new_tokens: int = 256) -> str:
-        with self._apply_hooks(wrapper):
+                 max_new_tokens: int = 256, caption: Optional[str] = None) -> str:
+        x_tt_cache: Optional[dict] = None
+        if image is not None and caption is not None:
+            # Build TT prompt from caption and run a single forward pass
+            # (not generation) to get x_tt at each intervention layer.
+            tt_prompt = f"Image description: {caption}\n\n{question}"
+            with torch.no_grad():
+                hidden_states_tt, _, _ = wrapper.forward_text(tt_prompt)
+            x_tt_cache = {}
+            for l in self._directions:
+                x_tt_cache[l] = hidden_states_tt[l][0, -1, :].detach()
+        elif image is not None and caption is None:
+            print(f"  [comp_safety_shift] WARNING: no caption for this sample; "
+                  f"correction skipped (no TT baseline available).")
+
+        with self._apply_hooks(wrapper, x_tt_cache=x_tt_cache):
             if image is not None:
                 return wrapper.generate_vl(image, question,
                                            max_new_tokens=max_new_tokens)

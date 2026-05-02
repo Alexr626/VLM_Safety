@@ -83,7 +83,8 @@ VLM_Safety/
 │           # mssbench_vl is the canonical comp_safety_shift direction.
 │
 ├── data_scripts/                           # GPU-based data generation & extraction
-│   ├── generate_captions.py                # Captions; --dataset {holisafe,mssbench,...}
+│   ├── prepare_data.py                     # ★ Master script: captions + activations + responses
+│   ├── generate_captions.py                # Captions; --dataset {holisafe,mssbench,mm_safetybench,figstep,...}
 │   ├── extract_vl.py                       # Extract multimodal activations
 │   ├── extract_tt.py                       # Extract text-only activations
 │   ├── extract_ref_activations.py          # Extract reference activations
@@ -343,6 +344,27 @@ Cohesive text generation defaults to Anthropic API (`PROVIDER=anthropic`); set
 - `data/mssbench/train_eval_split.json` — MSSBench 75/25 record-level split
 - `experiment_artifacts/{model}/compositional_safety/{holisafe,mssbench}_{tt,vl}/...` — 4 c^l variants
 
+## Data Preparation
+
+Before running any experiments or evaluations, prepare all data artifacts with
+a single command:
+
+```bash
+# All benchmarks × default models (LLaVA, ShareGPT4V, Qwen-VL-Chat):
+python data_scripts/prepare_data.py
+
+# Just captions for eval benchmarks (CPU + Anthropic API):
+python data_scripts/prepare_data.py --benchmarks mm_safetybench figstep --phases captions
+
+# Specific models + phases:
+python data_scripts/prepare_data.py \
+    --models llava-hf/llava-1.5-7b-hf \
+    --phases activations responses
+```
+
+This script is idempotent — existing artifacts are never regenerated.
+See `python data_scripts/prepare_data.py --help` for all flags.
+
 ## Evaluation Framework
 
 Evaluates inference-time defense interventions against three public jailbreak
@@ -362,7 +384,7 @@ ShiftDC / ECSO / AdaShield literature.
 | Name | Description |
 |------|-------------|
 | `vanilla` | No-op baseline |
-| `comp_safety_shift` | Removes compositional safety direction `c^l` from hidden states via forward hooks. Configurable via `direction_source ∈ {holisafe_tt, holisafe_vl, mssbench_tt, mssbench_vl}` (CLI flag `--comp_safety_sources`); **default `mssbench_vl`**. |
+| `comp_safety_shift` | Projects the modality-induced shift `m^l = x_vl − x_tt` onto `c^l` and subtracts: `x_corrected = x_vl − α·dot(m,c)·c`. Requires captions (`data/captions/{benchmark}.json`) for the TT forward pass. Direction source configurable via `--comp_safety_sources`; **default `mssbench_vl`**. |
 | `adashield_s` | Prepends static defence prompt (AdaShield-S, Wang et al. ECCV 2024) |
 
 When `comp_safety_shift` is in `--interventions`, the runner expands it

@@ -1302,6 +1302,8 @@ def split_mssbench_train_eval(
 DATASET_DATA_DIRS: Dict[str, str] = {
     "holisafe": "holisafe-bench",
     "mssbench": "mssbench",
+    "mm_safetybench": "mm-safetybench",
+    "figstep": "figstep",
 }
 
 

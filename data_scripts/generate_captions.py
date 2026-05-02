@@ -133,6 +133,49 @@ def _make_openai_caller(model: str, max_new_tokens: int):
 # ── Sample loading ─────────────────────────────────────────────
 
 
+def _load_eval_benchmark_for_captioning(benchmark_name: str, limit=None):
+    """Load samples from an evaluation benchmark for captioning.
+
+    Returns a list of sample dicts with 'id' and 'image_pil' (PIL.Image).
+    Uses the evaluation benchmark loaders, which already produce matching
+    EvalSample.id values. Only samples with images are included.
+
+    Adding a new benchmark: import its loader in evaluation/benchmarks/__init__.py,
+    then add an entry here. The sample_id convention must match what
+    eval_runner.py uses for caption lookup.
+    """
+    if benchmark_name == "mm_safetybench":
+        from evaluation.benchmarks import load_mm_safetybench
+        eval_samples = load_mm_safetybench(limit_per_scenario=limit)
+    elif benchmark_name == "figstep":
+        from evaluation.benchmarks import load_figstep
+        eval_samples = load_figstep(limit=limit)
+    else:
+        return None  # not a recognized eval benchmark
+
+    # Deduplicate by image: same image may pair with multiple questions,
+    # but we only need one caption per image id.
+    seen = set()
+    samples = []
+    for s in eval_samples:
+        if s.image is None or s.id in seen:
+            continue
+        seen.add(s.id)
+        samples.append({
+            "id": s.id,
+            "image_pil": s.image,
+            "text": s.question,
+        })
+    return samples
+
+
+# Registry of eval benchmarks that can be captioned (for extensibility).
+BENCHMARK_CAPTION_REGISTRY = {
+    "mm_safetybench": lambda limit=None: _load_eval_benchmark_for_captioning("mm_safetybench", limit),
+    "figstep":        lambda limit=None: _load_eval_benchmark_for_captioning("figstep", limit),
+}
+
+
 def load_samples(dataset, cache_dir, limit, ref_samples, ref_seed,
                  holisafe_subsets=None, holisafe_eval_only=False,
                  mssbench_split: str = "all"):
@@ -174,14 +217,21 @@ def load_samples(dataset, cache_dir, limit, ref_samples, ref_seed,
                 split = json.load(f)
             wanted = set(split[f"{mssbench_split}_sample_ids"])
             samples = [s for s in samples if s["id"] in wanted]
+    elif dataset in BENCHMARK_CAPTION_REGISTRY:
+        samples = BENCHMARK_CAPTION_REGISTRY[dataset](limit=limit)
+        if samples is None:
+            raise ValueError(f"Failed to load benchmark '{dataset}' for captioning.")
+        return samples  # limit already applied by loader
     elif dataset in REFERENCE_REGISTRY:
         loader = REFERENCE_REGISTRY[dataset]["loader"]
         samples = loader(n_samples=ref_samples, seed=ref_seed)
     else:
+        all_known = sorted(
+            set(BENCHMARK_CAPTION_REGISTRY) | set(REFERENCE_REGISTRY)
+            | {"holisafe", "mssbench"}
+        )
         raise ValueError(
-            f"Unknown dataset: '{dataset}'. "
-            f"Available reference datasets: {list(REFERENCE_REGISTRY)}. "
-            f"To add a new dataset, register a loader in REFERENCE_REGISTRY (src/dataset.py)."
+            f"Unknown dataset: '{dataset}'. Available: {all_known}"
         )
     return samples[:limit] if limit else samples
 

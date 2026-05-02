@@ -25,5 +25,12 @@ class InterventionBase(ABC):
         image: Optional[Image.Image],
         question: str,
         max_new_tokens: int = 256,
+        caption: Optional[str] = None,
     ) -> str:
-        """Generate a response under this intervention. Return the raw string."""
+        """Generate a response under this intervention. Return the raw string.
+
+        Args:
+            caption: image caption for the TT counterpart. Required by
+                CompSafetyShift to compute the modality-induced shift;
+                ignored by other interventions.
+        """
