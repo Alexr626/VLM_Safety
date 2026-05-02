@@ -232,8 +232,8 @@ if [[ "$SKIP_EVAL" != "1" ]]; then
     T3=$(sec)
     python "$PROJECT_ROOT/evaluation/run_eval.py" \
         --model "$MODEL" \
-        --interventions vanilla adashield_s comp_safety_shift \
-        --benchmarks mm_safetybench figstep mssbench \
+        --interventions comp_safety_shift vanilla adashield_s \
+        --benchmarks mssbench mm_safetybench figstep \
         --comp_safety_sources mssbench_vl mssbench_tt \
         --skip_if_exists
     echo "  Phase 3 elapsed: $(elapsed $T3)"
