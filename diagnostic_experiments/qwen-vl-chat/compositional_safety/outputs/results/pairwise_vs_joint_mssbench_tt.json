@@ -1,0 +1,167 @@
+[
+  {
+    "layer": 0,
+    "cos_pair_vs_joint": -0.018069637928255607,
+    "n_pairs": 448
+  },
+  {
+    "layer": 1,
+    "cos_pair_vs_joint": -0.04456267698013856,
+    "n_pairs": 448
+  },
+  {
+    "layer": 2,
+    "cos_pair_vs_joint": 0.052867502043345505,
+    "n_pairs": 448
+  },
+  {
+    "layer": 3,
+    "cos_pair_vs_joint": -0.22586167981395674,
+    "n_pairs": 448
+  },
+  {
+    "layer": 4,
+    "cos_pair_vs_joint": -0.042218711332089744,
+    "n_pairs": 448
+  },
+  {
+    "layer": 5,
+    "cos_pair_vs_joint": -0.1622177595394624,
+    "n_pairs": 448
+  },
+  {
+    "layer": 6,
+    "cos_pair_vs_joint": -0.11017145839409667,
+    "n_pairs": 448
+  },
+  {
+    "layer": 7,
+    "cos_pair_vs_joint": 0.0698430233299033,
+    "n_pairs": 448
+  },
+  {
+    "layer": 8,
+    "cos_pair_vs_joint": 0.017270305202646868,
+    "n_pairs": 448
+  },
+  {
+    "layer": 9,
+    "cos_pair_vs_joint": 0.18558376022562906,
+    "n_pairs": 448
+  },
+  {
+    "layer": 10,
+    "cos_pair_vs_joint": 0.29038983843409905,
+    "n_pairs": 448
+  },
+  {
+    "layer": 11,
+    "cos_pair_vs_joint": 0.22440174315911351,
+    "n_pairs": 448
+  },
+  {
+    "layer": 12,
+    "cos_pair_vs_joint": 0.20585053768123807,
+    "n_pairs": 448
+  },
+  {
+    "layer": 13,
+    "cos_pair_vs_joint": 0.33485262645137825,
+    "n_pairs": 448
+  },
+  {
+    "layer": 14,
+    "cos_pair_vs_joint": 0.06233636372868661,
+    "n_pairs": 448
+  },
+  {
+    "layer": 15,
+    "cos_pair_vs_joint": 0.13335059313594508,
+    "n_pairs": 448
+  },
+  {
+    "layer": 16,
+    "cos_pair_vs_joint": 0.15117735094150672,
+    "n_pairs": 448
+  },
+  {
+    "layer": 17,
+    "cos_pair_vs_joint": 0.021434788023250093,
+    "n_pairs": 448
+  },
+  {
+    "layer": 18,
+    "cos_pair_vs_joint": -0.0014758626002365283,
+    "n_pairs": 448
+  },
+  {
+    "layer": 19,
+    "cos_pair_vs_joint": 0.1807113799530322,
+    "n_pairs": 448
+  },
+  {
+    "layer": 20,
+    "cos_pair_vs_joint": 0.2736233122807251,
+    "n_pairs": 448
+  },
+  {
+    "layer": 21,
+    "cos_pair_vs_joint": 0.358506585118482,
+    "n_pairs": 448
+  },
+  {
+    "layer": 22,
+    "cos_pair_vs_joint": 0.42999290619912645,
+    "n_pairs": 448
+  },
+  {
+    "layer": 23,
+    "cos_pair_vs_joint": 0.5045151296566217,
+    "n_pairs": 448
+  },
+  {
+    "layer": 24,
+    "cos_pair_vs_joint": 0.5242227499652578,
+    "n_pairs": 448
+  },
+  {
+    "layer": 25,
+    "cos_pair_vs_joint": 0.5486659583007126,
+    "n_pairs": 448
+  },
+  {
+    "layer": 26,
+    "cos_pair_vs_joint": 0.5830725097449669,
+    "n_pairs": 448
+  },
+  {
+    "layer": 27,
+    "cos_pair_vs_joint": 0.5649625501612934,
+    "n_pairs": 448
+  },
+  {
+    "layer": 28,
+    "cos_pair_vs_joint": 0.5625792225275412,
+    "n_pairs": 448
+  },
+  {
+    "layer": 29,
+    "cos_pair_vs_joint": 0.5602668322552925,
+    "n_pairs": 448
+  },
+  {
+    "layer": 30,
+    "cos_pair_vs_joint": 0.521109203665365,
+    "n_pairs": 448
+  },
+  {
+    "layer": 31,
+    "cos_pair_vs_joint": 0.4794889750664916,
+    "n_pairs": 448
+  },
+  {
+    "layer": 32,
+    "cos_pair_vs_joint": 0.5179652679669222,
+    "n_pairs": 448
+  }
+]

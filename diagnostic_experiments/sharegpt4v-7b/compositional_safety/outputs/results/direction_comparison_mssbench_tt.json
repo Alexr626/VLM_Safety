@@ -1,0 +1,332 @@
+[
+  {
+    "layer": 0,
+    "cosine_sim_compositional_vs_semantic": 1.0,
+    "effective_rank": 0,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 1.0,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 1,
+    "cosine_sim_compositional_vs_semantic": 0.786023383827663,
+    "effective_rank": 52,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.515776790400946,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 2,
+    "cosine_sim_compositional_vs_semantic": 0.47492032480125773,
+    "effective_rank": 56,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.47211005238534787,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 3,
+    "cosine_sim_compositional_vs_semantic": 0.30706795807295434,
+    "effective_rank": 83,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.3889879598102896,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 4,
+    "cosine_sim_compositional_vs_semantic": -0.4246254730250343,
+    "effective_rank": 99,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.36332955059905325,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 5,
+    "cosine_sim_compositional_vs_semantic": -0.2227979189543056,
+    "effective_rank": 140,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.3411813698853272,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 6,
+    "cosine_sim_compositional_vs_semantic": 0.10501085505918674,
+    "effective_rank": 144,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.22196615337768838,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 7,
+    "cosine_sim_compositional_vs_semantic": 0.0883015678030101,
+    "effective_rank": 114,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.20915452145374164,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 8,
+    "cosine_sim_compositional_vs_semantic": 0.032907614369938255,
+    "effective_rank": 129,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.1679935167349661,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 9,
+    "cosine_sim_compositional_vs_semantic": 0.02719291152292793,
+    "effective_rank": 143,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.1601401570062212,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 10,
+    "cosine_sim_compositional_vs_semantic": 0.07746687746464456,
+    "effective_rank": 143,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.13585189670999712,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 11,
+    "cosine_sim_compositional_vs_semantic": 0.1885890570902473,
+    "effective_rank": 167,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.12677405271860712,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 12,
+    "cosine_sim_compositional_vs_semantic": 0.21442494013138466,
+    "effective_rank": 172,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.13208638115518534,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 13,
+    "cosine_sim_compositional_vs_semantic": 0.2979625336110861,
+    "effective_rank": 177,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.1367003578483764,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 14,
+    "cosine_sim_compositional_vs_semantic": 0.32954977751008757,
+    "effective_rank": 173,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.1802701265956817,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 15,
+    "cosine_sim_compositional_vs_semantic": 0.3307790779247085,
+    "effective_rank": 180,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.16899848597488332,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 16,
+    "cosine_sim_compositional_vs_semantic": 0.3174978485523742,
+    "effective_rank": 183,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.17314103466085537,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 17,
+    "cosine_sim_compositional_vs_semantic": 0.386233873384349,
+    "effective_rank": 176,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.22463586501569308,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 18,
+    "cosine_sim_compositional_vs_semantic": 0.3839884411569938,
+    "effective_rank": 174,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.22671670446406628,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 19,
+    "cosine_sim_compositional_vs_semantic": 0.4076812122325293,
+    "effective_rank": 167,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.270267808843536,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 20,
+    "cosine_sim_compositional_vs_semantic": 0.437458892177966,
+    "effective_rank": 171,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.3048291597898341,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 21,
+    "cosine_sim_compositional_vs_semantic": 0.4142905054127356,
+    "effective_rank": 184,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.2895829503786601,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 22,
+    "cosine_sim_compositional_vs_semantic": 0.429403882490466,
+    "effective_rank": 192,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.2702299962457446,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 23,
+    "cosine_sim_compositional_vs_semantic": 0.40320620051423334,
+    "effective_rank": 194,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.2708482201405452,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 24,
+    "cosine_sim_compositional_vs_semantic": 0.40087806181141167,
+    "effective_rank": 198,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.26032909032284074,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 25,
+    "cosine_sim_compositional_vs_semantic": 0.3955449604618814,
+    "effective_rank": 207,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.23800869851258236,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 26,
+    "cosine_sim_compositional_vs_semantic": 0.4026755460736192,
+    "effective_rank": 207,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.2544515792761057,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 27,
+    "cosine_sim_compositional_vs_semantic": 0.40752472636262854,
+    "effective_rank": 211,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.24995387435180452,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 28,
+    "cosine_sim_compositional_vs_semantic": 0.4400903302978582,
+    "effective_rank": 209,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.2695396644065023,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 29,
+    "cosine_sim_compositional_vs_semantic": 0.4385471159276963,
+    "effective_rank": 211,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.2681261284571721,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 30,
+    "cosine_sim_compositional_vs_semantic": 0.42623588445070504,
+    "effective_rank": 210,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.2643359295389167,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 31,
+    "cosine_sim_compositional_vs_semantic": 0.41832946852898567,
+    "effective_rank": 208,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.2639947422301131,
+    "semantic_subspace_recipe": "pairwise"
+  },
+  {
+    "layer": 32,
+    "cosine_sim_compositional_vs_semantic": 0.04245782366919899,
+    "effective_rank": 193,
+    "method": "pairwise",
+    "source": "mssbench",
+    "representation": "tt",
+    "subspace_overlap_top5": 0.3011093564895676,
+    "semantic_subspace_recipe": "pairwise"
+  }
+]
