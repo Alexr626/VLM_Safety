@@ -8,11 +8,18 @@ where x_vl is the VL (image + text) hidden state and x_tt is the TT (caption +
 text) hidden state at the same layer. The correction removes the component of
 this shift that lies along the compositional safety direction:
 
-    x_corrected = x_vl - alpha * dot(m^l, c^l) * c^l
+    x_corrected = x_vl - alpha * ((m^l · c^l) / ||c^l||^2) * c^l
 
 To compute x_tt, the intervention performs a single text-only forward pass
 (using the image caption) BEFORE generation begins, and caches the last-token
 hidden state at each intervention layer.
+
+Application schedule: PREFILL ONLY. The forward hook fires at most once per
+layer per generate() call, on the first forward pass (the prompt prefill).
+Subsequent autoregressive decoding steps are not intercepted; the corrected
+representation propagates through the KV cache. This matches the upstream
+ShiftDC reference implementation (see add_prefill_hooks / get_shiftdc_hook
+in shiftdc/utils, which use an `applied` flag with identical semantics).
 
 The compositional direction is loaded from
 `experiment_artifacts/{model_short}/compositional_safety/{direction_source}/compositional_safety_direction_vectors.npz`,
@@ -34,7 +41,7 @@ from .base import InterventionBase
 
 
 class CompSafetyShiftIntervention(InterventionBase):
-    """Compositional-direction modality-shift correction."""
+    """Compositional-direction modality-shift correction (prefill-only)."""
 
     # Defaults are expressed in npz-key (== hidden_states index) space.
     # Hooks attach to model.layers[l - 1] for npz key layer_l.
@@ -126,6 +133,7 @@ class CompSafetyShiftIntervention(InterventionBase):
             "layer_end": self.layer_end,
             "direction_source": self._direction_source,
             "direction_npz": str(self._npz_path),
+            "schedule": "prefill_only",
         }
 
     # ── Layer access per wrapper family ─────────────────────────────────────
@@ -160,6 +168,10 @@ class CompSafetyShiftIntervention(InterventionBase):
     def _apply_hooks(self, wrapper, x_tt_cache: Optional[dict] = None):
         """Register forward hooks that apply the CompShift correction.
 
+        The hooks fire AT MOST ONCE per layer per context-manager activation
+        (i.e., one prefill per generate() call). An `applied` dict tracks
+        per-layer state and is shared across all hook closures.
+
         Args:
             x_tt_cache: {npz_layer: Tensor(hidden_dim,)} — precomputed
                 last-token TT hidden states. When provided, hooks compute
@@ -169,6 +181,7 @@ class CompSafetyShiftIntervention(InterventionBase):
         self._validate_hidden_dim(wrapper)
         device = next(wrapper.model.parameters()).device
         handles = []
+        applied: dict[int, bool] = {l: False for l in self._directions}
 
         try:
             for npz_layer, direction_cpu in self._directions.items():
@@ -185,8 +198,10 @@ class CompSafetyShiftIntervention(InterventionBase):
                           if x_tt_cache and npz_layer in x_tt_cache
                           else None)
 
-                def make_hook(d, a, tt_l):
+                def make_hook(d, a, tt_l, layer_id):
                     def hook(_module, _input, output):
+                        if applied[layer_id]:
+                            return output  # prefill already corrected; skip
                         if tt_l is None:
                             return output  # no TT baseline → skip correction
                         if isinstance(output, tuple):
@@ -199,18 +214,23 @@ class CompSafetyShiftIntervention(InterventionBase):
                             return output
                         d_local = d.to(dtype=hidden.dtype, device=hidden.device)
                         tt_local = tt_l.to(dtype=hidden.dtype, device=hidden.device)
-                        x_vl = hidden[:, -1, :]                   # (B, H)
-                        m = x_vl - tt_local.unsqueeze(0)          # (B, H) modality shift
-                        coef = (m * d_local).sum(dim=-1, keepdim=True)  # dot(m, c^l)
-                        x_new = x_vl - a * coef * d_local         # (B, H)
+                        x_vl = hidden[:, -1, :]                         # (B, H)
+                        m = x_vl - tt_local.unsqueeze(0)                # (B, H) modality shift
+                        # Projection of m onto c^l: ((m · c) / ||c||^2) * c
+                        denom = (d_local * d_local).sum().clamp(min=1e-12)  # ||c||^2
+                        coef = (m * d_local).sum(dim=-1, keepdim=True) / denom  # (B, 1)
+                        x_new = x_vl - a * coef * d_local               # (B, H)
                         new_hidden = hidden.clone()
                         new_hidden[:, -1, :] = x_new
+                        applied[layer_id] = True
                         if rest is None:
                             return new_hidden
                         return (new_hidden,) + rest
                     return hook
 
-                h = module.register_forward_hook(make_hook(direction, alpha, x_tt_l))
+                h = module.register_forward_hook(
+                    make_hook(direction, alpha, x_tt_l, npz_layer)
+                )
                 handles.append(h)
             yield
         finally:
