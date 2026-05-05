@@ -491,36 +491,46 @@ class ShareGPT4VWrapper(VLMWrapperBase):
 
     # ── Input preparation ──────────────────────────────────────────────────
     def _prepare_vl_embeds(self, image: Image.Image, text: str):
-        """Build inputs_embeds with visual tokens spliced into the prompt."""
+        """Build inputs_embeds with visual tokens spliced into the prompt.
+
+        Vicuna-7B's stock tokenizer does NOT have `<image>` as a single
+        special token; it tokenizes the literal string into BPE subword
+        pieces, so we cannot find a single placeholder id and overwrite
+        it. Instead we split the prompt on the placeholder, tokenize
+        each half independently, and concatenate
+            [before_embeds, image_features, after_embeds]
+        — the same pattern `MiniGPT4Wrapper._prepare_vl_embeds` uses.
+        """
         prompt = self._PROMPT_TEMPLATE.format(text=text)
-        input_ids = self.tokenizer(
-            prompt, return_tensors="pt",
+        image_features = self._encode_image(image)  # (1, n_vis, dim)
+        embed_fn = self.model.get_input_embeddings()
+
+        if "<image>" not in prompt:
+            # Defensive fallback: nothing to splice. Embed the whole prompt.
+            input_ids = self.tokenizer(
+                prompt, return_tensors="pt",
+            ).input_ids.to(self.device)
+            return embed_fn(input_ids), input_ids
+
+        before_text, after_text = prompt.split("<image>", 1)
+        before_ids = self.tokenizer(
+            before_text, return_tensors="pt", add_special_tokens=True,
+        ).input_ids.to(self.device)
+        after_ids = self.tokenizer(
+            after_text, return_tensors="pt", add_special_tokens=False,
         ).input_ids.to(self.device)
 
-        # Get image features
-        image_features = self._encode_image(image)  # (1, n_vis, dim)
+        before_embeds = embed_fn(before_ids)
+        after_embeds = embed_fn(after_ids)
+        image_features = image_features.to(dtype=before_embeds.dtype,
+                                           device=before_embeds.device)
 
-        # The tokenizer encodes "<image>" as a regular token.  Find it.
-        # In the LLaVA/ShareGPT4V vocabulary, <image> is token 32000.
-        IMAGE_TOKEN_INDEX = self.tokenizer.convert_tokens_to_ids("<image>")
-        if IMAGE_TOKEN_INDEX is None or IMAGE_TOKEN_INDEX == self.tokenizer.unk_token_id:
-            IMAGE_TOKEN_INDEX = 32000  # fallback
-
-        # Build embeddings and splice visual tokens in
-        token_embeds = self.model.get_input_embeddings()(input_ids)
-        mask = input_ids == IMAGE_TOKEN_INDEX
-        if mask.any():
-            pos = int(mask[0].nonzero(as_tuple=True)[0][0].item())
-            before = token_embeds[0, :pos]
-            after = token_embeds[0, pos + 1:]
-            inputs_embeds = torch.cat([
-                before, image_features[0], after,
-            ], dim=0).unsqueeze(0)
-            expanded_len = inputs_embeds.shape[1]
-            input_ids = torch.zeros(1, expanded_len, dtype=torch.long,
-                                    device=self.device)
-        else:
-            inputs_embeds = token_embeds
+        inputs_embeds = torch.cat(
+            [before_embeds, image_features, after_embeds], dim=1,
+        )
+        expanded_len = inputs_embeds.shape[1]
+        input_ids = torch.zeros(1, expanded_len, dtype=torch.long,
+                                device=self.device)
         return inputs_embeds, input_ids
 
     def _prepare_text(self, text: str):
