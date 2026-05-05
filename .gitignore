@@ -42,6 +42,8 @@ data/holisafe-bench/sharegpt4v-7b/activations
 data/holisafe-bench/.gitattributes
 data/holisafe-bench/README.md
 
+data/figstep/
+
 
 # ── Editor ────────────────────────────────────────────
 .vscode/
