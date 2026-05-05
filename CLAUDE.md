@@ -96,16 +96,30 @@ VLM_Safety/
 │   ├── dataset.py                          # Dataset loaders + REFERENCE_REGISTRY
 │   └── extraction.py                       # ActivationCache, SVD utilities, helpers
 │
-├── data/                                   # All datasets + their activations
-│   ├── holisafe-bench/                     # Main HoliSafe pool + activations/{model}/
+├── data/                                   # All datasets + per-model artifacts
+│   ├── holisafe-bench/                     # Main HoliSafe pool
+│   │   ├── holisafe_bench.json, images/, train_eval_split.json
+│   │   └── {model}/                        # Per-model activations + responses
+│   │       ├── activations/sample_{id}_{vl|tt|ct}.npz + sample_metadata.json
+│   │       └── responses/vanilla/responses.json
 │   ├── mssbench/                           # MSSBench (paired SSS/SSU diagnostic + eval)
 │   │   ├── combined.json, chat/, embodied/
 │   │   ├── train_eval_split.json           # 75/25 record-level split (seed=42)
-│   │   └── activations/{model}/sample_mssbench_*_{vl,tt}.npz
-│   ├── captions/                           # Generated captions + cohesive-text fusions
-│   │   ├── holisafe.json, mssbench.json    # image-stem dedup for MSSBench
-│   │   └── holisafe_cohesive.json
+│   │   └── {model}/activations/ + responses/vanilla/
+│   ├── mm-safetybench/                     # MM-SafetyBench (eval benchmark, 13 scenarios)
+│   │   ├── combined.json, data/{category}/, train_eval_split.json
+│   │   └── {model}/activations/ + responses/vanilla/
+│   ├── figstep/                            # FigStep (eval benchmark, 500 typography attacks)
+│   │   ├── data/images/, data/question/
+│   │   └── {model}/activations/ + responses/vanilla/
+│   ├── captions/                           # Generated captions (model-generated + API)
+│   │   ├── holisafe.json, mssbench.json, mm_safetybench.json, figstep.json
+│   │   └── claude_generated/               # Anthropic API captions (higher quality)
+│   │       ├── holisafe.json, mssbench.json, holisafe_cohesive.json
+│   │       └── mm_safetybench.checkpoint.json
 │   ├── catqa-contrastive/                  # Contrastive QA pairs + activations/{model}/
+│   │   ├── catqa_contrastive_pairs.json, train_eval_split.json
+│   │   └── splits/                         # Legacy split variants
 │   ├── llava-instruct-ref/                 # Alternative safe-reference dataset
 │   └── mm-safetybench-ref/                 # Alternative unsafe-reference dataset
 │
@@ -126,7 +140,9 @@ VLM_Safety/
 │   ├── extract_ref_activations.py          # Extract reference activations
 │   ├── generate_cohesive_text.py           # Fuse caption + text into single query (CT)
 │   ├── extract_ct.py                       # Extract CT (cohesive text) activations
-│   └── generate_catqa_harmless_pairs.py    # Generate contrastive QA pairs via LLM
+│   ├── generate_catqa_harmless_pairs.py    # Generate contrastive QA pairs via LLM
+│   ├── run_fill_artifacts_5080.sh          # Distributed: 5080 GPU box (captions + TT)
+│   └── run_fill_artifacts_5090.sh          # Distributed: 5090 GPU box (VL + responses)
 │
 ├── diagnostic_experiments/                 # Phase 1: Diagnostic experiments
 │   ├── experiment_scripts/                 # Shared across models
@@ -166,6 +182,8 @@ VLM_Safety/
 │       ├── run_compositional_safety_all_models.sh  # Compositional safety run across all supported models (CPU)
 │       ├── run_augmented_diagnostics.sh            # TT-vs-CT safety-projection gap (CPU)
 │       ├── run_all_new_experiments.sh              # Augmented experiments end-to-end
+│       ├── run_overnight_captions.sh               # Overnight captioning job (all benchmarks)
+│       ├── run_overnight_comp_directions.sh        # Overnight compositional direction computation
 │       ├── run_diag_16gb.sh                        # Models that fit on 16 GB GPUs
 │       ├── run_diag_24gb.sh                        # Models that need >=24 GB VRAM
 │       └── run_diag_all_models.sh                  # All models sequentially
@@ -195,6 +213,7 @@ VLM_Safety/
 │       ├── run_full_pipeline.sh                     # End-to-end: artifacts + downloads + eval
 │       ├── recompute_mssbench_eval_asr.py           # Post-hoc eval-only ASR from existing responses
 │       ├── run_mssbench_vl_pipeline_for_teammate.sh # Single-model end-to-end for new MSSBench_VL setup
+│       ├── run_compshift_teammate.sh                # Teammate-runnable CompShift pipeline
 │       ├── download_mm_safetybench.py               # Dataset download helper
 │       ├── download_figstep.py                      # Dataset download helper
 │       └── download_mssbench.py                     # Dataset download helper
@@ -330,10 +349,13 @@ and dispatch paths using the model's short name.
   matching seed and train_frac.
 
 **Source-of-truth dataset path mapping:**
-- `DATASET_DATA_DIRS = {"holisafe": "holisafe-bench", "mssbench": "mssbench"}`.
+- `DATASET_DATA_DIRS = {"holisafe": "holisafe-bench", "mssbench": "mssbench", "mm_safetybench": "mm-safetybench", "figstep": "figstep"}`.
   Used by `extract_vl.py`, `extract_tt.py`, `compositional_safety_direction.py`,
-  and `safety_probes.py` to keep per-dataset paths flowing from a single
-  registry rather than scattered hardcodes.
+  `safety_probes.py`, and `prepare_data.py` to keep per-dataset paths flowing
+  from a single registry rather than scattered hardcodes.
+- **Path helpers:** `model_data_root(benchmark, model_short)` → `data/{benchmark_dir}/{model_short}/`,
+  `model_activations_dir(...)` → `.../activations/`,
+  `model_responses_dir(...)` → `.../responses/{intervention}/`.
 
 **Train/Eval Split:**
 - `split_holisafe_train_eval(sss, ssu, n_eval=175, seed=42)`: Stratified-by-category split into train/eval. Persists to `data/holisafe-bench/train_eval_split.json`. Reuses saved split on subsequent calls with matching seed/n_eval.
@@ -398,11 +420,12 @@ and dispatch paths using the model's short name.
 ## Data Flow & Dependencies
 
 ### Data (data/)
-Each dataset directory contains the raw data and model-specific activations extracted from it:
-- `data/holisafe-bench/activations/{model}/` — VL/TT/CT per-sample .npz + sample_metadata.json
+Each dataset directory contains the raw data and model-specific artifacts:
+- `data/{benchmark_dir}/{model}/activations/` — VL/TT/CT per-sample .npz + sample_metadata.json
+- `data/{benchmark_dir}/{model}/responses/vanilla/responses.json` — greedy model outputs
 - `data/catqa-contrastive/activations/{model}/` — reference activation matrices per dataset
-- `data/captions/{dataset}.json` — generated image captions
-- `data/captions/holisafe_cohesive.json` — CT (caption + query fused)
+- `data/captions/{dataset}.json` — generated image captions (VLM-generated)
+- `data/captions/claude_generated/` — Anthropic API captions (higher quality)
 
 ### Experiment Artifacts (experiment_artifacts/)
 Artifacts produced by experiments, organized by `{model}/{experiment_name}/`:
@@ -412,21 +435,22 @@ Artifacts produced by experiments, organized by `{model}/{experiment_name}/`:
 ### Phase 0: Data Extraction (data_scripts/)
 ```
 data_scripts/generate_captions.py       → data/captions/{dataset}.json
-data_scripts/extract_vl.py              → data/holisafe-bench/activations/{model}/
-data_scripts/extract_tt.py              → data/holisafe-bench/activations/{model}/
-data_scripts/extract_ct.py              → data/holisafe-bench/activations/{model}/ (CT)
+data_scripts/extract_vl.py              → data/{benchmark_dir}/{model}/activations/
+data_scripts/extract_tt.py              → data/{benchmark_dir}/{model}/activations/
+data_scripts/extract_ct.py              → data/holisafe-bench/{model}/activations/ (CT)
 data_scripts/extract_ref_activations.py → data/catqa-contrastive/activations/{model}/
+data_scripts/prepare_data.py            → orchestrates all of the above + vanilla responses
 ```
 
 ### Phase 1: Diagnostic Experiments (diagnostic_experiments/)
 ```
 run_shiftdc.sh orchestrates:
   1. generate_captions        (→ data/captions/)
-  2-3. extract_vl/tt          (→ data/holisafe-bench/activations/{model}/)
-  3b. extract_ct              (→ data/holisafe-bench/activations/{model}/, if CT exists)
+  2-3. extract_vl/tt          (→ data/{benchmark_dir}/{model}/activations/)
+  3b. extract_ct              (→ data/holisafe-bench/{model}/activations/, if CT exists)
   4-6. ref captions + extract (→ data/catqa-contrastive/activations/{model}/)
   7. vl_activation_shift.py
-     reads: data/holisafe-bench/activations/, data/catqa-contrastive/activations/
+     reads: data/{benchmark_dir}/{model}/activations/, data/catqa-contrastive/activations/
      writes: experiment_artifacts/{model}/vl_activation_shift/safety_direction_vectors.npz
      writes: {model}/shift_dc/outputs/results/ (JSON results + plots)
 ```
@@ -457,10 +481,23 @@ python data_scripts/prepare_data.py \
 
 **Output convention:**
 - Captions: `data/captions/{benchmark}.json`
-- Activations: `data/{benchmark_dir}/activations/{model}/sample_{id}_{vl,tt}.npz`
-- Responses: `data/{benchmark_dir}/{model}/vanilla/responses.json`
+- Activations: `data/{benchmark_dir}/{model}/activations/sample_{id}_{vl,tt}.npz`
+- Responses: `data/{benchmark_dir}/{model}/responses/vanilla/responses.json`
 
 Each phase is idempotent — existing artifacts are never overwritten.
+
+### Distributed Multi-GPU Setup (`run_fill_artifacts_*.sh`)
+
+For two-machine data collection (e.g., 5080 + 5090 GPU boxes):
+
+- **`run_fill_artifacts_5080.sh`** (lower VRAM): Generates captions (API or local VLM)
+  + TT activation extraction. Captions are committed to git so both boxes stay in sync.
+- **`run_fill_artifacts_5090.sh`** (higher VRAM): VL activation extraction + vanilla
+  response generation. Independent of captions — can run in parallel.
+
+The two scripts partition work so that caption-dependent phases (TT extraction)
+run on the machine that generates captions, while VL extraction and response
+generation (no caption dependency) run on the other.
 
 ## Typical Workflow
 
@@ -648,9 +685,10 @@ Cohesive text generation defaults to Anthropic API (`PROVIDER=anthropic`); set
 `PROVIDER=openai` or `PROVIDER=local` (uses the VLM itself) to change.
 
 ### Key Artifacts
-- `data/captions/holisafe_cohesive.json`, `data/captions/mssbench.json` (image-stem dedup)
-- `data/holisafe-bench/activations/{model}/sample_{id}_ct.npz` — CT activations
-- `data/mssbench/activations/{model}/sample_mssbench_*_{vl,tt}.npz` — MSSBench activations
+- `data/captions/holisafe.json`, `data/captions/mssbench.json`, `data/captions/mm_safetybench.json`, `data/captions/figstep.json`
+- `data/captions/claude_generated/holisafe_cohesive.json` — CT (cohesive text fusions)
+- `data/holisafe-bench/{model}/activations/sample_{id}_ct.npz` — CT activations
+- `data/mssbench/{model}/activations/sample_mssbench_*_{vl,tt}.npz` — MSSBench activations
 - `data/holisafe-bench/train_eval_split.json` — stratified 175/group train/eval split
 - `data/mssbench/train_eval_split.json` — record-level 75/25 stratified-by-Type split
 - `experiment_artifacts/{model}/vl_activation_shift/{safety_direction_vectors.npz, safety_direction_vectors_joint.npz}` — pairwise s^l + joint sanity
@@ -663,29 +701,61 @@ Cohesive text generation defaults to Anthropic API (`PROVIDER=anthropic`); set
 ## Key Output Formats
 
 ### Data directory (`data/`)
+
+All per-model artifacts (activations, vanilla responses) now live under
+`data/{benchmark_dir}/{model_short}/` rather than separate top-level dirs.
+Path helpers in `src/dataset.py`: `model_data_root()`, `model_activations_dir()`,
+`model_responses_dir()`.
+
 ```
 holisafe-bench/
 ├── holisafe_bench.json                    # Dataset metadata
 ├── images/                                # Images by category
 ├── train_eval_split.json                  # 175/group stratified split
-└── activations/{model}/
-    ├── sample_{id}_{vl|tt|ct}.npz         # Per-sample hidden states
-    └── sample_metadata.json               # id / label / category
+└── {model}/                               # e.g. llava-1.5-7b-hf/
+    ├── activations/
+    │   ├── sample_{id}_{vl|tt|ct}.npz     # Per-sample hidden states
+    │   └── sample_metadata.json           # id / label / category
+    └── responses/vanilla/responses.json   # Greedy VL generations
 
 mssbench/
 ├── combined.json                          # Records (chat + embodied splits)
 ├── chat/, embodied/                       # Image folders (auto-downloaded)
 ├── train_eval_split.json                  # 75/25 record-level stratified
-└── activations/{model}/
-    ├── sample_mssbench_*_{vl,tt}.npz      # Per-sample hidden states
-    └── sample_metadata.json
+└── {model}/
+    ├── activations/
+    │   ├── sample_mssbench_*_{vl,tt}.npz  # Per-sample hidden states
+    │   └── sample_metadata.json
+    └── responses/vanilla/responses.json
+
+mm-safetybench/
+├── combined.json                          # All scenarios, merged from HF parquets
+├── data/{category}/                       # Category image dirs (SD, OCR, SD_TYPO)
+├── train_eval_split.json                  # Stratified train/eval split
+└── {model}/
+    ├── activations/ + sample_metadata.json
+    └── responses/vanilla/responses.json
+
+figstep/
+├── data/images/SafeBench/                 # Typography attack images
+├── data/question/safebench.csv            # 500 harmful prompts
+└── {model}/
+    ├── activations/ + sample_metadata.json
+    └── responses/vanilla/responses.json
 
 captions/
-├── {dataset}.json                         # {sample_id: caption_str}; mssbench.json uses image-stem dedup
-└── holisafe_cohesive.json                 # CT (caption + query fused)
+├── holisafe.json                          # VLM-generated captions (model-generated)
+├── mssbench.json                          # image-stem dedup for MSSBench
+├── mm_safetybench.json                    # Captions for all MM-SafetyBench images
+├── figstep.json                           # Captions for FigStep images
+└── claude_generated/                      # Anthropic API captions (higher quality)
+    ├── holisafe.json, mssbench.json
+    └── holisafe_cohesive.json             # CT (caption + query fused)
 
 catqa-contrastive/
 ├── catqa_contrastive_pairs.json           # Harmless/harmful QA pairs
+├── train_eval_split.json                  # Train/eval split for reference pairs
+├── splits/                                # Archived split variants by n_samples
 └── activations/{model}/{ref_name}/
     ├── activation_matrices.npz            # {role}_layer_{l}: (N, hidden_dim)
     └── metadata.json
@@ -884,7 +954,7 @@ The evaluation targets five models: `llava-1.5-7b-hf`, `sharegpt4v-7b`,
 | Name | Class | Description |
 |------|-------|-------------|
 | `vanilla` | `VanillaIntervention` | No-op baseline; direct model generation. |
-| `comp_safety_shift` | `CompSafetyShiftIntervention` | Projects the **modality-induced shift** `m^l = x_vl - x_tt` onto `c^l` and subtracts: `x_corrected = x_vl - alpha * dot(m^l, c^l) * c^l`. Requires captions for TT forward pass (loaded from `data/captions/{benchmark}.json`). Loads direction from `experiment_artifacts/{model}/compositional_safety/{direction_source}/compositional_safety_direction_vectors.npz`. **Default `direction_source = mssbench_vl`.** |
+| `comp_safety_shift` | `CompSafetyShiftIntervention` | Projects the **modality-induced shift** `m^l = x_vl - x_tt` onto `c^l` and subtracts: `x_corrected = x_vl - alpha * ((m^l · c^l) / ||c^l||^2) * c^l`. Prefill-only (hooks fire once per layer per generate() call). Requires captions for TT forward pass (loaded from `data/captions/{benchmark}.json`). Loads direction from `experiment_artifacts/{model}/compositional_safety/{direction_source}/compositional_safety_direction_vectors.npz`. **Default `direction_source = mssbench_vl`.** |
 | `adashield_s` | `AdaShieldSIntervention` | Prepends the AdaShield-S static defence prompt. Composed as `question + defence + question` (matching the original AdaShield repo). |
 
 ### Per-source comp_safety_shift expansion
@@ -987,6 +1057,11 @@ evaluation/results/{model_short}/{benchmark}/{intervention}/
 └── asr_summary_eval.json        # MSSBench only: ASR filtered to eval-split ids
 ```
 
+**Note:** Vanilla responses also exist at `data/{benchmark_dir}/{model}/responses/vanilla/responses.json`
+(written by `prepare_data.py`). The `evaluation/results/` copy is the
+authoritative source for ASR scoring; the `data/` copy is the baseline
+data artifact used by the diagnostic pipeline.
+
 The intervention dir naming reflects the source for `comp_safety_shift`:
 `comp_safety_shift_holisafe_tt/`, `comp_safety_shift_mssbench_vl/`, etc.
 The bare `comp_safety_shift/` directory is legacy (pre-refactor) and
@@ -1029,7 +1104,7 @@ python -c "from src.dataset import load_holisafe, inspect_schema; entries, base 
 
 ### Count Cached Activations
 ```bash
-find data/holisafe-bench/activations/llava-1.5-7b-hf -name "*.npz" | wc -l
+find data/holisafe-bench/llava-1.5-7b-hf/activations -name "*.npz" | wc -l
 ```
 
 ### Monitor GPU During Extraction
