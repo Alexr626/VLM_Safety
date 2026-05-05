@@ -143,12 +143,26 @@ class CompSafetyShiftIntervention(InterventionBase):
             LLaVAWrapper, ShareGPT4VWrapper, Qwen2VLWrapper, QwenVLWrapper,
         )
         if isinstance(wrapper, LLaVAWrapper):
-            return wrapper.model.language_model.model.layers[transformer_idx]
+            # transformers ≥ 4.45 flattened LlavaForConditionalGeneration so
+            # `language_model` IS the LlamaModel (with `.layers` directly).
+            # Older transformers had `language_model` = LlamaForCausalLM with
+            # `.model.layers`. Support both layouts.
+            lm = wrapper.model.language_model
+            if hasattr(lm, "layers"):
+                return lm.layers[transformer_idx]
+            return lm.model.layers[transformer_idx]
         if isinstance(wrapper, ShareGPT4VWrapper):
-            return wrapper.model.model.layers[transformer_idx]
+            # Same dual-layout concern: model is LlamaForCausalLM in older
+            # transformers (.model.layers), or LlamaModel in newer (.layers).
+            inner = wrapper.model
+            if hasattr(inner, "layers"):
+                return inner.layers[transformer_idx]
+            return inner.model.layers[transformer_idx]
         if isinstance(wrapper, Qwen2VLWrapper):
-            # transformers >= 4.45 layout: model.model.layers
-            return wrapper.model.model.layers[transformer_idx]
+            inner = wrapper.model
+            if hasattr(inner, "layers"):
+                return inner.layers[transformer_idx]
+            return inner.model.layers[transformer_idx]
         if isinstance(wrapper, QwenVLWrapper):
             # Qwen-VL custom code: GPT-style transformer.h
             return wrapper.model.transformer.h[transformer_idx]

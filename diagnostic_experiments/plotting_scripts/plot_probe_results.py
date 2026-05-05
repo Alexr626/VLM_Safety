@@ -247,7 +247,7 @@ def main():
         fig.tight_layout()
         sub = out_dir / f"accuracy_curves_{modality}"
         sub.mkdir(parents=True, exist_ok=True)
-        _save(fig, str(Path(f"accuracy_curves_{modality}") / f"{probe}.png"))
+        _save(fig, str(Path(f"accuracy_curves_{modality}") / f"{probe}_eval_{modality}.png"))
 
     for probe in present_probes:
         _plot_probe_curves(probe, present_tests_tt, "tt")
