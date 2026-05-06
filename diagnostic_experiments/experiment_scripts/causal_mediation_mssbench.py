@@ -3,27 +3,29 @@
 FCCT-style causal mediation analysis on MSSBench paired SSS/SSU images.
 
 For each MSSBench training-split chat stem:
-  * Pass 1 (clean):     forward(SSS image, query)  → cache last-pos activation
-                         at every (layer, component) cell, record P_clean(yes).
-  * Pass 2 (corrupted): forward(corrupt_image, query)  → record P_corrupted(yes).
-  * Pass 3 (patched):   for each of n_layers × 3 cells, run forward(corrupt_image,
-                         query) with a single hook that overwrites the
-                         submodule's last-position output with the cached
-                         clean activation. Record P_patched[L, c].
+  * Pass 1 (safe):    forward(SSS image, query)  → cache last-pos activation
+                       at every (layer, component) cell, record P_safe(yes).
+  * Pass 2 (unsafe):  forward(unsafe_image, query)  → record P_unsafe(yes).
+  * Pass 3 (patched): for each of n_layers × 3 cells, run forward(unsafe_image,
+                       query) with a single hook that overwrites the
+                       submodule's last-position output with the cached
+                       safe activation. Record P_patched[L, c].
 
-Two corruption modes (`--corrupt_mode`):
-  * `paired_ssu` (default): the corrupted image is the in-stem SSU variant —
+Three ablation modes (`--ablation_mode`):
+  * `paired_ssu` (default): the unsafe-pass image is the in-stem SSU variant —
     the standard FCCT setup measuring compositional safety mediation.
-  * `random_ssu`: the corrupted image is the SSU variant from a *different*
+  * `random_ssu`: the unsafe-pass image is the SSU variant from a *different*
     randomly-chosen training-split stem. This is a control: any recovery
     effect is due to generic image-swap perturbation rather than
     safety-relevant cross-modal context, since the out-of-stem SSU image
     is only "unsafe" in the context of its own stem's query.
+  * `blank`: the unsafe-pass image is a solid-white blank image (control for
+    visual content vs no content).
 
 The metric is layer-wise Recovery Rate:
-    RR[L, c] = (P_patched[L, c] - P_corrupted) / (P_clean - P_corrupted)
+    RR[L, c] = (P_patched[L, c] - P_unsafe) / (P_safe - P_unsafe)
 
-A pair is dropped from the aggregate if |P_clean - P_corrupted| < eps,
+A pair is dropped from the aggregate if |P_safe - P_unsafe| < eps,
 since the metric is undefined / extremely unstable in that regime.
 
 Tier filter (`--tier {top, bottom, all}` + `--tier_pct`) selects which
@@ -81,11 +83,11 @@ def parse_args():
     p.add_argument("--seed", type=int, default=42,
                    help="Used for per-stem q_idx selection.")
     p.add_argument("--rr_denominator_eps", type=float, default=0.02,
-                   help="Drop pairs with |P_clean - P_corrupted| < eps "
+                   help="Drop pairs with |P_safe - P_unsafe| < eps "
                         "from the RR aggregate.")
     p.add_argument("--preflight_n", type=int, default=30,
-                   help="Number of pairs to use for the preflight P_clean - "
-                        "P_corrupted gap check.")
+                   help="Number of pairs to use for the preflight P_safe - "
+                        "P_unsafe gap check.")
     p.add_argument("--preflight_threshold", type=float, default=0.05,
                    help="Median gap threshold below which a warning is logged.")
     p.add_argument("--output_dir", default=None,
@@ -99,7 +101,7 @@ def parse_args():
                    help="Cap on number of pairs (for smoke testing).")
     p.add_argument("--torch_dtype", default="float16",
                    choices=["float16", "bfloat16", "float32"])
-    p.add_argument("--corrupt_mode", default="paired_ssu",
+    p.add_argument("--ablation_mode", default="paired_ssu",
                    choices=["paired_ssu", "random_ssu", "blank"],
                    help="'paired_ssu': use the in-stem SSU image (standard). "
                         "'random_ssu': use an SSU image from a random different "
@@ -146,19 +148,19 @@ def _make_blank_image(size: Tuple[int, int] = (336, 336)):
 
 
 def _build_pairs(chosen_stem_recs: List[dict], all_samples: List[dict],
-                 seed: int, corrupt_mode: str = "paired_ssu") -> List[dict]:
+                 seed: int, ablation_mode: str = "paired_ssu") -> List[dict]:
     """For each chosen stem, pick one random q_idx and return the matched
-    SSS sample + corrupt image.
+    SSS sample + unsafe-pass image.
 
-    corrupt_mode controls what `corrupt_sample` holds:
+    ablation_mode controls what `unsafe_sample` holds:
       * "paired_ssu": the in-stem SSU sample (standard FCCT).
       * "random_ssu": the SSU sample from a different random train-split stem.
       * "blank": a synthetic dict with a solid-white image_pil
                  (control for visual content vs no content).
 
     Returns a list of dicts:
-      { rec_idx, q_idx, type, similarity, sss_sample, corrupt_sample,
-        corrupt_source_rec_idx }
+      { rec_idx, q_idx, type, similarity, sss_sample, unsafe_sample,
+        unsafe_source_rec_idx }
     """
     by_rec: Dict[int, Dict[str, dict]] = {}
     for s in all_samples:
@@ -168,7 +170,7 @@ def _build_pairs(chosen_stem_recs: List[dict], all_samples: List[dict],
     rng = random.Random(seed)
     pairs = []
     chosen_rec_idxs = [rec["rec_idx"] for rec in chosen_stem_recs]
-    blank_img = _make_blank_image() if corrupt_mode == "blank" else None
+    blank_img = _make_blank_image() if ablation_mode == "blank" else None
 
     for rec in chosen_stem_recs:
         rec_idx = rec["rec_idx"]
@@ -185,28 +187,28 @@ def _build_pairs(chosen_stem_recs: List[dict], all_samples: List[dict],
             continue
         q = rng.choice(common_q)
 
-        if corrupt_mode == "paired_ssu":
-            corrupt_sample = ssu_by_q[q]
-            corrupt_source = rec_idx
-        elif corrupt_mode == "random_ssu":
+        if ablation_mode == "paired_ssu":
+            unsafe_sample = ssu_by_q[q]
+            unsafe_source = rec_idx
+        elif ablation_mode == "random_ssu":
             # Pick SSU image from a different stem.
             other_recs = [r for r in chosen_rec_idxs if r != rec_idx]
             if not other_recs:
-                corrupt_sample = ssu_by_q[q]  # fallback if only 1 stem
-                corrupt_source = rec_idx
+                unsafe_sample = ssu_by_q[q]  # fallback if only 1 stem
+                unsafe_source = rec_idx
             else:
                 donor_rec = rng.choice(other_recs)
                 donor_bucket = by_rec.get(donor_rec, {})
                 donor_ssu_list = donor_bucket.get("SSU", [])
                 if not donor_ssu_list:
-                    corrupt_sample = ssu_by_q[q]
-                    corrupt_source = rec_idx
+                    unsafe_sample = ssu_by_q[q]
+                    unsafe_source = rec_idx
                 else:
-                    corrupt_sample = rng.choice(donor_ssu_list)
-                    corrupt_source = donor_rec
+                    unsafe_sample = rng.choice(donor_ssu_list)
+                    unsafe_source = donor_rec
         else:  # blank
-            corrupt_sample = {"image_pil": blank_img, "id": "blank", "text": ""}
-            corrupt_source = -1
+            unsafe_sample = {"image_pil": blank_img, "id": "blank", "text": ""}
+            unsafe_source = -1
 
         pairs.append({
             "rec_idx": rec_idx,
@@ -214,8 +216,8 @@ def _build_pairs(chosen_stem_recs: List[dict], all_samples: List[dict],
             "type": rec.get("type", "unknown"),
             "similarity": float(rec["cosine_similarity"]),
             "sss_sample": sss_by_q[q],
-            "corrupt_sample": corrupt_sample,
-            "corrupt_source_rec_idx": corrupt_source,
+            "unsafe_sample": unsafe_sample,
+            "unsafe_source_rec_idx": unsafe_source,
         })
     return pairs
 
@@ -223,20 +225,20 @@ def _build_pairs(chosen_stem_recs: List[dict], all_samples: List[dict],
 # ── Per-pair mediation ─────────────────────────────────────────────────────
 
 def _run_one_pair(wrapper, dispatch, pair, yes_ids):
-    """Returns (P_clean, P_corrupted, P_patched[L,3], seq_len_clean, seq_len_corrupt)."""
+    """Returns (P_safe, P_unsafe, P_patched[L,3], seq_len_safe, seq_len_unsafe)."""
     sss = pair["sss_sample"]
-    corrupt = pair["corrupt_sample"]
+    unsafe = pair["unsafe_sample"]
     text = f"{PROMPT_PREFIX}\n\n{sss['text']}"
 
-    # Pass 1: capture + compute clean prob.
+    # Pass 1: capture safe activations + compute P_safe.
     cached, _ = capture_clean_activations(
         wrapper, dispatch, sss["image_pil"], text)
-    p_clean, seq_clean = compute_yes_prob(
+    p_safe, seq_safe = compute_yes_prob(
         wrapper, sss["image_pil"], text, yes_ids)
 
-    # Pass 2: corrupted baseline.
-    p_corrupt, seq_corrupt = compute_yes_prob(
-        wrapper, corrupt["image_pil"], text, yes_ids)
+    # Pass 2: unsafe baseline.
+    p_unsafe, seq_unsafe = compute_yes_prob(
+        wrapper, unsafe["image_pil"], text, yes_ids)
 
     # Pass 3: patched sweep.
     n_layers = dispatch.n_layers
@@ -249,8 +251,8 @@ def _run_one_pair(wrapper, dispatch, pair, yes_ids):
                 continue
             with patch_hook_ctx(wrapper, dispatch, L, comp, cached_act):
                 p_patched[L, ci], _ = compute_yes_prob(
-                    wrapper, corrupt["image_pil"], text, yes_ids)
-    return p_clean, p_corrupt, p_patched, seq_clean, seq_corrupt
+                    wrapper, unsafe["image_pil"], text, yes_ids)
+    return p_safe, p_unsafe, p_patched, seq_safe, seq_unsafe
 
 
 # ── Aggregation + bootstrap SE ─────────────────────────────────────────────
@@ -265,21 +267,21 @@ def _bootstrap_se(values: np.ndarray, n_boot: int, rng: np.random.Generator) -> 
     return float(boots.std(ddof=1))
 
 
-def _aggregate(per_pair_p_clean, per_pair_p_corrupt, per_pair_p_patched,
+def _aggregate(per_pair_p_safe, per_pair_p_unsafe, per_pair_p_patched,
                eps: float, n_boot: int, seed: int):
     """Compute mean / median / SE of RR per (layer, component), filtering
     pairs whose denominator is below eps. Returns (aggregate_dict, n_kept)."""
-    denom = per_pair_p_clean - per_pair_p_corrupt
+    denom = per_pair_p_safe - per_pair_p_unsafe
     keep = np.abs(denom) >= eps
     n_kept = int(keep.sum())
     if n_kept < 1:
         return None, 0
 
-    p_clean_k = per_pair_p_clean[keep]
-    p_corrupt_k = per_pair_p_corrupt[keep]
+    p_safe_k = per_pair_p_safe[keep]
+    p_unsafe_k = per_pair_p_unsafe[keep]
     p_patch_k = per_pair_p_patched[keep]  # (n_kept, n_layers, 3)
-    denom_k = (p_clean_k - p_corrupt_k)[:, None, None]
-    rr = (p_patch_k - p_corrupt_k[:, None, None]) / denom_k  # (n_kept, L, 3)
+    denom_k = (p_safe_k - p_unsafe_k)[:, None, None]
+    rr = (p_patch_k - p_unsafe_k[:, None, None]) / denom_k  # (n_kept, L, 3)
 
     rng = np.random.default_rng(seed)
     n_layers = rr.shape[1]
@@ -299,13 +301,13 @@ def _aggregate(per_pair_p_clean, per_pair_p_corrupt, per_pair_p_patched,
 
 # ── Checkpointing ──────────────────────────────────────────────────────────
 
-def _save_checkpoint(path: Path, pair_keys, p_clean, p_corrupt, p_patched,
+def _save_checkpoint(path: Path, pair_keys, p_safe, p_unsafe, p_patched,
                      similarity, types, yes_ids):
     path.parent.mkdir(parents=True, exist_ok=True)
     np.savez(path,
              pair_keys=np.array(pair_keys, dtype=object),
-             P_clean=np.asarray(p_clean, dtype=np.float32),
-             P_corrupted=np.asarray(p_corrupt, dtype=np.float32),
+             P_safe=np.asarray(p_safe, dtype=np.float32),
+             P_unsafe=np.asarray(p_unsafe, dtype=np.float32),
              P_patched=np.asarray(p_patched, dtype=np.float32),
              similarity=np.asarray(similarity, dtype=np.float32),
              type=np.array(types, dtype=object),
@@ -316,10 +318,14 @@ def _load_checkpoint(path: Path):
     if not path.exists():
         return None
     with np.load(path, allow_pickle=True) as z:
+        keys = z.files
+        # Backward-compat: legacy checkpoints used P_clean / P_corrupted.
+        p_safe = z["P_safe"] if "P_safe" in keys else z["P_clean"]
+        p_unsafe = z["P_unsafe"] if "P_unsafe" in keys else z["P_corrupted"]
         return {
             "pair_keys": list(z["pair_keys"]),
-            "P_clean": list(z["P_clean"]),
-            "P_corrupted": list(z["P_corrupted"]),
+            "P_safe": list(p_safe),
+            "P_unsafe": list(p_unsafe),
             "P_patched": list(z["P_patched"]),
             "similarity": list(z["similarity"]),
             "type": list(z["type"]),
@@ -355,7 +361,7 @@ def main():
 
     tier_label = _tier_label(args.tier, args.tier_pct)
     _mode_suffixes = {"paired_ssu": "", "random_ssu": "_random", "blank": "_blank"}
-    mode_suffix = _mode_suffixes[args.corrupt_mode]
+    mode_suffix = _mode_suffixes[args.ablation_mode]
     final_npz = artifacts_dir / f"per_pair_probs_{tier_label}{mode_suffix}.npz"
     ckpt_npz = artifacts_dir / f"per_pair_probs_{tier_label}{mode_suffix}.checkpoint.npz"
     rr_json = results_dir / f"recovery_rates_{tier_label}{mode_suffix}.json"
@@ -380,20 +386,20 @@ def main():
     }, results_dir / f"image_similarity_used_{tier_label}.json")
 
     # ── Build pairs (samples loaded with images; one q_idx per stem) ───
-    print(f"Loading MSSBench samples (corrupt_mode={args.corrupt_mode}) ...")
+    print(f"Loading MSSBench samples (ablation_mode={args.ablation_mode}) ...")
     all_samples = load_mssbench()
     pairs = _build_pairs(chosen_stem_recs, all_samples, args.seed,
-                         corrupt_mode=args.corrupt_mode)
+                         ablation_mode=args.ablation_mode)
     if args.limit is not None:
         pairs = pairs[: args.limit]
-    print(f"Built {len(pairs)} pairs (corrupt_mode={args.corrupt_mode}).")
+    print(f"Built {len(pairs)} pairs (ablation_mode={args.ablation_mode}).")
     if not pairs:
         raise RuntimeError("No usable pairs after stem filtering.")
 
     # ── Resume from checkpoint or final, if present ─────────────────────
     completed_keys: set = set()
     pair_keys: list = []
-    p_clean_list, p_corrupt_list, p_patched_list = [], [], []
+    p_safe_list, p_unsafe_list, p_patched_list = [], [], []
     sim_list, type_list = [], []
 
     for resume_path in (final_npz, ckpt_npz):
@@ -401,8 +407,8 @@ def main():
         if loaded:
             print(f"Resuming from {resume_path}")
             pair_keys = list(loaded["pair_keys"])
-            p_clean_list = list(loaded["P_clean"])
-            p_corrupt_list = list(loaded["P_corrupted"])
+            p_safe_list = list(loaded["P_safe"])
+            p_unsafe_list = list(loaded["P_unsafe"])
             p_patched_list = list(loaded["P_patched"])
             sim_list = list(loaded["similarity"])
             type_list = list(loaded["type"])
@@ -424,24 +430,24 @@ def main():
     print(f"Model: {dispatch.n_layers} layers × {len(COMPONENTS)} components "
           f"= {dispatch.n_layers * len(COMPONENTS)} cells per pair")
 
-    # ── Preflight: clean/corrupt gap check on a random sample ────────────
+    # ── Preflight: safe/unsafe gap check on a random sample ─────────────
     todo_pairs = [p for p in pairs if _pair_key_str(p) not in completed_keys]
     if not preflight_json.exists() and len(todo_pairs) > 0:
         rng = random.Random(args.seed + 1)
         pre_n = min(args.preflight_n, len(todo_pairs))
         sample = rng.sample(todo_pairs, pre_n)
-        print(f"Preflight: P_clean - P_corrupted on {pre_n} pairs ...")
+        print(f"Preflight: P_safe - P_unsafe on {pre_n} pairs ...")
         gaps = []
         per_pair_pre = []
         for p in sample:
             text = f"{PROMPT_PREFIX}\n\n{p['sss_sample']['text']}"
-            pc, _ = compute_yes_prob(wrapper, p['sss_sample']['image_pil'], text, yes_ids)
-            pcorr, _ = compute_yes_prob(wrapper, p['corrupt_sample']['image_pil'], text, yes_ids)
-            gap = pc - pcorr
+            ps, _ = compute_yes_prob(wrapper, p['sss_sample']['image_pil'], text, yes_ids)
+            pu, _ = compute_yes_prob(wrapper, p['unsafe_sample']['image_pil'], text, yes_ids)
+            gap = ps - pu
             gaps.append(gap)
             per_pair_pre.append({
                 "rec_idx": p["rec_idx"], "q_idx": p["q_idx"],
-                "P_clean": pc, "P_corrupted": pcorr, "gap": gap,
+                "P_safe": ps, "P_unsafe": pu, "gap": gap,
             })
         median_gap = float(np.median(gaps))
         save_json({
@@ -468,18 +474,18 @@ def main():
         key = _pair_key_str(pair)
         t_pair = time.time()
         try:
-            pc, pcorr, pp, seq_c, seq_cor = _run_one_pair(
+            ps, pu, pp, seq_s, seq_u = _run_one_pair(
                 wrapper, dispatch, pair, yes_ids)
         except Exception as e:
             print(f"  [skip {key}] {type(e).__name__}: {e}")
             continue
-        if seq_c != seq_cor:
-            print(f"  [warn {key}] seq_len mismatch: clean={seq_c}, "
-                  f"corrupt={seq_cor} — patches may be miscalibrated. Skipping.")
+        if seq_s != seq_u:
+            print(f"  [warn {key}] seq_len mismatch: safe={seq_s}, "
+                  f"unsafe={seq_u} — patches may be miscalibrated. Skipping.")
             continue
         pair_keys.append(key)
-        p_clean_list.append(pc)
-        p_corrupt_list.append(pcorr)
+        p_safe_list.append(ps)
+        p_unsafe_list.append(pu)
         p_patched_list.append(pp)
         sim_list.append(pair["similarity"])
         type_list.append(pair["type"])
@@ -487,12 +493,12 @@ def main():
         rate = (i + 1) / max(1.0, time.time() - t_start)
         eta_s = (len(todo_pairs) - i - 1) / max(rate, 1e-6)
         print(f"  [{i + 1}/{len(todo_pairs)}] {key}  "
-              f"P_clean={pc:.3f} P_corrupt={pcorr:.3f}  "
+              f"P_safe={ps:.3f} P_unsafe={pu:.3f}  "
               f"({elapsed:.1f}s/pair, ETA {eta_s / 60:.1f}m)")
 
         if (i + 1) % args.checkpoint_every == 0:
-            _save_checkpoint(ckpt_npz, pair_keys, p_clean_list,
-                             p_corrupt_list, p_patched_list,
+            _save_checkpoint(ckpt_npz, pair_keys, p_safe_list,
+                             p_unsafe_list, p_patched_list,
                              sim_list, type_list, yes_ids)
 
     # ── Final write ─────────────────────────────────────────────────────
@@ -500,25 +506,25 @@ def main():
         print("No completed pairs — nothing to write.")
         return
 
-    p_clean_arr = np.asarray(p_clean_list, dtype=np.float32)
-    p_corrupt_arr = np.asarray(p_corrupt_list, dtype=np.float32)
+    p_safe_arr = np.asarray(p_safe_list, dtype=np.float32)
+    p_unsafe_arr = np.asarray(p_unsafe_list, dtype=np.float32)
     p_patched_arr = np.asarray(p_patched_list, dtype=np.float32)
     sim_arr = np.asarray(sim_list, dtype=np.float32)
     type_arr = np.array(type_list, dtype=object)
 
-    _save_checkpoint(final_npz, pair_keys, p_clean_arr, p_corrupt_arr,
+    _save_checkpoint(final_npz, pair_keys, p_safe_arr, p_unsafe_arr,
                      p_patched_arr, sim_arr, type_arr, yes_ids)
     if ckpt_npz.exists():
         ckpt_npz.unlink()
 
     aggregate, n_kept = _aggregate(
-        p_clean_arr, p_corrupt_arr, p_patched_arr,
+        p_safe_arr, p_unsafe_arr, p_patched_arr,
         eps=args.rr_denominator_eps, n_boot=args.n_boot, seed=args.seed)
 
     rr_summary = {
         "model": args.model,
         "model_short": model_short,
-        "corrupt_mode": args.corrupt_mode,
+        "ablation_mode": args.ablation_mode,
         "tier": args.tier,
         "tier_pct": args.tier_pct,
         "tier_label": tier_label + mode_suffix,

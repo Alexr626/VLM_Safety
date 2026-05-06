@@ -69,7 +69,9 @@ def _plot_single(data: dict, out_path: Path, show_median: bool):
         ax.set_title(COMPONENT_TITLES.get(comp, comp), fontsize=10)
         ax.legend(fontsize=8, loc="best")
     axes[-1].set_xlabel("Layer index")
-    title = (f"{data['model_short']} — tier={data['tier_label']}, "
+    label = data.get("tier_label", "")
+    label_str = f"{label}, " if label else ""
+    title = (f"{data['model_short']} — {label_str}"
              f"n_pairs={data['n_pairs']} "
              f"(kept after eps={data['rr_denominator_eps']}: "
              f"{data['n_pairs_kept_after_eps']})")
@@ -96,7 +98,8 @@ def _plot_overlay(datas: List[dict], out_path: Path):
             per = d["per_layer"][comp]
             means = np.asarray(per["mean"], dtype=float)
             ses = np.asarray(per["se"], dtype=float)
-            label = f"{d['tier_label']} (n={d['n_pairs_kept_after_eps']})"
+            tier = d.get("tier_label", "") or "default"
+            label = f"{tier} (n={d['n_pairs_kept_after_eps']})"
             ax.plot(layers, means, color=color, linewidth=1.6, marker="o",
                     markersize=3, label=label)
             ax.fill_between(layers, means - ses, means + ses,
@@ -105,7 +108,7 @@ def _plot_overlay(datas: List[dict], out_path: Path):
         ax.set_title(COMPONENT_TITLES.get(comp, comp), fontsize=10)
         ax.legend(fontsize=8, loc="best")
     axes[-1].set_xlabel("Layer index")
-    fig.suptitle(f"{datas[0]['model_short']} — recovery rate by tier",
+    fig.suptitle(f"{datas[0]['model_short']} — recovery rate (overlay)",
                  fontsize=11)
     fig.tight_layout(rect=(0, 0, 1, 0.97))
     fig.savefig(out_path)
@@ -126,10 +129,12 @@ def main():
     plottable = []
     for d in datas:
         if d.get("per_layer") is None:
-            print(f"  [skip] {d['tier_label']}: per_layer is null "
+            print(f"  [skip] {d.get('tier_label', '')}: per_layer is null "
                   f"(n_pairs_kept_after_eps={d.get('n_pairs_kept_after_eps', 0)})")
             continue
-        out_path = out_dir / f"recovery_rate_{d['tier_label']}.png"
+        label = d.get("tier_label", "")
+        fname = f"recovery_rate_{label}.png" if label else "recovery_rate.png"
+        out_path = out_dir / fname
         _plot_single(d, out_path, args.show_median)
         plottable.append(d)
 
