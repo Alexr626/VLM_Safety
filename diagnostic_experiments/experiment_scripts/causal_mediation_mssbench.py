@@ -5,11 +5,20 @@ FCCT-style causal mediation analysis on MSSBench paired SSS/SSU images.
 For each MSSBench training-split chat stem:
   * Pass 1 (clean):     forward(SSS image, query)  → cache last-pos activation
                          at every (layer, component) cell, record P_clean(yes).
-  * Pass 2 (corrupted): forward(SSU image, query)  → record P_corrupted(yes).
-  * Pass 3 (patched):   for each of n_layers × 3 cells, run forward(SSU image,
+  * Pass 2 (corrupted): forward(corrupt_image, query)  → record P_corrupted(yes).
+  * Pass 3 (patched):   for each of n_layers × 3 cells, run forward(corrupt_image,
                          query) with a single hook that overwrites the
                          submodule's last-position output with the cached
                          clean activation. Record P_patched[L, c].
+
+Two corruption modes (`--corrupt_mode`):
+  * `paired_ssu` (default): the corrupted image is the in-stem SSU variant —
+    the standard FCCT setup measuring compositional safety mediation.
+  * `random_ssu`: the corrupted image is the SSU variant from a *different*
+    randomly-chosen training-split stem. This is a control: any recovery
+    effect is due to generic image-swap perturbation rather than
+    safety-relevant cross-modal context, since the out-of-stem SSU image
+    is only "unsafe" in the context of its own stem's query.
 
 The metric is layer-wise Recovery Rate:
     RR[L, c] = (P_patched[L, c] - P_corrupted) / (P_clean - P_corrupted)
@@ -24,10 +33,10 @@ expected to show stronger image-mediated safety swings and are the
 clean signal; high-similarity stems are the robustness check.
 
 Outputs (under `diagnostic_experiments/{model_short}/causal_mediation/outputs/`):
-  results/recovery_rates_{tier}{pct?}.json     — aggregate stats + bootstrap SE
-  results/preflight_yes_prob_check.json        — preflight gap stats
-  artifacts/per_pair_probs_{tier}{pct?}.npz    — full per-pair triples
-  artifacts/per_pair_probs_{tier}{pct?}.checkpoint.npz  — mid-run checkpoint
+  results/recovery_rates_{tier}{pct?}[_random].json     — aggregate stats + bootstrap SE
+  results/preflight_yes_prob_check[_random].json        — preflight gap stats
+  artifacts/per_pair_probs_{tier}{pct?}[_random].npz    — full per-pair triples
+  artifacts/per_pair_probs_{tier}{pct?}[_random].checkpoint.npz  — mid-run checkpoint
 """
 
 import argparse
@@ -90,6 +99,13 @@ def parse_args():
                    help="Cap on number of pairs (for smoke testing).")
     p.add_argument("--torch_dtype", default="float16",
                    choices=["float16", "bfloat16", "float32"])
+    p.add_argument("--corrupt_mode", default="paired_ssu",
+                   choices=["paired_ssu", "random_ssu", "blank"],
+                   help="'paired_ssu': use the in-stem SSU image (standard). "
+                        "'random_ssu': use an SSU image from a random different "
+                        "train-split stem (control for generic image-swap). "
+                        "'blank': use a solid white image (control for any "
+                        "visual content vs no content).")
     return p.parse_args()
 
 
@@ -123,13 +139,26 @@ def _tier_label(tier: str, tier_pct: float) -> str:
 
 # ── Pair construction ──────────────────────────────────────────────────────
 
+def _make_blank_image(size: Tuple[int, int] = (336, 336)):
+    """Create a solid white PIL image for the blank-image control."""
+    from PIL import Image as _Image
+    return _Image.new("RGB", size, color=(255, 255, 255))
+
+
 def _build_pairs(chosen_stem_recs: List[dict], all_samples: List[dict],
-                 seed: int) -> List[dict]:
+                 seed: int, corrupt_mode: str = "paired_ssu") -> List[dict]:
     """For each chosen stem, pick one random q_idx and return the matched
-    SSS/SSU sample dicts.
+    SSS sample + corrupt image.
+
+    corrupt_mode controls what `corrupt_sample` holds:
+      * "paired_ssu": the in-stem SSU sample (standard FCCT).
+      * "random_ssu": the SSU sample from a different random train-split stem.
+      * "blank": a synthetic dict with a solid-white image_pil
+                 (control for visual content vs no content).
 
     Returns a list of dicts:
-      { rec_idx, q_idx, type, similarity, sss_sample, ssu_sample }
+      { rec_idx, q_idx, type, similarity, sss_sample, corrupt_sample,
+        corrupt_source_rec_idx }
     """
     by_rec: Dict[int, Dict[str, dict]] = {}
     for s in all_samples:
@@ -138,6 +167,9 @@ def _build_pairs(chosen_stem_recs: List[dict], all_samples: List[dict],
 
     rng = random.Random(seed)
     pairs = []
+    chosen_rec_idxs = [rec["rec_idx"] for rec in chosen_stem_recs]
+    blank_img = _make_blank_image() if corrupt_mode == "blank" else None
+
     for rec in chosen_stem_recs:
         rec_idx = rec["rec_idx"]
         bucket = by_rec.get(rec_idx, {})
@@ -152,13 +184,38 @@ def _build_pairs(chosen_stem_recs: List[dict], all_samples: List[dict],
         if not common_q:
             continue
         q = rng.choice(common_q)
+
+        if corrupt_mode == "paired_ssu":
+            corrupt_sample = ssu_by_q[q]
+            corrupt_source = rec_idx
+        elif corrupt_mode == "random_ssu":
+            # Pick SSU image from a different stem.
+            other_recs = [r for r in chosen_rec_idxs if r != rec_idx]
+            if not other_recs:
+                corrupt_sample = ssu_by_q[q]  # fallback if only 1 stem
+                corrupt_source = rec_idx
+            else:
+                donor_rec = rng.choice(other_recs)
+                donor_bucket = by_rec.get(donor_rec, {})
+                donor_ssu_list = donor_bucket.get("SSU", [])
+                if not donor_ssu_list:
+                    corrupt_sample = ssu_by_q[q]
+                    corrupt_source = rec_idx
+                else:
+                    corrupt_sample = rng.choice(donor_ssu_list)
+                    corrupt_source = donor_rec
+        else:  # blank
+            corrupt_sample = {"image_pil": blank_img, "id": "blank", "text": ""}
+            corrupt_source = -1
+
         pairs.append({
             "rec_idx": rec_idx,
             "q_idx": q,
             "type": rec.get("type", "unknown"),
             "similarity": float(rec["cosine_similarity"]),
             "sss_sample": sss_by_q[q],
-            "ssu_sample": ssu_by_q[q],
+            "corrupt_sample": corrupt_sample,
+            "corrupt_source_rec_idx": corrupt_source,
         })
     return pairs
 
@@ -168,7 +225,7 @@ def _build_pairs(chosen_stem_recs: List[dict], all_samples: List[dict],
 def _run_one_pair(wrapper, dispatch, pair, yes_ids):
     """Returns (P_clean, P_corrupted, P_patched[L,3], seq_len_clean, seq_len_corrupt)."""
     sss = pair["sss_sample"]
-    ssu = pair["ssu_sample"]
+    corrupt = pair["corrupt_sample"]
     text = f"{PROMPT_PREFIX}\n\n{sss['text']}"
 
     # Pass 1: capture + compute clean prob.
@@ -179,7 +236,7 @@ def _run_one_pair(wrapper, dispatch, pair, yes_ids):
 
     # Pass 2: corrupted baseline.
     p_corrupt, seq_corrupt = compute_yes_prob(
-        wrapper, ssu["image_pil"], text, yes_ids)
+        wrapper, corrupt["image_pil"], text, yes_ids)
 
     # Pass 3: patched sweep.
     n_layers = dispatch.n_layers
@@ -192,7 +249,7 @@ def _run_one_pair(wrapper, dispatch, pair, yes_ids):
                 continue
             with patch_hook_ctx(wrapper, dispatch, L, comp, cached_act):
                 p_patched[L, ci], _ = compute_yes_prob(
-                    wrapper, ssu["image_pil"], text, yes_ids)
+                    wrapper, corrupt["image_pil"], text, yes_ids)
     return p_clean, p_corrupt, p_patched, seq_clean, seq_corrupt
 
 
@@ -297,10 +354,12 @@ def main():
         d.mkdir(parents=True, exist_ok=True)
 
     tier_label = _tier_label(args.tier, args.tier_pct)
-    final_npz = artifacts_dir / f"per_pair_probs_{tier_label}.npz"
-    ckpt_npz = artifacts_dir / f"per_pair_probs_{tier_label}.checkpoint.npz"
-    rr_json = results_dir / f"recovery_rates_{tier_label}.json"
-    preflight_json = results_dir / "preflight_yes_prob_check.json"
+    _mode_suffixes = {"paired_ssu": "", "random_ssu": "_random", "blank": "_blank"}
+    mode_suffix = _mode_suffixes[args.corrupt_mode]
+    final_npz = artifacts_dir / f"per_pair_probs_{tier_label}{mode_suffix}.npz"
+    ckpt_npz = artifacts_dir / f"per_pair_probs_{tier_label}{mode_suffix}.checkpoint.npz"
+    rr_json = results_dir / f"recovery_rates_{tier_label}{mode_suffix}.json"
+    preflight_json = results_dir / f"preflight_yes_prob_check{mode_suffix}.json"
 
     # ── Load similarity scores + select tier ────────────────────────────
     if not scores_path.exists():
@@ -321,12 +380,13 @@ def main():
     }, results_dir / f"image_similarity_used_{tier_label}.json")
 
     # ── Build pairs (samples loaded with images; one q_idx per stem) ───
-    print("Loading MSSBench samples ...")
+    print(f"Loading MSSBench samples (corrupt_mode={args.corrupt_mode}) ...")
     all_samples = load_mssbench()
-    pairs = _build_pairs(chosen_stem_recs, all_samples, args.seed)
+    pairs = _build_pairs(chosen_stem_recs, all_samples, args.seed,
+                         corrupt_mode=args.corrupt_mode)
     if args.limit is not None:
         pairs = pairs[: args.limit]
-    print(f"Built {len(pairs)} SSS/SSU pairs.")
+    print(f"Built {len(pairs)} pairs (corrupt_mode={args.corrupt_mode}).")
     if not pairs:
         raise RuntimeError("No usable pairs after stem filtering.")
 
@@ -376,7 +436,7 @@ def main():
         for p in sample:
             text = f"{PROMPT_PREFIX}\n\n{p['sss_sample']['text']}"
             pc, _ = compute_yes_prob(wrapper, p['sss_sample']['image_pil'], text, yes_ids)
-            pcorr, _ = compute_yes_prob(wrapper, p['ssu_sample']['image_pil'], text, yes_ids)
+            pcorr, _ = compute_yes_prob(wrapper, p['corrupt_sample']['image_pil'], text, yes_ids)
             gap = pc - pcorr
             gaps.append(gap)
             per_pair_pre.append({
@@ -458,9 +518,10 @@ def main():
     rr_summary = {
         "model": args.model,
         "model_short": model_short,
+        "corrupt_mode": args.corrupt_mode,
         "tier": args.tier,
         "tier_pct": args.tier_pct,
-        "tier_label": tier_label,
+        "tier_label": tier_label + mode_suffix,
         "n_pairs": int(len(pair_keys)),
         "n_pairs_kept_after_eps": n_kept,
         "rr_denominator_eps": args.rr_denominator_eps,
