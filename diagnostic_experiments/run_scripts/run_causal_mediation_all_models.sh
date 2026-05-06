@@ -18,7 +18,8 @@ set -e
 
 TIER_PCT="${TIER_PCT:-10}"
 TIERS="${TIERS:-top,bottom,all}"       # comma-separated (no spaces)
-ABLATION_MODE="${ABLATION_MODE:-paired_ssu}"  # paired_ssu | random_ssu | blank
+ABLATION_MODE="${ABLATION_MODE:-none}"  # none | random | blank
+PATCH_DIRECTION="${PATCH_DIRECTION:-to_unsafe}"  # to_unsafe | to_safe
 PREFLIGHT_N="${PREFLIGHT_N:-30}"
 DTYPE="${DTYPE:-float16}"
 LIMIT="${LIMIT:-}"
@@ -36,9 +37,10 @@ SCORES_PATH="$PROJECT_ROOT/data/mssbench/image_similarity/dinov2_similarity_scor
 
 echo "======================================================"
 echo " Causal Mediation — multi-model run"
-echo " models : $MODELS"
-echo " tiers  : $TIERS    tier_pct : $TIER_PCT"
-echo " dtype  : $DTYPE    limit    : ${LIMIT:-<none>}"
+echo " models     : $MODELS"
+echo " tiers      : $TIERS    tier_pct : $TIER_PCT"
+echo " ablation   : $ABLATION_MODE    patch_direction : $PATCH_DIRECTION"
+echo " dtype      : $DTYPE    limit    : ${LIMIT:-<none>}"
 echo "======================================================"
 
 # 1. DINOv2 similarities + similarity plots — once, model-independent.
@@ -67,6 +69,7 @@ for MODEL in $MODELS; do
     EXTRA_ARGS+=("PREFLIGHT_N=$PREFLIGHT_N")
     EXTRA_ARGS+=("DTYPE=$DTYPE")
     EXTRA_ARGS+=("ABLATION_MODE=$ABLATION_MODE")
+    EXTRA_ARGS+=("PATCH_DIRECTION=$PATCH_DIRECTION")
     EXTRA_ARGS+=("SKIP_SIMILARITY=1")
     if [ -n "$LIMIT" ]; then
         EXTRA_ARGS+=("LIMIT=$LIMIT")

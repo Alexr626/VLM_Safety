@@ -6,18 +6,21 @@
 # ablation in ABLATION_MODES, then plots a 3-panel RR curve per
 # ablation plus an overlay across ablations.
 #
-# Defaults: LLaVA-1.5-7B + ShareGPT4V-7B; modes = none, random_unsafe, no_text.
+# Defaults: LLaVA-1.5-7B + ShareGPT4V-7B; modes = none, random, prefix_only;
+#           patch_direction = to_unsafe (detect-unsafety).
 #
 # Usage:
 #   bash run_siuo_mediation.sh
 #   bash run_siuo_mediation.sh MODELS=llava-hf/llava-1.5-7b-hf
-#   bash run_siuo_mediation.sh ABLATION_MODES=none,random_unsafe
-#   bash run_siuo_mediation.sh LIMIT=2 ABLATION_MODES=none   # smoke test
+#   bash run_siuo_mediation.sh ABLATION_MODES=none,random
+#   bash run_siuo_mediation.sh PATCH_DIRECTION=to_safe          # overrefusal
+#   bash run_siuo_mediation.sh LIMIT=2 ABLATION_MODES=none      # smoke test
 # ============================================================
 set -e
 
 MODELS="${MODELS:-llava-hf/llava-1.5-7b-hf,Lin-Chen/ShareGPT4V-7B}"
-ABLATION_MODES="${ABLATION_MODES:-none,random_unsafe,no_text}"
+ABLATION_MODES="${ABLATION_MODES:-none,random,prefix_only}"
+PATCH_DIRECTION="${PATCH_DIRECTION:-to_unsafe}"  # to_unsafe | to_safe
 PREFLIGHT_N="${PREFLIGHT_N:-30}"
 DTYPE="${DTYPE:-float16}"
 LIMIT="${LIMIT:-}"
@@ -37,16 +40,17 @@ if [ -n "$LIMIT" ]; then
     LIMIT_FLAG="--limit $LIMIT"
 fi
 
-declare -A MODE_SUFFIX
-MODE_SUFFIX[none]=""
-MODE_SUFFIX[random_unsafe]="_random"
-MODE_SUFFIX[no_text]="_no_text"
+declare -A ABLATION_SUFFIX
+ABLATION_SUFFIX[none]=""
+ABLATION_SUFFIX[random]="_random"
+ABLATION_SUFFIX[prefix_only]="_prefix_only"
 
 echo "======================================================"
 echo " SIUO Causal Mediation"
-echo "   models : $MODELS_LIST"
-echo "   modes  : $MODES_LIST"
-echo "   limit  : ${LIMIT:-<none>}    dtype: $DTYPE"
+echo "   models           : $MODELS_LIST"
+echo "   ablation_modes   : $MODES_LIST"
+echo "   patch_direction  : $PATCH_DIRECTION"
+echo "   limit            : ${LIMIT:-<none>}    dtype: $DTYPE"
 echo "======================================================"
 
 for MODEL in $MODELS_LIST; do
@@ -60,15 +64,16 @@ for MODEL in $MODELS_LIST; do
     RR_FILES=()
     for MODE in $MODES_LIST; do
         echo ""
-        echo "=== SIUO mediation: model=$MODEL  ablation_mode=$MODE ==="
+        echo "=== SIUO mediation: model=$MODEL  ablation=$MODE  direction=$PATCH_DIRECTION ==="
         python "$DIAGNOSTIC_ROOT/experiment_scripts/causal_mediation_siuo.py" \
             --model "$MODEL" \
             --ablation_mode "$MODE" \
+            --patch_direction "$PATCH_DIRECTION" \
             --preflight_n "$PREFLIGHT_N" \
             --torch_dtype "$DTYPE" \
             $LIMIT_FLAG
-        SUFFIX="${MODE_SUFFIX[$MODE]:-}"
-        RR_FILES+=("$OUT_ROOT/results/recovery_rates${SUFFIX}.json")
+        ASUF="${ABLATION_SUFFIX[$MODE]:-}"
+        RR_FILES+=("$OUT_ROOT/results/recovery_rates${ASUF}_${PATCH_DIRECTION}.json")
     done
 
     if [ "$SKIP_PLOTS" = "0" ]; then
