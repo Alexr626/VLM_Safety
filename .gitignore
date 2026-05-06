@@ -44,6 +44,13 @@ data/holisafe-bench/README.md
 
 data/figstep/
 
+# SIUO: ignore raw dataset + per-model artifacts, but keep the LLM-generated
+# SSS counterparts checked in so teammates reproduce experiments against the
+# exact same SSS questions.
+data/siuo/*
+!data/siuo/.gitignore
+!data/siuo/siuo_sss.json
+
 
 # ── Editor ────────────────────────────────────────────
 .vscode/
