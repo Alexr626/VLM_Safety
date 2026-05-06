@@ -16,9 +16,10 @@
 # ============================================================
 set -e
 
-MODEL="${MODEL:-llava-hf/llava-1.5-7b-hf}"
-TIER_PCT="${TIER_PCT:-33}"
+MODEL="${MODEL:-Qwen/Qwen-VL-Chat}"
+TIER_PCT="${TIER_PCT:-10}"
 TIERS="${TIERS:-top,bottom,all}"       # comma-separated (no spaces)
+CORRUPT_MODE="${CORRUPT_MODE:-paired_ssu}"  # paired_ssu | random_ssu | blank
 PREFLIGHT_N="${PREFLIGHT_N:-30}"
 SKIP_SIMILARITY="${SKIP_SIMILARITY:-0}"
 SKIP_PLOTS="${SKIP_PLOTS:-0}"
@@ -39,7 +40,7 @@ SCORES_PATH="$PROJECT_ROOT/data/mssbench/image_similarity/dinov2_similarity_scor
 
 echo "======================================================"
 echo " Causal Mediation   model=$MODEL  tier_pct=$TIER_PCT"
-echo " tiers=$TIERS"
+echo " tiers=$TIERS  corrupt_mode=$CORRUPT_MODE"
 echo " out=$OUT_ROOT"
 echo "======================================================"
 
@@ -68,9 +69,16 @@ if [ -n "$LIMIT" ]; then
     LIMIT_FLAG="--limit $LIMIT"
 fi
 
+MODE_SUFFIX=""
+if [ "$CORRUPT_MODE" = "random_ssu" ]; then
+    MODE_SUFFIX="_random"
+elif [ "$CORRUPT_MODE" = "blank" ]; then
+    MODE_SUFFIX="_blank"
+fi
+
 RR_FILES=()
 for TIER in $TIERS; do
-    echo "=== [3/4] Causal mediation sweep — tier=$TIER ==="
+    echo "=== [3/4] Causal mediation sweep — tier=$TIER corrupt_mode=$CORRUPT_MODE ==="
     EXTRA=""
     if [ "$TIER" != "all" ]; then
         EXTRA="--tier_pct $TIER_PCT"
@@ -79,14 +87,15 @@ for TIER in $TIERS; do
         --model "$MODEL" \
         --similarity_scores "$SCORES_PATH" \
         --tier "$TIER" $EXTRA \
+        --corrupt_mode "$CORRUPT_MODE" \
         --preflight_n "$PREFLIGHT_N" \
         --torch_dtype "$DTYPE" \
         $LIMIT_FLAG
     if [ "$TIER" = "all" ]; then
-        RR_FILES+=("$OUT_ROOT/results/recovery_rates_all.json")
+        RR_FILES+=("$OUT_ROOT/results/recovery_rates_all${MODE_SUFFIX}.json")
     else
         PCT_LBL=$(echo "$TIER_PCT" | tr '.' 'p')
-        RR_FILES+=("$OUT_ROOT/results/recovery_rates_${TIER}${PCT_LBL}.json")
+        RR_FILES+=("$OUT_ROOT/results/recovery_rates_${TIER}${PCT_LBL}${MODE_SUFFIX}.json")
     fi
 done
 

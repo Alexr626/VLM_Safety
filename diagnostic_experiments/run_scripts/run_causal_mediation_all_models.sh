@@ -16,8 +16,9 @@
 # ============================================================
 set -e
 
-TIER_PCT="${TIER_PCT:-33}"
+TIER_PCT="${TIER_PCT:-10}"
 TIERS="${TIERS:-top,bottom,all}"       # comma-separated (no spaces)
+CORRUPT_MODE="${CORRUPT_MODE:-paired_ssu}"  # paired_ssu | random_ssu | blank
 PREFLIGHT_N="${PREFLIGHT_N:-30}"
 DTYPE="${DTYPE:-float16}"
 LIMIT="${LIMIT:-}"
@@ -65,6 +66,7 @@ for MODEL in $MODELS; do
     EXTRA_ARGS+=("TIERS=${TIERS// /,}")
     EXTRA_ARGS+=("PREFLIGHT_N=$PREFLIGHT_N")
     EXTRA_ARGS+=("DTYPE=$DTYPE")
+    EXTRA_ARGS+=("CORRUPT_MODE=$CORRUPT_MODE")
     EXTRA_ARGS+=("SKIP_SIMILARITY=1")
     if [ -n "$LIMIT" ]; then
         EXTRA_ARGS+=("LIMIT=$LIMIT")
