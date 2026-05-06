@@ -1155,6 +1155,19 @@ class QwenVLWrapper(VLMWrapperBase):
                 load_kwargs["device_map"] = device_map
         self.model = AutoModelForCausalLM.from_pretrained(self.model_id, **load_kwargs)
         self.model.eval()
+
+        # Cache make_context from the trust-remote-code model module.
+        # This is the ChatML template builder that model.chat() uses
+        # internally; we need it for forward_vl / forward_text so that
+        # activations come from the same prompt distribution as generation.
+        import inspect as _inspect
+        _model_module = _inspect.getmodule(type(self.model))
+        self._make_context = getattr(_model_module, "make_context", None)
+        if self._make_context is None:
+            raise RuntimeError(
+                "Cannot locate make_context in Qwen-VL-Chat tokenizer module. "
+                "Required for chat-template formatting.")
+
         self._print_diagnostics()
         return self
 
@@ -1178,7 +1191,12 @@ class QwenVLWrapper(VLMWrapperBase):
 
     # ── Input preparation ──────────────────────────────────────────────────
     def _prepare_vl(self, image: Image.Image, text: str):
-        """Tokenize a VL prompt using Qwen-VL's from_list_format.
+        """Tokenize a VL prompt with the ChatML chat template.
+
+        Uses Qwen-VL's from_list_format for the image markup, then wraps
+        in the same ChatML template that model.chat() applies, so that
+        forward_vl activations come from the same prompt distribution as
+        generate_vl.
 
         Returns (input_ids, img_path). The caller MUST unlink img_path
         after the forward/generate call — Qwen-VL's tokenizer embeds the
@@ -1191,15 +1209,20 @@ class QwenVLWrapper(VLMWrapperBase):
             {"image": img_path},
             {"text": text},
         ])
-        input_ids = self.tokenizer(
-            query, return_tensors="pt",
-        ).input_ids.to(self.device)
+        _, context_tokens = self._make_context(
+            self.tokenizer, query, history=None,
+            system="You are a helpful assistant.",
+        )
+        input_ids = torch.tensor([context_tokens], device=self.device)
         return input_ids, img_path
 
     def _prepare_text(self, text: str):
-        input_ids = self.tokenizer(
-            text, return_tensors="pt",
-        ).input_ids.to(self.device)
+        """Tokenize a text-only prompt with the ChatML chat template."""
+        _, context_tokens = self._make_context(
+            self.tokenizer, text, history=None,
+            system="You are a helpful assistant.",
+        )
+        input_ids = torch.tensor([context_tokens], device=self.device)
         return input_ids
 
     # ── Forward passes ─────────────────────────────────────────────────────
