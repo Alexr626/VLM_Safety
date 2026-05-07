@@ -53,8 +53,8 @@ sys.path.insert(0, str(_PROJECT_ROOT))
 load_dotenv(_PROJECT_ROOT / ".env")
 
 from src.dataset import (
-    load_holisafe, filter_subsets, load_image_for_sample,
-    REFERENCE_REGISTRY,
+    load_holisafe, filter_subsets, filter_reference_subsets,
+    load_image_for_sample, REFERENCE_REGISTRY, load_mssbench,
 )
 
 CAPTION_PROMPT = "Describe this image in detail in several sentences. The first sentence of your response should be 'This image . . .'"
@@ -133,19 +133,105 @@ def _make_openai_caller(model: str, max_new_tokens: int):
 # ── Sample loading ─────────────────────────────────────────────
 
 
-def load_samples(dataset, cache_dir, limit, ref_samples, ref_seed):
+def _load_eval_benchmark_for_captioning(benchmark_name: str, limit=None):
+    """Load samples from an evaluation benchmark for captioning.
+
+    Returns a list of sample dicts with 'id' and 'image_pil' (PIL.Image).
+    Uses the evaluation benchmark loaders, which already produce matching
+    EvalSample.id values. Only samples with images are included.
+
+    Adding a new benchmark: import its loader in evaluation/benchmarks/__init__.py,
+    then add an entry here. The sample_id convention must match what
+    eval_runner.py uses for caption lookup.
+    """
+    if benchmark_name == "mm_safetybench":
+        from evaluation.benchmarks import load_mm_safetybench
+        eval_samples = load_mm_safetybench(limit_per_scenario=limit)
+    elif benchmark_name == "figstep":
+        from evaluation.benchmarks import load_figstep
+        eval_samples = load_figstep(limit=limit)
+    else:
+        return None  # not a recognized eval benchmark
+
+    # Deduplicate by image: same image may pair with multiple questions,
+    # but we only need one caption per image id.
+    seen = set()
+    samples = []
+    for s in eval_samples:
+        if s.image is None or s.id in seen:
+            continue
+        seen.add(s.id)
+        samples.append({
+            "id": s.id,
+            "image_pil": s.image,
+            "text": s.question,
+        })
+    return samples
+
+
+# Registry of eval benchmarks that can be captioned (for extensibility).
+BENCHMARK_CAPTION_REGISTRY = {
+    "mm_safetybench": lambda limit=None: _load_eval_benchmark_for_captioning("mm_safetybench", limit),
+    "figstep":        lambda limit=None: _load_eval_benchmark_for_captioning("figstep", limit),
+}
+
+
+def load_samples(dataset, cache_dir, limit, ref_samples, ref_seed,
+                 holisafe_subsets=None, holisafe_eval_only=False,
+                 mssbench_split: str = "all"):
     if dataset == "holisafe":
         entries, images_base = load_holisafe(cache_dir=cache_dir)
-        sss, ssu = filter_subsets(entries, images_base)
-        samples = sss + ssu
+        if holisafe_subsets is None and not holisafe_eval_only:
+            sss, ssu = filter_subsets(entries, images_base)
+            samples = sss + ssu
+        else:
+            buckets = filter_reference_subsets(entries, images_base)
+            wanted = (set(holisafe_subsets) if holisafe_subsets
+                      else set(buckets.keys()))
+            samples = [s for k, lst in buckets.items() if k in wanted
+                       for s in lst]
+            if holisafe_eval_only:
+                split_path = (_PROJECT_ROOT / "data" / "holisafe-bench"
+                              / "train_eval_split.json")
+                if not split_path.exists():
+                    raise FileNotFoundError(
+                        "--holisafe_eval_only requires "
+                        f"{split_path}. Run: python -m src.dataset"
+                    )
+                with open(split_path) as f:
+                    split = json.load(f)
+                eval_ids = set()
+                for k in ("sss", "ssu", "suu", "usu", "uuu"):
+                    eval_ids.update(split.get(f"{k}_eval_ids", []))
+                samples = [s for s in samples if s["id"] in eval_ids]
+    elif dataset == "mssbench":
+        samples = load_mssbench()
+        if mssbench_split != "all":
+            split_path = _PROJECT_ROOT / "data" / "mssbench" / "train_eval_split.json"
+            if not split_path.exists():
+                raise FileNotFoundError(
+                    f"--mssbench_split={mssbench_split} requires {split_path}. "
+                    "Run: python -m src.dataset --mssbench_split"
+                )
+            with open(split_path) as f:
+                split = json.load(f)
+            wanted = set(split[f"{mssbench_split}_sample_ids"])
+            samples = [s for s in samples if s["id"] in wanted]
+    elif dataset in BENCHMARK_CAPTION_REGISTRY:
+        samples = BENCHMARK_CAPTION_REGISTRY[dataset](limit=limit)
+        if samples is None:
+            raise ValueError(f"Failed to load benchmark '{dataset}' for captioning.")
+        return samples  # limit already applied by loader
     elif dataset in REFERENCE_REGISTRY:
         loader = REFERENCE_REGISTRY[dataset]["loader"]
         samples = loader(n_samples=ref_samples, seed=ref_seed)
     else:
+        all_known = sorted(
+            set(BENCHMARK_CAPTION_REGISTRY) | set(REFERENCE_REGISTRY)
+            | {"holisafe", "mssbench"}
+        )
         raise ValueError(
-            f"Unknown dataset: '{dataset}'. "
-            f"Available reference datasets: {list(REFERENCE_REGISTRY)}. "
-            f"To add a new dataset, register a loader in REFERENCE_REGISTRY (src/dataset.py)."
+            f"Unknown dataset: '{dataset}'. Available: {all_known}"
         )
     return samples[:limit] if limit else samples
 
@@ -174,6 +260,20 @@ def parse_args():
     p.add_argument("--batch_size", type=int, default=4,
                    help="Batch size for local VLM. Ignored for hosted APIs (one call per image).")
     p.add_argument("--max_new_tokens", type=int, default=200)
+    p.add_argument("--holisafe_eval_only", action="store_true",
+                   help="When --dataset=holisafe, restrict to samples in the "
+                        "eval splits of train_eval_split.json (run "
+                        "`python -m src.dataset` first to populate it).")
+    p.add_argument("--holisafe_subsets", nargs="+", default=None,
+                   choices=["SSS", "SSU", "SUU", "USU", "UUU"],
+                   help="When --dataset=holisafe, restrict to samples whose "
+                        "raw HoliSafe `type` matches one of these. Combined "
+                        "with --holisafe_eval_only as intersection.")
+    p.add_argument("--mssbench_split", choices=["all", "train", "eval"],
+                   default="all",
+                   help="When --dataset=mssbench, restrict to a split. "
+                        "'all' captions every sample; 'train'/'eval' use "
+                        "data/mssbench/train_eval_split.json.")
     return p.parse_args()
 
 
@@ -183,8 +283,11 @@ def _run_local(args, samples, captions):
 
     wrapper = create_wrapper(args.model).load()
     bs = args.batch_size
-    for i in tqdm(range(0, len(samples), bs), desc=f"Captioning {args.dataset} (local)"):
-        batch = samples[i:i + bs]
+    pending = [s for s in samples if str(s["id"]) not in captions]
+    if len(pending) < len(samples):
+        print(f"  Skipping {len(samples) - len(pending)} samples already captioned.")
+    for i in tqdm(range(0, len(pending), bs), desc=f"Captioning {args.dataset} (local)"):
+        batch = pending[i:i + bs]
         images = [load_image_for_sample(s) for s in batch]
         valid_pairs = [(s, img) for s, img in zip(batch, images) if img is not None]
         for s, img in zip(batch, images):
@@ -207,7 +310,12 @@ def _run_local(args, samples, captions):
 
 
 def _run_api(args, samples, captions, out_path):
-    """Per-image API path with checkpoint-based resume."""
+    """Per-image API path with checkpoint-based resume.
+
+    For MSSBench, each image is reused across (variant × queries), so we
+    deduplicate by image filename stem before calling the API. The on-disk
+    schema stays per-sample-id.
+    """
     api_model = args.api_model or _DEFAULT_API_MODELS[args.provider]
     print(f"Using {args.provider} API (model={api_model})")
     if args.provider == "anthropic":
@@ -221,16 +329,29 @@ def _run_api(args, samples, captions, out_path):
             captions.update(json.load(f))
         print(f"  Resuming from checkpoint: {len(captions)} already done")
 
+    dedup_by_stem = args.dataset == "mssbench"
+    seen_stems: dict[str, str] = {}
+
     for sample in tqdm(samples, desc=f"Captioning {args.dataset} ({args.provider})"):
         sid = str(sample["id"])
         if sid in captions:
+            if dedup_by_stem and sample.get("image_path"):
+                seen_stems.setdefault(Path(sample["image_path"]).stem, captions[sid])
             continue
+        if dedup_by_stem and sample.get("image_path"):
+            stem = Path(sample["image_path"]).stem
+            if stem in seen_stems:
+                captions[sid] = seen_stems[stem]
+                continue
         image = load_image_for_sample(sample)
         if image is None:
             captions[sid] = ""
             continue
         try:
-            captions[sid] = call_fn(image)
+            cap = call_fn(image)
+            captions[sid] = cap
+            if dedup_by_stem and sample.get("image_path"):
+                seen_stems[Path(sample["image_path"]).stem] = cap
         except Exception as e:
             print(f"  Warning: sample {sid} — {e}")
             captions[sid] = ""
@@ -251,15 +372,84 @@ def main():
         print(f"Skipping — {out_path} already exists.")
         return
 
-    samples = load_samples(args.dataset, args.cache_dir, args.limit,
-                           args.ref_samples, args.ref_seed)
+    samples = load_samples(
+        args.dataset, args.cache_dir, args.limit,
+        args.ref_samples, args.ref_seed,
+        holisafe_subsets=args.holisafe_subsets,
+        holisafe_eval_only=args.holisafe_eval_only,
+        mssbench_split=args.mssbench_split,
+    )
     print(f"Samples to process: {len(samples)}")
 
     captions: dict = {}
+    if out_path.exists():
+        with open(out_path) as f:
+            captions.update(json.load(f))
+        print(f"Loaded {len(captions)} existing captions; will skip those.")
+
+    # Image-stem dedup for MSSBench: each image is reused across
+    # (variant × queries). Caption one representative per stem; back-fill the
+    # rest from the stem→caption mapping. ~50% fewer VLM/API calls.
+    samples_to_run = samples
+    if args.dataset == "mssbench":
+        stem_to_caption: dict[str, str] = {}
+        # Seed the map from any captions that already exist on disk.
+        for sample in samples:
+            sid = str(sample["id"])
+            if sid in captions and captions[sid] and sample.get("image_path"):
+                stem_to_caption.setdefault(Path(sample["image_path"]).stem, captions[sid])
+        # Pick one un-captioned sample per stem as the representative; the rest
+        # will be back-filled after the captioning pass.
+        seen_stems_in_run: set[str] = set(stem_to_caption.keys())
+        representatives: list = []
+        for sample in samples:
+            sid = str(sample["id"])
+            if sid in captions:
+                continue
+            if not sample.get("image_path"):
+                representatives.append(sample)
+                continue
+            stem = Path(sample["image_path"]).stem
+            if stem in seen_stems_in_run:
+                continue
+            seen_stems_in_run.add(stem)
+            representatives.append(sample)
+        n_back_fill = sum(
+            1 for s in samples
+            if str(s["id"]) not in captions
+            and s.get("image_path")
+            and Path(s["image_path"]).stem in seen_stems_in_run
+            and s not in representatives
+        )
+        print(f"  MSSBench dedup: {len(representatives)} representative images "
+              f"(of {len(samples)} samples); ~{n_back_fill} will be back-filled.")
+        samples_to_run = representatives
+
     if args.provider == "local":
-        _run_local(args, samples, captions)
+        _run_local(args, samples_to_run, captions)
     else:
-        _run_api(args, samples, captions, out_path)
+        _run_api(args, samples_to_run, captions, out_path)
+
+    # Back-fill any remaining MSSBench samples sharing an image stem.
+    if args.dataset == "mssbench":
+        stem_to_caption_post: dict[str, str] = {}
+        for sample in samples:
+            sid = str(sample["id"])
+            if sid in captions and captions[sid] and sample.get("image_path"):
+                stem_to_caption_post.setdefault(
+                    Path(sample["image_path"]).stem, captions[sid]
+                )
+        n_back_filled = 0
+        for sample in samples:
+            sid = str(sample["id"])
+            if sid in captions or not sample.get("image_path"):
+                continue
+            stem = Path(sample["image_path"]).stem
+            if stem in stem_to_caption_post:
+                captions[sid] = stem_to_caption_post[stem]
+                n_back_filled += 1
+        if n_back_filled:
+            print(f"  Back-filled {n_back_filled} captions from shared image stems.")
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w") as f:

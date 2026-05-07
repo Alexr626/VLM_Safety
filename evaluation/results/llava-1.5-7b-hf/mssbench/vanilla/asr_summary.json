@@ -1,0 +1,18 @@
+{
+  "model": "llava-1.5-7b-hf",
+  "benchmark": "mssbench",
+  "intervention": "vanilla",
+  "intervention_config": {},
+  "n_total": 1200,
+  "asr_overall": 0.77,
+  "by_safety_label": {
+    "SSS": {
+      "n": 600,
+      "asr": 0.7783333333333333
+    },
+    "SSU": {
+      "n": 600,
+      "asr": 0.7616666666666667
+    }
+  }
+}

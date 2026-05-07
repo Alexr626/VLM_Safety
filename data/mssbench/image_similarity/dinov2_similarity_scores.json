@@ -1,0 +1,2712 @@
+{
+  "model": "facebook/dinov2-large",
+  "dtype": "bfloat16",
+  "n_stems": 300,
+  "n_train_split_stems": 224,
+  "train_split_meta": {
+    "seed": 42,
+    "train_frac": 0.75
+  },
+  "stems": [
+    {
+      "rec_idx": 0,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/0.jpg",
+      "unsafe_image_path": "data/mssbench/chat/1.jpg",
+      "cosine_similarity": 0.033283933997154236,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 1,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/2.jpg",
+      "unsafe_image_path": "data/mssbench/chat/3.jpg",
+      "cosine_similarity": 0.6983716487884521,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 2,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/4.jpg",
+      "unsafe_image_path": "data/mssbench/chat/5.jpg",
+      "cosine_similarity": 0.016872921958565712,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 3,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/6.jpg",
+      "unsafe_image_path": "data/mssbench/chat/7.jpg",
+      "cosine_similarity": 0.032342489808797836,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 4,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/8.jpg",
+      "unsafe_image_path": "data/mssbench/chat/9.jpg",
+      "cosine_similarity": 0.4621596932411194,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 5,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/10.jpg",
+      "unsafe_image_path": "data/mssbench/chat/11.jpg",
+      "cosine_similarity": 0.08172319829463959,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 6,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/12.jpg",
+      "unsafe_image_path": "data/mssbench/chat/13.jpg",
+      "cosine_similarity": -0.005919835530221462,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 7,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/14.jpg",
+      "unsafe_image_path": "data/mssbench/chat/15.jpg",
+      "cosine_similarity": -0.03775051608681679,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 8,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/16.jpg",
+      "unsafe_image_path": "data/mssbench/chat/17.jpg",
+      "cosine_similarity": -0.00045702047646045685,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 9,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/18.jpg",
+      "unsafe_image_path": "data/mssbench/chat/19.jpg",
+      "cosine_similarity": 0.06083467975258827,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 10,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/20.jpg",
+      "unsafe_image_path": "data/mssbench/chat/21.jpg",
+      "cosine_similarity": 0.04297337681055069,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 11,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/22.jpg",
+      "unsafe_image_path": "data/mssbench/chat/23.jpg",
+      "cosine_similarity": 0.02473488263785839,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 12,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/24.jpg",
+      "unsafe_image_path": "data/mssbench/chat/25.jpg",
+      "cosine_similarity": 0.03253064304590225,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 13,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/26.jpg",
+      "unsafe_image_path": "data/mssbench/chat/27.jpg",
+      "cosine_similarity": 0.22532501816749573,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 14,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/28.jpg",
+      "unsafe_image_path": "data/mssbench/chat/29.jpg",
+      "cosine_similarity": 0.05444590747356415,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 15,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/30.jpg",
+      "unsafe_image_path": "data/mssbench/chat/31.jpg",
+      "cosine_similarity": 0.02804451622068882,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 16,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/32.jpg",
+      "unsafe_image_path": "data/mssbench/chat/33.jpg",
+      "cosine_similarity": -0.019616199657320976,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 17,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/34.jpg",
+      "unsafe_image_path": "data/mssbench/chat/35.jpg",
+      "cosine_similarity": 0.38838595151901245,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 18,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/36.jpg",
+      "unsafe_image_path": "data/mssbench/chat/37.jpg",
+      "cosine_similarity": 0.001077204942703247,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 19,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/38.jpg",
+      "unsafe_image_path": "data/mssbench/chat/39.jpg",
+      "cosine_similarity": 0.09834931045770645,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 20,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/40.jpg",
+      "unsafe_image_path": "data/mssbench/chat/41.jpg",
+      "cosine_similarity": -0.005904384423047304,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 21,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/42.jpg",
+      "unsafe_image_path": "data/mssbench/chat/43.jpg",
+      "cosine_similarity": 0.01034634094685316,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 22,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/44.jpg",
+      "unsafe_image_path": "data/mssbench/chat/45.jpg",
+      "cosine_similarity": 0.05023615062236786,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 23,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/46.jpg",
+      "unsafe_image_path": "data/mssbench/chat/47.jpg",
+      "cosine_similarity": 0.027503587305545807,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 24,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/48.jpg",
+      "unsafe_image_path": "data/mssbench/chat/49.jpg",
+      "cosine_similarity": -0.010041691362857819,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 25,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/50.jpg",
+      "unsafe_image_path": "data/mssbench/chat/51.jpg",
+      "cosine_similarity": 0.047120463103055954,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 26,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/52.jpg",
+      "unsafe_image_path": "data/mssbench/chat/53.jpg",
+      "cosine_similarity": 0.04632754251360893,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 27,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/54.jpg",
+      "unsafe_image_path": "data/mssbench/chat/55.jpg",
+      "cosine_similarity": 0.023513974621891975,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 28,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/56.jpg",
+      "unsafe_image_path": "data/mssbench/chat/57.jpg",
+      "cosine_similarity": 0.15970471501350403,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 29,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/58.jpg",
+      "unsafe_image_path": "data/mssbench/chat/59.jpg",
+      "cosine_similarity": 0.02310946211218834,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 30,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/60.jpg",
+      "unsafe_image_path": "data/mssbench/chat/61.jpg",
+      "cosine_similarity": 0.0326790027320385,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 31,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/62.jpg",
+      "unsafe_image_path": "data/mssbench/chat/63.jpg",
+      "cosine_similarity": -0.0021032169461250305,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 32,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/64.jpg",
+      "unsafe_image_path": "data/mssbench/chat/65.jpg",
+      "cosine_similarity": 0.1444675624370575,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 33,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/66.jpg",
+      "unsafe_image_path": "data/mssbench/chat/67.jpg",
+      "cosine_similarity": 0.2829754948616028,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 34,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/68.jpg",
+      "unsafe_image_path": "data/mssbench/chat/69.jpg",
+      "cosine_similarity": 0.05953685939311981,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 35,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/70.jpg",
+      "unsafe_image_path": "data/mssbench/chat/71.jpg",
+      "cosine_similarity": 0.2616038918495178,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 36,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/72.jpg",
+      "unsafe_image_path": "data/mssbench/chat/73.jpg",
+      "cosine_similarity": 0.12815341353416443,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 37,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/74.jpg",
+      "unsafe_image_path": "data/mssbench/chat/75.jpg",
+      "cosine_similarity": 0.514229953289032,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 38,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/76.jpg",
+      "unsafe_image_path": "data/mssbench/chat/77.jpg",
+      "cosine_similarity": 0.03712232783436775,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 39,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/78.jpg",
+      "unsafe_image_path": "data/mssbench/chat/79.jpg",
+      "cosine_similarity": 0.0892249047756195,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 40,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/80.jpg",
+      "unsafe_image_path": "data/mssbench/chat/81.jpg",
+      "cosine_similarity": 0.01806202344596386,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 41,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/82.jpg",
+      "unsafe_image_path": "data/mssbench/chat/83.jpg",
+      "cosine_similarity": 0.062401000410318375,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 42,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/84.jpg",
+      "unsafe_image_path": "data/mssbench/chat/85.jpg",
+      "cosine_similarity": 0.10826778411865234,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 43,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/86.jpg",
+      "unsafe_image_path": "data/mssbench/chat/87.jpg",
+      "cosine_similarity": 0.10170812904834747,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 44,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/88.jpg",
+      "unsafe_image_path": "data/mssbench/chat/89.jpg",
+      "cosine_similarity": 0.041285231709480286,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 45,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/90.jpg",
+      "unsafe_image_path": "data/mssbench/chat/91.jpg",
+      "cosine_similarity": 0.03170861303806305,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 46,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/92.jpg",
+      "unsafe_image_path": "data/mssbench/chat/93.jpg",
+      "cosine_similarity": 0.054621923714876175,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 47,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/94.jpg",
+      "unsafe_image_path": "data/mssbench/chat/95.jpg",
+      "cosine_similarity": 0.09298586845397949,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 48,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/96.jpg",
+      "unsafe_image_path": "data/mssbench/chat/97.jpg",
+      "cosine_similarity": -0.061132848262786865,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 49,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/98.jpg",
+      "unsafe_image_path": "data/mssbench/chat/99.jpg",
+      "cosine_similarity": -0.002537508960813284,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 50,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/100.jpg",
+      "unsafe_image_path": "data/mssbench/chat/101.jpg",
+      "cosine_similarity": 0.06829551607370377,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 51,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/102.jpg",
+      "unsafe_image_path": "data/mssbench/chat/103.jpg",
+      "cosine_similarity": 0.1116836816072464,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 52,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/104.jpg",
+      "unsafe_image_path": "data/mssbench/chat/105.jpg",
+      "cosine_similarity": 0.01771720126271248,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 53,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/106.jpg",
+      "unsafe_image_path": "data/mssbench/chat/107.jpg",
+      "cosine_similarity": -0.007165991235524416,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 54,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/108.jpg",
+      "unsafe_image_path": "data/mssbench/chat/109.jpg",
+      "cosine_similarity": 0.6437979340553284,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 55,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/110.jpg",
+      "unsafe_image_path": "data/mssbench/chat/111.jpg",
+      "cosine_similarity": 0.5750226974487305,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 56,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/112.jpg",
+      "unsafe_image_path": "data/mssbench/chat/113.jpg",
+      "cosine_similarity": 0.02651507966220379,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 57,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/114.jpg",
+      "unsafe_image_path": "data/mssbench/chat/115.jpg",
+      "cosine_similarity": 0.13815730810165405,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 58,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/116.jpg",
+      "unsafe_image_path": "data/mssbench/chat/117.jpg",
+      "cosine_similarity": 0.11611306667327881,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 59,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/118.jpg",
+      "unsafe_image_path": "data/mssbench/chat/119.jpg",
+      "cosine_similarity": 0.03154206648468971,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 60,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/120.jpg",
+      "unsafe_image_path": "data/mssbench/chat/121.jpg",
+      "cosine_similarity": 0.09366762638092041,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 61,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/122.jpg",
+      "unsafe_image_path": "data/mssbench/chat/123.jpg",
+      "cosine_similarity": 0.02769434079527855,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 62,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/124.jpg",
+      "unsafe_image_path": "data/mssbench/chat/125.jpg",
+      "cosine_similarity": 0.14478115737438202,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 63,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/126.jpg",
+      "unsafe_image_path": "data/mssbench/chat/127.jpg",
+      "cosine_similarity": 0.032710034400224686,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 64,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/128.jpg",
+      "unsafe_image_path": "data/mssbench/chat/129.jpg",
+      "cosine_similarity": 0.016173046082258224,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 65,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/130.jpg",
+      "unsafe_image_path": "data/mssbench/chat/131.jpg",
+      "cosine_similarity": 0.024179603904485703,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 66,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/132.jpg",
+      "unsafe_image_path": "data/mssbench/chat/133.jpg",
+      "cosine_similarity": 0.06694464385509491,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 67,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/134.jpg",
+      "unsafe_image_path": "data/mssbench/chat/135.jpg",
+      "cosine_similarity": 0.06943125277757645,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 68,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/136.jpg",
+      "unsafe_image_path": "data/mssbench/chat/137.jpg",
+      "cosine_similarity": 0.05730821564793587,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 69,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/138.jpg",
+      "unsafe_image_path": "data/mssbench/chat/139.jpg",
+      "cosine_similarity": 0.025351818650960922,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 70,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/140.jpg",
+      "unsafe_image_path": "data/mssbench/chat/141.jpg",
+      "cosine_similarity": -0.0031284820288419724,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 71,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/142.jpg",
+      "unsafe_image_path": "data/mssbench/chat/143.jpg",
+      "cosine_similarity": 0.01202356442809105,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 72,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/144.jpg",
+      "unsafe_image_path": "data/mssbench/chat/145.jpg",
+      "cosine_similarity": 0.008265789598226547,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 73,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/146.jpg",
+      "unsafe_image_path": "data/mssbench/chat/147.jpg",
+      "cosine_similarity": 0.07490907609462738,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 74,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/148.jpg",
+      "unsafe_image_path": "data/mssbench/chat/149.jpg",
+      "cosine_similarity": 0.09487314522266388,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 75,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/150.jpg",
+      "unsafe_image_path": "data/mssbench/chat/151.jpg",
+      "cosine_similarity": 0.09558603167533875,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 76,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/152.jpg",
+      "unsafe_image_path": "data/mssbench/chat/153.jpg",
+      "cosine_similarity": 0.015369705855846405,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 77,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/154.jpg",
+      "unsafe_image_path": "data/mssbench/chat/155.jpg",
+      "cosine_similarity": 0.7632683515548706,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 78,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/156.jpg",
+      "unsafe_image_path": "data/mssbench/chat/157.jpg",
+      "cosine_similarity": -0.014808781445026398,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 79,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/158.jpg",
+      "unsafe_image_path": "data/mssbench/chat/159.jpg",
+      "cosine_similarity": 0.06809976696968079,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 80,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/160.jpg",
+      "unsafe_image_path": "data/mssbench/chat/161.jpg",
+      "cosine_similarity": 0.06362408399581909,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 81,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/162.jpg",
+      "unsafe_image_path": "data/mssbench/chat/163.jpg",
+      "cosine_similarity": -0.013680867850780487,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 82,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/164.jpg",
+      "unsafe_image_path": "data/mssbench/chat/165.jpg",
+      "cosine_similarity": 0.04111640155315399,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 83,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/166.jpg",
+      "unsafe_image_path": "data/mssbench/chat/167.jpg",
+      "cosine_similarity": 0.07320733368396759,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 84,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/168.jpg",
+      "unsafe_image_path": "data/mssbench/chat/169.jpg",
+      "cosine_similarity": 0.05812175199389458,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 85,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/170.jpg",
+      "unsafe_image_path": "data/mssbench/chat/171.jpg",
+      "cosine_similarity": 0.4698655307292938,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 86,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/172.jpg",
+      "unsafe_image_path": "data/mssbench/chat/173.jpg",
+      "cosine_similarity": 0.11702899634838104,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 87,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/174.jpg",
+      "unsafe_image_path": "data/mssbench/chat/175.jpg",
+      "cosine_similarity": 0.18586522340774536,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 88,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/176.jpg",
+      "unsafe_image_path": "data/mssbench/chat/177.jpg",
+      "cosine_similarity": 0.07160638272762299,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 89,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/178.jpg",
+      "unsafe_image_path": "data/mssbench/chat/179.jpg",
+      "cosine_similarity": 0.01967293955385685,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 90,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/180.jpg",
+      "unsafe_image_path": "data/mssbench/chat/181.jpg",
+      "cosine_similarity": 0.06442712992429733,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 91,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/182.jpg",
+      "unsafe_image_path": "data/mssbench/chat/183.jpg",
+      "cosine_similarity": 0.09826210886240005,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 92,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/184.jpg",
+      "unsafe_image_path": "data/mssbench/chat/185.jpg",
+      "cosine_similarity": 0.4393869638442993,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 93,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/186.jpg",
+      "unsafe_image_path": "data/mssbench/chat/187.jpg",
+      "cosine_similarity": -0.006452952511608601,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 94,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/188.jpg",
+      "unsafe_image_path": "data/mssbench/chat/189.jpg",
+      "cosine_similarity": 0.2533275783061981,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 95,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/190.jpg",
+      "unsafe_image_path": "data/mssbench/chat/191.jpg",
+      "cosine_similarity": 0.35105016827583313,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 96,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/192.jpg",
+      "unsafe_image_path": "data/mssbench/chat/193.jpg",
+      "cosine_similarity": 0.06306043267250061,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 97,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/194.jpg",
+      "unsafe_image_path": "data/mssbench/chat/195.jpg",
+      "cosine_similarity": 0.11676944047212601,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 98,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/196.jpg",
+      "unsafe_image_path": "data/mssbench/chat/197.jpg",
+      "cosine_similarity": 0.04071473330259323,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 99,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/198.jpg",
+      "unsafe_image_path": "data/mssbench/chat/199.jpg",
+      "cosine_similarity": 0.05465172231197357,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 100,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/200.jpg",
+      "unsafe_image_path": "data/mssbench/chat/201.jpg",
+      "cosine_similarity": -0.006301645189523697,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 101,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/202.jpg",
+      "unsafe_image_path": "data/mssbench/chat/203.jpg",
+      "cosine_similarity": 0.08450429141521454,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 102,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/204.jpg",
+      "unsafe_image_path": "data/mssbench/chat/205.jpg",
+      "cosine_similarity": 0.040200695395469666,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 103,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/206.jpg",
+      "unsafe_image_path": "data/mssbench/chat/207.jpg",
+      "cosine_similarity": -0.020092036575078964,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 104,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/208.jpg",
+      "unsafe_image_path": "data/mssbench/chat/209.jpg",
+      "cosine_similarity": 0.1135612279176712,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 105,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/210.jpg",
+      "unsafe_image_path": "data/mssbench/chat/211.jpg",
+      "cosine_similarity": 0.06291979551315308,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 106,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/212.jpg",
+      "unsafe_image_path": "data/mssbench/chat/213.jpg",
+      "cosine_similarity": 0.14626748859882355,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 107,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/214.jpg",
+      "unsafe_image_path": "data/mssbench/chat/215.jpg",
+      "cosine_similarity": -0.019672321155667305,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 108,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/216.jpg",
+      "unsafe_image_path": "data/mssbench/chat/217.jpg",
+      "cosine_similarity": 0.023085065186023712,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 109,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/218.jpg",
+      "unsafe_image_path": "data/mssbench/chat/219.jpg",
+      "cosine_similarity": -0.0014142012223601341,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 110,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/220.jpg",
+      "unsafe_image_path": "data/mssbench/chat/221.jpg",
+      "cosine_similarity": 0.2429739534854889,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 111,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/222.jpg",
+      "unsafe_image_path": "data/mssbench/chat/223.jpg",
+      "cosine_similarity": 0.03929761424660683,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 112,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/224.jpg",
+      "unsafe_image_path": "data/mssbench/chat/225.jpg",
+      "cosine_similarity": 0.3509904146194458,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 113,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/226.jpg",
+      "unsafe_image_path": "data/mssbench/chat/227.jpg",
+      "cosine_similarity": 0.06289032846689224,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 114,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/228.jpg",
+      "unsafe_image_path": "data/mssbench/chat/229.jpg",
+      "cosine_similarity": 0.2043820023536682,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 115,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/230.jpg",
+      "unsafe_image_path": "data/mssbench/chat/231.jpg",
+      "cosine_similarity": 0.6613609790802002,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 116,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/232.jpg",
+      "unsafe_image_path": "data/mssbench/chat/233.jpg",
+      "cosine_similarity": 0.006245380267500877,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 117,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/234.jpg",
+      "unsafe_image_path": "data/mssbench/chat/235.jpg",
+      "cosine_similarity": -0.014385956339538097,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 118,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/236.jpg",
+      "unsafe_image_path": "data/mssbench/chat/237.jpg",
+      "cosine_similarity": -0.04164302721619606,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 119,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/238.jpg",
+      "unsafe_image_path": "data/mssbench/chat/239.jpg",
+      "cosine_similarity": 0.06181679293513298,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 120,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/240.jpg",
+      "unsafe_image_path": "data/mssbench/chat/241.jpg",
+      "cosine_similarity": 0.10296359658241272,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 121,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/242.jpg",
+      "unsafe_image_path": "data/mssbench/chat/243.jpg",
+      "cosine_similarity": 0.7559549808502197,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 122,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/244.jpg",
+      "unsafe_image_path": "data/mssbench/chat/245.jpg",
+      "cosine_similarity": 0.022177021950483322,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 123,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/246.jpg",
+      "unsafe_image_path": "data/mssbench/chat/247.jpg",
+      "cosine_similarity": -0.010423855856060982,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 124,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/248.jpg",
+      "unsafe_image_path": "data/mssbench/chat/249.jpg",
+      "cosine_similarity": 0.02850995771586895,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 125,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/250.jpg",
+      "unsafe_image_path": "data/mssbench/chat/251.jpg",
+      "cosine_similarity": 0.025993622839450836,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 126,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/252.jpg",
+      "unsafe_image_path": "data/mssbench/chat/253.jpg",
+      "cosine_similarity": 0.0020938729867339134,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 127,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/254.jpg",
+      "unsafe_image_path": "data/mssbench/chat/255.jpg",
+      "cosine_similarity": 0.0044710938818752766,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 128,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/256.jpg",
+      "unsafe_image_path": "data/mssbench/chat/257.jpg",
+      "cosine_similarity": -0.0007968004792928696,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 129,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/258.jpg",
+      "unsafe_image_path": "data/mssbench/chat/259.jpg",
+      "cosine_similarity": 0.030253758653998375,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 130,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/260.jpg",
+      "unsafe_image_path": "data/mssbench/chat/261.jpg",
+      "cosine_similarity": 0.14971977472305298,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 131,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/262.jpg",
+      "unsafe_image_path": "data/mssbench/chat/263.jpg",
+      "cosine_similarity": -0.007482763379812241,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 132,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/264.jpg",
+      "unsafe_image_path": "data/mssbench/chat/265.jpg",
+      "cosine_similarity": 0.07621600478887558,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 133,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/266.jpg",
+      "unsafe_image_path": "data/mssbench/chat/267.jpg",
+      "cosine_similarity": 0.12882286310195923,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 134,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/268.jpg",
+      "unsafe_image_path": "data/mssbench/chat/269.jpg",
+      "cosine_similarity": 0.01720542460680008,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 135,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/270.jpg",
+      "unsafe_image_path": "data/mssbench/chat/271.jpg",
+      "cosine_similarity": 0.030251353979110718,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 136,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/272.jpg",
+      "unsafe_image_path": "data/mssbench/chat/273.jpg",
+      "cosine_similarity": 0.13196638226509094,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 137,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/274.jpg",
+      "unsafe_image_path": "data/mssbench/chat/275.jpg",
+      "cosine_similarity": 0.02676006779074669,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 138,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/276.jpg",
+      "unsafe_image_path": "data/mssbench/chat/277.jpg",
+      "cosine_similarity": 0.0010777763091027737,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 139,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/278.jpg",
+      "unsafe_image_path": "data/mssbench/chat/279.jpg",
+      "cosine_similarity": 0.1070314571261406,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 140,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/280.jpg",
+      "unsafe_image_path": "data/mssbench/chat/281.jpg",
+      "cosine_similarity": -0.01849859580397606,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 141,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/282.jpg",
+      "unsafe_image_path": "data/mssbench/chat/283.jpg",
+      "cosine_similarity": 0.008991997689008713,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 142,
+      "subset": "chat",
+      "type": "harmful",
+      "safe_image_path": "data/mssbench/chat/284.jpg",
+      "unsafe_image_path": "data/mssbench/chat/285.jpg",
+      "cosine_similarity": 0.05987412482500076,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 143,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/286.jpg",
+      "unsafe_image_path": "data/mssbench/chat/287.jpg",
+      "cosine_similarity": 0.06465741991996765,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 144,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/288.jpg",
+      "unsafe_image_path": "data/mssbench/chat/289.jpg",
+      "cosine_similarity": 0.10691705346107483,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 145,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/290.jpg",
+      "unsafe_image_path": "data/mssbench/chat/291.jpg",
+      "cosine_similarity": -0.055611394345760345,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 146,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/292.jpg",
+      "unsafe_image_path": "data/mssbench/chat/293.jpg",
+      "cosine_similarity": 0.05362024903297424,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 147,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/294.jpg",
+      "unsafe_image_path": "data/mssbench/chat/295.jpg",
+      "cosine_similarity": -0.03395718336105347,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 148,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/296.jpg",
+      "unsafe_image_path": "data/mssbench/chat/297.jpg",
+      "cosine_similarity": -0.06044662743806839,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 149,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/298.jpg",
+      "unsafe_image_path": "data/mssbench/chat/299.jpg",
+      "cosine_similarity": 0.015705743804574013,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 150,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/300.jpg",
+      "unsafe_image_path": "data/mssbench/chat/301.jpg",
+      "cosine_similarity": 0.01748385652899742,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 151,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/302.jpg",
+      "unsafe_image_path": "data/mssbench/chat/303.jpg",
+      "cosine_similarity": 0.014626195654273033,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 152,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/304.jpg",
+      "unsafe_image_path": "data/mssbench/chat/305.jpg",
+      "cosine_similarity": 0.006915738806128502,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 153,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/306.jpg",
+      "unsafe_image_path": "data/mssbench/chat/307.jpg",
+      "cosine_similarity": 0.021314796060323715,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 154,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/308.jpg",
+      "unsafe_image_path": "data/mssbench/chat/309.jpg",
+      "cosine_similarity": 0.05449048802256584,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 155,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/310.jpg",
+      "unsafe_image_path": "data/mssbench/chat/311.jpg",
+      "cosine_similarity": 0.011586636304855347,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 156,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/312.jpg",
+      "unsafe_image_path": "data/mssbench/chat/313.jpg",
+      "cosine_similarity": 0.022560402750968933,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 157,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/314.jpg",
+      "unsafe_image_path": "data/mssbench/chat/315.jpg",
+      "cosine_similarity": 0.09200406819581985,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 158,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/316.jpg",
+      "unsafe_image_path": "data/mssbench/chat/317.jpg",
+      "cosine_similarity": 0.29859378933906555,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 159,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/318.jpg",
+      "unsafe_image_path": "data/mssbench/chat/319.jpg",
+      "cosine_similarity": 0.07616446912288666,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 160,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/320.jpg",
+      "unsafe_image_path": "data/mssbench/chat/321.jpg",
+      "cosine_similarity": 0.019958635792136192,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 161,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/322.jpg",
+      "unsafe_image_path": "data/mssbench/chat/323.jpg",
+      "cosine_similarity": 0.013714196160435677,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 162,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/324.jpg",
+      "unsafe_image_path": "data/mssbench/chat/325.jpg",
+      "cosine_similarity": 0.026536814868450165,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 163,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/326.jpg",
+      "unsafe_image_path": "data/mssbench/chat/327.jpg",
+      "cosine_similarity": 0.011335760354995728,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 164,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/328.jpg",
+      "unsafe_image_path": "data/mssbench/chat/329.jpg",
+      "cosine_similarity": 0.04706514999270439,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 165,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/330.jpg",
+      "unsafe_image_path": "data/mssbench/chat/331.jpg",
+      "cosine_similarity": 0.04853940010070801,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 166,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/332.jpg",
+      "unsafe_image_path": "data/mssbench/chat/333.jpg",
+      "cosine_similarity": 0.0043807607144117355,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 167,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/334.jpg",
+      "unsafe_image_path": "data/mssbench/chat/335.jpg",
+      "cosine_similarity": -0.026902062818408012,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 168,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/336.jpg",
+      "unsafe_image_path": "data/mssbench/chat/337.jpg",
+      "cosine_similarity": 0.006447348743677139,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 169,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/338.jpg",
+      "unsafe_image_path": "data/mssbench/chat/339.jpg",
+      "cosine_similarity": -0.019049374386668205,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 170,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/340.jpg",
+      "unsafe_image_path": "data/mssbench/chat/341.jpg",
+      "cosine_similarity": 0.030560364946722984,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 171,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/342.jpg",
+      "unsafe_image_path": "data/mssbench/chat/343.jpg",
+      "cosine_similarity": 0.12666025757789612,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 172,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/344.jpg",
+      "unsafe_image_path": "data/mssbench/chat/345.jpg",
+      "cosine_similarity": 0.17944766581058502,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 173,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/346.jpg",
+      "unsafe_image_path": "data/mssbench/chat/347.jpg",
+      "cosine_similarity": 0.011306174099445343,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 174,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/348.jpg",
+      "unsafe_image_path": "data/mssbench/chat/349.jpg",
+      "cosine_similarity": 0.06495480239391327,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 175,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/350.jpg",
+      "unsafe_image_path": "data/mssbench/chat/351.jpg",
+      "cosine_similarity": -0.01020156778395176,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 176,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/352.jpg",
+      "unsafe_image_path": "data/mssbench/chat/353.jpg",
+      "cosine_similarity": 0.04274994134902954,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 177,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/354.jpg",
+      "unsafe_image_path": "data/mssbench/chat/355.jpg",
+      "cosine_similarity": 0.015613924711942673,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 178,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/356.jpg",
+      "unsafe_image_path": "data/mssbench/chat/357.jpg",
+      "cosine_similarity": 0.011219854466617107,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 179,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/358.jpg",
+      "unsafe_image_path": "data/mssbench/chat/359.jpg",
+      "cosine_similarity": -0.0029050633311271667,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 180,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/360.jpg",
+      "unsafe_image_path": "data/mssbench/chat/361.jpg",
+      "cosine_similarity": 0.0038705579936504364,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 181,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/362.jpg",
+      "unsafe_image_path": "data/mssbench/chat/363.jpg",
+      "cosine_similarity": -0.0251297689974308,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 182,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/364.jpg",
+      "unsafe_image_path": "data/mssbench/chat/365.jpg",
+      "cosine_similarity": 0.122194804251194,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 183,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/366.jpg",
+      "unsafe_image_path": "data/mssbench/chat/367.jpg",
+      "cosine_similarity": 0.0047946833074092865,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 184,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/368.jpg",
+      "unsafe_image_path": "data/mssbench/chat/369.jpg",
+      "cosine_similarity": -0.027647020295262337,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 185,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/370.jpg",
+      "unsafe_image_path": "data/mssbench/chat/371.jpg",
+      "cosine_similarity": 0.012657342478632927,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 186,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/372.jpg",
+      "unsafe_image_path": "data/mssbench/chat/373.jpg",
+      "cosine_similarity": 0.03287066891789436,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 187,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/374.jpg",
+      "unsafe_image_path": "data/mssbench/chat/375.jpg",
+      "cosine_similarity": 0.00980219617486,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 188,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/376.jpg",
+      "unsafe_image_path": "data/mssbench/chat/377.jpg",
+      "cosine_similarity": -0.01855263113975525,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 189,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/378.jpg",
+      "unsafe_image_path": "data/mssbench/chat/379.jpg",
+      "cosine_similarity": -0.011789797805249691,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 190,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/380.jpg",
+      "unsafe_image_path": "data/mssbench/chat/381.jpg",
+      "cosine_similarity": 0.03975629433989525,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 191,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/382.jpg",
+      "unsafe_image_path": "data/mssbench/chat/383.jpg",
+      "cosine_similarity": 0.02511623129248619,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 192,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/384.jpg",
+      "unsafe_image_path": "data/mssbench/chat/385.jpg",
+      "cosine_similarity": 0.3980623781681061,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 193,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/386.jpg",
+      "unsafe_image_path": "data/mssbench/chat/387.jpg",
+      "cosine_similarity": 0.07949472218751907,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 194,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/388.jpg",
+      "unsafe_image_path": "data/mssbench/chat/389.jpg",
+      "cosine_similarity": 0.24252423644065857,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 195,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/390.jpg",
+      "unsafe_image_path": "data/mssbench/chat/391.jpg",
+      "cosine_similarity": 0.44264787435531616,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 196,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/392.jpg",
+      "unsafe_image_path": "data/mssbench/chat/393.jpg",
+      "cosine_similarity": 0.03049687296152115,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 197,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/394.jpg",
+      "unsafe_image_path": "data/mssbench/chat/395.jpg",
+      "cosine_similarity": 0.26190319657325745,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 198,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/396.jpg",
+      "unsafe_image_path": "data/mssbench/chat/397.jpg",
+      "cosine_similarity": 0.07731050252914429,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 199,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/398.jpg",
+      "unsafe_image_path": "data/mssbench/chat/399.jpg",
+      "cosine_similarity": 0.07001946866512299,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 200,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/400.jpg",
+      "unsafe_image_path": "data/mssbench/chat/401.jpg",
+      "cosine_similarity": 0.24539193511009216,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 201,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/402.jpg",
+      "unsafe_image_path": "data/mssbench/chat/403.jpg",
+      "cosine_similarity": 0.0351748950779438,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 202,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/404.jpg",
+      "unsafe_image_path": "data/mssbench/chat/405.jpg",
+      "cosine_similarity": 0.22503602504730225,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 203,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/406.jpg",
+      "unsafe_image_path": "data/mssbench/chat/407.jpg",
+      "cosine_similarity": 0.05544721335172653,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 204,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/408.jpg",
+      "unsafe_image_path": "data/mssbench/chat/409.jpg",
+      "cosine_similarity": -0.0518280528485775,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 205,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/410.jpg",
+      "unsafe_image_path": "data/mssbench/chat/411.jpg",
+      "cosine_similarity": 0.03374133259057999,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 206,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/412.jpg",
+      "unsafe_image_path": "data/mssbench/chat/413.jpg",
+      "cosine_similarity": -0.02647564187645912,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 207,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/414.jpg",
+      "unsafe_image_path": "data/mssbench/chat/415.jpg",
+      "cosine_similarity": 0.035780467092990875,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 208,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/416.jpg",
+      "unsafe_image_path": "data/mssbench/chat/417.jpg",
+      "cosine_similarity": -0.02633809670805931,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 209,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/418.jpg",
+      "unsafe_image_path": "data/mssbench/chat/419.jpg",
+      "cosine_similarity": -0.04656139016151428,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 210,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/420.jpg",
+      "unsafe_image_path": "data/mssbench/chat/421.jpg",
+      "cosine_similarity": 0.03920314088463783,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 211,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/422.jpg",
+      "unsafe_image_path": "data/mssbench/chat/423.jpg",
+      "cosine_similarity": -0.03927742689847946,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 212,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/424.jpg",
+      "unsafe_image_path": "data/mssbench/chat/425.jpg",
+      "cosine_similarity": 0.008279748260974884,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 213,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/426.jpg",
+      "unsafe_image_path": "data/mssbench/chat/427.jpg",
+      "cosine_similarity": 0.002287432085722685,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 214,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/428.jpg",
+      "unsafe_image_path": "data/mssbench/chat/429.jpg",
+      "cosine_similarity": 0.04649936780333519,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 215,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/430.jpg",
+      "unsafe_image_path": "data/mssbench/chat/431.jpg",
+      "cosine_similarity": 0.019395874813199043,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 216,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/432.jpg",
+      "unsafe_image_path": "data/mssbench/chat/433.jpg",
+      "cosine_similarity": 0.008656373247504234,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 217,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/434.jpg",
+      "unsafe_image_path": "data/mssbench/chat/435.jpg",
+      "cosine_similarity": -0.004029221832752228,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 218,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/436.jpg",
+      "unsafe_image_path": "data/mssbench/chat/437.jpg",
+      "cosine_similarity": -0.006948467344045639,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 219,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/438.jpg",
+      "unsafe_image_path": "data/mssbench/chat/439.jpg",
+      "cosine_similarity": 0.02607550472021103,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 220,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/440.jpg",
+      "unsafe_image_path": "data/mssbench/chat/441.jpg",
+      "cosine_similarity": 0.07157082110643387,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 221,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/442.jpg",
+      "unsafe_image_path": "data/mssbench/chat/443.jpg",
+      "cosine_similarity": 0.0033968817442655563,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 222,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/444.jpg",
+      "unsafe_image_path": "data/mssbench/chat/445.jpg",
+      "cosine_similarity": 0.04870755225419998,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 223,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/446.jpg",
+      "unsafe_image_path": "data/mssbench/chat/447.jpg",
+      "cosine_similarity": 0.08214474469423294,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 224,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/448.jpg",
+      "unsafe_image_path": "data/mssbench/chat/449.jpg",
+      "cosine_similarity": -0.018379677087068558,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 225,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/450.jpg",
+      "unsafe_image_path": "data/mssbench/chat/451.jpg",
+      "cosine_similarity": -0.026637250557541847,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 226,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/452.jpg",
+      "unsafe_image_path": "data/mssbench/chat/453.jpg",
+      "cosine_similarity": 0.060681458562612534,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 227,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/454.jpg",
+      "unsafe_image_path": "data/mssbench/chat/455.jpg",
+      "cosine_similarity": -0.04814290627837181,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 228,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/456.jpg",
+      "unsafe_image_path": "data/mssbench/chat/457.jpg",
+      "cosine_similarity": 0.10645541548728943,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 229,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/458.jpg",
+      "unsafe_image_path": "data/mssbench/chat/459.jpg",
+      "cosine_similarity": 0.02669270895421505,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 230,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/460.jpg",
+      "unsafe_image_path": "data/mssbench/chat/461.jpg",
+      "cosine_similarity": 0.000644993968307972,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 231,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/462.jpg",
+      "unsafe_image_path": "data/mssbench/chat/463.jpg",
+      "cosine_similarity": 0.03288854658603668,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 232,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/464.jpg",
+      "unsafe_image_path": "data/mssbench/chat/465.jpg",
+      "cosine_similarity": -0.0017839409410953522,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 233,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/466.jpg",
+      "unsafe_image_path": "data/mssbench/chat/467.jpg",
+      "cosine_similarity": 0.07738715410232544,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 234,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/468.jpg",
+      "unsafe_image_path": "data/mssbench/chat/469.jpg",
+      "cosine_similarity": 0.025666434317827225,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 235,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/470.jpg",
+      "unsafe_image_path": "data/mssbench/chat/471.jpg",
+      "cosine_similarity": 0.024937639012932777,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 236,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/472.jpg",
+      "unsafe_image_path": "data/mssbench/chat/473.jpg",
+      "cosine_similarity": -0.06192600727081299,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 237,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/474.jpg",
+      "unsafe_image_path": "data/mssbench/chat/475.jpg",
+      "cosine_similarity": -0.04256800562143326,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 238,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/476.jpg",
+      "unsafe_image_path": "data/mssbench/chat/477.jpg",
+      "cosine_similarity": 0.0012189596891403198,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 239,
+      "subset": "chat",
+      "type": "offensive",
+      "safe_image_path": "data/mssbench/chat/478.jpg",
+      "unsafe_image_path": "data/mssbench/chat/479.jpg",
+      "cosine_similarity": 0.029396409168839455,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 240,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/480.jpg",
+      "unsafe_image_path": "data/mssbench/chat/481.jpg",
+      "cosine_similarity": 0.02654559724032879,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 241,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/482.jpg",
+      "unsafe_image_path": "data/mssbench/chat/483.jpg",
+      "cosine_similarity": 0.09469858556985855,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 242,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/484.jpg",
+      "unsafe_image_path": "data/mssbench/chat/485.jpg",
+      "cosine_similarity": 0.07531112432479858,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 243,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/486.jpg",
+      "unsafe_image_path": "data/mssbench/chat/487.jpg",
+      "cosine_similarity": 0.19087064266204834,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 244,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/488.jpg",
+      "unsafe_image_path": "data/mssbench/chat/489.jpg",
+      "cosine_similarity": 0.050230950117111206,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 245,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/490.jpg",
+      "unsafe_image_path": "data/mssbench/chat/491.jpg",
+      "cosine_similarity": 0.048925213515758514,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 246,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/492.jpg",
+      "unsafe_image_path": "data/mssbench/chat/493.jpg",
+      "cosine_similarity": -0.009926360100507736,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 247,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/494.jpg",
+      "unsafe_image_path": "data/mssbench/chat/495.jpg",
+      "cosine_similarity": 0.07884351909160614,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 248,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/496.jpg",
+      "unsafe_image_path": "data/mssbench/chat/497.jpg",
+      "cosine_similarity": 0.02519959583878517,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 249,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/498.jpg",
+      "unsafe_image_path": "data/mssbench/chat/499.jpg",
+      "cosine_similarity": 0.08507668972015381,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 250,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/500.jpg",
+      "unsafe_image_path": "data/mssbench/chat/501.jpg",
+      "cosine_similarity": 0.030078444629907608,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 251,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/502.jpg",
+      "unsafe_image_path": "data/mssbench/chat/503.jpg",
+      "cosine_similarity": 0.02303490787744522,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 252,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/504.jpg",
+      "unsafe_image_path": "data/mssbench/chat/505.jpg",
+      "cosine_similarity": -0.04081067442893982,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 253,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/506.jpg",
+      "unsafe_image_path": "data/mssbench/chat/507.jpg",
+      "cosine_similarity": -0.0008123312145471573,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 254,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/508.jpg",
+      "unsafe_image_path": "data/mssbench/chat/509.jpg",
+      "cosine_similarity": 0.09393146634101868,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 255,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/510.jpg",
+      "unsafe_image_path": "data/mssbench/chat/511.jpg",
+      "cosine_similarity": 0.041344087570905685,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 256,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/512.jpg",
+      "unsafe_image_path": "data/mssbench/chat/513.jpg",
+      "cosine_similarity": 0.011578631587326527,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 257,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/514.jpg",
+      "unsafe_image_path": "data/mssbench/chat/515.jpg",
+      "cosine_similarity": 0.06446914374828339,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 258,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/516.jpg",
+      "unsafe_image_path": "data/mssbench/chat/517.jpg",
+      "cosine_similarity": 0.072076715528965,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 259,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/518.jpg",
+      "unsafe_image_path": "data/mssbench/chat/519.jpg",
+      "cosine_similarity": 0.41650116443634033,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 260,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/520.jpg",
+      "unsafe_image_path": "data/mssbench/chat/521.jpg",
+      "cosine_similarity": 0.017137883231043816,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 261,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/522.jpg",
+      "unsafe_image_path": "data/mssbench/chat/523.jpg",
+      "cosine_similarity": 0.3175179064273834,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 262,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/524.jpg",
+      "unsafe_image_path": "data/mssbench/chat/525.jpg",
+      "cosine_similarity": 0.024235760793089867,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 263,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/526.jpg",
+      "unsafe_image_path": "data/mssbench/chat/527.jpg",
+      "cosine_similarity": 0.08954420685768127,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 264,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/528.jpg",
+      "unsafe_image_path": "data/mssbench/chat/529.jpg",
+      "cosine_similarity": 0.5998485088348389,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 265,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/530.jpg",
+      "unsafe_image_path": "data/mssbench/chat/531.jpg",
+      "cosine_similarity": 0.031429223716259,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 266,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/532.jpg",
+      "unsafe_image_path": "data/mssbench/chat/533.jpg",
+      "cosine_similarity": 0.18720147013664246,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 267,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/534.jpg",
+      "unsafe_image_path": "data/mssbench/chat/535.jpg",
+      "cosine_similarity": 0.08885425329208374,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 268,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/536.jpg",
+      "unsafe_image_path": "data/mssbench/chat/537.jpg",
+      "cosine_similarity": 0.16764917969703674,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 269,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/538.jpg",
+      "unsafe_image_path": "data/mssbench/chat/539.jpg",
+      "cosine_similarity": -0.03759334981441498,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 270,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/540.jpg",
+      "unsafe_image_path": "data/mssbench/chat/541.jpg",
+      "cosine_similarity": 0.05406459420919418,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 271,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/542.jpg",
+      "unsafe_image_path": "data/mssbench/chat/543.jpg",
+      "cosine_similarity": 0.07512772083282471,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 272,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/544.jpg",
+      "unsafe_image_path": "data/mssbench/chat/545.jpg",
+      "cosine_similarity": 0.04315189644694328,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 273,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/546.jpg",
+      "unsafe_image_path": "data/mssbench/chat/547.jpg",
+      "cosine_similarity": 0.1763651967048645,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 274,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/548.jpg",
+      "unsafe_image_path": "data/mssbench/chat/549.jpg",
+      "cosine_similarity": 0.04051484912633896,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 275,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/550.jpg",
+      "unsafe_image_path": "data/mssbench/chat/551.jpg",
+      "cosine_similarity": 0.06994947791099548,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 276,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/552.jpg",
+      "unsafe_image_path": "data/mssbench/chat/553.jpg",
+      "cosine_similarity": 0.03565094247460365,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 277,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/554.jpg",
+      "unsafe_image_path": "data/mssbench/chat/555.jpg",
+      "cosine_similarity": -0.0696471631526947,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 278,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/556.jpg",
+      "unsafe_image_path": "data/mssbench/chat/557.jpg",
+      "cosine_similarity": 0.11834865808486938,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 279,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/558.jpg",
+      "unsafe_image_path": "data/mssbench/chat/559.jpg",
+      "cosine_similarity": 0.018951088190078735,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 280,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/560.jpg",
+      "unsafe_image_path": "data/mssbench/chat/561.jpg",
+      "cosine_similarity": 0.001771806739270687,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 281,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/562.jpg",
+      "unsafe_image_path": "data/mssbench/chat/563.jpg",
+      "cosine_similarity": 0.052018605172634125,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 282,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/564.jpg",
+      "unsafe_image_path": "data/mssbench/chat/565.jpg",
+      "cosine_similarity": -0.005106265656650066,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 283,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/566.jpg",
+      "unsafe_image_path": "data/mssbench/chat/567.jpg",
+      "cosine_similarity": 0.7150505781173706,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 284,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/568.jpg",
+      "unsafe_image_path": "data/mssbench/chat/569.jpg",
+      "cosine_similarity": 0.0010561132803559303,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 285,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/570.jpg",
+      "unsafe_image_path": "data/mssbench/chat/571.jpg",
+      "cosine_similarity": 0.14597424864768982,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 286,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/572.jpg",
+      "unsafe_image_path": "data/mssbench/chat/573.jpg",
+      "cosine_similarity": 0.03287550434470177,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 287,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/574.jpg",
+      "unsafe_image_path": "data/mssbench/chat/575.jpg",
+      "cosine_similarity": 0.3293531537055969,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 288,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/576.jpg",
+      "unsafe_image_path": "data/mssbench/chat/577.jpg",
+      "cosine_similarity": 0.13661035895347595,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 289,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/578.jpg",
+      "unsafe_image_path": "data/mssbench/chat/579.jpg",
+      "cosine_similarity": -0.0005489122122526169,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 290,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/580.jpg",
+      "unsafe_image_path": "data/mssbench/chat/581.jpg",
+      "cosine_similarity": 0.09562873095273972,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 291,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/582.jpg",
+      "unsafe_image_path": "data/mssbench/chat/583.jpg",
+      "cosine_similarity": 0.06184399873018265,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 292,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/584.jpg",
+      "unsafe_image_path": "data/mssbench/chat/585.jpg",
+      "cosine_similarity": 0.5356718897819519,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 293,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/586.jpg",
+      "unsafe_image_path": "data/mssbench/chat/587.jpg",
+      "cosine_similarity": 0.09007322788238525,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 294,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/588.jpg",
+      "unsafe_image_path": "data/mssbench/chat/589.jpg",
+      "cosine_similarity": -0.05195150151848793,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 295,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/590.jpg",
+      "unsafe_image_path": "data/mssbench/chat/591.jpg",
+      "cosine_similarity": 0.052070312201976776,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 296,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/592.jpg",
+      "unsafe_image_path": "data/mssbench/chat/593.jpg",
+      "cosine_similarity": -0.010865358635783195,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 297,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/594.jpg",
+      "unsafe_image_path": "data/mssbench/chat/595.jpg",
+      "cosine_similarity": 0.13383683562278748,
+      "in_train_split": false
+    },
+    {
+      "rec_idx": 298,
+      "subset": "chat",
+      "type": "property",
+      "safe_image_path": "data/mssbench/chat/596.jpg",
+      "unsafe_image_path": "data/mssbench/chat/597.jpg",
+      "cosine_similarity": 0.10939547419548035,
+      "in_train_split": true
+    },
+    {
+      "rec_idx": 299,
+      "subset": "chat",
+      "type": "illegal",
+      "safe_image_path": "data/mssbench/chat/598.jpg",
+      "unsafe_image_path": "data/mssbench/chat/599.jpg",
+      "cosine_similarity": 0.1467801034450531,
+      "in_train_split": true
+    }
+  ]
+}

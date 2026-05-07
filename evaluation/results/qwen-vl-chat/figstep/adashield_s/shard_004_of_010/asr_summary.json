@@ -1,0 +1,10 @@
+{
+  "model": "qwen-vl-chat",
+  "benchmark": "figstep",
+  "intervention": "adashield_s",
+  "intervention_config": {},
+  "shard_index": 4,
+  "shard_count": 10,
+  "n_total": 50,
+  "asr_overall": 0.0
+}

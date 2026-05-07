@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
-"""Plot Probe Results: Cross-Evaluation Matrix and Layer-wise Curves"""
+"""Plot Probe Results: cross-evaluation heatmap and layer-wise curves.
+
+Reads `probe_results.json` produced by the multi-source `safety_probes.py`
+(5 probes × N test sets) and produces:
+
+  - cross_evaluation_heatmap.png  — all 5 probes × all available test sets
+                                    at the layer that maximizes the canonical
+                                    HoliSafe-TT compositional probe.
+  - accuracy_curves_{probe_id}.png — per-probe layer-wise accuracy curves
+                                    across the same test sets.
+"""
 
 import argparse
 import json
@@ -15,20 +25,95 @@ _PROJECT_ROOT = _DIAGNOSTIC_ROOT.parent
 sys.path.insert(0, str(_PROJECT_ROOT))
 from src.model import _normalize_model_name
 
-_EXPERIMENT_NAME = "combinatorial_safety"
-PROBES = ["content_probe", "combinatorial_probe"]
-PROBE_LABELS = {"content_probe": "Content (CatQA)", "combinatorial_probe": "Combinatorial (SSU-vs-SSS)"}
-TESTS = ["holisafe_eval_tt", "holisafe_eval_vl", "catqa_full", "ssu_behavioral"]
-TEST_LABELS = {
-    "holisafe_eval_tt": "HoliSafe Eval (TT)",
-    "holisafe_eval_vl": "HoliSafe Eval (VL)",
-    "catqa_full": "CatQA (full)",
-    "ssu_behavioral": "SSU Behavioral",
+_EXPERIMENT_NAME = "compositional_safety"
+
+PROBES = [
+    "semantic_safety_probe",
+    "compositional_safety_probe_holisafe_tt",
+    "compositional_safety_probe_holisafe_vl",
+    "compositional_safety_probe_mssbench_tt",
+    "compositional_safety_probe_mssbench_vl",
+]
+PROBE_LABELS = {
+    "semantic_safety_probe": "Semantic (CatQA)",
+    "compositional_safety_probe_holisafe_tt": "Comp. HoliSafe TT",
+    "compositional_safety_probe_holisafe_vl": "Comp. HoliSafe VL",
+    "compositional_safety_probe_mssbench_tt": "Comp. MSSBench TT",
+    "compositional_safety_probe_mssbench_vl": "Comp. MSSBench VL",
 }
-PROBE_COLORS = {"content_probe": "#2563eb", "combinatorial_probe": "#dc2626"}
+PROBE_COLORS = {
+    "semantic_safety_probe":                  "#2563eb",
+    "compositional_safety_probe_holisafe_tt": "#dc2626",
+    "compositional_safety_probe_holisafe_vl": "#ea580c",
+    "compositional_safety_probe_mssbench_tt": "#059669",
+    "compositional_safety_probe_mssbench_vl": "#7c3aed",
+}
+# The per-probe accuracy_curves_{tt,vl}/{probe}.png plots show ONLY safety-label
+# classification tests. Behavioral refusal-rate predictions live in their own
+# dedicated figures (plot_behavioral_eval.py) so the two evaluation regimes
+# (predict the dataset's safety label vs. predict the model's actual refusal)
+# don't share an axis. The cross-evaluation heatmap still surfaces every test.
+TESTS_TT_CLASSIFICATION = [
+    "catqa_eval",
+    "holisafe_eval_tt",
+    "holisafe_eval_sss_vs_usu_tt",
+    "holisafe_eval_sss_vs_suu_tt",
+    "holisafe_eval_sss_vs_uuu_tt",
+    "mssbench_eval_tt",
+]
+TESTS_TT_BEHAVIORAL = [
+    "ssu_behavioral_tt",
+    "mssbench_behavioral_tt",
+]
+TESTS_VL_CLASSIFICATION = [
+    "holisafe_eval_vl",
+    "holisafe_eval_sss_vs_usu_vl",
+    "holisafe_eval_sss_vs_suu_vl",
+    "holisafe_eval_sss_vs_uuu_vl",
+    "mssbench_eval_vl",
+]
+TESTS_VL_BEHAVIORAL = [
+    "ssu_behavioral_vl",
+    "mssbench_behavioral_vl",
+]
+TESTS_TT = TESTS_TT_CLASSIFICATION + TESTS_TT_BEHAVIORAL
+TESTS_VL = TESTS_VL_CLASSIFICATION + TESTS_VL_BEHAVIORAL
+TESTS = TESTS_TT + TESTS_VL  # used for the cross-evaluation heatmap
+TEST_LABELS = {
+    "catqa_eval":                    "CatQA Eval",
+    "holisafe_eval_tt":              "HoliSafe Eval SSS/SSU (TT)",
+    "ssu_behavioral_tt":             "HoliSafe SSU Behavioral (TT)",
+    "mssbench_behavioral_tt":        "MSSBench Behavioral (TT)",
+    "holisafe_eval_sss_vs_usu_tt":   "HoliSafe SSS-vs-USU (TT)",
+    "holisafe_eval_sss_vs_suu_tt":   "HoliSafe SSS-vs-SUU (TT)",
+    "holisafe_eval_sss_vs_uuu_tt":   "HoliSafe SSS-vs-UUU (TT)",
+    "mssbench_eval_tt":              "MSSBench Eval (TT)",
+    "holisafe_eval_vl":              "HoliSafe Eval SSS/SSU (VL)",
+    "ssu_behavioral_vl":             "HoliSafe SSU Behavioral (VL)",
+    "mssbench_behavioral_vl":        "MSSBench Behavioral (VL)",
+    "holisafe_eval_sss_vs_usu_vl":   "HoliSafe SSS-vs-USU (VL)",
+    "holisafe_eval_sss_vs_suu_vl":   "HoliSafe SSS-vs-SUU (VL)",
+    "holisafe_eval_sss_vs_uuu_vl":   "HoliSafe SSS-vs-UUU (VL)",
+    "mssbench_eval_vl":              "MSSBench Eval (VL)",
+}
+# (marker, linestyle, color). Behavioral tests get distinct markers (D and *)
+# so they're easy to spot against the SSS/SSU eval lines.
 TEST_STYLES = {
-    "holisafe_eval_tt": ("o", "-"), "holisafe_eval_vl": ("s", "--"),
-    "catqa_full": ("^", ":"), "ssu_behavioral": ("D", "-."),
+    "catqa_eval":                    ("^", ":",  "#7f7f7f"),
+    "holisafe_eval_tt":              ("o", "-",  "#1f77b4"),
+    "ssu_behavioral_tt":             ("D", "-.", "#9467bd"),
+    "mssbench_behavioral_tt":        ("*", "-.", "#e377c2"),
+    "holisafe_eval_sss_vs_usu_tt":   ("v", "-",  "#ff7f0e"),
+    "holisafe_eval_sss_vs_suu_tt":   ("v", "-",  "#2ca02c"),
+    "holisafe_eval_sss_vs_uuu_tt":   ("v", "-",  "#d62728"),
+    "mssbench_eval_tt":              ("P", "-",  "#7c3aed"),
+    "holisafe_eval_vl":              ("s", "--", "#1f77b4"),
+    "ssu_behavioral_vl":             ("D", "-.", "#9467bd"),
+    "mssbench_behavioral_vl":        ("*", "-.", "#e377c2"),
+    "holisafe_eval_sss_vs_usu_vl":   ("v", "-",  "#ff7f0e"),
+    "holisafe_eval_sss_vs_suu_vl":   ("v", "-",  "#2ca02c"),
+    "holisafe_eval_sss_vs_uuu_vl":   ("v", "-",  "#d62728"),
+    "mssbench_eval_vl":              ("P", "--", "#7c3aed"),
 }
 
 
@@ -64,57 +149,109 @@ def main():
         print(f"Saved -> {path}")
         plt.close(fig)
 
-    best_key = "combinatorial_probe__holisafe_eval_tt__accuracy"
+    # Subset PROBES/TESTS to those that actually have data (avoids empty rows
+    # when MSSBench probes/tests are not yet computed for a model).
+    def _has_any(probe_or_test_key: str) -> bool:
+        return any(probe_or_test_key in r for r in data)
+
+    present_probes = []
+    for probe in PROBES:
+        for test in TESTS:
+            if _has_any(f"{probe}__{test}__accuracy"):
+                present_probes.append(probe)
+                break
+
+    def _present_subset(test_list):
+        return [t for t in test_list if any(
+            _has_any(f"{p}__{t}__accuracy") for p in present_probes)]
+
+    present_tests = _present_subset(TESTS)
+    # Per-probe curves: classification only (behavioral lives in plot_behavioral_eval.py).
+    present_tests_tt = _present_subset(TESTS_TT_CLASSIFICATION)
+    present_tests_vl = _present_subset(TESTS_VL_CLASSIFICATION)
+
+    # ── Cross-evaluation heatmap at the best HoliSafe-TT layer ─────────────
+    best_key = "compositional_safety_probe_holisafe_tt__holisafe_eval_tt__accuracy"
     accs = [(i, d.get(best_key)) for i, d in enumerate(data) if d.get(best_key) is not None]
     if accs:
         best_idx = max(accs, key=lambda t: t[1])[0]
         best_row = data[best_idx]
         best_layer = best_row["layer"]
-        matrix = np.full((len(PROBES), len(TESTS)), float("nan"))
-        for i, probe in enumerate(PROBES):
-            for j, test in enumerate(TESTS):
+        matrix = np.full((len(present_probes), len(present_tests)), float("nan"))
+        for i, probe in enumerate(present_probes):
+            for j, test in enumerate(present_tests):
                 v = best_row.get(f"{probe}__{test}__accuracy")
                 if v is not None:
                     matrix[i, j] = v
-        fig, ax = plt.subplots(figsize=(9, 4))
+        fig_w = max(9.0, 1.6 * len(present_tests))
+        fig_h = max(4.0, 0.8 * len(present_probes) + 1.5)
+        fig, ax = plt.subplots(figsize=(fig_w, fig_h))
         im = ax.imshow(matrix, cmap="RdYlGn", aspect="auto", vmin=0.4, vmax=1.0)
-        ax.set_xticks(range(len(TESTS)))
-        ax.set_xticklabels([TEST_LABELS[t] for t in TESTS], fontsize=9, rotation=15, ha="right")
-        ax.set_yticks(range(len(PROBES)))
-        ax.set_yticklabels([PROBE_LABELS[p] for p in PROBES], fontsize=9)
-        for i in range(len(PROBES)):
-            for j in range(len(TESTS)):
+        ax.set_xticks(range(len(present_tests)))
+        ax.set_xticklabels([TEST_LABELS[t] for t in present_tests],
+                           fontsize=9, rotation=20, ha="right")
+        ax.set_yticks(range(len(present_probes)))
+        ax.set_yticklabels([PROBE_LABELS[p] for p in present_probes], fontsize=9)
+        for i in range(len(present_probes)):
+            for j in range(len(present_tests)):
                 v = matrix[i, j]
                 if not np.isnan(v):
-                    color = "white" if v > 0.75 or v < 0.45 else "black"
-                    ax.text(j, i, f"{v:.2f}", ha="center", va="center", fontsize=11, color=color)
-        ax.set_title(f"Cross-Evaluation at Best Layer ({best_layer}) · {model_name}")
+                    color = "white" if v > 0.78 or v < 0.45 else "black"
+                    ax.text(j, i, f"{v:.2f}", ha="center", va="center",
+                            fontsize=10, color=color)
+        ax.set_title(
+            f"Cross-Evaluation at Best Layer ({best_layer}) · {model_name}\n"
+            f"(layer chosen by max accuracy of comp_holisafe_tt on holisafe_eval_tt)"
+        )
         fig.colorbar(im, ax=ax, label="Accuracy", shrink=0.8)
         fig.tight_layout()
         _save(fig, "cross_evaluation_heatmap.png")
 
-    for probe in PROBES:
+    # ── Per-probe layer-wise accuracy curves (split by representation) ─────
+    # Two folders so users can browse one modality at a time:
+    #   plots/accuracy_curves_tt/{probe_id}.png — text-only test sets
+    #   plots/accuracy_curves_vl/{probe_id}.png — image+text test sets
+    def _plot_probe_curves(probe: str, tests: list, modality: str):
+        if not tests:
+            return
         fig, ax = plt.subplots(figsize=(14, 5))
-        for test in TESTS:
+        plotted = False
+        for test in tests:
             key = f"{probe}__{test}__accuracy"
             vals = [d.get(key) for d in data]
             mask = np.array([v is not None for v in vals])
             if not any(mask):
                 continue
             arr = np.array([v if v is not None else float("nan") for v in vals])
-            marker, ls = TEST_STYLES[test]
+            style = TEST_STYLES.get(test, ("o", "-", None))
+            marker, ls = style[0], style[1]
+            color = style[2] if len(style) >= 3 and style[2] else None
             ax.plot(x[mask], arr[mask], marker=marker, linestyle=ls,
-                    markersize=5, linewidth=1.5, label=TEST_LABELS[test], alpha=0.85)
-        ax.axhline(0.5, color="#888", linewidth=1, linestyle=":", alpha=0.5, label="Chance")
+                    markersize=5, linewidth=1.5,
+                    color=color, label=TEST_LABELS[test], alpha=0.85)
+            plotted = True
+        if not plotted:
+            plt.close(fig)
+            return
+        ax.axhline(0.5, color="#888", linewidth=1, linestyle=":", alpha=0.5,
+                   label="Chance")
         ax.set_ylabel("Accuracy")
-        ax.set_title(f"Layer-wise: {PROBE_LABELS[probe]} · {model_name}")
+        ax.set_title(
+            f"Layer-wise · {PROBE_LABELS[probe]} · {modality.upper()} test sets · {model_name}"
+        )
         ax.set_xticks(x)
         ax.set_xticklabels([str(l) for l in layers], fontsize=8)
         ax.set_xlabel("Transformer Layer")
         ax.set_ylim(0.35, 1.05)
-        ax.legend(loc="upper left", framealpha=0.9, fontsize=9)
+        ax.legend(loc="upper left", framealpha=0.9, fontsize=9, ncol=2)
         fig.tight_layout()
-        _save(fig, f"accuracy_curves_{probe}.png")
+        sub = out_dir / f"accuracy_curves_{modality}"
+        sub.mkdir(parents=True, exist_ok=True)
+        _save(fig, str(Path(f"accuracy_curves_{modality}") / f"{probe}_eval_{modality}.png"))
+
+    for probe in present_probes:
+        _plot_probe_curves(probe, present_tests_tt, "tt")
+        _plot_probe_curves(probe, present_tests_vl, "vl")
 
 
 if __name__ == "__main__":

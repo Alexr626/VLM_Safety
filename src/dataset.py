@@ -233,8 +233,10 @@ def _build_sample(
             candidate = os.path.join(images_base, "images", raw_img_str)
             if os.path.exists(candidate):
                 return candidate
-            # Fall back to direct join
-            return os.path.join(images_base, raw_img_str)
+            # Fall back to the same images/<rel> shape so downstream HF-download
+            # logic can reconstruct the repo-relative path even when nothing
+            # exists locally.
+            return os.path.join(images_base, "images", raw_img_str)
         return raw_img_str
 
     if image_field and image_field in entry:
@@ -766,20 +768,23 @@ REFERENCE_REGISTRY: Dict[str, dict] = {
 def split_holisafe_train_eval(
     sss_samples: List[dict],
     ssu_samples: List[dict],
-    n_train: int = 175,
+    n_eval: int = 175,
     seed: int = 42,
     save_dir: Optional[str] = None,
 ) -> Tuple[List[dict], List[dict], List[dict], List[dict]]:
     """
     Partition SSS and SSU samples into train/eval sets, stratified by harm category.
 
-    On subsequent calls with matching seed and n_train, loads the saved split
+    On subsequent calls with matching seed and n_eval, loads the saved split
     rather than recomputing.
 
     Args:
         sss_samples: list of SSS sample dicts
         ssu_samples: list of SSU sample dicts
-        n_train: number of training samples per group (SSS and SSU each)
+        n_eval: target number of evaluation samples per group (SSS and SSU each).
+                Allocated proportionally per category. The rest of each group goes
+                to training. Default 175 ≈ 25% eval for the typical HoliSafe pool
+                (yielding the desired 75/25 train/eval split for the probes).
         seed: random seed for reproducibility
         save_dir: directory to save/load the split JSON.
                   Defaults to <repo_root>/data/holisafe-bench/
@@ -798,11 +803,12 @@ def split_holisafe_train_eval(
     sss_by_id = {s["id"]: s for s in sss_samples}
     ssu_by_id = {s["id"]: s for s in ssu_samples}
 
-    # Try loading existing split
+    # Try loading existing split (only honor it if it was saved with the new
+    # n_eval-keyed schema and matches; older n_train-keyed splits are discarded).
     if split_path.exists():
         with open(split_path) as f:
             saved = json.load(f)
-        if saved.get("seed") == seed and saved.get("n_train") == n_train:
+        if saved.get("seed") == seed and saved.get("n_eval") == n_eval:
             print(f"  Loading saved train/eval split from {split_path}")
             sss_train = [sss_by_id[i] for i in saved["sss_train_ids"] if i in sss_by_id]
             sss_eval = [sss_by_id[i] for i in saved["sss_eval_ids"] if i in sss_by_id]
@@ -812,8 +818,8 @@ def split_holisafe_train_eval(
             print(f"  SSU: {len(ssu_train)} train, {len(ssu_eval)} eval")
             return sss_train, sss_eval, ssu_train, ssu_eval
 
-    def _stratified_split(samples, n_train_group, rng):
-        """Split samples stratified by category, allocating n_train_group to train."""
+    def _stratified_split(samples, n_eval_group, rng):
+        """Split samples stratified by category, allocating n_eval_group to eval."""
         by_cat = {}
         for s in samples:
             by_cat.setdefault(s["category"], []).append(s)
@@ -823,22 +829,22 @@ def split_holisafe_train_eval(
 
         for cat, cat_samples in sorted(by_cat.items()):
             rng.shuffle(cat_samples)
-            # Proportional allocation
-            n_cat_train = max(1, round(len(cat_samples) * n_train_group / total))
-            n_cat_train = min(n_cat_train, len(cat_samples) - 1)  # keep at least 1 for eval
-            train_ids.extend(cat_samples[:n_cat_train])
-            eval_ids.extend(cat_samples[n_cat_train:])
+            # Proportional allocation of eval; rest goes to train.
+            n_cat_eval = max(1, round(len(cat_samples) * n_eval_group / total))
+            n_cat_eval = min(n_cat_eval, len(cat_samples) - 1)  # keep at least 1 for train
+            eval_ids.extend(cat_samples[:n_cat_eval])
+            train_ids.extend(cat_samples[n_cat_eval:])
 
         return train_ids, eval_ids
 
     rng = random.Random(seed)
-    sss_train, sss_eval = _stratified_split(sss_samples, n_train, rng)
-    ssu_train, ssu_eval = _stratified_split(ssu_samples, n_train, rng)
+    sss_train, sss_eval = _stratified_split(sss_samples, n_eval, rng)
+    ssu_train, ssu_eval = _stratified_split(ssu_samples, n_eval, rng)
 
     # Persist
     split_data = {
         "seed": seed,
-        "n_train": n_train,
+        "n_eval": n_eval,
         "sss_train_ids": [s["id"] for s in sss_train],
         "sss_eval_ids": [s["id"] for s in sss_eval],
         "ssu_train_ids": [s["id"] for s in ssu_train],
@@ -854,5 +860,514 @@ def split_holisafe_train_eval(
     return sss_train, sss_eval, ssu_train, ssu_eval
 
 
+def extend_holisafe_eval_compositional(
+    reference_subsets: dict,
+    n_eval: int = 175,
+    seed: int = 42,
+    save_dir: Optional[str] = None,
+    subsets: Optional[List[str]] = None,
+) -> dict:
+    """
+    Append eval-only id lists for the compositional-unsafety subsets
+    (USU, SUU, UUU) to the existing train_eval_split.json.
+
+    Each list is stratified by harm category to mirror the proportions in the
+    full pool of that subset, and is sized at ~n_eval. Idempotent: keys that
+    are already present (and non-empty) are not regenerated. SSS/SSU keys
+    are never touched.
+
+    Args:
+        reference_subsets: output of `filter_reference_subsets(entries, ...)`.
+                           A dict keyed by raw HoliSafe `type` string
+                           (SSS / SSU / SUU / USU / UUU) with sample lists.
+        n_eval: target eval-set size per subset.
+        seed: master seed; per-subset deterministic streams are derived from it.
+        save_dir: directory holding train_eval_split.json. Defaults to
+                  <repo_root>/data/holisafe-bench/.
+        subsets: subsets to add (defaults to ["SUU", "USU", "UUU"]).
+
+    Returns:
+        The full updated split dict (after read-modify-write).
+
+    Raises:
+        FileNotFoundError if train_eval_split.json does not exist (call
+        `split_holisafe_train_eval` first).
+        ValueError if the existing split's seed/n_eval don't match.
+    """
+    import random
+
+    if subsets is None:
+        subsets = ["SUU", "USU", "UUU"]
+
+    repo_root = Path(__file__).resolve().parent.parent
+    if save_dir is None:
+        save_dir = str(repo_root / "data" / "holisafe-bench")
+    split_path = Path(save_dir) / "train_eval_split.json"
+
+    if not split_path.exists():
+        raise FileNotFoundError(
+            f"{split_path} not found. Run split_holisafe_train_eval(...) first "
+            "to create the SSS/SSU split."
+        )
+
+    with open(split_path) as f:
+        split = json.load(f)
+
+    if split.get("seed") != seed or split.get("n_eval") != n_eval:
+        raise ValueError(
+            f"Existing split has seed={split.get('seed')}, "
+            f"n_eval={split.get('n_eval')}; refusing to extend with "
+            f"seed={seed}, n_eval={n_eval}. Either rerun "
+            "split_holisafe_train_eval with these values, or pass matching "
+            "seed/n_eval here."
+        )
+
+    def _stratified_eval_only(samples: List[dict], n_eval_target: int,
+                              rng: "random.Random") -> List[dict]:
+        """Pick a stratified-by-category subset of ~n_eval_target samples."""
+        by_cat: Dict[str, List[dict]] = {}
+        for s in samples:
+            by_cat.setdefault(s.get("category", "unknown"), []).append(s)
+        total = len(samples)
+        out: List[dict] = []
+        for cat, cat_samples in sorted(by_cat.items()):
+            cat_samples = list(cat_samples)
+            rng.shuffle(cat_samples)
+            n_cat = max(1, round(len(cat_samples) * n_eval_target / total))
+            n_cat = min(n_cat, len(cat_samples))
+            out.extend(cat_samples[:n_cat])
+        return out
+
+    changed = False
+    for subset in subsets:
+        key = f"{subset.lower()}_eval_ids"
+        if split.get(key):
+            print(f"  [{subset}] {key} already present "
+                  f"({len(split[key])} ids); skipping.")
+            continue
+        samples = reference_subsets.get(subset)
+        if not samples:
+            print(f"  [{subset}] no samples available in reference_subsets; "
+                  "skipping.")
+            continue
+        rng_seed = seed + sum(ord(c) for c in subset)
+        rng = random.Random(rng_seed)
+        picked = _stratified_eval_only(samples, n_eval, rng)
+        split[key] = sorted(s["id"] for s in picked)
+        print(f"  [{subset}] picked {len(picked)} eval samples (target {n_eval}, "
+              f"pool {len(samples)})")
+        changed = True
+
+    if changed:
+        # Atomic-ish write: write to .tmp then rename.
+        tmp_path = split_path.with_suffix(".json.tmp")
+        with open(tmp_path, "w") as f:
+            json.dump(split, f, indent=2)
+        tmp_path.replace(split_path)
+        print(f"  Saved extended split → {split_path}")
+    else:
+        print("  No new keys added; train_eval_split.json unchanged.")
+
+    return split
+
+
+def split_catqa_train_eval(
+    n_samples: int = 550,
+    n_eval: int = 132,
+    seed: int = 42,
+    cache_dir: Optional[str] = None,
+    save_dir: Optional[str] = None,
+) -> Tuple[List[int], List[int]]:
+    """
+    Stratified train/eval split of the CatQA pool used during reference
+    activation extraction, by category.
+
+    Returns indices into the rows of `activation_matrices.npz`. To stay aligned
+    with the rows produced by `extract_ref_activations.py`, the same loader
+    (and same `n_samples`/`seed`) is used here to recover the row order:
+    activation row `i` corresponds to the i-th sample returned by
+    `load_catqa_harmful_reference(n_samples=n_samples, seed=seed)` (whose `id`
+    is `catqa_harmful_{i}`).
+
+    Args:
+        n_samples: must match the `n_samples` used at extraction time (read
+                   from each model's `metadata.json`).
+        n_eval: target total number of eval examples across categories,
+                allocated proportionally. The final eval size is approximate
+                because per-category counts are integer-rounded.
+        seed: random seed; must match extraction-time seed for row alignment.
+        cache_dir: directory containing catqa_contrastive_pairs.json.
+        save_dir: directory to persist the split JSON. Defaults to
+                  `<repo_root>/data/catqa-contrastive/splits/`. The split file
+                  is keyed by (n_samples, seed, n_eval) so different
+                  extractions don't collide.
+
+    Returns:
+        (train_indices, eval_indices) — sorted lists of integer row indices.
+    """
+    repo_root = Path(__file__).resolve().parent.parent
+    if cache_dir is None:
+        cache_dir = str(repo_root / "data" / "catqa-contrastive")
+    if save_dir is None:
+        save_dir = str(repo_root / "data" / "catqa-contrastive" / "splits")
+    split_path = (Path(save_dir) /
+                  f"train_eval_split_n{n_samples}_seed{seed}_neval{n_eval}.json")
+
+    # Use the same loader that extraction used, so id catqa_harmful_i
+    # corresponds to row i of the activation matrix.
+    samples = load_catqa_harmful_reference(
+        n_samples=n_samples, cache_dir=cache_dir, seed=seed
+    )
+    n_total = len(samples)
+    if n_eval >= n_total:
+        raise ValueError(
+            f"n_eval={n_eval} >= n_total={n_total}: not enough samples to split. "
+            "Re-extract reference activations with a larger REF_SAMPLES."
+        )
+    if n_eval > n_total * 0.5:
+        print(f"  WARNING: n_eval={n_eval} is more than half of n_total={n_total}; "
+              "consider re-extracting with a larger REF_SAMPLES.")
+
+    if split_path.exists():
+        with open(split_path) as f:
+            saved = json.load(f)
+        if (saved.get("seed") == seed
+                and saved.get("n_eval") == n_eval
+                and saved.get("n_samples") == n_samples
+                and saved.get("n_total") == n_total):
+            print(f"  Loading saved CatQA split from {split_path}")
+            train_idx = sorted(saved["train_indices"])
+            eval_idx = sorted(saved["eval_indices"])
+            print(f"  CatQA: {len(train_idx)} train, {len(eval_idx)} eval")
+            return train_idx, eval_idx
+
+    import random
+    by_cat: Dict[str, List[int]] = {}
+    for i, s in enumerate(samples):
+        by_cat.setdefault(s.get("category", "unknown"), []).append(i)
+
+    rng = random.Random(seed + 1)  # offset to decouple from loader's RNG
+    train_idx, eval_idx = [], []
+    for cat, idxs in sorted(by_cat.items()):
+        idxs = list(idxs)
+        rng.shuffle(idxs)
+        n_cat_eval = max(1, round(len(idxs) * n_eval / n_total))
+        n_cat_eval = min(n_cat_eval, len(idxs) - 1)
+        eval_idx.extend(idxs[:n_cat_eval])
+        train_idx.extend(idxs[n_cat_eval:])
+
+    train_idx.sort()
+    eval_idx.sort()
+
+    eval_cat_counts = {c: 0 for c in by_cat}
+    train_cat_counts = {c: 0 for c in by_cat}
+    for i in eval_idx:
+        eval_cat_counts[samples[i].get("category", "unknown")] += 1
+    for i in train_idx:
+        train_cat_counts[samples[i].get("category", "unknown")] += 1
+
+    split_data = {
+        "seed": seed,
+        "n_samples": n_samples,
+        "n_eval": n_eval,
+        "n_total": n_total,
+        "train_indices": train_idx,
+        "eval_indices": eval_idx,
+        "train_category_counts": train_cat_counts,
+        "eval_category_counts": eval_cat_counts,
+    }
+    Path(save_dir).mkdir(parents=True, exist_ok=True)
+    with open(split_path, "w") as f:
+        json.dump(split_data, f, indent=2)
+    print(f"  Saved CatQA train/eval split → {split_path}")
+    print(f"  CatQA: {len(train_idx)} train, {len(eval_idx)} eval")
+
+    return train_idx, eval_idx
+
+
+# ── MSSBench (diagnostic-side loader; eval-side loader lives at evaluation/benchmarks/mssbench.py) ──
+#
+# MSSBench has paired SSS/SSU samples on the same query — the IMAGE alone
+# determines whether a refusal is the safe response. Each chat record produces
+# 2 × len(queries) diagnostic-side samples, so per-pair PCA is well-defined:
+# for matching (rec_idx, q_idx), the SSS sample uses safe_image_path and the
+# SSU sample uses unsafe_image_path with the same question.
+#
+# The id format below MUST match `EvalSample.id` produced by
+# `evaluation/benchmarks/mssbench.py:153` so that activations cached on the
+# diagnostic side can be addressed by the eval-side EvalSample.id (and vice
+# versa). When changing one, change both.
+def load_mssbench(
+    data_dir: Optional[str] = None,
+    splits: Tuple[str, ...] = ("chat",),
+) -> List[dict]:
+    """Load MSSBench as diagnostic-side sample dicts (parallel to HoliSafe).
+
+    Per-sample dict schema:
+      {
+        "id":           "mssbench_{rec_idx:04d}_{SSS|SSU}_{stem}_q{q_idx}",
+        "image_path":   str (absolute),
+        "image_pil":    PIL.Image,
+        "text":         str (the query),
+        "label":        "SSS" or "SSU",
+        "label_idx":    0 or 1,
+        "subset_type":  "SSS" or "SSU",
+        "category":     str (record's "Type" field, e.g. "harmful"|"property"|...),
+        "rec_idx":      int,
+        "q_idx":        int,
+        "raw":          dict (full record),
+      }
+    """
+    repo_root = Path(__file__).resolve().parent.parent
+    if data_dir is None:
+        data_dir = str(repo_root / "data" / "mssbench")
+    data_dir = Path(data_dir)
+    records_path = data_dir / "combined.json"
+    if not records_path.exists():
+        raise FileNotFoundError(
+            f"MSSBench combined.json not found at {records_path}.\n"
+            "Run: python evaluation/scripts/download_mssbench.py"
+        )
+    with open(records_path) as f:
+        raw = json.load(f)
+    if isinstance(raw, dict):
+        records: List[dict] = []
+        for split in splits:
+            if split in raw and isinstance(raw[split], list):
+                records.extend(raw[split])
+        if not records:
+            raise ValueError(
+                f"No records in combined.json for splits {splits}. "
+                f"Available: {list(raw.keys())}"
+            )
+    elif isinstance(raw, list):
+        records = raw
+    else:
+        raise ValueError(f"Unexpected combined.json type: {type(raw).__name__}")
+
+    def _resolve(rel: str) -> Optional[Path]:
+        if not rel:
+            return None
+        for split in splits:
+            cand = data_dir / split / rel
+            if cand.exists():
+                return cand
+        cand = data_dir / rel
+        return cand if cand.exists() else None
+
+    samples: List[dict] = []
+    for rec_idx, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        queries = record.get("queries") or []
+        if not isinstance(queries, list):
+            continue
+        rec_type = record.get("Type") or record.get("type") or "unknown"
+        for variant_label, path_field in (
+            ("SSS", "safe_image_path"),
+            ("SSU", "unsafe_image_path"),
+        ):
+            rel = record.get(path_field)
+            if not isinstance(rel, str) or not rel.strip():
+                continue
+            img_path = _resolve(rel)
+            if img_path is None:
+                continue
+            try:
+                image = Image.open(img_path).convert("RGB")
+            except Exception as e:
+                print(f"  [mssbench] failed to open {img_path}: {e}")
+                continue
+            stem = img_path.stem
+            for q_idx, question in enumerate(queries):
+                if not isinstance(question, str) or not question.strip():
+                    continue
+                sid = f"mssbench_{rec_idx:04d}_{variant_label}_{stem}_q{q_idx}"
+                samples.append({
+                    "id": sid,
+                    "image_path": str(img_path),
+                    "image_pil": image,
+                    "text": question,
+                    "label": variant_label,
+                    "label_idx": 0 if variant_label == "SSS" else 1,
+                    "subset_type": variant_label,
+                    "category": rec_type,
+                    "rec_idx": rec_idx,
+                    "q_idx": q_idx,
+                    "raw": record,
+                })
+    return samples
+
+
+def split_mssbench_train_eval(
+    samples: Optional[List[dict]] = None,
+    train_frac: float = 0.75,
+    seed: int = 42,
+    save_dir: Optional[str] = None,
+) -> dict:
+    """Stratified-by-Type, **record-level** train/eval split of MSSBench.
+
+    Both image variants (SSS + SSU) of every (rec_idx, q_idx) pair stay in
+    the same split — the unit being shuffled is the record, not the sample.
+
+    Persists a `train_eval_split.json` under `data/mssbench/`. Idempotent:
+    a saved file matching seed and train_frac is reused.
+
+    Returns the persisted split dict.
+    """
+    import random
+
+    repo_root = Path(__file__).resolve().parent.parent
+    if save_dir is None:
+        save_dir = str(repo_root / "data" / "mssbench")
+    split_path = Path(save_dir) / "train_eval_split.json"
+
+    if split_path.exists():
+        with open(split_path) as f:
+            saved = json.load(f)
+        if (saved.get("seed") == seed
+                and abs(float(saved.get("train_frac", -1)) - train_frac) < 1e-9):
+            print(f"  Loading saved MSSBench split from {split_path}")
+            return saved
+
+    if samples is None:
+        samples = load_mssbench()
+
+    # Group sample ids by record; record's Type drives stratification.
+    by_record: Dict[int, dict] = {}
+    for s in samples:
+        rec = by_record.setdefault(s["rec_idx"], {
+            "rec_idx": s["rec_idx"],
+            "type": s["category"],
+            "sample_ids": [],
+            "pair_keys": set(),
+        })
+        rec["sample_ids"].append(s["id"])
+        rec["pair_keys"].add((s["rec_idx"], s["q_idx"]))
+
+    # Stratify rec_idx by type.
+    by_type: Dict[str, List[int]] = {}
+    for rec_idx, rec in by_record.items():
+        by_type.setdefault(rec["type"], []).append(rec_idx)
+
+    rng = random.Random(seed)
+    train_record_ids: List[int] = []
+    eval_record_ids: List[int] = []
+    category_counts: Dict[str, dict] = {}
+    for cat, rec_list in sorted(by_type.items()):
+        rec_list = list(rec_list)
+        rng.shuffle(rec_list)
+        n_train = max(1, round(len(rec_list) * train_frac))
+        n_train = min(n_train, len(rec_list) - 1)  # keep at least 1 for eval
+        train_record_ids.extend(rec_list[:n_train])
+        eval_record_ids.extend(rec_list[n_train:])
+        category_counts[cat] = {
+            "train_records": n_train,
+            "eval_records": len(rec_list) - n_train,
+        }
+
+    train_set = set(train_record_ids)
+    train_sample_ids: List[str] = []
+    eval_sample_ids: List[str] = []
+    train_pair_keys: List[List[int]] = []
+    eval_pair_keys: List[List[int]] = []
+    for rec_idx, rec in by_record.items():
+        bucket_samples = train_sample_ids if rec_idx in train_set else eval_sample_ids
+        bucket_pairs = train_pair_keys if rec_idx in train_set else eval_pair_keys
+        bucket_samples.extend(sorted(rec["sample_ids"]))
+        bucket_pairs.extend(sorted([list(pk) for pk in rec["pair_keys"]]))
+
+    split_data = {
+        "seed": seed,
+        "train_frac": train_frac,
+        "train_record_ids": sorted(train_record_ids),
+        "eval_record_ids": sorted(eval_record_ids),
+        "train_sample_ids": sorted(train_sample_ids),
+        "eval_sample_ids": sorted(eval_sample_ids),
+        "train_pair_keys": sorted(train_pair_keys),
+        "eval_pair_keys": sorted(eval_pair_keys),
+        "stratified_by": "Type",
+        "category_counts": category_counts,
+    }
+    Path(save_dir).mkdir(parents=True, exist_ok=True)
+    with open(split_path, "w") as f:
+        json.dump(split_data, f, indent=2)
+    print(f"  Saved MSSBench train/eval split → {split_path}")
+    print(f"  Records: {len(train_record_ids)} train / {len(eval_record_ids)} eval")
+    print(f"  Samples: {len(train_sample_ids)} train / {len(eval_sample_ids)} eval")
+    return split_data
+
+
+# ── Source-of-truth dataset path mapping ─────────────────────────────────────
+# Used by extract_vl/tt.py, compositional_safety_direction.py, and safety_probes.py
+# so per-dataset paths flow from a single registry rather than scattered hardcodes.
+DATASET_DATA_DIRS: Dict[str, str] = {
+    "holisafe": "holisafe-bench",
+    "mssbench": "mssbench",
+    "mm_safetybench": "mm-safetybench",
+    "figstep": "figstep",
+}
+
+
+def model_data_root(benchmark: str, model_short: str,
+                    project_root: Optional[Path] = None) -> Path:
+    """Return data/{benchmark_dir}/{model_short}/.
+
+    Convention: every per-model artifact under a benchmark lives at
+        data/{benchmark_dir}/{model_short}/{activations|responses}/...
+    """
+    root = project_root or Path(__file__).resolve().parent.parent
+    return root / "data" / DATASET_DATA_DIRS.get(benchmark, benchmark) / model_short
+
+
+def model_activations_dir(benchmark: str, model_short: str,
+                          project_root: Optional[Path] = None) -> Path:
+    return model_data_root(benchmark, model_short, project_root) / "activations"
+
+
+def model_responses_dir(benchmark: str, model_short: str,
+                        intervention: str = "vanilla",
+                        project_root: Optional[Path] = None) -> Path:
+    """Return data/{benchmark_dir}/{model_short}/responses/{intervention}/."""
+    return model_data_root(benchmark, model_short, project_root) / "responses" / intervention
+
+
 if __name__ == "__main__":
-    load_holisafe()
+    import argparse
+
+    p = argparse.ArgumentParser(
+        description="Persist train/eval splits for downstream diagnostics. "
+                    "Without --mssbench_split: extends HoliSafe "
+                    "train_eval_split.json with eval-only id lists for the "
+                    "compositional-unsafety subsets (USU/SUU/UUU). "
+                    "With --mssbench_split: produces "
+                    "data/mssbench/train_eval_split.json (record-level, "
+                    "stratified by Type)."
+    )
+    p.add_argument("--mssbench_split", action="store_true",
+                   help="Generate the MSSBench 75/25 record-level split JSON.")
+    p.add_argument("--mssbench_train_frac", type=float, default=0.75,
+                   help="Train fraction for --mssbench_split (default 0.75).")
+    p.add_argument("--n_eval", type=int, default=175,
+                   help="HoliSafe target eval-set size per subset (default 175).")
+    p.add_argument("--seed", type=int, default=42,
+                   help="Master seed for stratified sampling.")
+    p.add_argument("--cache_dir", default=None,
+                   help="HuggingFace cache dir for HoliSafe download.")
+    p.add_argument("--subsets", nargs="+", default=["SUU", "USU", "UUU"],
+                   choices=["SSS", "SSU", "SUU", "USU", "UUU"],
+                   help="HoliSafe subsets to add (default: SUU USU UUU).")
+    args = p.parse_args()
+
+    if args.mssbench_split:
+        split_mssbench_train_eval(
+            train_frac=args.mssbench_train_frac, seed=args.seed,
+        )
+    else:
+        entries, images_base = load_holisafe(cache_dir=args.cache_dir)
+        refs = filter_reference_subsets(entries, images_base)
+        print("Pool sizes per subset:",
+              {k: len(v) for k, v in sorted(refs.items())})
+        extend_holisafe_eval_compositional(
+            refs, n_eval=args.n_eval, seed=args.seed, subsets=args.subsets,
+        )

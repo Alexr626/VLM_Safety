@@ -1,0 +1,22 @@
+{
+  "subset": "mssbench_eval",
+  "n_eval_ids": 304,
+  "n_responses_total": 1200,
+  "n_responses_in_eval": 304,
+  "n_total": 304,
+  "asr_overall": 0.5789473684210527,
+  "by_safety_label": {
+    "SSS": {
+      "n": 152,
+      "asr": 0.618421052631579
+    },
+    "SSU": {
+      "n": 152,
+      "asr": 0.5394736842105263
+    }
+  },
+  "model": "qwen-vl-chat",
+  "benchmark": "mssbench",
+  "intervention": "adashield_s",
+  "intervention_config": {}
+}

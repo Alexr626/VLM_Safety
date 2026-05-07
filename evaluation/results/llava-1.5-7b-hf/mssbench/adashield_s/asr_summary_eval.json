@@ -1,0 +1,22 @@
+{
+  "subset": "mssbench_eval",
+  "n_eval_ids": 304,
+  "n_responses_total": 1200,
+  "n_responses_in_eval": 304,
+  "n_total": 304,
+  "asr_overall": 0.4967105263157895,
+  "by_safety_label": {
+    "SSS": {
+      "n": 152,
+      "asr": 0.5197368421052632
+    },
+    "SSU": {
+      "n": 152,
+      "asr": 0.47368421052631576
+    }
+  },
+  "model": "llava-1.5-7b-hf",
+  "benchmark": "mssbench",
+  "intervention": "adashield_s",
+  "intervention_config": {}
+}

@@ -13,8 +13,9 @@ import gc
 import json
 import os
 import pickle
+import re
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, Hashable, List, Optional, Tuple
 
 import numpy as np
 import torch
@@ -356,6 +357,136 @@ def extract_subspace(matrix: np.ndarray, k: int,
         matrix = matrix - matrix.mean(axis=0, keepdims=True)
     _, sigmas, Vt = np.linalg.svd(matrix, full_matrices=False)
     return Vt[:k]  # (k, d)
+
+
+# ── Pairwise (paired-reference) helpers ──────────────────────────────────────
+
+def _parse_int_suffix(sample_id, prefix: str) -> Optional[int]:
+    """Strip prefix from a sample id and parse the trailing int. Returns None
+    if the id does not start with prefix or the suffix is non-integer."""
+    sid = str(sample_id)
+    if not sid.startswith(prefix):
+        return None
+    try:
+        return int(sid[len(prefix):])
+    except ValueError:
+        return None
+
+
+def _make_prefix_pair_key_fn(safe_prefix: str, unsafe_prefix: str
+                             ) -> Callable[[str, str], Optional[Hashable]]:
+    """Default pair_key_fn used when the legacy prefix+int_suffix pattern
+    is supplied. Returns None for ids that don't match their role's prefix.
+    """
+    def fn(sid: str, role: str) -> Optional[Hashable]:
+        prefix = safe_prefix if role == "safe" else unsafe_prefix
+        return _parse_int_suffix(sid, prefix)
+    return fn
+
+
+_MSSBENCH_ID_RE = re.compile(r"^mssbench_(\d+)_(SSS|SSU)_(.+)_q(\d+)$")
+
+
+def mssbench_pair_key(sid: str, role: str) -> Optional[Tuple[int, int]]:
+    """Pair-key extractor for MSSBench `EvalSample.id`s.
+
+    Returns (rec_idx, q_idx) as the pair key — the same record + question is
+    the unit shared between its SSS and SSU image variants.
+
+    `role` must be "safe" (matching variant=SSS) or "unsafe" (variant=SSU).
+    Returns None for ids that don't match the schema or whose variant
+    contradicts the requested role.
+    """
+    m = _MSSBENCH_ID_RE.match(str(sid))
+    if not m:
+        return None
+    expected_variant = "SSS" if role == "safe" else "SSU"
+    if m.group(2) != expected_variant:
+        return None
+    return (int(m.group(1)), int(m.group(4)))
+
+
+def is_paired_source(
+    safe_ids: List, unsafe_ids: List,
+    safe_prefix: Optional[str] = None,
+    unsafe_prefix: Optional[str] = None,
+    pair_key_fn: Optional[Callable[[str, str], Optional[Hashable]]] = None,
+    min_overlap_frac: float = 0.9,
+) -> bool:
+    """Return True iff `pair_key_fn` (or the legacy prefix+int_suffix parser)
+    yields a non-None hashable key for every id in both lists, and the keys'
+    set intersection covers at least `min_overlap_frac` of the smaller input.
+
+    Backward compatibility: when `pair_key_fn` is None and prefixes are given,
+    the legacy `_parse_int_suffix` parser is used.
+    """
+    if not safe_ids or not unsafe_ids:
+        return False
+    if pair_key_fn is None:
+        if safe_prefix is None or unsafe_prefix is None:
+            raise ValueError(
+                "Either pair_key_fn or (safe_prefix, unsafe_prefix) is required."
+            )
+        pair_key_fn = _make_prefix_pair_key_fn(safe_prefix, unsafe_prefix)
+    safe_keys = [pair_key_fn(s, "safe") for s in safe_ids]
+    unsafe_keys = [pair_key_fn(s, "unsafe") for s in unsafe_ids]
+    if any(k is None for k in safe_keys) or any(k is None for k in unsafe_keys):
+        return False
+    shared = set(safe_keys) & set(unsafe_keys)
+    if not shared:
+        return False
+    return len(shared) >= min_overlap_frac * min(len(safe_keys), len(unsafe_keys))
+
+
+def pairwise_difference_matrix(
+    H_safe: np.ndarray, safe_ids: List,
+    H_unsafe: np.ndarray, unsafe_ids: List,
+    safe_prefix: Optional[str] = "catqa_harmless_",
+    unsafe_prefix: Optional[str] = "catqa_harmful_",
+    pair_key_fn: Optional[Callable[[str, str], Optional[Hashable]]] = None,
+    min_overlap_frac: float = 0.9,
+) -> Tuple[Optional[np.ndarray], int]:
+    """Build a row-aligned per-pair difference matrix `D = H_safe' - H_unsafe'`,
+    where H_safe' and H_unsafe' are reordered so their i-th rows correspond
+    to the same pair.
+
+    Pair-key extraction:
+      - If `pair_key_fn` is provided, it's called as `pair_key_fn(id, role)`
+        for `role in {"safe", "unsafe"}` to obtain a hashable pair key.
+      - Otherwise the legacy prefix+int_suffix parser is used (back-compat).
+
+    Returns:
+        (D, n_pairs): D has shape (n_pairs, hidden_dim) when pair structure
+        is detected; (None, 0) otherwise.
+
+    Pair structure is considered absent when any id fails to yield a key, or
+    the intersection of safe/unsafe keys covers less than `min_overlap_frac`
+    of the smaller input.
+    """
+    if H_safe.shape[0] != len(safe_ids) or H_unsafe.shape[0] != len(unsafe_ids):
+        raise ValueError(
+            f"id/row count mismatch: H_safe={H_safe.shape[0]} ids={len(safe_ids)}, "
+            f"H_unsafe={H_unsafe.shape[0]} ids={len(unsafe_ids)}"
+        )
+    if pair_key_fn is None:
+        if safe_prefix is None or unsafe_prefix is None:
+            raise ValueError(
+                "Either pair_key_fn or (safe_prefix, unsafe_prefix) is required."
+            )
+        pair_key_fn = _make_prefix_pair_key_fn(safe_prefix, unsafe_prefix)
+    safe_keys = [pair_key_fn(s, "safe") for s in safe_ids]
+    unsafe_keys = [pair_key_fn(s, "unsafe") for s in unsafe_ids]
+    if any(k is None for k in safe_keys) or any(k is None for k in unsafe_keys):
+        return None, 0
+    safe_idx = {k: i for i, k in enumerate(safe_keys)}
+    unsafe_idx = {k: i for i, k in enumerate(unsafe_keys)}
+    shared = sorted(set(safe_keys) & set(unsafe_keys))
+    if not shared or len(shared) < min_overlap_frac * min(len(safe_keys), len(unsafe_keys)):
+        return None, 0
+    safe_rows = np.array([safe_idx[k] for k in shared], dtype=np.int64)
+    unsafe_rows = np.array([unsafe_idx[k] for k in shared], dtype=np.int64)
+    D = H_safe[safe_rows] - H_unsafe[unsafe_rows]
+    return D, len(shared)
 
 
 def principal_angles(V1: np.ndarray, V2: np.ndarray) -> np.ndarray:

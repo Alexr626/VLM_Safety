@@ -4,23 +4,39 @@ ShiftDC Analysis: VL Activation Shift
 ======================================
 Implements the ShiftDC diagnostic.
 
-Step 1 — Safety direction (content):
-  s^l computed via CAST-style PCA on safe vs unsafe reference activations.
+Step 1 — Semantic safety direction:
+  s^l is the top-1 PC of the per-pair *difference* matrix
+      D = H_safe' - H_unsafe'
+  where H_safe' and H_unsafe' are row-aligned by parsed sample-id (e.g.
+  catqa_harmless_N ↔ catqa_harmful_N). Pairwise PCA isolates the safety
+  axis from per-pair topic/style residual that joint PCA absorbs.
+
+  When the configured refs lack pair structure (e.g. mm-safetybench +
+  llava-instruct), s^l falls back to the original CAST-style joint PCA
+  on the centered, vertically-stacked activation matrix.
 
 Step 2 — Per-sample modality shift:
   m^l          = x_vl^l - x_tt^l
   cosine_sim^l = cosine(m^l, s^l)
   proj_mag^l   = dot(m^l, s^l) / ||s^l||^2
 
-When --combinatorial_dir is passed, also project onto the combinatorial
-direction c^l and record comb_cosine_sim / comb_proj_mag.
+When --compositional_safety_dir is passed, also project onto the
+compositional safety direction c^l and record comp_cosine_sim / comp_proj_mag.
 
 Outputs (under diagnostic_experiments/{model}/shift_dc/outputs/)
 -------
-  (experiment_artifacts)/safety_direction_vectors.npz  — s^l per layer
+  (experiment_artifacts)/safety_direction_vectors.npz       — s^l per layer (pairwise)
+  (experiment_artifacts)/safety_direction_vectors_joint.npz — joint-PCA s^l (sanity)
   results/vl_activation_shift/per_sample_shifts.json
   results/vl_activation_shift/aggregate_stats.json
   results/vl_activation_shift/sample_metadata.json
+  results/vl_activation_shift/recipe_sanity.json            — per-layer cos(pair, joint)
+
+Note on `--skip_safety_dir`: pre-existing `safety_direction_vectors.npz` files
+written by earlier joint-only versions of this script will be silently reused
+unless that flag is omitted. To regenerate cleanly, delete
+`experiment_artifacts/{model}/vl_activation_shift/` once before the first run
+after this change.
 """
 
 import argparse
@@ -38,7 +54,9 @@ _PROJECT_ROOT = _DIAGNOSTIC_ROOT.parent                    # VLM_Safety/
 sys.path.insert(0, str(_PROJECT_ROOT))
 
 from src.dataset import load_holisafe, filter_subsets
-from src.extraction import ActivationCache, save_json, save_npz
+from src.extraction import (
+    ActivationCache, save_json, save_npz, pairwise_difference_matrix,
+)
 from src.model import _normalize_model_name
 
 _EXPERIMENT_NAME = "shift_dc"
@@ -53,30 +71,110 @@ def _load_ref_npz(ref_dir: Path):
             f"metadata.json not found in {ref_dir}. "
             "Re-run extract_ref_activations.py to regenerate."
         )
-    role = json.loads(meta_path.read_text())["role"]
+    meta = json.loads(meta_path.read_text())
     npz = np.load(ref_dir / "activation_matrices.npz")
-    return npz, role
+    return npz, meta["role"], meta.get("sample_ids", [])
 
 
-def compute_safety_direction(ref_base, safe_ref, unsafe_ref):
-    pos_npz, pos_role = _load_ref_npz(ref_base / safe_ref)
-    neg_npz, neg_role = _load_ref_npz(ref_base / unsafe_ref)
-    print(f"  safe_ref='{safe_ref}' (role={pos_role}), "
-          f"unsafe_ref='{unsafe_ref}' (role={neg_role})")
+def _joint_pca_direction(H_pos: np.ndarray, H_neg: np.ndarray) -> np.ndarray:
+    """CAST-style joint PCA: top-1 PC of the centered, vertically-stacked
+    safe/unsafe activation matrix, sign-oriented toward `safe`.
+    """
+    mu = (H_pos.mean(axis=0) + H_neg.mean(axis=0)) / 2
+    M = np.concatenate([H_pos - mu, H_neg - mu], axis=0)
+    _, _, Vt = np.linalg.svd(M, full_matrices=False)
+    v = Vt[0]
+    if np.dot(v, H_pos.mean(axis=0) - H_neg.mean(axis=0)) < 0:
+        v = -v
+    return v
+
+
+def _pairwise_pca_direction(D: np.ndarray, H_pos: np.ndarray,
+                            H_neg: np.ndarray) -> np.ndarray:
+    """Top-1 PC of the centered per-pair difference matrix `D = H_safe' -
+    H_unsafe'`, sign-oriented toward `safe` using class-mean midpoints.
+    """
+    Dc = D - D.mean(axis=0, keepdims=True)
+    _, _, Vt = np.linalg.svd(Dc, full_matrices=False)
+    v = Vt[0]
+    if np.dot(v, H_pos.mean(axis=0) - H_neg.mean(axis=0)) < 0:
+        v = -v
+    return v
+
+
+def compute_safety_direction(ref_base, safe_ref, unsafe_ref,
+                             return_joint: bool = False):
+    """Compute per-layer semantic safety direction s^l.
+
+    Default recipe: pairwise PCA on row-aligned per-pair difference vectors
+    (when both refs share an integer-indexed prefix structure such as
+    `catqa_harmless_N` / `catqa_harmful_N`). Falls back to joint PCA when
+    pair structure is not detected.
+
+    Args:
+        ref_base: Path to data/{...}/activations/{model}/.
+        safe_ref / unsafe_ref: subdirectory names (e.g. catqa-harmless,
+            catqa-harmful, mm-safetybench, llava-instruct).
+        return_joint: when True, also compute the joint-PCA direction in
+            parallel and return it as a third value (used for the sanity
+            artifact written by main()).
+
+    Returns:
+        (safety_dir, layers) by default, or
+        (safety_dir, safety_dir_joint, layers, n_pairs) when return_joint=True.
+        n_pairs is the count of aligned pairs used (0 when pairwise was
+        not applicable and joint fallback was used for s^l).
+    """
+    pos_npz, pos_role, pos_ids = _load_ref_npz(ref_base / safe_ref)
+    neg_npz, neg_role, neg_ids = _load_ref_npz(ref_base / unsafe_ref)
+    print(f"  safe_ref='{safe_ref}' (role={pos_role}, n={len(pos_ids)}), "
+          f"unsafe_ref='{unsafe_ref}' (role={neg_role}, n={len(neg_ids)})")
     layers = sorted(int(k.replace(f"{pos_role}_layer_", ""))
                     for k in pos_npz.files if k.startswith(f"{pos_role}_layer_"))
-    print(f"  Running PCA over {len(layers)} layers ...")
-    safety_dir = {}
+
+    # Probe pair structure once on layer 0 to decide the recipe.
+    safe_prefix = f"{safe_ref.replace('-', '_')}_"
+    unsafe_prefix = f"{unsafe_ref.replace('-', '_')}_"
+    H_pos0 = pos_npz[f"{pos_role}_layer_{layers[0]}"].astype(np.float64)
+    H_neg0 = neg_npz[f"{neg_role}_layer_{layers[0]}"].astype(np.float64)
+    D0, n_pairs = pairwise_difference_matrix(
+        H_pos0, pos_ids, H_neg0, neg_ids,
+        safe_prefix=safe_prefix, unsafe_prefix=unsafe_prefix,
+    )
+    use_pairwise = D0 is not None
+    if use_pairwise:
+        smaller = min(len(pos_ids), len(neg_ids))
+        if n_pairs < smaller:
+            print(f"  WARN: pairwise alignment used {n_pairs} pairs out of "
+                  f"min({len(pos_ids)}, {len(neg_ids)})={smaller} "
+                  f"(some samples were dropped during extraction)")
+        print(f"  Recipe: PAIRWISE PCA on per-pair differences "
+              f"(n_pairs={n_pairs}) over {len(layers)} layers ...")
+    else:
+        print(f"  WARN: pair structure not detected for "
+              f"'{safe_ref}'/'{unsafe_ref}' (prefixes='{safe_prefix}', "
+              f"'{unsafe_prefix}'). Falling back to JOINT PCA.")
+        print(f"  Recipe: JOINT PCA over {len(layers)} layers ...")
+
+    safety_dir, safety_dir_joint = {}, {}
     for l in layers:
         H_pos = pos_npz[f"{pos_role}_layer_{l}"].astype(np.float64)
         H_neg = neg_npz[f"{neg_role}_layer_{l}"].astype(np.float64)
-        mu = (H_pos.mean(axis=0) + H_neg.mean(axis=0)) / 2
-        M = np.concatenate([H_pos - mu, H_neg - mu], axis=0)
-        _, _, Vt = np.linalg.svd(M, full_matrices=False)
-        vector = Vt[0]
-        if np.dot(vector, H_pos.mean(axis=0) - H_neg.mean(axis=0)) < 0:
-            vector = -vector
-        safety_dir[f"layer_{l}"] = vector.astype(np.float32)
+        v_joint = _joint_pca_direction(H_pos, H_neg)
+        if use_pairwise:
+            D, _ = pairwise_difference_matrix(
+                H_pos, pos_ids, H_neg, neg_ids,
+                safe_prefix=safe_prefix, unsafe_prefix=unsafe_prefix,
+            )
+            v_pair = _pairwise_pca_direction(D, H_pos, H_neg)
+            safety_dir[f"layer_{l}"] = v_pair.astype(np.float32)
+        else:
+            safety_dir[f"layer_{l}"] = v_joint.astype(np.float32)
+        if return_joint:
+            safety_dir_joint[f"layer_{l}"] = v_joint.astype(np.float32)
+
+    if return_joint:
+        return safety_dir, safety_dir_joint, layers, (n_pairs if use_pairwise else 0)
     return safety_dir, layers
 
 
@@ -96,11 +194,11 @@ def _projection(m, s):
     return float(np.dot(m, s) / s2)
 
 
-def compute_shifts(samples, safety_dir, cache, layers, comb_dir=None):
+def compute_shifts(samples, safety_dir, cache, layers, comp_dir=None):
     per_sample = []
     layer_data = {l: {"sss_cos": [], "sss_proj": [], "ssu_cos": [], "ssu_proj": [],
-                      "sss_comb_cos": [], "sss_comb_proj": [],
-                      "ssu_comb_cos": [], "ssu_comb_proj": []}
+                      "sss_comp_cos": [], "sss_comp_proj": [],
+                      "ssu_comp_cos": [], "ssu_comp_proj": []}
                   for l in layers}
 
     for sample in tqdm(samples, desc="Computing shifts"):
@@ -128,17 +226,17 @@ def compute_shifts(samples, safety_dir, cache, layers, comb_dir=None):
             if not np.isnan(proj):
                 layer_data[l][f"{key}_proj"].append(proj)
 
-            # Combinatorial projections
-            if comb_dir is not None and f"layer_{l}" in comb_dir:
-                c = comb_dir[f"layer_{l}"].astype(np.float64)
-                comb_cos = _cosine(m, c)
-                comb_proj = _projection(m, c)
-                entry["comb_cosine_sim"] = comb_cos
-                entry["comb_proj_mag"] = comb_proj
-                if not np.isnan(comb_cos):
-                    layer_data[l][f"{key}_comb_cos"].append(comb_cos)
-                if not np.isnan(comb_proj):
-                    layer_data[l][f"{key}_comb_proj"].append(comb_proj)
+            # Compositional safety projections
+            if comp_dir is not None and f"layer_{l}" in comp_dir:
+                c = comp_dir[f"layer_{l}"].astype(np.float64)
+                comp_cos = _cosine(m, c)
+                comp_proj = _projection(m, c)
+                entry["comp_cosine_sim"] = comp_cos
+                entry["comp_proj_mag"] = comp_proj
+                if not np.isnan(comp_cos):
+                    layer_data[l][f"{key}_comp_cos"].append(comp_cos)
+                if not np.isnan(comp_proj):
+                    layer_data[l][f"{key}_comp_proj"].append(comp_proj)
 
             record["per_layer"][str(l)] = entry
 
@@ -148,7 +246,7 @@ def compute_shifts(samples, safety_dir, cache, layers, comb_dir=None):
 
 # ── Aggregate + t-test ────────────────────────────────────────────────────────
 
-def aggregate(layer_data, layers, has_comb=False):
+def aggregate(layer_data, layers, has_comp=False):
     def _ttest(a, b):
         if len(a) < 2 or len(b) < 2:
             return float("nan")
@@ -171,18 +269,18 @@ def aggregate(layer_data, layers, has_comb=False):
             "p_proj": _ttest(sss_proj, ssu_proj),
             "n_sss": len(sss_cos), "n_ssu": len(ssu_cos),
         }
-        if has_comb:
-            sss_cc = np.array(d["sss_comb_cos"])
-            ssu_cc = np.array(d["ssu_comb_cos"])
-            sss_cp = np.array(d["sss_comb_proj"])
-            ssu_cp = np.array(d["ssu_comb_proj"])
+        if has_comp:
+            sss_cc = np.array(d["sss_comp_cos"])
+            ssu_cc = np.array(d["ssu_comp_cos"])
+            sss_cp = np.array(d["sss_comp_proj"])
+            ssu_cp = np.array(d["ssu_comp_proj"])
             row.update({
-                "SSS_mean_comb_cosine": float(sss_cc.mean()) if len(sss_cc) else None,
-                "SSU_mean_comb_cosine": float(ssu_cc.mean()) if len(ssu_cc) else None,
-                "SSS_mean_comb_proj": float(sss_cp.mean()) if len(sss_cp) else None,
-                "SSU_mean_comb_proj": float(ssu_cp.mean()) if len(ssu_cp) else None,
-                "p_comb_cosine": _ttest(sss_cc, ssu_cc),
-                "p_comb_proj": _ttest(sss_cp, ssu_cp),
+                "SSS_mean_comp_cosine": float(sss_cc.mean()) if len(sss_cc) else None,
+                "SSU_mean_comp_cosine": float(ssu_cc.mean()) if len(ssu_cc) else None,
+                "SSS_mean_comp_proj": float(sss_cp.mean()) if len(sss_cp) else None,
+                "SSU_mean_comp_proj": float(ssu_cp.mean()) if len(ssu_cp) else None,
+                "p_comp_cosine": _ttest(sss_cc, ssu_cc),
+                "p_comp_proj": _ttest(sss_cp, ssu_cp),
             })
         results.append(row)
     return results
@@ -201,8 +299,15 @@ def parse_args():
     p.add_argument("--safe_ref", default="catqa-harmless",
                    help="Subdirectory name under data/catqa-contrastive/activations/{model}/")
     p.add_argument("--unsafe_ref", default="catqa-harmful")
-    p.add_argument("--combinatorial_dir", action="store_true",
-                   help="Also project shifts onto the combinatorial direction c^l")
+    p.add_argument("--comp_source",
+                   choices=["none", "holisafe_tt", "holisafe_vl",
+                            "mssbench_tt", "mssbench_vl"],
+                   default="none",
+                   help="Optional compositional direction to also project shifts "
+                        "onto. 'none' (default) skips this projection. Otherwise "
+                        "loads experiment_artifacts/{model}/compositional_safety/"
+                        "{comp_source}/compositional_safety_direction_vectors.npz "
+                        "and records comp_cosine_sim/comp_proj_mag per layer.")
     return p.parse_args()
 
 
@@ -220,29 +325,54 @@ def main():
 
     # ── Step 1: Safety direction ─────────────────────────────────────────────
     sd_path = experiment_artifacts / "safety_direction_vectors.npz"
+    sd_joint_path = experiment_artifacts / "safety_direction_vectors_joint.npz"
     if args.skip_safety_dir and sd_path.exists():
         print("Loading existing safety direction vectors ...")
         safety_dir = dict(np.load(sd_path))
         layers = sorted(int(k.replace("layer_", "")) for k in safety_dir)
     else:
         print("Computing safety direction vectors ...")
-        safety_dir, layers = compute_safety_direction(
+        safety_dir, safety_dir_joint, layers, n_pairs = compute_safety_direction(
             _PROJECT_ROOT / "data" / "catqa-contrastive" / "activations" / model_name,
-            args.safe_ref, args.unsafe_ref)
+            args.safe_ref, args.unsafe_ref, return_joint=True)
         save_npz(safety_dir, str(sd_path))
+        save_npz(safety_dir_joint, str(sd_joint_path))
         print(f"  → {len(layers)} layers saved to {sd_path}")
+        print(f"  → joint sanity copy saved to {sd_joint_path}")
 
-    # ── Load combinatorial direction (optional) ─────────────────────────────
-    comb_dir = None
-    if args.combinatorial_dir:
-        comb_path = (_PROJECT_ROOT / "experiment_artifacts" / model_name /
-                     "combinatorial_safety" / "combinatorial_direction_vectors.npz")
-        if not comb_path.exists():
-            print(f"ERROR: --combinatorial_dir requested but {comb_path} does not exist.")
-            print("Run diagnostic_experiments/experiment_scripts/combinatorial_direction.py first.")
+        # Per-layer cosine sanity: how much do pair vs joint disagree?
+        recipe_rows = []
+        for l in layers:
+            v_p = safety_dir[f"layer_{l}"].astype(np.float64)
+            v_j = safety_dir_joint[f"layer_{l}"].astype(np.float64)
+            np_, nj = np.linalg.norm(v_p), np.linalg.norm(v_j)
+            cos = float(np.dot(v_p, v_j) / (np_ * nj)) if (np_ > 1e-12 and nj > 1e-12) else float("nan")
+            recipe_rows.append({"layer": l, "cos_pair_vs_joint": cos,
+                                "n_pairs": int(n_pairs)})
+        save_json(recipe_rows, str(out_dir / "recipe_sanity.json"))
+        cos_vals = [r["cos_pair_vs_joint"] for r in recipe_rows
+                    if not np.isnan(r["cos_pair_vs_joint"])]
+        if cos_vals:
+            print(f"  cos(s_pair, s_joint): mean={np.mean(cos_vals):.4f} "
+                  f"min={np.min(cos_vals):.4f} max={np.max(cos_vals):.4f}")
+
+    # ── Load compositional safety direction (optional) ──────────────────────
+    comp_dir = None
+    if args.comp_source != "none":
+        comp_path = (_PROJECT_ROOT / "experiment_artifacts" / model_name /
+                     "compositional_safety" / args.comp_source /
+                     "compositional_safety_direction_vectors.npz")
+        if not comp_path.exists():
+            print(f"ERROR: --comp_source={args.comp_source} requested but "
+                  f"{comp_path} does not exist.")
+            print(f"Run: python diagnostic_experiments/experiment_scripts/"
+                  f"compositional_safety_direction.py "
+                  f"--source {args.comp_source.split('_')[0]} "
+                  f"--representation {args.comp_source.split('_')[1]}")
             sys.exit(1)
-        comb_dir = dict(np.load(comb_path))
-        print(f"Loaded combinatorial direction for {len(comb_dir)} layers")
+        comp_dir = dict(np.load(comp_path))
+        print(f"Loaded compositional safety direction ({args.comp_source}) "
+              f"for {len(comp_dir)} layers")
 
     # ── Step 2: Load samples ─────────────────────────────────────────────────
     entries, images_base = load_holisafe(cache_dir=args.cache_dir)
@@ -254,9 +384,9 @@ def main():
 
     # ── Step 3: Compute shifts ───────────────────────────────────────────────
     cache = ActivationCache(str(
-        _PROJECT_ROOT / "data" / "holisafe-bench" / "activations" / model_name))
-    per_sample, layer_data = compute_shifts(samples, safety_dir, cache, layers, comb_dir)
-    agg = aggregate(layer_data, layers, has_comb=comb_dir is not None)
+        _PROJECT_ROOT / "data" / "holisafe-bench" / model_name / "activations"))
+    per_sample, layer_data = compute_shifts(samples, safety_dir, cache, layers, comp_dir)
+    agg = aggregate(layer_data, layers, has_comp=comp_dir is not None)
 
     # ── Save ─────────────────────────────────────────────────────────────────
     save_json(per_sample, str(out_dir / "per_sample_shifts.json"))

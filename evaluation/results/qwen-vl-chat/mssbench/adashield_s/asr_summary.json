@@ -1,0 +1,20 @@
+{
+  "model": "qwen-vl-chat",
+  "benchmark": "mssbench",
+  "intervention": "adashield_s",
+  "intervention_config": {},
+  "merged_from_shards": 10,
+  "expected_shard_count": 10,
+  "n_total": 1200,
+  "asr_overall": 0.6191666666666666,
+  "by_safety_label": {
+    "SSS": {
+      "n": 600,
+      "asr": 0.6516666666666666
+    },
+    "SSU": {
+      "n": 600,
+      "asr": 0.5866666666666667
+    }
+  }
+}

@@ -130,8 +130,8 @@ else:
 # ── 4. Activation cache ───────────────────────────────────────────────────────
 print("\n[4] Activation cache")
 
-act_dir = (PROJECT_ROOT / "data" / "holisafe-bench" / "activations"
-           / "llava-1.5-7b-hf")
+act_dir = (PROJECT_ROOT / "data" / "holisafe-bench" / "llava-1.5-7b-hf"
+           / "activations")
 if act_dir.exists():
     vl_files = list(act_dir.glob("*_vl.npz"))
     tt_files = list(act_dir.glob("*_tt.npz"))

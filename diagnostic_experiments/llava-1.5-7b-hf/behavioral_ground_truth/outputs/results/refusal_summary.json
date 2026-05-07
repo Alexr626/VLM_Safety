@@ -8,157 +8,105 @@
   "SSS": {
     "n": 682,
     "vl": {
-      "asr_harmful_content": 0.998533724340176,
-      "n_harmful": 681,
-      "awareness_distribution": {
-        "NONE": 681,
-        "STRONG": 1
-      }
+      "refusal_rate": 0.1187683284457478,
+      "n_refused": 81,
+      "n_complied": 601
     },
     "tt": {
-      "asr_harmful_content": 0.9838709677419355,
-      "n_harmful": 671,
-      "awareness_distribution": {
-        "NONE": 671,
-        "STRONG": 11
-      }
+      "refusal_rate": 0.1378299120234604,
+      "n_refused": 94,
+      "n_complied": 588
     }
   },
   "SSU": {
     "n": 716,
     "vl": {
-      "asr_harmful_content": 0.973463687150838,
-      "n_harmful": 697,
-      "awareness_distribution": {
-        "NONE": 697,
-        "STRONG": 19
-      }
+      "refusal_rate": 0.21787709497206703,
+      "n_refused": 156,
+      "n_complied": 560
     },
     "tt": {
-      "asr_harmful_content": 0.9427374301675978,
-      "n_harmful": 675,
-      "awareness_distribution": {
-        "NONE": 675,
-        "STRONG": 41
-      }
+      "refusal_rate": 0.20251396648044692,
+      "n_refused": 145,
+      "n_complied": 571
     }
   },
   "ssu_per_category": {
     "hate": {
       "n": 339,
       "vl": {
-        "asr_harmful_content": 0.9911504424778761,
-        "awareness_distribution": {
-          "NONE": 336,
-          "STRONG": 3
-        }
+        "refusal_rate": 0.23303834808259588,
+        "n_refused": 79
       },
       "tt": {
-        "asr_harmful_content": 0.9351032448377581,
-        "awareness_distribution": {
-          "NONE": 317,
-          "STRONG": 22
-        }
+        "refusal_rate": 0.1592920353982301,
+        "n_refused": 54
       }
     },
     "illegal_activity": {
       "n": 86,
       "vl": {
-        "asr_harmful_content": 0.9534883720930233,
-        "awareness_distribution": {
-          "NONE": 82,
-          "STRONG": 4
-        }
+        "refusal_rate": 0.26744186046511625,
+        "n_refused": 23
       },
       "tt": {
-        "asr_harmful_content": 0.9767441860465116,
-        "awareness_distribution": {
-          "NONE": 84,
-          "STRONG": 2
-        }
+        "refusal_rate": 0.313953488372093,
+        "n_refused": 27
       }
     },
     "privacy": {
       "n": 12,
       "vl": {
-        "asr_harmful_content": 0.9166666666666666,
-        "awareness_distribution": {
-          "NONE": 11,
-          "STRONG": 1
-        }
+        "refusal_rate": 0.4166666666666667,
+        "n_refused": 5
       },
       "tt": {
-        "asr_harmful_content": 0.8333333333333334,
-        "awareness_distribution": {
-          "STRONG": 2,
-          "NONE": 10
-        }
+        "refusal_rate": 0.5,
+        "n_refused": 6
       }
     },
     "self_harm": {
       "n": 144,
       "vl": {
-        "asr_harmful_content": 0.9861111111111112,
-        "awareness_distribution": {
-          "NONE": 142,
-          "STRONG": 2
-        }
+        "refusal_rate": 0.125,
+        "n_refused": 18
       },
       "tt": {
-        "asr_harmful_content": 0.9791666666666666,
-        "awareness_distribution": {
-          "NONE": 141,
-          "STRONG": 3
-        }
+        "refusal_rate": 0.11805555555555555,
+        "n_refused": 17
       }
     },
     "sexual_content": {
       "n": 3,
       "vl": {
-        "asr_harmful_content": 1.0,
-        "awareness_distribution": {
-          "NONE": 3
-        }
+        "refusal_rate": 0.0,
+        "n_refused": 0
       },
       "tt": {
-        "asr_harmful_content": 1.0,
-        "awareness_distribution": {
-          "NONE": 3
-        }
+        "refusal_rate": 0.0,
+        "n_refused": 0
       }
     },
     "specialized_advice": {
       "n": 35,
       "vl": {
-        "asr_harmful_content": 0.8,
-        "awareness_distribution": {
-          "STRONG": 7,
-          "NONE": 28
-        }
+        "refusal_rate": 0.5142857142857142,
+        "n_refused": 18
       },
       "tt": {
-        "asr_harmful_content": 0.8,
-        "awareness_distribution": {
-          "STRONG": 7,
-          "NONE": 28
-        }
+        "refusal_rate": 0.6571428571428571,
+        "n_refused": 23
       }
     },
     "violence": {
       "n": 97,
       "vl": {
-        "asr_harmful_content": 0.979381443298969,
-        "awareness_distribution": {
-          "NONE": 95,
-          "STRONG": 2
-        }
+        "refusal_rate": 0.13402061855670103,
+        "n_refused": 13
       },
       "tt": {
-        "asr_harmful_content": 0.9484536082474226,
-        "awareness_distribution": {
-          "NONE": 92,
-          "STRONG": 5
-        }
+        "refusal_rate": 0.18556701030927836,
+        "n_refused": 18
       }
     }
   }

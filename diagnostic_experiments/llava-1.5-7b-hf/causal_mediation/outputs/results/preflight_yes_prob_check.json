@@ -1,0 +1,26 @@
+{
+  "model": "llava-hf/llava-1.5-7b-hf",
+  "tier": "top",
+  "tier_pct": 33.0,
+  "n_used": 2,
+  "median_gap": 0.11433865129947662,
+  "mean_gap": 0.11433865129947662,
+  "preflight_threshold": 0.05,
+  "warning": false,
+  "per_pair": [
+    {
+      "rec_idx": 199,
+      "q_idx": 0,
+      "P_clean": 0.3035661578178406,
+      "P_corrupted": 0.25671228766441345,
+      "gap": 0.046853870153427124
+    },
+    {
+      "rec_idx": 220,
+      "q_idx": 0,
+      "P_clean": 0.7275176048278809,
+      "P_corrupted": 0.5456941723823547,
+      "gap": 0.18182343244552612
+    }
+  ]
+}
