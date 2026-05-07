@@ -79,6 +79,13 @@ The short name is used as the directory key under `data/*/activations/{model}/`,
   cached on the diagnostic side and responses cached on the eval side
   reference the same sample by the same string.
 
+- **SIUO** (sinwang20/SIUO) — 167 cross-modality SSU examples across 9
+  safety domains, each with a safe image + unsafe text → unsafe output.
+  `siuo_gen.json` has the originals; `siuo_sss.json` has minimal-edit
+  safe-question counterparts (generated via Claude API by
+  `data_scripts/generate_siuo_sss_pairs.py`). Used for **text-swap**
+  causal mediation: same image, swap between safe/unsafe question text.
+
 ### Reference Datasets (for the semantic safety direction `s^l`)
 - **CatQA-Harmful** (unsafe reference): contrastive harmful questions (text-only).
 - **CatQA-Harmless** (safe reference): contrastive harmless counterparts —
@@ -120,6 +127,10 @@ VLM_Safety/
 │   ├── catqa-contrastive/                  # Contrastive QA pairs + activations/{model}/
 │   │   ├── catqa_contrastive_pairs.json, train_eval_split.json
 │   │   └── splits/                         # Legacy split variants
+│   ├── siuo/                               # SIUO dataset (167 SSU + SSS pairs)
+│   │   ├── siuo_gen.json                   # Original SSU entries
+│   │   ├── siuo_sss.json                   # Minimal-edit safe counterparts
+│   │   └── images/                         # 167 PNGs
 │   ├── llava-instruct-ref/                 # Alternative safe-reference dataset
 │   └── mm-safetybench-ref/                 # Alternative unsafe-reference dataset
 │
@@ -141,6 +152,7 @@ VLM_Safety/
 │   ├── generate_cohesive_text.py           # Fuse caption + text into single query (CT)
 │   ├── extract_ct.py                       # Extract CT (cohesive text) activations
 │   ├── generate_catqa_harmless_pairs.py    # Generate contrastive QA pairs via LLM
+│   ├── generate_siuo_sss_pairs.py          # Generate SIUO safe counterparts via Claude API
 │   ├── run_fill_artifacts_5080.sh          # Distributed: 5080 GPU box (captions + TT)
 │   └── run_fill_artifacts_5090.sh          # Distributed: 5090 GPU box (VL + responses)
 │
@@ -154,7 +166,11 @@ VLM_Safety/
 │   │   ├── safety_probes.py                      # 5 probes × ~12 test sets
 │   │   ├── generate_responses.py
 │   │   ├── classify_responses.py                 # ShiftDC keywords; flat refused_{cond} schema
-│   │   └── catqa_behavioral_baseline.py
+│   │   ├── catqa_behavioral_baseline.py
+│   │   ├── causal_mediation_mssbench.py          # FCCT-style mediation on MSSBench (image-swap)
+│   │   ├── causal_mediation_siuo.py              # FCCT-style mediation on SIUO (text-swap)
+│   │   ├── _mediation_utils.py                   # Shared hooks, dispatch, yes-token resolution
+│   │   └── compute_image_similarity.py           # DINOv2 SSS/SSU image-pair cosine similarity
 │   ├── plotting_scripts/                   # Shared across models
 │   │   ├── plot_vl_activation_shift_projections.py
 │   │   ├── plot_tt_baseline_projections.py
@@ -166,12 +182,17 @@ VLM_Safety/
 │   │   ├── plot_compositional_eval.py            # compositional_eval_{tt,vl}/{probe}.png
 │   │   ├── plot_behavioral_eval.py               # 2-panel TT/VL behavioral plots
 │   │   ├── plot_augmented_baseline.py
-│   │   └── plot_behavioral_ground_truth.py
+│   │   ├── plot_behavioral_ground_truth.py
+│   │   ├── plot_causal_mediation.py              # 3-panel layer-wise recovery rate curves
+│   │   ├── plot_image_similarity.py              # DINOv2 similarity distribution histograms
+│   │   └── plot_preflight_yes_prob.py            # Scatter P(yes|safe) vs P(yes|unsafe)
 │   ├── {model}/                            # Per-model outputs (one per supported model)
 │   │   ├── shift_dc/outputs/               # ShiftDC results + plots (incl. recipe_sanity.json)
 │   │   ├── behavioral_ground_truth/outputs/
 │   │   ├── compositional_safety/outputs/
-│   │   └── augmented_baseline/outputs/     # (llava only)
+│   │   ├── augmented_baseline/outputs/     # (llava only)
+│   │   ├── causal_mediation/outputs/       # MSSBench causal mediation (image-swap)
+│   │   └── causal_mediation_siuo/outputs/  # SIUO causal mediation (text-swap)
 │   └── run_scripts/                        # Shell launchers for the pipelines
 │       ├── run_shiftdc.sh                          # ShiftDC pipeline (extraction + safety direction)
 │       ├── run_all_diagnostics.sh                  # All diagnostic phases for a given MODEL
@@ -184,6 +205,9 @@ VLM_Safety/
 │       ├── run_all_new_experiments.sh              # Augmented experiments end-to-end
 │       ├── run_overnight_captions.sh               # Overnight captioning job (all benchmarks)
 │       ├── run_overnight_comp_directions.sh        # Overnight compositional direction computation
+│       ├── run_causal_mediation.sh                  # Single-model MSSBench causal mediation
+│       ├── run_causal_mediation_all_models.sh       # Multi-model MSSBench causal mediation
+│       ├── run_siuo_mediation.sh                    # SIUO causal mediation (multi-model + ablations)
 │       ├── run_diag_16gb.sh                        # Models that fit on 16 GB GPUs
 │       ├── run_diag_24gb.sh                        # Models that need >=24 GB VRAM
 │       └── run_diag_all_models.sh                  # All models sequentially
@@ -226,11 +250,13 @@ VLM_Safety/
 │   ├── extract_refusal_responses.py
 │   ├── debug_id_mismatch.py
 │   ├── investigate_duplicates.py
-│   └── remap_behavioral_ids.py
+│   ├── remap_behavioral_ids.py
+│   └── list_top_similar_mssbench_stems.py  # Rank MSSBench stems by DINOv2 similarity
 │
 ├── plans_and_project_descriptions/         # Planning docs & experiment design notes
 │
 ├── environment.yml / requirements.txt      # Environment specs
+├── ml-vlsu/                                # Apple VLSU benchmark (external; CC-BY-NC-ND)
 ├── CLAUDE.md                               # This file
 └── readme.md                               # User-facing documentation
 ```
@@ -684,6 +710,62 @@ when their upstream sources are present, so behavioral plots populate.
 Cohesive text generation defaults to Anthropic API (`PROVIDER=anthropic`); set
 `PROVIDER=openai` or `PROVIDER=local` (uses the VLM itself) to change.
 
+### Experiment 4 — Causal Mediation Analysis
+
+FCCT-style (Functional Connectivity via Causal Tracing) causal mediation
+that attributes safety judgments to specific layers and components
+(hidden_state, mlp, attn). Two dataset variants:
+
+**MSSBench mediation (`causal_mediation_mssbench.py`)** — **image-swap**:
+same text, swap SSS/SSU image. Tests whether individual components can
+detect unsafety from image changes alone.
+- `--tier {top,bottom,all}` + `--tier_pct` filter by DINOv2 image-pair
+  similarity (precomputed by `compute_image_similarity.py` →
+  `data/mssbench/image_similarity/dinov2_similarity_scores.json`).
+- `--ablation_mode {none,random,blank}`: standard, random donor image,
+  or white image.
+- `--patch_direction {to_unsafe,to_safe}`.
+
+**SIUO mediation (`causal_mediation_siuo.py`)** — **text-swap**: same
+image, swap safe/unsafe question text. Tests the model's sensitivity to
+text-level safety cues.
+- Loads `data/siuo/siuo_sss.json` (safe) + `siuo_gen.json` (unsafe).
+- `--ablation_mode {none,random,prefix_only}`: standard, random donor
+  text, or system-prompt-only (no question).
+- `--patch_direction {to_unsafe,to_safe}`.
+- Default prompt: `"Is this unsafe to answer?"`.
+
+**Shared utilities (`_mediation_utils.py`):**
+- `FamilyDispatch`: per-wrapper attribute paths for lm_head, layers,
+  attn, mlp (LLaVA, ShareGPT4V, Qwen-VL-Chat).
+- `forward_with_logits()`, `compute_yes_prob()`, `yes_token_ids()`.
+- Activation capture and patching hooks (prefill-only, last-position).
+
+**Protocol (per pair):**
+1. Forward with captured input → cache all (layer, component) activations
+2. Forward with baseline input → P_baseline (yes-prob)
+3. Sweep: for each (layer, component), patch cached activation into
+   baseline → P_patched. Recovery Rate = (P_patched − P_baseline) /
+   (P_captured − P_baseline).
+
+**Running:**
+```bash
+# MSSBench single model (similarity + mediation + plots)
+bash diagnostic_experiments/run_scripts/run_causal_mediation.sh
+
+# MSSBench all models
+bash diagnostic_experiments/run_scripts/run_causal_mediation_all_models.sh
+
+# SIUO multi-model + multi-ablation sweep
+bash diagnostic_experiments/run_scripts/run_siuo_mediation.sh
+```
+
+**Outputs:** `diagnostic_experiments/{model}/causal_mediation{_siuo}/outputs/`
+- `results/recovery_rates{_ablation}_{direction}.json` — per-layer mean/median/SE
+- `results/preflight_yes_prob_check{_ablation}_{direction}.json` — P(yes) per pair
+- `artifacts/per_pair_probs{_ablation}_{direction}.npz` — full probability tensors
+- `results/plots/recovery_rate_*.png`, `preflight_yes_prob_*.png`
+
 ### Key Artifacts
 - `data/captions/holisafe.json`, `data/captions/mssbench.json`, `data/captions/mm_safetybench.json`, `data/captions/figstep.json`
 - `data/captions/claude_generated/holisafe_cohesive.json` — CT (cohesive text fusions)
@@ -722,6 +804,8 @@ mssbench/
 ├── combined.json                          # Records (chat + embodied splits)
 ├── chat/, embodied/                       # Image folders (auto-downloaded)
 ├── train_eval_split.json                  # 75/25 record-level stratified
+├── image_similarity/                      # DINOv2 cosine similarity (model-independent)
+│   └── dinov2_similarity_scores.json      # Per-stem SSS/SSU pair similarity
 └── {model}/
     ├── activations/
     │   ├── sample_mssbench_*_{vl,tt}.npz  # Per-sample hidden states
@@ -759,6 +843,13 @@ catqa-contrastive/
 └── activations/{model}/{ref_name}/
     ├── activation_matrices.npz            # {role}_layer_{l}: (N, hidden_dim)
     └── metadata.json
+
+siuo/
+├── siuo_gen.json                          # 167 original SSU entries
+├── siuo_sss.json                          # Minimal-edit safe counterparts
+├── siuo_sss_claude.json, siuo_sss_editted.json  # Intermediate versions
+├── siuo_mcqa.json                         # Multiple-choice QA variant
+└── images/                                # 167 PNGs (S-01..S-167)
 
 llava-instruct-ref/   mm-safetybench-ref/  # Alt. safe/unsafe reference pools
 ├── images/
@@ -815,6 +906,21 @@ compositional_safety/
         ├── cross_evaluation_heatmap.png                      # all probes × all tests at best layer
         ├── cross_direction_summary.png                       # cos(semantic, c^l_*) per layer
         └── cross_direction_layer_{l}.png                     # 5×5 |cos| heatmap at max-spread layer
+
+{model}/causal_mediation/outputs/                            # MSSBench (image-swap)
+├── results/
+│   ├── recovery_rates{_ablation}_{direction}.json           # Per-layer mean/median/SE RR
+│   ├── preflight_yes_prob_check{_ablation}_{direction}.json # P(yes) per pair (sanity check)
+│   └── plots/
+│       ├── recovery_rate{_ablation}_{direction}.png         # 3-panel (hidden_state, mlp, attn)
+│       ├── recovery_rate_overlay.png                        # Multi-tier overlay
+│       └── preflight_yes_prob_{tag}.png                     # Scatter P(yes|safe) vs P(yes|unsafe)
+└── artifacts/
+    └── per_pair_probs{_ablation}_{direction}.npz            # Full probability tensors
+
+{model}/causal_mediation_siuo/outputs/                       # SIUO (text-swap)
+├── results/  (same structure as above)
+└── artifacts/
 ```
 
 ### Activation .npz
