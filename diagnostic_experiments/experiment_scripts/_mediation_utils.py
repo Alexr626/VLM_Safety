@@ -176,7 +176,8 @@ def verify_layout(wrapper, dispatch: FamilyDispatch):
 
 # ── Yes-token resolution ────────────────────────────────────────────────────
 
-YES_VARIANTS = ["yes", "Yes", "YES", " yes", " Yes", " YES"]
+# YES_VARIANTS = ["yes", "Yes", "YES", " yes", " Yes", " YES"]
+YES_VARIANTS = ["Yes"]
 
 
 def _get_tokenizer(wrapper):
