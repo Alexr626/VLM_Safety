@@ -1,17 +1,12 @@
-"""Inference-time defense interventions and registry."""
+"""Inference-time hallucination mitigation interventions."""
 
 from .base import InterventionBase
-from .vanilla import VanillaIntervention
-from .comp_safety_shift import CompSafetyShiftIntervention
-from .adashield_s import AdaShieldSIntervention
+from .no_intervention import NoIntervention
 
 
 def get_intervention(name: str, model_id: str, **kwargs) -> InterventionBase:
-    """Factory: return an intervention instance by short name."""
     registry = {
-        "vanilla":           lambda: VanillaIntervention(),
-        "comp_safety_shift": lambda: CompSafetyShiftIntervention(model_id=model_id, **kwargs),
-        "adashield_s":       lambda: AdaShieldSIntervention(),
+        "no_intervention": lambda: NoIntervention(),
     }
     if name not in registry:
         raise ValueError(
@@ -20,13 +15,11 @@ def get_intervention(name: str, model_id: str, **kwargs) -> InterventionBase:
     return registry[name]()
 
 
-ALL_INTERVENTIONS = ["vanilla", "comp_safety_shift", "adashield_s"]
+ALL_INTERVENTIONS = ["no_intervention"]
 
 __all__ = [
     "InterventionBase",
-    "VanillaIntervention",
-    "CompSafetyShiftIntervention",
-    "AdaShieldSIntervention",
+    "NoIntervention",
     "get_intervention",
     "ALL_INTERVENTIONS",
 ]

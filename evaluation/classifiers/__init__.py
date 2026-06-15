@@ -1,15 +1,5 @@
-"""Response classifiers for ASR computation."""
+"""Hallucination metric classifiers."""
 
-from .keyword import (
-    SHIFTDC_REFUSAL_KEYWORDS,
-    is_refusal_keyword,
-    compute_asr,
-    compute_asr_records,
-)
+from .metrics import compute_metric_records
 
-__all__ = [
-    "SHIFTDC_REFUSAL_KEYWORDS",
-    "is_refusal_keyword",
-    "compute_asr",
-    "compute_asr_records",
-]
+__all__ = ["compute_metric_records"]

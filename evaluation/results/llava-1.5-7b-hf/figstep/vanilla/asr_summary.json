@@ -1,8 +1,0 @@
-{
-  "model": "llava-1.5-7b-hf",
-  "benchmark": "figstep",
-  "intervention": "vanilla",
-  "intervention_config": {},
-  "n_total": 500,
-  "asr_overall": 0.584
-}
