@@ -162,3 +162,4 @@ dependencies:
       # affecting HF tokenizer backends (SentencePiece-based models). 4.25.x is
       # the tested-compatible target for transformers 4.50.x.
       - protobuf==4.25.5
+      - pytest==9.1.0

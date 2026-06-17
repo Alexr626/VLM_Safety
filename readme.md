@@ -86,13 +86,20 @@ Or individually:
 
 ```bash
 python data_scripts/download_chair.py          # COCO val2014 + CHAIR (run before POPE)
+python data_scripts/download_chair.py --with-train2014   # + train2014 for VTI demos
 python data_scripts/download_pope.py
 python data_scripts/download_amber.py          # GitHub metadata + Google Drive images
 python data_scripts/download_hallusionbench.py # GitHub JSON + Google Drive images
 python data_scripts/download_mmhal_bench.py    # HuggingFace Shengcao1006/MMHal-Bench
 ```
 
-Shared COCO images live under `data/coco/val2014/` (used by POPE and CHAIR).
+Shared COCO images live under `data/coco/val2014/` (used by POPE and CHAIR). VTI textual direction extraction additionally requires `data/coco/train2014/` (~13 GiB; fetch with `--with-train2014` above).
+
+### VTI textual demos
+
+Paired clean/hallucinated caption demos for textual VTI direction extraction live at [`data/vti/demos.jsonl`](data/vti/demos.jsonl). This file is copied from the authors' [VTI](https://github.com/) reference repository (`hallucination_vti_demos.jsonl`); cloning the `VTI/` subdirectory in this repo is **not** required to run the pipeline.
+
+Direction extraction feeds each demo as `question + caption` through `wrapper.forward_vl()` (not the caption-only `generate_caption()` path). POPE evaluation uses the benchmark question verbatim via `generate_vl(image, question)`.
 
 ## Project structure
 
@@ -109,11 +116,14 @@ vlm_hallucination_mitigation_summer_2026/
 │   ├── {benchmark}/{model}/activations/     # sample_{id}_{vl|tt}.npz
 │   ├── {benchmark}/{model}/responses/{intervention}/
 │   ├── captions/{benchmark}.json
-│   └── coco/val2014/
+│   ├── vti/demos.jsonl                      # VTI paired-caption demos (from authors)
+│   └── coco/val2014/  (+ train2014/ for VTI)
+├── tests/                # unit tests (e.g. test_VTI_text_steer.py)
 ├── data_scripts/         # download_*, extract_vl/tt, prepare_data, generate_captions
 ├── diagnostic_experiments/
 │   ├── modality_shift/   # m^l = x_vl - x_tt analysis
-│   └── causal_mediation/ # FCCT-style recovery on POPE yes/no
+│   ├── causal_mediation/ # FCCT-style recovery on POPE yes/no
+│   └── vti_lambda_sim/   # gated_rotation lambda_sim diagnostic
 ├── experiment_artifacts/{experiment}/{model}/
 └── evaluation/           # run_eval.py, interventions, metrics
 ```

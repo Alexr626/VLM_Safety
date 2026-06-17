@@ -84,6 +84,25 @@ class _QwenVLChatDispatch(FamilyDispatch):
         return self._layers(wrapper)[idx].mlp
 
 
+class _Qwen2VLDispatch(FamilyDispatch):
+    """Qwen2-VL / Qwen2.5-VL decoder (language-model backbone)."""
+
+    def get_lm_head(self, wrapper):
+        return wrapper.model.lm_head
+
+    def _layers(self, wrapper):
+        return wrapper.model.model.layers
+
+    def get_layer(self, wrapper, idx):
+        return self._layers(wrapper)[idx]
+
+    def get_attn(self, wrapper, idx):
+        return self._layers(wrapper)[idx].self_attn
+
+    def get_mlp(self, wrapper, idx):
+        return self._layers(wrapper)[idx].mlp
+
+
 def _family_for(wrapper) -> str:
     cls_name = type(wrapper).__name__
     if cls_name == "LLaVAWrapper":
@@ -92,9 +111,12 @@ def _family_for(wrapper) -> str:
         return "llama_raw"
     if cls_name == "QwenVLWrapper":
         return "qwen_vl_chat"
+    if cls_name == "Qwen2VLWrapper":
+        return "qwen2_vl"
     raise NotImplementedError(
         f"Causal mediation dispatch not implemented for wrapper {cls_name}. "
-        "Supported families: LLaVAWrapper, ShareGPT4VWrapper, QwenVLWrapper."
+        "Supported families: LLaVAWrapper, ShareGPT4VWrapper, QwenVLWrapper, "
+        "Qwen2VLWrapper."
     )
 
 
@@ -108,6 +130,8 @@ def get_dispatch(wrapper) -> FamilyDispatch:
         return _LlamaDispatch(family=fam, n_layers=n_layers, hidden_dim=hidden_dim)
     if fam == "qwen_vl_chat":
         return _QwenVLChatDispatch(family=fam, n_layers=n_layers, hidden_dim=hidden_dim)
+    if fam == "qwen2_vl":
+        return _Qwen2VLDispatch(family=fam, n_layers=n_layers, hidden_dim=hidden_dim)
     raise NotImplementedError(fam)
 
 
