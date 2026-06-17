@@ -1,0 +1,192 @@
+[
+  {
+    "id": "pope_random_00000",
+    "question": "Is there a snowboard in the image?",
+    "benchmark": "pope",
+    "task": "random",
+    "ground_truth": "yes",
+    "metadata": {
+      "category": "random",
+      "label_idx": 1,
+      "image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+      "raw": {
+        "question_id": 1,
+        "image": "COCO_val2014_000000310196.jpg",
+        "text": "Is there a snowboard in the image?",
+        "label": "yes"
+      }
+    },
+    "response": "Yes, there is a snowboard in the image."
+  },
+  {
+    "id": "pope_random_00001",
+    "question": "Is there a car in the image?",
+    "benchmark": "pope",
+    "task": "random",
+    "ground_truth": "no",
+    "metadata": {
+      "category": "random",
+      "label_idx": 0,
+      "image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+      "raw": {
+        "question_id": 2,
+        "image": "COCO_val2014_000000310196.jpg",
+        "text": "Is there a car in the image?",
+        "label": "no"
+      }
+    },
+    "response": "No, there is no car in the image."
+  },
+  {
+    "id": "pope_random_00002",
+    "question": "Is there a person in the image?",
+    "benchmark": "pope",
+    "task": "random",
+    "ground_truth": "yes",
+    "metadata": {
+      "category": "random",
+      "label_idx": 1,
+      "image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+      "raw": {
+        "question_id": 3,
+        "image": "COCO_val2014_000000310196.jpg",
+        "text": "Is there a person in the image?",
+        "label": "yes"
+      }
+    },
+    "response": "Yes, there is a person in the image."
+  },
+  {
+    "id": "pope_random_00003",
+    "question": "Is there a sandwich in the image?",
+    "benchmark": "pope",
+    "task": "random",
+    "ground_truth": "no",
+    "metadata": {
+      "category": "random",
+      "label_idx": 0,
+      "image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+      "raw": {
+        "question_id": 4,
+        "image": "COCO_val2014_000000310196.jpg",
+        "text": "Is there a sandwich in the image?",
+        "label": "no"
+      }
+    },
+    "response": "No, there is no sandwich in the image."
+  },
+  {
+    "id": "pope_random_00004",
+    "question": "Is there a skis in the image?",
+    "benchmark": "pope",
+    "task": "random",
+    "ground_truth": "yes",
+    "metadata": {
+      "category": "random",
+      "label_idx": 1,
+      "image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+      "raw": {
+        "question_id": 5,
+        "image": "COCO_val2014_000000310196.jpg",
+        "text": "Is there a skis in the image?",
+        "label": "yes"
+      }
+    },
+    "response": "Yes, there is a pair of skis in the image."
+  },
+  {
+    "id": "pope_random_00005",
+    "question": "Is there a couch in the image?",
+    "benchmark": "pope",
+    "task": "random",
+    "ground_truth": "no",
+    "metadata": {
+      "category": "random",
+      "label_idx": 0,
+      "image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+      "raw": {
+        "question_id": 6,
+        "image": "COCO_val2014_000000310196.jpg",
+        "text": "Is there a couch in the image?",
+        "label": "no"
+      }
+    },
+    "response": "No, there is no couch in the image."
+  },
+  {
+    "id": "pope_random_00006",
+    "question": "Is there a truck in the image?",
+    "benchmark": "pope",
+    "task": "random",
+    "ground_truth": "yes",
+    "metadata": {
+      "category": "random",
+      "label_idx": 1,
+      "image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+      "raw": {
+        "question_id": 7,
+        "image": "COCO_val2014_000000210789.jpg",
+        "text": "Is there a truck in the image?",
+        "label": "yes"
+      }
+    },
+    "response": "Yes, there is a truck in the image."
+  },
+  {
+    "id": "pope_random_00007",
+    "question": "Is there a pizza in the image?",
+    "benchmark": "pope",
+    "task": "random",
+    "ground_truth": "no",
+    "metadata": {
+      "category": "random",
+      "label_idx": 0,
+      "image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+      "raw": {
+        "question_id": 8,
+        "image": "COCO_val2014_000000210789.jpg",
+        "text": "Is there a pizza in the image?",
+        "label": "no"
+      }
+    },
+    "response": "No, there is no pizza in the image."
+  },
+  {
+    "id": "pope_random_00008",
+    "question": "Is there a person in the image?",
+    "benchmark": "pope",
+    "task": "random",
+    "ground_truth": "yes",
+    "metadata": {
+      "category": "random",
+      "label_idx": 1,
+      "image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+      "raw": {
+        "question_id": 9,
+        "image": "COCO_val2014_000000210789.jpg",
+        "text": "Is there a person in the image?",
+        "label": "yes"
+      }
+    },
+    "response": "Yes, there is a person in the image."
+  },
+  {
+    "id": "pope_random_00009",
+    "question": "Is there a sink in the image?",
+    "benchmark": "pope",
+    "task": "random",
+    "ground_truth": "no",
+    "metadata": {
+      "category": "random",
+      "label_idx": 0,
+      "image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+      "raw": {
+        "question_id": 10,
+        "image": "COCO_val2014_000000210789.jpg",
+        "text": "Is there a sink in the image?",
+        "label": "no"
+      }
+    },
+    "response": "No, there is no sink in the image."
+  }
+]
