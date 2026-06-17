@@ -1089,59 +1089,59 @@ class QwenVLWrapper(VLMWrapperBase):
             device_map=self.device_map,
             trust_remote_code=True,
         )
-        # On GPUs with < 20 GiB VRAM, Qwen-VL (~19 GiB in bf16) needs
-        # CPU offloading.  But Qwen-VL's trust_remote_code visual encoder
-        # bypasses accelerate's CPU-offload hooks, so any weight that
-        # accelerate puts on `meta` and tries to swap-in via a hook fails
-        # with "Cannot copy out of meta tensor; no data!" during the
-        # forward pass.  Workaround: build an explicit device_map that
-        # pins `transformer.visual` (and the small embedding / output
-        # head modules used on every step) to GPU, and lets accelerate
-        # CPU-offload only the standard LLM transformer layers, which
-        # it can hook correctly.
+        # Qwen-VL-Chat (trust_remote_code) is NOT the same as Qwen2-VL / Qwen2.5-VL.
+        # Its custom visual encoder bypasses accelerate CPU-offload hooks, so plain
+        # device_map="auto" leaves vision weights on `meta` →
+        #   NotImplementedError: Cannot copy out of meta tensor; no data!
+        # Fix: always pin transformer.visual (+ wte/ln_f/lm_head) on GPU with real
+        # weights; use infer_auto_device_map for LLM layers only.
+        # Budget from *available* VRAM (mem_get_info), not total capacity — on a
+        # shared GPU with ~18 GiB free, using total (48 GiB) causes OOM at load.
         if self.device_map == "auto" and torch.cuda.is_available():
-            total_vram_gib = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)
-            if total_vram_gib < 20:
-                from accelerate import init_empty_weights, infer_auto_device_map
-                config = AutoConfig.from_pretrained(self.model_id, trust_remote_code=True)
-                with init_empty_weights():
-                    empty_model = AutoModelForCausalLM.from_config(
-                        config, trust_remote_code=True,
-                        torch_dtype=self.torch_dtype,
-                    )
-                no_split = getattr(empty_model, "_no_split_modules", None) or []
-                _pin_to_gpu_prefixes = (
-                    "transformer.visual",
-                    "transformer.wte",
-                    "transformer.ln_f",
-                    "lm_head",
+            from accelerate import init_empty_weights, infer_auto_device_map
+            free_bytes, total_bytes = torch.cuda.mem_get_info(0)
+            free_gib = free_bytes / (1024 ** 3)
+            total_gib = total_bytes / (1024 ** 3)
+            config = AutoConfig.from_pretrained(self.model_id, trust_remote_code=True)
+            with init_empty_weights():
+                empty_model = AutoModelForCausalLM.from_config(
+                    config, trust_remote_code=True,
+                    torch_dtype=self.torch_dtype,
                 )
+            no_split = getattr(empty_model, "_no_split_modules", None) or []
+            _pin_to_gpu_prefixes = (
+                "transformer.visual",
+                "transformer.wte",
+                "transformer.ln_f",
+                "lm_head",
+            )
 
-                def _is_pinned(name: str) -> bool:
-                    return any(name == p or name.startswith(p + ".")
-                               for p in _pin_to_gpu_prefixes)
+            def _is_pinned(name: str) -> bool:
+                return any(name == p or name.startswith(p + ".")
+                           for p in _pin_to_gpu_prefixes)
 
-                # Size of the modules we'll pin to GPU.
-                pinned_bytes = 0
-                for name, module in empty_model.named_modules():
-                    if not _is_pinned(name):
-                        continue
-                    # Only count direct params (named_modules walks the tree).
-                    for p in module.parameters(recurse=False):
-                        pinned_bytes += p.numel() * p.element_size()
-                    for b in module.buffers(recurse=False):
-                        pinned_bytes += b.numel() * b.element_size()
-                pinned_gib = pinned_bytes / (1024 ** 3)
+            pinned_bytes = 0
+            for name, module in empty_model.named_modules():
+                if not _is_pinned(name):
+                    continue
+                for p in module.parameters(recurse=False):
+                    pinned_bytes += p.numel() * p.element_size()
+                for b in module.buffers(recurse=False):
+                    pinned_bytes += b.numel() * b.element_size()
+            pinned_gib = pinned_bytes / (1024 ** 3)
 
-                # Reserve 5 GiB for forward-pass overhead, then split the
-                # remaining VRAM between the pinned modules and the LLM
-                # layers that infer_auto_device_map will distribute.
-                headroom_gib = 5
-                llm_budget_gib = max(int(total_vram_gib - headroom_gib - pinned_gib), 2)
-                print(f"  GPU < 20 GiB detected ({total_vram_gib:.1f} GiB) — "
-                      f"pinning vision encoder to GPU "
-                      f"(pinned {pinned_gib:.1f} GiB), capping LLM "
-                      f"GPU budget to {llm_budget_gib} GiB")
+            # ~19 GiB full model in bf16; if plenty of free VRAM, load all on GPU.
+            _FULL_MODEL_GIB = 19
+            headroom_gib = 5
+            if free_gib >= pinned_gib + _FULL_MODEL_GIB + headroom_gib:
+                print(f"  Qwen-VL: {free_gib:.1f} GiB free / {total_gib:.1f} GiB total "
+                      f"— loading entirely on GPU")
+                load_kwargs["device_map"] = {"": 0}
+            else:
+                llm_budget_gib = max(int(free_gib - headroom_gib - pinned_gib), 1)
+                print(f"  Qwen-VL: {free_gib:.1f} GiB free / {total_gib:.1f} GiB total "
+                      f"— pinning vision ({pinned_gib:.1f} GiB), "
+                      f"LLM GPU budget {llm_budget_gib} GiB, remainder on CPU")
                 device_map = infer_auto_device_map(
                     empty_model,
                     max_memory={0: f"{llm_budget_gib}GiB", "cpu": "30GiB"},
@@ -1151,8 +1151,8 @@ class QwenVLWrapper(VLMWrapperBase):
                 for name in list(device_map.keys()):
                     if _is_pinned(name):
                         device_map[name] = 0
-                del empty_model
                 load_kwargs["device_map"] = device_map
+            del empty_model
         self.model = AutoModelForCausalLM.from_pretrained(self.model_id, **load_kwargs)
         self.model.eval()
 
@@ -1387,10 +1387,9 @@ class Qwen2VLWrapper(VLMWrapperBase):
         self._fallback_vl_template = cfg["fallback_vl_template"]
         self._fallback_text_template = cfg["fallback_text_template"]
         self._caption_prompt = cfg["caption_prompt"]
-        # Cap vision tokens to fit in constrained VRAM. Default 512*28*28
-        # = 401,408 pixels ≈ 512 vision tokens (comparable to LLaVA's 576).
-        # Pass None to use the processor's built-in default (~1280 tokens).
-        self._max_pixels = max_pixels if max_pixels is not None else 512 * 28 * 28
+        # None -> processor's native default (Policy A: native resolution).
+        # Pass an int to cap vision tokens for constrained VRAM runs.
+        self._max_pixels = max_pixels
         # None until first _build_prompt() call — then True if chat template
         # works for this checkpoint, False if we permanently fell back.
         self._chat_template_ok: Optional[bool] = None
