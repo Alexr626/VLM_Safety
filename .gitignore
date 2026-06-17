@@ -83,3 +83,12 @@ original_environment.yml
 MiniGPT-4
 logs
 .venv
+IMPLEMENTATION.md
+RESEARCH_LOG.md
+.cursor
+data/
+SimSun.ttf
+wandb
+implementation_plans
+answers
+scripts
