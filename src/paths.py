@@ -41,3 +41,27 @@ def evaluation_results_dir(model_short: str, benchmark: str,
                            intervention: str) -> Path:
     return (project_root() / "evaluation" / "results"
             / model_short / benchmark / intervention)
+
+
+def data_root() -> Path:
+    return project_root() / "data"
+
+
+def coco_root() -> Path:
+    return data_root() / "coco"
+
+
+def coco_val2014_dir() -> Path:
+    return coco_root() / "val2014"
+
+
+def coco_train2014_dir() -> Path:
+    return coco_root() / "train2014"
+
+
+def vti_data_dir() -> Path:
+    return data_root() / "vti"
+
+
+def vti_demos_path() -> Path:
+    return vti_data_dir() / "demos.jsonl"
