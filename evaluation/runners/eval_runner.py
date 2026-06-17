@@ -221,7 +221,8 @@ def run_evaluation(
 
 
 _TABLE_COLUMNS = [
-    ("POPE", "pope", lambda s: s.get("accuracy_overall")),
+    ("POPE", "pope",
+     lambda s: f"{s.get('accuracy_overall', 0) * 100:.1f}/{s.get('f1_overall', 0) * 100:.1f}"),
     ("AMBER", "amber", lambda s: s.get("accuracy_overall")),
     ("CHAIR", "chair", lambda s: s.get("n_total")),
     ("Hallusion", "hallusionbench", lambda s: s.get("accuracy_overall")),

@@ -1,0 +1,44 @@
+{
+  "model": "qwen2-vl-7b-instruct",
+  "benchmark": "pope",
+  "intervention": "no_intervention",
+  "intervention_config": {},
+  "metric": "accuracy",
+  "accuracy_overall": 0.88,
+  "precision_overall": 0.9222222222222223,
+  "recall_overall": 0.83,
+  "f1_overall": 0.8736842105263158,
+  "yes_ratio": 0.45,
+  "n_correct": 528,
+  "n_total": 600,
+  "n_unparsed": 0,
+  "by_category": {
+    "random": {
+      "accuracy": 0.905,
+      "precision": 0.9764705882352941,
+      "recall": 0.83,
+      "f1": 0.8972972972972972,
+      "n_total": 200,
+      "n_unparsed": 0,
+      "yes_ratio": 0.425
+    },
+    "popular": {
+      "accuracy": 0.885,
+      "precision": 0.9325842696629213,
+      "recall": 0.83,
+      "f1": 0.8783068783068783,
+      "n_total": 200,
+      "n_unparsed": 0,
+      "yes_ratio": 0.445
+    },
+    "adversarial": {
+      "accuracy": 0.85,
+      "precision": 0.8645833333333334,
+      "recall": 0.83,
+      "f1": 0.8469387755102041,
+      "n_total": 200,
+      "n_unparsed": 0,
+      "yes_ratio": 0.48
+    }
+  }
+}

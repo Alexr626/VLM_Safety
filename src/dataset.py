@@ -153,6 +153,10 @@ def load_pope(
     manifest = root / "combined.json"
     if manifest.exists():
         entries = load_combined("pope", root.parent.parent)
+        entries = [
+            e for e in entries
+            if e.get("category") == split or e.get("task") == split
+        ]
     else:
         pope_dir = root / "output" / "coco" if (root / "output" / "coco").exists() else root
         json_files = sorted(pope_dir.glob(f"*{split}*.json"))
