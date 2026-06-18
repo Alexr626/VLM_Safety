@@ -119,6 +119,7 @@ vlm_hallucination_mitigation_summer_2026/
 │   ├── vti/demos.jsonl                      # VTI paired-caption demos (from authors)
 │   └── coco/val2014/  (+ train2014/ for VTI)
 ├── tests/                # unit tests (e.g. test_VTI_text_steer.py)
+├── helper_scripts/       # tracked one-off / ops scripts (see below)
 ├── data_scripts/         # download_*, extract_vl/tt, prepare_data, generate_captions
 ├── diagnostic_experiments/
 │   ├── modality_shift/   # m^l = x_vl - x_tt analysis
@@ -247,3 +248,67 @@ Each run writes `metric_summary.json` under the eval output dir. Per-benchmark s
 **New benchmark:** add loader + `_register()` in `src/dataset.py`, download script in `data_scripts/`, and wire eval loader in `evaluation/benchmarks/`.
 
 For full API signatures, hook behavior, and environment details, see [`IMPLEMENTATION.md`](IMPLEMENTATION.md).
+
+## Helper scripts
+
+`scripts/` is gitignored (local scratch for one-time fixes). **`helper_scripts/` is tracked** — ops and deployment helpers that teammates may need to reproduce cluster setup.
+
+| Path | Purpose |
+|------|---------|
+| `helper_scripts/runai/setup_vlm.sh` | One-time RunAI setup: extract repo tarball on NFS, bootstrap micromamba, build env, download COCO val2014 + model weights |
+| `helper_scripts/runai/run_vti.sh` | RunAI eval job: activate NFS env and run VTI POPE eval |
+| `helper_scripts/runai/bootstrap_micromamba.py` | Download micromamba without curl/wget (used by `setup_vlm.sh`) |
+| `helper_scripts/runai/run_bash_lf.py` | Strip Windows CRLF and run a shell script via bash (avoids line-ending failures in pods) |
+
+## RunAI (Bell Labs GPU cluster)
+
+**Control plane:** submit jobs from **lambdab2** (`runai` CLI + kubeconfig). **Storage:** Bell Labs NFS (`gpustorage-1`, SFTP-only). **Compute:** GPU pods mount NFS at `/home/datalake`.
+
+### Prerequisites (lambdab2)
+
+```bash
+cp /path/to/kubeconfig-mh-gpu ~/.kube/config
+export KUBECONFIG=~/.kube/config   # add to ~/.bashrc
+runai login
+runai project set nlm-mh
+```
+
+### Deploy code to NFS
+
+Build a tarball on Linux (LF line endings inside the archive):
+
+```bash
+git archive --format=tar.gz -o /tmp/vti_repo.tar.gz HEAD
+# verify RunAI helpers are included:
+tar -tzf /tmp/vti_repo.tar.gz | grep helper_scripts/runai
+```
+
+Upload `/tmp/vti_repo.tar.gz` to the NFS (e.g. `/airl-datalake/romanus/`) via WinSCP (binary mode). Do **not** upload helper scripts separately — they live inside the tarball.
+
+### One-time setup job
+
+Requires `--gpu-devices-request 1 --node-pools h100-pool` (0-GPU and `l40s-pool` hit container mount errors with the current image + NFS).
+
+```bash
+runai training submit setup-vlm -p nlm-mh \
+  --nfs path=/volume1/airl-datalake,server=gpustorage-1.cloud.bell-labs.com,mountpath=/home/datalake,readwrite \
+  -i blsr-docker-virtual.artifactory-fpark1.int.net.nokia.com/dspy_image2:0.1 \
+  --gpu-devices-request 1 --node-pools h100-pool \
+  --command -- bash -c 'export PATH=/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; BASE=/home/datalake/romanus; REPO=$BASE/vlm_hallucination; rm -rf "$REPO"; mkdir -p "$REPO"; tar -xzf "$BASE/vti_repo.tar.gz" -C "$REPO"; python3 "$REPO/helper_scripts/runai/run_bash_lf.py" "$REPO/helper_scripts/runai/setup_vlm.sh"'
+```
+
+Persistent artifacts on NFS: `envs/vlm_hal/` (micromamba env), `hf_cache/` (model weights), `vlm_hallucination/` (extracted repo).
+
+### VTI eval job
+
+After setup completes:
+
+```bash
+runai training submit hal-vti -p nlm-mh \
+  --nfs path=/volume1/airl-datalake,server=gpustorage-1.cloud.bell-labs.com,mountpath=/home/datalake,readwrite \
+  -i blsr-docker-virtual.artifactory-fpark1.int.net.nokia.com/dspy_image2:0.1 \
+  --gpu-devices-request 1 --node-pools h100-pool \
+  --command -- bash -c 'export PATH=/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; BASE=/home/datalake/romanus; REPO=$BASE/vlm_hallucination; python3 "$REPO/helper_scripts/runai/run_bash_lf.py" "$REPO/helper_scripts/runai/run_vti.sh"'
+```
+
+Monitor: `runai workload list -p nlm-mh` and `runai training logs <job-name> -p nlm-mh`.

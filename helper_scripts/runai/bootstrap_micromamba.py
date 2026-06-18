@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Download micromamba binary onto the NFS (no curl/wget required)."""
+"""Download micromamba binary onto the NFS (no curl/wget required).
+
+Called by helper_scripts/runai/setup_vlm.sh during the one-time RunAI setup job.
+"""
 import os
 import sys
 import tarfile

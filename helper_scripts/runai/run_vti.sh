@@ -4,7 +4,8 @@
 # eval on LLaVA-1.5-7B. Results land under the repo's evaluation/results/ on the
 # NFS, visible in WinSCP.
 #
-# Upload with LF line endings, or: sed 's/\r$//' run_vti.sh | bash
+# Invoked by a RunAI job after setup_vlm.sh (see readme.md, RunAI section).
+# Or locally: python3 helper_scripts/runai/run_bash_lf.py helper_scripts/runai/run_vti.sh
 set -eu
 export PATH=/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# One-time RunAI setup. Run from inside the repo (scripts/runai/setup_vlm.sh).
-# Prefer: python3 scripts/runai/run_bash_lf.py scripts/runai/setup_vlm.sh
+# One-time RunAI setup. Run from inside the extracted repo:
+#   python3 helper_scripts/runai/run_bash_lf.py helper_scripts/runai/setup_vlm.sh
 set -eu
 export PATH=/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
@@ -22,7 +22,7 @@ ls -la "$REPO" | head -n 20
 
 echo "=== [2/4] bootstrap micromamba ==="
 if [ ! -x "$MM" ]; then
-  python3 "$REPO/scripts/runai/bootstrap_micromamba.py" "$BASE"
+  python3 "$REPO/helper_scripts/runai/bootstrap_micromamba.py" "$BASE"
 fi
 "$MM" --version
 
