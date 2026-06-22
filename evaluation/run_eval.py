@@ -32,6 +32,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--skip_if_exists", action="store_true")
     p.add_argument("--pope_split", default="random",
                    help="POPE split name (random, popular, adversarial).")
+    p.add_argument("--run_date", default=None,
+                   help="Run date subdir (YYYY-MM-DD); defaults to today.")
+    p.add_argument("--beta", type=float, default=None,
+                   help="Textual steering coefficient for VTI interventions. "
+                        "When set, results are written under '{iv}__b{beta}'.")
     p.add_argument("--amber_task", default=None,
                    choices=["discriminative", "generative"],
                    help="Restrict AMBER to one task split.")
@@ -50,8 +55,10 @@ def main() -> None:
         skip_if_exists=args.skip_if_exists,
         pope_split=args.pope_split,
         amber_task=args.amber_task,
+        run_date=args.run_date,
+        beta=args.beta,
     )
-    print_comparison_table(out["model_short"], args.output_dir)
+    print_comparison_table(out["model_short"], args.output_dir, run_date=out["run_date"])
 
 
 if __name__ == "__main__":

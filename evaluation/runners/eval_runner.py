@@ -9,6 +9,7 @@ import json
 import sys
 import time
 import traceback
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -171,12 +172,16 @@ def run_evaluation(
     skip_if_exists: bool = False,
     pope_split: str = "random",
     amber_task: Optional[str] = None,
+    run_date: Optional[str] = None,
+    beta: Optional[float] = None,
 ) -> dict:
     interventions = interventions or list(ALL_INTERVENTIONS)
     benchmarks = benchmarks or list(_BENCHMARK_LOADERS)
     output_dir = Path(output_dir)
+    run_date = run_date or datetime.now().strftime("%Y-%m-%d")
     model_short = _normalize_model_name(model_id)
     print(f"\n=== Evaluating {model_id} ({model_short}) ===")
+    print(f"  run_date     : {run_date}")
     print(f"  benchmarks   : {benchmarks}")
     print(f"  interventions: {interventions}")
 
@@ -187,7 +192,9 @@ def run_evaluation(
         benchmark_samples[b] = _load_benchmark(b, **_benchmark_kwargs(b, opts))
         print(f"    -> {len(benchmark_samples[b])} samples")
 
-    iv_runs = [(name, get_intervention(name, model_id=model_id)) for name in interventions]
+    iv_kwargs = {"beta": beta} if beta is not None else {}
+    iv_runs = [(name, get_intervention(name, model_id=model_id, **iv_kwargs))
+               for name in interventions]
 
     print(f"  loading wrapper for {model_id} ...")
     wrapper = create_wrapper(model_id).load()
@@ -202,10 +209,17 @@ def run_evaluation(
     for b_name in benchmarks:
         samples = benchmark_samples[b_name]
         captions = benchmark_captions.get(b_name, {})
+        # POPE writes per-split result trees so the three splits do not collide.
+        bench_key = f"pope_{pope_split}" if b_name == "pope" else b_name
         for iv_name, iv in iv_runs:
-            out_dir = output_dir / model_short / b_name / iv_name
-            print(f"\n--- {b_name} × {iv_name} ---")
-            summaries[(b_name, iv_name)] = _run_one(
+            # Encode beta in the result dir for interventions that use it, so
+            # grid points do not collide. no_intervention (config has no 'beta')
+            # stays at the bare {iv} path and is computed once across a sweep.
+            iv_dir = (f"{iv_name}__b{beta}"
+                      if beta is not None and "beta" in iv.config else iv_name)
+            out_dir = output_dir / run_date / model_short / bench_key / iv_dir
+            print(f"\n--- {bench_key} × {iv_dir} ---")
+            summaries[(bench_key, iv_dir)] = _run_one(
                 wrapper, iv, samples, out_dir,
                 max_new_tokens=max_new_tokens,
                 skip_if_exists=skip_if_exists,
@@ -216,30 +230,71 @@ def run_evaluation(
     return {
         "model": model_id,
         "model_short": model_short,
+        "run_date": run_date,
         "summaries": {f"{b}__{i}": v for (b, i), v in summaries.items()},
     }
 
 
-_TABLE_COLUMNS = [
-    ("POPE", "pope",
-     lambda s: f"{s.get('accuracy_overall', 0) * 100:.1f}/{s.get('f1_overall', 0) * 100:.1f}"),
-    ("AMBER", "amber", lambda s: s.get("accuracy_overall")),
-    ("CHAIR", "chair", lambda s: s.get("n_total")),
-    ("Hallusion", "hallusionbench", lambda s: s.get("accuracy_overall")),
-    ("MMHal", "mmhal_bench", lambda s: s.get("accuracy_overall")),
+def _looks_like_date(name: str) -> bool:
+    parts = name.split("-")
+    return len(parts) == 3 and all(p.isdigit() for p in parts)
+
+
+def _fmt_pope(s: dict) -> str:
+    return f"{s.get('accuracy_overall', 0) * 100:.1f}/{s.get('f1_overall', 0) * 100:.1f}"
+
+
+def _fmt_pct(s: dict) -> Optional[str]:
+    v = s.get("accuracy_overall")
+    return f"{v * 100:.1f}%" if isinstance(v, (int, float)) else None
+
+
+def _fmt_count(s: dict) -> Optional[str]:
+    v = s.get("n_total")
+    return str(v) if v is not None else None
+
+
+_POPE_SPLIT_ABBR = {"random": "rnd", "popular": "pop", "adversarial": "adv"}
+_POPE_SPLIT_ORDER = ["random", "popular", "adversarial"]
+_OTHER_COLUMNS = [
+    ("AMBER", "amber", _fmt_pct),
+    ("CHAIR", "chair", _fmt_count),
+    ("Hallusion", "hallusionbench", _fmt_pct),
+    ("MMHal", "mmhal_bench", _fmt_pct),
 ]
 
 
-def print_comparison_table(model_short: str, results_root: str | Path) -> None:
-    root = Path(results_root) / model_short
-    if not root.exists():
-        print(f"No results found at {root}")
+def _resolve_model_root(results_root: Path, model_short: str,
+                        run_date: Optional[str]) -> Optional[Path]:
+    if run_date is not None:
+        cand = results_root / run_date / model_short
+        return cand if cand.exists() else None
+    # No date given: prefer the most recent date dir that has this model, else
+    # fall back to the legacy (pre-date) layout results_root/model_short.
+    date_dirs = sorted(
+        (p for p in results_root.iterdir()
+         if p.is_dir() and _looks_like_date(p.name) and (p / model_short).is_dir()),
+        reverse=True,
+    ) if results_root.exists() else []
+    if date_dirs:
+        return date_dirs[0] / model_short
+    legacy = results_root / model_short
+    return legacy if legacy.exists() else None
+
+
+def print_comparison_table(model_short: str, results_root: str | Path,
+                           run_date: Optional[str] = None) -> None:
+    results_root = Path(results_root)
+    root = _resolve_model_root(results_root, model_short, run_date)
+    if root is None:
+        print(f"No results found for {model_short} under {results_root}")
         return
 
     interventions: list[str] = []
     by_iv: dict[str, dict[str, dict]] = {}
+    bench_keys: set[str] = set()
     for benchmark_dir in sorted(p for p in root.iterdir() if p.is_dir()):
-        b_name = benchmark_dir.name
+        b_key = benchmark_dir.name
         for iv_dir in sorted(p for p in benchmark_dir.iterdir() if p.is_dir()):
             iv = iv_dir.name
             summary_path = iv_dir / "metric_summary.json"
@@ -247,30 +302,37 @@ def print_comparison_table(model_short: str, results_root: str | Path) -> None:
                 continue
             if iv not in interventions:
                 interventions.append(iv)
-            by_iv.setdefault(iv, {})[b_name] = _load_json(summary_path)
+            by_iv.setdefault(iv, {})[b_key] = _load_json(summary_path)
+            bench_keys.add(b_key)
 
     if not interventions:
         print(f"No metric_summary.json files under {root}")
         return
 
-    label_w = max(len(iv) for iv in interventions) + 2
-    col_headers = [c[0] for c in _TABLE_COLUMNS]
-    col_w = [max(len(h), 9) for h in col_headers]
+    # Build columns: per-split POPE first (in canonical order), then the others.
+    columns: list[tuple[str, str, object]] = []
+    pope_keys = {k for k in bench_keys if k == "pope" or k.startswith("pope_")}
+    for split in _POPE_SPLIT_ORDER:
+        key = f"pope_{split}"
+        if key in pope_keys:
+            columns.append((f"POPE/{_POPE_SPLIT_ABBR[split]}", key, _fmt_pope))
+    for key in sorted(pope_keys - {f"pope_{s}" for s in _POPE_SPLIT_ORDER}):
+        label = "POPE" if key == "pope" else f"POPE/{key[5:]}"
+        columns.append((label, key, _fmt_pope))
+    for header, key, fmt in _OTHER_COLUMNS:
+        if key in bench_keys:
+            columns.append((header, key, fmt))
 
-    print(f"\nModel: {model_short}")
-    header = " " * label_w + "".join(h.rjust(w + 2) for h, w in zip(col_headers, col_w))
-    print(header)
+    label_w = max(len(iv) for iv in interventions) + 2
+    col_w = [max(len(h), 11) for h, _, _ in columns]
+
+    print(f"\nModel: {model_short}  ({root.parent.name})")
+    print(" " * label_w + "".join(h.rjust(w + 2) for (h, _, _), w in zip(columns, col_w)))
     print(" " * label_w + "".join("-" * (w + 2) for w in col_w))
     for iv in interventions:
         cells = []
-        for (_, b_name, getter), w in zip(_TABLE_COLUMNS, col_w):
-            s = by_iv.get(iv, {}).get(b_name)
-            val = getter(s) if s else None
-            if val is None:
-                cell = "--"
-            elif isinstance(val, float):
-                cell = f"{val * 100:.1f}%"
-            else:
-                cell = str(val)
-            cells.append(cell.rjust(w + 2))
+        for (_, key, fmt), w in zip(columns, col_w):
+            s = by_iv.get(iv, {}).get(key)
+            val = fmt(s) if s else None
+            cells.append((val if val is not None else "--").rjust(w + 2))
         print(iv.ljust(label_w) + "".join(cells))

@@ -23,7 +23,7 @@ class VTITextualIntervention(InterventionBase):
         *,
         variant: str = "uniform_rotation",
         hook_site: str = "mlp",
-        alpha_text: float = 0.9,
+        beta: float = 0.9,
         num_demos: int = 70,
         rank: int = 1,
         seed: int = 42,
@@ -41,7 +41,7 @@ class VTITextualIntervention(InterventionBase):
         self._model_id = model_id
         self._variant = variant
         self._hook_site = hook_site
-        self._alpha_text = alpha_text
+        self._beta = beta  # textual steering coefficient (paper notation)
         self._num_demos = num_demos
         self._rank = rank
         self._seed = seed
@@ -62,7 +62,7 @@ class VTITextualIntervention(InterventionBase):
         return {
             "variant": self._variant,
             "hook_site": self._hook_site,
-            "alpha_text": self._alpha_text,
+            "beta": self._beta,
             "num_demos": self._num_demos,
             "rank": self._rank,
             "seed": self._seed,
@@ -103,7 +103,7 @@ class VTITextualIntervention(InterventionBase):
             wrapper,
             directions,
             variant=self._variant,
-            alpha=self._alpha_text,
+            alpha=self._beta,  # textual beta -> geometry-agnostic steer() coefficient
             hook_site=self._hook_site,
             eps_coeff=self._eps_coeff,
             log_lambda_sim=self._log_lambda_sim,

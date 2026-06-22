@@ -57,8 +57,17 @@ def vti_hook_ctx(
     log_lambda_sim: bool = False,
     log_records: Optional[List[dict]] = None,
     decode_input_ids: Optional[torch.Tensor] = None,
+    steer_prefill: bool = True,
+    skip_first_token: bool = False,
 ):
-    """Register per-layer steer hooks; always removed on exit."""
+    """Register per-layer steer hooks; always removed on exit.
+
+    Debug knobs (default-off; defaults reproduce production behavior exactly):
+        steer_prefill: if False, skip steering on multi-token (prefill) calls,
+            steering only single-token decode steps.
+        skip_first_token: if True, leave sequence position 0 unsteered during
+            prefill (the BOS / attention-sink position).
+    """
     dispatch = get_dispatch(wrapper)
     verify_layout(wrapper, dispatch)
 
@@ -83,6 +92,9 @@ def vti_hook_ctx(
             t = _output_tensor(output)
             if t.dim() != 3:
                 return output
+            is_prefill = t.size(1) > 1
+            if is_prefill and not steer_prefill:
+                return output
             steered = steer(
                 t,
                 direction.to(device=t.device),
@@ -94,6 +106,9 @@ def vti_hook_ctx(
                 layer_idx=layer_idx,
                 token_strings=token_strings,
             )
+            if skip_first_token and is_prefill:
+                steered = steered.clone()
+                steered[:, 0, :] = t[:, 0, :]
             return _replace_tensor(output, steered)
 
         return hook
