@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# One-time RunAI setup. Run from inside the extracted repo:
-#   python3 helper_scripts/runai/run_bash_lf.py helper_scripts/runai/setup_vlm.sh
+# One-time RunAI setup. Invoked from a RunAI job after tarball extract:
+#   bash helper_scripts/runai/setup_vlm.sh
+# dspy_image2:0.1 has no Python — pre-upload bin/micromamba to NFS (see HANDOFF.md).
 set -eu
 export PATH=/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# Fallback only if micromamba was not pre-staged on NFS:
+PYTHON="${PYTHON:-$(command -v python3.8 || command -v python3 || command -v python)}"
 
 BASE=/home/datalake/romanus
 REPO=$BASE/vlm_hallucination
@@ -22,7 +25,12 @@ ls -la "$REPO" | head -n 20
 
 echo "=== [2/4] bootstrap micromamba ==="
 if [ ! -x "$MM" ]; then
-  python3 "$REPO/helper_scripts/runai/bootstrap_micromamba.py" "$BASE"
+  if [ -z "$PYTHON" ]; then
+    echo "ERROR: $MM missing and no Python in container to bootstrap." >&2
+    echo "Pre-upload micromamba to NFS: romanus/bin/micromamba (see HANDOFF.md)." >&2
+    exit 1
+  fi
+  "$PYTHON" "$REPO/helper_scripts/runai/bootstrap_micromamba.py" "$BASE"
 fi
 "$MM" --version
 
