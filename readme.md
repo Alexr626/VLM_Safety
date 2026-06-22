@@ -140,7 +140,9 @@ Use [`src/paths.py`](src/paths.py) for diagnostic and artifact paths:
 | Experiment artifacts | `experiment_artifacts/{experiment}/{model}/` |
 | Per-model activations | `data/{benchmark_dir}/{model}/activations/` |
 | Responses | `data/{benchmark_dir}/{model}/responses/{intervention}/` |
-| Eval results | `evaluation/results/{model}/{benchmark}/{intervention}/` |
+| Eval results | `evaluation/results/{run_date}/{model}/pope_{split}/{intervention}[__b{beta}]/` |
+| VTI direction cache | `experiment_artifacts/vti/{model}/textual_directions_nd{N}_rank{r}_seed{s}.npz` |
+| Rotation-strength results | `evaluation/vti_rotation_strength/results/{run_date}/{model}/sweep_{variant}_layer_{split}_n{N}.json` |
 
 ## Quickstart
 
@@ -216,6 +218,13 @@ python evaluation/run_eval.py \
 | Name | Description |
 |------|-------------|
 | `no_intervention` | Direct model generation (baseline) |
+| `vti_textual_additive_mlp` | VTI textual steering, **additive** geometry, **MLP** sub-block output (pre-residual) |
+| `vti_textual_additive_layer` | additive geometry, **full residual-stream** (decoder-layer) output — the paper's *described* method |
+| `vti_textual_uniform_rotation_mlp` | **norm-preserving rotation**, MLP site — the authors' *released-code* default |
+| `vti_textual_uniform_rotation_layer` | rotation at the residual site (subject of the rotation-strength experiment) |
+| `vti_textual_gated_rotation_{mlp,layer}` | cosine-gated rotation (numerically ≡ `uniform_rotation`; the gate is disabled in the reference) |
+
+VTI interventions accept a textual steering coefficient via `--beta` (the paper's β; intervention default 0.9). See [VTI textual steering](#vti-textual-steering--implementation--reproduction) for the full implementation notes and the two reproduction experiments.
 
 Add new methods under `evaluation/interventions/`:
 
@@ -234,6 +243,89 @@ Each run writes `metric_summary.json` under the eval output dir. Per-benchmark s
 | HallusionBench | `accuracy` | Yes/no or substring match |
 | MMHal-Bench | `reference_match` | Substring match to reference answer |
 | CHAIR | `chair_pending` | Full CHAIR-s/i needs post-hoc COCO object inventory |
+
+## VTI textual steering — implementation & reproduction
+
+Re-implementation of the textual arm of **VTI** (Visual & Textual Intervention; [arXiv:2410.15778](https://arxiv.org/abs/2410.15778)). Code lives in [`evaluation/interventions/vti/`](evaluation/interventions/vti/):
+
+| File | Role |
+|------|------|
+| `steer.py` | The three steering geometries (`additive`, `uniform_rotation`, `gated_rotation`) |
+| `hooks.py` | Forward hooks that apply the direction; debug knobs `steer_prefill`, `skip_first_token` |
+| `directions.py` | Direction extraction (rank-1 PCA on `clean − hallucinated` last-token states) + on-disk cache |
+| `intervention.py` | `VTITextualIntervention`; registry name `vti_textual_{geometry}_{site}` |
+
+**Design axes.** Geometry × hook site:
+- **Geometry** — `additive`: `x + β·d̂`. `uniform_rotation`: norm-preserving renormalization `x ← ‖x‖ · normalize( normalize(x) + eps_coeff·β·d̂ )` (a small rotation). `gated_rotation`: same with a cosine gate that the reference leaves disabled (so it equals `uniform_rotation`).
+- **Hook site** — `mlp`: the MLP sub-block output (before the residual add). `layer`: the full decoder-layer output (after the residual, i.e. the residual stream).
+- The authors' **released code** does `uniform_rotation` at the **MLP** site; the **paper text** describes `additive` on the **residual stream**. Both are provided so they can be compared.
+
+**Coefficients.** `--beta` is the textual coefficient β (intervention default `0.9`). `eps_coeff` (default `0.1`) is an additional rotation blend factor inherited from the reference; note that for the rotation geometries the *effective* coefficient is `eps_coeff·β ≈ 0.1·β`, so additive and rotation are **not** strength-matched at equal β.
+
+**Directions** are computed automatically on first use (rank-1 PCA over `num_demos=70` paired COCO demos, `seed=42`) and cached at `experiment_artifacts/vti/{model}/textual_directions_nd70_rank1_seed42.npz`; subsequent runs load the cache.
+
+### Prerequisites (data — `data/` is gitignored, so fetch it after cloning)
+
+The POPE manifest (`data/pope/combined.json`), the pinned eval subset (`data/pope/pinned_eval_ids.json`), and the VTI paired-caption demos (`data/vti/demos.jsonl`) **are committed** (via `.gitignore` exceptions), so a fresh clone only needs the COCO images:
+
+```bash
+conda activate vlm_hallucination_mitigation
+
+# COCO images: val2014 (POPE eval) + train2014 (VTI direction demos, ~13 GiB)
+python data_scripts/download_chair.py --with-train2014
+```
+
+POPE is evaluated on the pinned subset `data/pope/pinned_eval_ids.json` (the grid driver verifies it before running). VTI textual directions are computed and cached automatically on the first run (rank-1 PCA over the demos), so no manual extraction step is needed.
+
+### Experiment 1 — VTI POPE reproduction (β grid)
+
+Sweeps β over `{0.1 … 1.0}` for the three grid interventions (`additive_mlp`, `additive_layer`, `uniform_rotation_mlp`) against a single `no_intervention` baseline, on POPE `random`/`popular`/`adversarial`, for all four target models (LLaVA-1.5-7B, Qwen-VL-Chat, Qwen2-VL-7B, Qwen2.5-VL-7B). β is the outermost loop, so a complete, paper-comparable slice lands after each β.
+
+```bash
+# One-command driver — 200 samples/split, one model in memory at a time (48 GB A6000)
+CUDA_VISIBLE_DEVICES=0 LIMIT=200 \
+  bash evaluation/run_scripts/run_vti_pope_beta_grid.sh
+```
+
+- Output: `evaluation/results/{run_date}/{model}/pope_{split}/{iv}__b{beta}/{responses.json,metric_summary.json}` (baseline under `.../no_intervention/`). Per-model comparison tables print after each β.
+- Env knobs: `LIMIT` (samples/split), `BETAS`, `MODELS`, `IVS`, `RUN_DATE`, `OUTPUT_DIR`, `CUDA_VISIBLE_DEVICES`. Larger run: `LIMIT=3000 …` (the paper uses 3000/split).
+- Single cell (direct):
+
+```bash
+python evaluation/run_eval.py --model llava-hf/llava-1.5-7b-hf \
+  --benchmarks pope --pope_split random \
+  --interventions vti_textual_additive_mlp vti_textual_uniform_rotation_mlp \
+  --beta 0.4 --limit 200
+```
+
+### Experiment 2 — VTI rotation-strength sweep
+
+Characterizes the residual-site (`layer`) `uniform_rotation` as β varies: POPE accuracy / precision / recall / F1, yes-ratio, mean response length, and a decision-flip decomposition (induced vs removed hallucinations), plus `decode_only` and `skip_position_0` mitigation probes at the strongest β. POPE `random` split.
+
+```bash
+CUDA_VISIBLE_DEVICES=0 NUM_SAMPLES=200 \
+  bash evaluation/vti_rotation_strength/run_scripts/run_rotation_strength_sweep.sh
+```
+
+- Output: `evaluation/vti_rotation_strength/results/{run_date}/{model}/sweep_uniform_rotation_layer_random_n200.json` (`metrics_by_beta` + per-sample β trajectories in `per_sample`).
+- Env knobs: `NUM_SAMPLES`, `POPE_SPLIT`, `BETAS`, `MODELS`, `VARIANTS`, `RUN_DATE`.
+- Direct:
+
+```bash
+python evaluation/vti_rotation_strength/rotation_strength.py \
+  --model llava-hf/llava-1.5-7b-hf --variant uniform_rotation \
+  --num_samples 200 --pope_split random \
+  --betas 0.6 0.5 0.45 0.4 0.35 0.3 0.25 0.2 0.1
+```
+
+### Run both, detached
+
+```bash
+CUDA_VISIBLE_DEVICES=0 nohup bash evaluation/run_scripts/run_beta_grid_local.sh > /dev/null 2>&1 &
+tail -f evaluation/results/_logs/beta_grid_local_*.log
+```
+
+`run_beta_grid_local.sh` runs Experiment 1 then Experiment 2 sequentially under one `RUN_DATE`. A RunAI / 3000-per-split variant is in `evaluation/run_scripts/run_beta_grid_runai.sh`.
 
 ## Extending the repo
 
@@ -294,7 +386,7 @@ runai training submit setup-vlm -p nlm-mh \
   --nfs path=/volume1/airl-datalake,server=gpustorage-1.cloud.bell-labs.com,mountpath=/home/datalake,readwrite \
   -i blsr-docker-virtual.artifactory-fpark1.int.net.nokia.com/dspy_image2:0.1 \
   --gpu-devices-request 1 --node-pools h100-pool \
-  --command -- bash -c 'export PATH=/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; BASE=/home/datalake/romanus; REPO=$BASE/vlm_hallucination; rm -rf "$REPO"; mkdir -p "$REPO"; tar -xzf "$BASE/vti_repo.tar.gz" -C "$REPO"; python3 "$REPO/helper_scripts/runai/run_bash_lf.py" "$REPO/helper_scripts/runai/setup_vlm.sh"'
+  --command -- bash -c 'export PATH=/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; BASE=/home/datalake/romanus; REPO=$BASE/vlm_hallucination; rm -rf "$REPO"; mkdir -p "$REPO"; tar -xzf "$BASE/vti_repo.tar.gz" -C "$REPO"; bash "$REPO/helper_scripts/runai/setup_vlm.sh"'
 ```
 
 Persistent artifacts on NFS: `envs/vlm_hal/` (micromamba env), `hf_cache/` (model weights), `vlm_hallucination/` (extracted repo).
@@ -308,7 +400,7 @@ runai training submit hal-vti -p nlm-mh \
   --nfs path=/volume1/airl-datalake,server=gpustorage-1.cloud.bell-labs.com,mountpath=/home/datalake,readwrite \
   -i blsr-docker-virtual.artifactory-fpark1.int.net.nokia.com/dspy_image2:0.1 \
   --gpu-devices-request 1 --node-pools h100-pool \
-  --command -- bash -c 'export PATH=/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; BASE=/home/datalake/romanus; REPO=$BASE/vlm_hallucination; python3 "$REPO/helper_scripts/runai/run_bash_lf.py" "$REPO/helper_scripts/runai/run_vti.sh"'
+  --command -- bash -c 'export PATH=/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; BASE=/home/datalake/romanus; REPO=$BASE/vlm_hallucination; bash "$REPO/helper_scripts/runai/run_vti.sh"'
 ```
 
 Monitor: `runai workload list -p nlm-mh` and `runai training logs <job-name> -p nlm-mh`.
