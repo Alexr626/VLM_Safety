@@ -92,3 +92,21 @@ wandb
 implementation_plans
 answers
 scripts/
+--*
+-i
+helper_scripts/runai/HANDOFF.md
+evaluation/vti_rotation_strength/results
+evaluation/results
+
+# ── VTI reproduction inputs — keep these small files tracked (see readme.md) ──
+# `data/` is ignored above; re-include the two small inputs a fresh clone needs
+# to run the VTI experiments without upstream fetches or manifest regeneration.
+# Parent dirs must be re-included first (git won't descend into an excluded dir).
+!data/
+data/*
+!data/pope/
+data/pope/*
+!data/pope/pinned_eval_ids.json
+!data/vti/
+data/vti/*
+!data/vti/demos.jsonl
