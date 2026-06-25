@@ -1401,6 +1401,19 @@ class Qwen2VLWrapper(VLMWrapperBase):
         if self._max_pixels is not None:
             proc_kwargs["max_pixels"] = self._max_pixels
         self.processor = AutoProcessor.from_pretrained(self.model_id, **proc_kwargs)
+        # transformers>=4.49 drives Qwen2-VL smart_resize from
+        # image_processor.size["longest_edge"], NOT the max_pixels attribute
+        # (it keeps max_pixels but ignores it for resizing). A cap passed only
+        # via max_pixels is therefore silently inert, and high-res images blow
+        # up the ViT self-attention (O(patches^2)) into hundreds of GiB -> OOM.
+        # Pin size["longest_edge"] as well so the cap actually downsizes.
+        if self._max_pixels is not None:
+            ip = self.processor.image_processor
+            ip.max_pixels = self._max_pixels
+            size = dict(getattr(ip, "size", {}) or {})
+            size["longest_edge"] = self._max_pixels
+            size.setdefault("shortest_edge", getattr(ip, "min_pixels", 3136))
+            ip.size = size
 
         print(f"Loading model ({self._model_class_name}) from '{self.model_id}'...")
         ModelClass = self._get_model_class()
@@ -1425,8 +1438,10 @@ class Qwen2VLWrapper(VLMWrapperBase):
         self.model = ModelClass.from_pretrained(self.model_id, **load_kwargs)
         self.model.eval()
         self._print_diagnostics()
-        effective_max = getattr(self.processor.image_processor, "max_pixels", "unknown")
-        print(f"  max_pixels        : {effective_max}")
+        ip = self.processor.image_processor
+        print(f"  max_pixels        : {getattr(ip, 'max_pixels', 'unknown')}")
+        print(f"  size.longest_edge : "
+              f"{(getattr(ip, 'size', {}) or {}).get('longest_edge', 'unknown')}")
         return self
 
     def _get_model_class(self):

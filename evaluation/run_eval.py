@@ -40,6 +40,23 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--amber_task", default=None,
                    choices=["discriminative", "generative"],
                    help="Restrict AMBER to one task split.")
+    p.add_argument("--judge", default="mock",
+                   help="MMHal-Bench judge: mock (default, offline) | "
+                        "openai[:model] | anthropic[:model] | gemini[:model]. "
+                        "Only used for the mmhal_bench benchmark.")
+    p.add_argument("--chair_max_new_tokens", type=int, default=64,
+                   help="Frozen caption length for CHAIR generation (default 64). "
+                        "Kept constant across baseline and interventions because "
+                        "caption length confounds CHAIR; independent of "
+                        "--max_new_tokens (used by other benchmarks).")
+    p.add_argument("--subset_ids_file", default=None,
+                   help="JSON of pinned sample ids to score (overrides --limit). "
+                        "Either {benchmark: [ids]} or a flat [ids] list applied "
+                        "to every benchmark in the run.")
+    p.add_argument("--chair_prompt", default=None,
+                   help="Verbatim CHAIR caption prompt; replaces the stored "
+                        "prompt for every CHAIR sample (e.g. the exact VTI "
+                        "prompt 'Please Describe this image in detail.').")
     return p.parse_args()
 
 
@@ -57,6 +74,10 @@ def main() -> None:
         amber_task=args.amber_task,
         run_date=args.run_date,
         beta=args.beta,
+        judge=args.judge,
+        chair_max_new_tokens=args.chair_max_new_tokens,
+        subset_ids_file=args.subset_ids_file,
+        chair_prompt=args.chair_prompt,
     )
     print_comparison_table(out["model_short"], args.output_dir, run_date=out["run_date"])
 

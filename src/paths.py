@@ -55,6 +55,10 @@ def coco_val2014_dir() -> Path:
     return coco_root() / "val2014"
 
 
+def coco_annotations_dir() -> Path:
+    return coco_root() / "annotations"
+
+
 def coco_train2014_dir() -> Path:
     return coco_root() / "train2014"
 

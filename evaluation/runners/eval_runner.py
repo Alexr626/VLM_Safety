@@ -25,6 +25,7 @@ from evaluation.benchmarks import (  # noqa: E402
     load_hallusionbench_eval, load_mmhal_bench_eval,
 )
 from evaluation.classifiers.metrics import compute_metric_records  # noqa: E402
+from evaluation.classifiers.judges import get_judge  # noqa: E402
 from evaluation.interventions import get_intervention, ALL_INTERVENTIONS  # noqa: E402
 
 
@@ -64,6 +65,14 @@ def _benchmark_kwargs(name: str, opts: dict) -> dict:
         kw["task"] = opts["amber_task"]
     if name == "pope" and opts.get("pope_split"):
         kw["split"] = opts["pope_split"]
+    # Pinned subset of sample ids for this benchmark (overrides --limit in the
+    # loader). `subset_map` maps benchmark -> set(ids); see run_evaluation.
+    subset_map = opts.get("subset_map") or {}
+    if name in subset_map:
+        kw["subset_ids"] = subset_map[name]
+    # Verbatim CHAIR caption prompt (pins the exact VTI prompt across cells).
+    if name == "chair" and opts.get("chair_prompt"):
+        kw["prompt_override"] = opts["chair_prompt"]
     return kw
 
 
@@ -88,6 +97,7 @@ def _run_one(
     benchmark_name: str,
     model_short: str,
     captions: Optional[dict] = None,
+    judge=None,
 ) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     responses_path = out_dir / "responses.json"
@@ -142,7 +152,7 @@ def _run_one(
             print(f"  [{i}/{len(samples)}]  {rate:.2f} samples/s")
 
     _save_json(records, responses_path)
-    metrics = compute_metric_records(records, benchmark_name)
+    metrics = compute_metric_records(records, benchmark_name, judge=judge)
     summary = {
         "model": model_short,
         "benchmark": benchmark_name,
@@ -174,18 +184,49 @@ def run_evaluation(
     amber_task: Optional[str] = None,
     run_date: Optional[str] = None,
     beta: Optional[float] = None,
+    judge: str = "mock",
+    chair_max_new_tokens: int = 64,
+    subset_ids_file: Optional[str] = None,
+    chair_prompt: Optional[str] = None,
 ) -> dict:
     interventions = interventions or list(ALL_INTERVENTIONS)
     benchmarks = benchmarks or list(_BENCHMARK_LOADERS)
     output_dir = Path(output_dir)
     run_date = run_date or datetime.now().strftime("%Y-%m-%d")
     model_short = _normalize_model_name(model_id)
+    # Pinned subsets: a JSON id file shared across all cells so every condition
+    # scores the identical items. Accepts either {benchmark: [ids]} or a flat
+    # [ids] list (then applied to every benchmark in this run).
+    subset_map: dict[str, set] = {}
+    if subset_ids_file:
+        with open(subset_ids_file) as f:
+            spec = json.load(f)
+        if isinstance(spec, dict):
+            for b in benchmarks:
+                if b in spec and spec[b]:
+                    subset_map[b] = set(spec[b])
+        elif isinstance(spec, list):
+            for b in benchmarks:
+                subset_map[b] = set(spec)
+    # The judge is resolved only when MMHal is in play, so CHAIR-only / POPE-only
+    # runs never require a judge key even if a non-mock --judge is passed.
+    judge_obj = get_judge(judge) if "mmhal_bench" in benchmarks else None
     print(f"\n=== Evaluating {model_id} ({model_short}) ===")
     print(f"  run_date     : {run_date}")
     print(f"  benchmarks   : {benchmarks}")
     print(f"  interventions: {interventions}")
+    if judge_obj is not None:
+        print(f"  mmhal judge  : {judge_obj.name}")
+    if "chair" in benchmarks:
+        print(f"  chair max_new_tokens (frozen): {chair_max_new_tokens}")
+        if chair_prompt:
+            print(f"  chair prompt (frozen): {chair_prompt!r}")
+    if subset_map:
+        print("  pinned subsets: "
+              + ", ".join(f"{b}={len(ids)}" for b, ids in subset_map.items()))
 
-    opts = {"limit": limit, "pope_split": pope_split, "amber_task": amber_task}
+    opts = {"limit": limit, "pope_split": pope_split, "amber_task": amber_task,
+            "subset_map": subset_map, "chair_prompt": chair_prompt}
     benchmark_samples: dict[str, list] = {}
     for b in benchmarks:
         print(f"  loading benchmark: {b} ...")
@@ -211,6 +252,10 @@ def run_evaluation(
         captions = benchmark_captions.get(b_name, {})
         # POPE writes per-split result trees so the three splits do not collide.
         bench_key = f"pope_{pope_split}" if b_name == "pope" else b_name
+        # CHAIR caption length confounds the metric, so its generation budget is
+        # frozen independently of the general --max_new_tokens (e.g. MMHal=256).
+        bench_max_new_tokens = (chair_max_new_tokens if b_name == "chair"
+                                else max_new_tokens)
         for iv_name, iv in iv_runs:
             # Encode beta in the result dir for interventions that use it, so
             # grid points do not collide. no_intervention (config has no 'beta')
@@ -221,11 +266,12 @@ def run_evaluation(
             print(f"\n--- {bench_key} × {iv_dir} ---")
             summaries[(bench_key, iv_dir)] = _run_one(
                 wrapper, iv, samples, out_dir,
-                max_new_tokens=max_new_tokens,
+                max_new_tokens=bench_max_new_tokens,
                 skip_if_exists=skip_if_exists,
                 benchmark_name=b_name,
                 model_short=model_short,
                 captions=captions,
+                judge=judge_obj,
             )
     return {
         "model": model_id,
@@ -254,13 +300,40 @@ def _fmt_count(s: dict) -> Optional[str]:
     return str(v) if v is not None else None
 
 
+def _fmt_chair(s: dict) -> Optional[str]:
+    # CHAIR_s / CHAIR_i as percentages; LOWER is better (see legend).
+    cs, ci = s.get("chair_s"), s.get("chair_i")
+    if not isinstance(cs, (int, float)) or not isinstance(ci, (int, float)):
+        return None
+    return f"{cs * 100:.1f}/{ci * 100:.1f}"
+
+
+def _fmt_mmhal(s: dict) -> Optional[str]:
+    # Mean judge rating 0-6; HIGHER is better.
+    v = s.get("avg_score")
+    return f"{v:.2f}" if isinstance(v, (int, float)) else None
+
+
+def _fmt_amber(s: dict) -> Optional[str]:
+    # AMBER discriminative: accuracy / negative-item accuracy / yes-ratio (%).
+    # neg_item_accuracy is the grounding-isolation number; yes_ratio is the
+    # agreeableness signal. Falls back to plain accuracy for generative AMBER.
+    acc = s.get("accuracy_overall")
+    if not isinstance(acc, (int, float)):
+        return None
+    neg, yr = s.get("neg_item_accuracy"), s.get("yes_ratio")
+    if isinstance(neg, (int, float)) and isinstance(yr, (int, float)):
+        return f"{acc * 100:.0f}/{neg * 100:.0f}/{yr * 100:.0f}"
+    return f"{acc * 100:.1f}%"
+
+
 _POPE_SPLIT_ABBR = {"random": "rnd", "popular": "pop", "adversarial": "adv"}
 _POPE_SPLIT_ORDER = ["random", "popular", "adversarial"]
 _OTHER_COLUMNS = [
-    ("AMBER", "amber", _fmt_pct),
-    ("CHAIR", "chair", _fmt_count),
+    ("AMBER a/n/yr", "amber", _fmt_amber),
+    ("CHAIR s/i v", "chair", _fmt_chair),
     ("Hallusion", "hallusionbench", _fmt_pct),
-    ("MMHal", "mmhal_bench", _fmt_pct),
+    ("MMHal ^", "mmhal_bench", _fmt_mmhal),
 ]
 
 
@@ -336,3 +409,14 @@ def print_comparison_table(model_short: str, results_root: str | Path,
             val = fmt(s) if s else None
             cells.append((val if val is not None else "--").rjust(w + 2))
         print(iv.ljust(label_w) + "".join(cells))
+
+    legend_bits = []
+    if any(key == "amber" for _, key, _ in columns):
+        legend_bits.append("AMBER a/n/yr = accuracy / neg-item acc / yes-ratio % "
+                           "(discriminative; neg-acc up at flat yr = grounding)")
+    if any(key == "chair" for _, key, _ in columns):
+        legend_bits.append("CHAIR s/i = CHAIR_s/CHAIR_i %, lower is better")
+    if any(key == "mmhal_bench" for _, key, _ in columns):
+        legend_bits.append("MMHal = mean judge rating 0-6, higher is better")
+    if legend_bits:
+        print("  legend: " + "; ".join(legend_bits))

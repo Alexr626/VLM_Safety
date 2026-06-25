@@ -220,10 +220,41 @@ def load_pope(
 
 # ── AMBER ─────────────────────────────────────────────────────────────────────
 
+# AMBER discriminative dimensions (paper / official `inference.py` `de/da/dr`).
+# The annotation `type` strings map to the three top-level dimensions; existence
+# questions are tagged `discriminative-hallucination` upstream.
+def _amber_discriminative_qtype(ann_type: str) -> str:
+    t = (ann_type or "").lower()
+    if "hallucination" in t:
+        return "existence"
+    if "attribute" in t:
+        return "attribute"
+    if "relation" in t:
+        return "relation"
+    return ann_type or "unknown"
+
+
+def _load_amber_annotations(root: Path) -> Dict[int, dict]:
+    """Map AMBER question id -> annotation entry (gold `truth`, `type`).
+
+    Gold answers for the discriminative split are NOT in `combined.json` (the
+    query files carry only id/image/query); they live in the AMBER source
+    `data/annotations.json`, joined by question id. Returns {} if the file is
+    absent (callers then leave label/category unenriched).
+    """
+    ann_path = root / "data" / "annotations.json"
+    if not ann_path.exists():
+        return {}
+    with open(ann_path) as f:
+        anns = json.load(f)
+    return {a["id"]: a for a in anns if "id" in a}
+
+
 def load_amber(
     data_dir: Optional[Path] = None,
     task: Optional[str] = None,
     limit: Optional[int] = None,
+    subset_ids: Optional[set] = None,
 ) -> List[dict]:
     root = data_dir or benchmark_data_dir("amber")
     entries = load_combined("amber") if combined_json_path("amber").exists() else []
@@ -231,28 +262,48 @@ def load_amber(
         raise FileNotFoundError(
             f"Missing AMBER data in {root}. Run: python data_scripts/download_amber.py"
         )
+    annotations = _load_amber_annotations(root)
+    # Filter by task (and optional pinned subset / `limit`) BEFORE loading images,
+    # so limited or subset runs don't pay to open the full ~14k-image set.
+    # `subset_ids` (a pinned id set) takes precedence over `limit` when given.
+    filtered = [r for r in entries
+                if not task or r.get("task", "discriminative") == task]
+    if subset_ids is not None:
+        ids = set(subset_ids)
+        filtered = [r for r in filtered if r["id"] in ids]
+    elif limit:
+        filtered = filtered[:limit]
     samples = []
     img_root = root / "images"
-    for row in entries:
+    for row in filtered:
         t = row.get("task", "discriminative")
-        if task and t != task:
-            continue
         rel = row.get("image_path") or row.get("image", "")
         img_path = img_root / rel if rel and not Path(rel).is_absolute() else Path(rel or "")
         pil = _load_pil(img_path) if img_path else None
+        raw = row.get("raw", row)
+        label = row.get("label", "")
+        category = row.get("category")
+        # Enrich discriminative items with gold (yes/no) + question-type dimension
+        # from the AMBER annotation file. Generative items keep their existing
+        # (out-of-scope) fields untouched.
+        if t == "discriminative":
+            ann = annotations.get(raw.get("id")) if isinstance(raw, dict) else None
+            if ann is not None:
+                label = ann.get("truth", label)
+                category = _amber_discriminative_qtype(ann.get("type", ""))
         samples.append({
             "id": row["id"],
             "image_path": str(img_path) if img_path else None,
             "image_pil": pil,
             "text": row["text"],
-            "label": row.get("label", ""),
-            "label_idx": row.get("label_idx"),
+            "label": label,
+            "label_idx": _yes_no_label_idx(label) if t == "discriminative" else row.get("label_idx"),
             "benchmark": "amber",
             "task": t,
-            "category": row.get("category"),
-            "raw": row.get("raw", row),
+            "category": category,
+            "raw": raw,
         })
-    return samples[:limit] if limit else samples
+    return samples
 
 
 # ── CHAIR ─────────────────────────────────────────────────────────────────────
@@ -263,14 +314,28 @@ _CHAIR_PROMPT = "Please describe this image in detail."
 def load_chair(
     data_dir: Optional[Path] = None,
     limit: Optional[int] = None,
+    subset_ids: Optional[set] = None,
+    prompt_override: Optional[str] = None,
 ) -> List[dict]:
-    """Load CHAIR eval images (COCO val2014) with a caption-generation prompt."""
+    """Load CHAIR eval images (COCO val2014) with a caption-generation prompt.
+
+    `subset_ids` pins a fixed sample-id subset (filtered BEFORE image load, so a
+    500-id subset does not open all ~40k COCO images); it takes precedence over
+    `limit`. `prompt_override` replaces the stored caption prompt verbatim for
+    every sample (used to pin the exact VTI prompt "Please Describe this image
+    in detail." across the diagnostics).
+    """
     root = data_dir or benchmark_data_dir("chair")
     entries = load_combined("chair") if combined_json_path("chair").exists() else []
     if not entries:
         raise FileNotFoundError(
             f"Missing CHAIR manifest in {root}. Run: python data_scripts/download_chair.py"
         )
+    if subset_ids is not None:
+        ids = set(subset_ids)
+        entries = [r for r in entries if r["id"] in ids]
+    elif limit:
+        entries = entries[:limit]
     samples = []
     for row in entries:
         img_path = Path(row["image_path"])
@@ -278,7 +343,7 @@ def load_chair(
             "id": row["id"],
             "image_path": str(img_path),
             "image_pil": _load_pil(img_path),
-            "text": row.get("text", _CHAIR_PROMPT),
+            "text": prompt_override or row.get("text", _CHAIR_PROMPT),
             "label": row.get("label", "caption"),
             "label_idx": None,
             "benchmark": "chair",
@@ -286,7 +351,7 @@ def load_chair(
             "category": row.get("category", "coco"),
             "raw": row.get("raw", row),
         })
-    return samples[:limit] if limit else samples
+    return samples
 
 
 # ── HallusionBench ────────────────────────────────────────────────────────────
