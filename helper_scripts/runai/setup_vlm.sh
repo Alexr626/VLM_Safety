@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One-time RunAI setup. Invoked from a RunAI job after tarball extract:
 #   bash helper_scripts/runai/setup_vlm.sh
-# dspy_image2:0.1 has no Python — pre-upload bin/micromamba to NFS (see HANDOFF.md).
+# Use llm_image14:0.1 for RunAI jobs (see HANDOFF.md). Pre-upload bin/micromamba to NFS if image has no Python.
 set -eu
 export PATH=/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # Fallback only if micromamba was not pre-staged on NFS:

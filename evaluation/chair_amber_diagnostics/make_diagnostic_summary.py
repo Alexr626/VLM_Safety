@@ -90,6 +90,15 @@ def _methods_betas(cells: dict):
     return sorted(methods), betas
 
 
+def _by_qtype_cell(bq: dict, dim: str) -> str:
+    g = (bq or {}).get(dim)
+    if not g:
+        return "--"
+    return (f"{_fmt(g.get('accuracy'), pct=True)}/"
+            f"{_fmt(g.get('yes_ratio'), pct=True)}/"
+            f"{_fmt(g.get('neg_item_accuracy'), pct=True)}")
+
+
 def _exp1_chair(md, model_short, cells):
     base = cells.get("no_intervention")
     methods, betas = _methods_betas(cells)
@@ -157,22 +166,22 @@ def _exp1_amber(md, model_short, cells):
                       f"{_fmt(s.get('pos_item_accuracy'),pct=True)} | "
                       f"{_fmt(s.get('f1_overall'),pct=True)} | "
                       f"{s.get('n_unparsed','--')} |")
-    # by_qtype at canonical beta 0.4 for each method.
+    # by_qtype at canonical beta 0.4 for each method (baseline row for comparison).
     md.append("\nby_qtype @ beta=0.4 (acc / yes_ratio / neg_item_acc %):\n")
     md.append("| method | existence | attribute | relation |")
     md.append("| --- | --- | --- | --- |")
+    if base:
+        bq_base = base.get("by_qtype") or {}
+        md.append(f"| no_intervention (baseline) | "
+                  f"{_by_qtype_cell(bq_base, 'existence')} | "
+                  f"{_by_qtype_cell(bq_base, 'attribute')} | "
+                  f"{_by_qtype_cell(bq_base, 'relation')} |")
     for m in methods:
         s = cells.get(f"{m}__b0.4")
         bq = (s or {}).get("by_qtype") or {}
-        def cell(dim):
-            g = bq.get(dim)
-            if not g:
-                return "--"
-            return (f"{_fmt(g.get('accuracy'),pct=True)}/"
-                    f"{_fmt(g.get('yes_ratio'),pct=True)}/"
-                    f"{_fmt(g.get('neg_item_accuracy'),pct=True)}")
-        md.append(f"| {m} | {cell('existence')} | {cell('attribute')} | "
-                  f"{cell('relation')} |")
+        md.append(f"| {m} | {_by_qtype_cell(bq, 'existence')} | "
+                  f"{_by_qtype_cell(bq, 'attribute')} | "
+                  f"{_by_qtype_cell(bq, 'relation')} |")
 
 
 def _exp2_curve(md, model_short, bench, sweep):
