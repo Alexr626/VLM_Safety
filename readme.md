@@ -160,7 +160,7 @@ Use [`src/paths.py`](src/paths.py) for diagnostic and artifact paths:
 | Eval results | `evaluation/results/{run_date}/{model}/pope_{split}/{intervention}[__b{beta}]/` |
 | VTI direction cache | `experiment_artifacts/vti/{model}/textual_directions_nd{N}_rank{r}_seed{s}.npz` |
 | Rotation-strength results | `evaluation/vti_rotation_strength/results/{run_date}/{model}/sweep_{variant}_layer_{split}_n{N}.json` |
-| CHAIR+AMBER diagnostic summary | `evaluation/results/{run_date}/_diagnostic_summary_chair_amber.md` |
+| CHAIR+AMBER diagnostic summary | `evaluation/results/{run_date}/_diagnostic_summary_chair_amber.{md,json}` |
 | Qualitative sample galleries | `evaluation/results/{run_date}/_samples/{model}/{benchmark}/` |
 
 ## Quickstart
@@ -429,7 +429,7 @@ RUN_DATE=YYYY-MM-DD bash evaluation/chair_amber_diagnostics/run_scripts/run_repo
 RUN_DATE=YYYY-MM-DD bash helper_scripts/run_sample_responses.sh
 ```
 
-The report writes `evaluation/results/{run_date}/_diagnostic_summary_chair_amber.md`; sample galleries land under `evaluation/results/{run_date}/_samples/`. Use `--skip_if_exists` on the grid drivers to resume interrupted sweeps.
+The report writes `evaluation/results/{run_date}/_diagnostic_summary_chair_amber.md` and `_diagnostic_summary_chair_amber.json` (same metrics; JSON is easier to parse programmatically). Sample galleries land under `evaluation/results/{run_date}/_samples/`. Use `--skip_if_exists` on the grid drivers to resume interrupted sweeps.
 
 ## Extending the repo
 

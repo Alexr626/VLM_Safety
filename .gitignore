@@ -110,3 +110,4 @@ data/pope/*
 !data/vti/
 data/vti/*
 !data/vti/demos.jsonl
+perturbed_examples*

@@ -1,0 +1,36 @@
+{
+  "perturb_type": "patch_mask",
+  "mask_ratio": 0.99,
+  "mask_fill": "zero",
+  "noise_sigma": 0.1,
+  "num_trials": 2,
+  "num_demos": 3,
+  "direction_recon": "top_pc",
+  "include_cls": true,
+  "patch_size": 14,
+  "seed": 42,
+  "demo_ids": [
+    "000000074183",
+    "000000436221",
+    "000000040407"
+  ],
+  "shape": [
+    24,
+    577,
+    1024
+  ],
+  "params": {
+    "perturb_type": "patch_mask",
+    "mask_ratio": 0.99,
+    "mask_fill": "zero",
+    "noise_sigma": 0.1,
+    "num_trials": 2,
+    "num_demos": 3,
+    "direction_recon": "top_pc",
+    "include_cls": true,
+    "patch_size": 14,
+    "seed": 42,
+    "demos_file": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/vti/demos.jsonl"
+  },
+  "demos_file_hash": "5ce467817fc2a297"
+}

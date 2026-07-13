@@ -184,6 +184,7 @@ def run_evaluation(
     amber_task: Optional[str] = None,
     run_date: Optional[str] = None,
     beta: Optional[float] = None,
+    alpha: Optional[float] = None,
     judge: str = "mock",
     chair_max_new_tokens: int = 64,
     subset_ids_file: Optional[str] = None,
@@ -233,7 +234,11 @@ def run_evaluation(
         benchmark_samples[b] = _load_benchmark(b, **_benchmark_kwargs(b, opts))
         print(f"    -> {len(benchmark_samples[b])} samples")
 
-    iv_kwargs = {"beta": beta} if beta is not None else {}
+    iv_kwargs: dict = {}
+    if beta is not None:
+        iv_kwargs["beta"] = beta
+    if alpha is not None:
+        iv_kwargs["alpha"] = alpha
     iv_runs = [(name, get_intervention(name, model_id=model_id, **iv_kwargs))
                for name in interventions]
 
@@ -260,8 +265,13 @@ def run_evaluation(
             # Encode beta in the result dir for interventions that use it, so
             # grid points do not collide. no_intervention (config has no 'beta')
             # stays at the bare {iv} path and is computed once across a sweep.
-            iv_dir = (f"{iv_name}__b{beta}"
-                      if beta is not None and "beta" in iv.config else iv_name)
+            cfg = iv.config
+            if alpha is not None and "alpha" in cfg:
+                iv_dir = f"{iv_name}__a{alpha}"
+            elif beta is not None and "beta" in cfg:
+                iv_dir = f"{iv_name}__b{beta}"
+            else:
+                iv_dir = iv_name
             out_dir = output_dir / run_date / model_short / bench_key / iv_dir
             print(f"\n--- {bench_key} × {iv_dir} ---")
             summaries[(bench_key, iv_dir)] = _run_one(

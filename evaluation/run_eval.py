@@ -37,6 +37,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--beta", type=float, default=None,
                    help="Textual steering coefficient for VTI interventions. "
                         "When set, results are written under '{iv}__b{beta}'.")
+    p.add_argument("--alpha", type=float, default=None,
+                   help="Vision steering coefficient for vti_visual_* interventions. "
+                        "When set, results are written under '{iv}__a{alpha}'.")
     p.add_argument("--amber_task", default=None,
                    choices=["discriminative", "generative"],
                    help="Restrict AMBER to one task split.")
@@ -74,6 +77,7 @@ def main() -> None:
         amber_task=args.amber_task,
         run_date=args.run_date,
         beta=args.beta,
+        alpha=args.alpha,
         judge=args.judge,
         chair_max_new_tokens=args.chair_max_new_tokens,
         subset_ids_file=args.subset_ids_file,

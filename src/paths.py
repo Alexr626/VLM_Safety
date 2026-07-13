@@ -69,3 +69,13 @@ def vti_data_dir() -> Path:
 
 def vti_demos_path() -> Path:
     return vti_data_dir() / "demos.jsonl"
+
+
+def vti_demos_v2_dir() -> Path:
+    """Intermediate artifacts for the demos_v2 generation pipeline."""
+    return vti_data_dir() / "v2"
+
+
+def vti_demos_v2_path() -> Path:
+    """Final multi-dimension demos_v2 JSONL (one row per image)."""
+    return vti_data_dir() / "demos_v2.jsonl"
