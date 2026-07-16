@@ -13,7 +13,7 @@ sys.path.insert(0, str(_ROOT))
 sys.path.insert(0, str(_ROOT / "data_scripts"))
 
 from vti_demos_v2 import config  # noqa: E402
-from vti_demos_v2.number_words import false_count, number_to_word  # noqa: E402
+from vti_demos_v2.number_words import false_count, false_count_at_most, number_to_word  # noqa: E402
 from vti_demos_v2.validators import (  # noqa: E402
     category_mentioned,
     deterministic_existence_insert,
@@ -23,6 +23,7 @@ from vti_demos_v2.validators import (  # noqa: E402
     structural_check_truthful,
     validate_minimal_pair,
     validate_record_variants,
+    replace_span_in_sentence,
 )
 
 
@@ -38,6 +39,61 @@ def test_false_count_boundaries():
     assert false_count(8) == 12  # max(10, 12) = 12
     assert false_count(14) == 20  # capped
     assert config.FALSE_COUNT(14) == min(max(16, math.ceil(21)), 20)
+
+
+def test_false_count_at_most_boundaries_and_sentence_scope():
+    assert [false_count_at_most(n) for n in (3, 4, 6, 9)] == [1, 2, 4, 6]
+    caption = ("The room has a right side of the room. The plates are white. "
+               "There are at least two cups. The cup is to the left of the bowl.")
+    out = replace_span_in_sentence(caption, 3, "left", "right")
+    assert "right side of the room" in out
+    assert out.endswith("right of the bowl.")
+
+
+def test_at_most_plurality_and_relation_phrase_swaps():
+    from vti_demos_v2.validators import validate_minimal_pair
+    truthful = (
+        "Scene with chairs and a table. The cloth is red. "
+        "There are at most three chairs near the wall. "
+        "The cup is on top of the table."
+    )
+    variant = (
+        "Scene with chairs and a table. The cloth is red. "
+        "There are at most one chair near the wall. "
+        "The cup is on top of the table."
+    )
+    assert validate_minimal_pair(
+        truthful, variant, "counting",
+        true_count_word="three", false_count_word="one",
+        count_category="chair", allow_count_noun_morph=True,
+    ) == []
+    rel_t = (
+        "Scene with A and B. The cloth is red. "
+        "There are at least two cups. "
+        "The cup is right next to the bowl."
+    )
+    rel_v = rel_t.replace("right next to", "far away from", 1)
+    assert validate_minimal_pair(
+        rel_t, rel_v, "relation", true_relation="right next to",
+    ) == []
+
+
+def test_validate_combined_four_regions():
+    from vti_demos_v2.validators import validate_combined
+    t = (
+        "S1 with cups. The plates are white. "
+        "There are at least two cups. The cup is to the left of the bowl."
+    )
+    c = (
+        "S1 with a fork, cups. The plates are black. "
+        "There are at least four cups. The cup is to the right of the bowl."
+    )
+    assert validate_combined(t, c) == []
+    bad = (
+        "S1 with a fork, cups. The plates are white. "
+        "There are at least two cups. The cup is to the left of the bowl."
+    )
+    assert validate_combined(t, bad)
 
 
 def test_sentence_split_no_digits():
@@ -249,7 +305,8 @@ def test_fail_multi_region():
         truthful, variant, "attribute",
         true_attr="white", false_attr="black",
     )
-    assert any("exactly 1 edit region" in e for e in errs)
+    # Sentence-scoped attribute check: extra relation edit must fail as S4 leak.
+    assert any("leaked into S4" in e for e in errs)
 
 
 def test_fail_wrong_sentence():
@@ -328,4 +385,4 @@ def test_has_digits():
 
 def test_relation_geometry_helper_import():
     # stage0 helpers are importable
-    from vti_demos_v2.stage0_mine_candidates import _relation_anchor  # noqa: F401
+    from vti_demos_v2.geometry import evaluate_all_relation_types  # noqa: F401

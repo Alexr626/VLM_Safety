@@ -63,9 +63,10 @@ def _highlight_spans(caption: str, spans: dict) -> str:
     # naive sequential highlight of span substrings
     escaped = html.escape(caption)
     for key, span in (spans or {}).items():
-        if not span:
+        text = span.get("text", "") if isinstance(span, dict) else str(span or "")
+        if not text:
             continue
-        esc_span = html.escape(span)
+        esc_span = html.escape(text)
         if esc_span in escaped:
             escaped = escaped.replace(
                 esc_span,
@@ -117,17 +118,24 @@ def render_stage0(rows: list[dict]) -> str:
     for r in rows:
         sid = r["id"]
         toc.append((sid, sid))
-        ca, ra = r["counting_anchor"], r["relation_anchor"]
+        if "counting_options" in r:
+            count_html = html.escape(str(r.get("counting_options")))
+            rel_html = html.escape(str(r.get("relation_options")))
+        else:
+            count_html = html.escape(str(r.get("counting_anchor")))
+            rel_html = html.escape(str(r.get("relation_anchor")))
         blocks.append(f"""
 <section class="block" id="{html.escape(sid, quote=True)}">
   <div class="wrap">
     <div class="img">{_img_html(sid, r.get('image'))}</div>
     <div class="txt">
       <h2>{html.escape(sid)}</h2>
-      <p class="meta">score={r.get('score')} · {html.escape(r.get('image',''))}</p>
+      <p class="meta">score={r.get('score')} · {html.escape(r.get('image',''))} ·
+        n_count_opts={len(r.get('counting_options') or [])} ·
+        n_rel_opts={len(r.get('relation_options') or [])}</p>
       <div class="box">
-        <div><b>counting:</b> {html.escape(str(ca))}</div>
-        <div><b>relation:</b> {html.escape(str(ra))}</div>
+        <div><b>counting options:</b> <pre class="cap">{count_html[:2500]}</pre></div>
+        <div><b>relation options:</b> <pre class="cap">{rel_html[:2500]}</pre></div>
         <div><b>distractors:</b> {html.escape(str(r.get('distractor_candidates')))}</div>
         <div><b>present:</b> {html.escape(str(r.get('present_categories')))}</div>
       </div>
@@ -144,6 +152,12 @@ def render_stage1(rows: list[dict], rejected: list[dict]) -> str:
             sid = r["id"]
             toc.append((f"{'p' if ok else 'r'}-{sid}", f"{'[ok] ' if ok else '[rej] '}{sid}"))
             s1 = r.get("stage1") or {}
+            verified = {
+                "counting": r.get("verified_counting_options") or [],
+                "relation": r.get("verified_relation_options") or [],
+                "distractor": r.get("verified_distractor_options") or [],
+                "attribute": r.get("verified_attribute_options") or [],
+            }
             attr = r.get("attribute") or (s1.get("attribute") or {})
             blocks.append(f"""
 <section class="block" id="{'p' if ok else 'r'}-{html.escape(sid, quote=True)}">
@@ -152,15 +166,52 @@ def render_stage1(rows: list[dict], rejected: list[dict]) -> str:
     <div class="txt">
       <h2><span class="{'pass' if ok else 'fail'}">{label}</span> {html.escape(sid)}</h2>
       <div class="box">
-        <div><b>distractor:</b> {html.escape(str(r.get('distractor') or (s1.get('distractor') or {}).get('choice')))}</div>
-        <div><b>attribute:</b> {html.escape(str(attr))}</div>
+        <div><b>verified option counts:</b>
+          C={len(verified['counting'])} R={len(verified['relation'])}
+          D={len(verified['distractor'])} A={len(verified['attribute'])}</div>
+        <div><b>distractor (legacy/v2.0):</b> {html.escape(str(r.get('distractor') or (s1.get('distractor') or {}).get('choice')))}</div>
+        <div><b>attribute (legacy/v2.0):</b> {html.escape(str(attr))}</div>
         <div><b>reject:</b> {html.escape(str(r.get('reject_reason','')))}</div>
+        <pre class="cap">{html.escape(str(verified)[:2000])}</pre>
         <pre class="cap">{html.escape(str(s1)[:2000])}</pre>
       </div>
     </div>
   </div>
 </section>""")
     return _page("demos_v2 · stage 1", f"{len(rows)} pass / {len(rejected)} reject", blocks, toc)
+
+
+def render_stage1b(rows: list[dict], summary: dict | None = None) -> str:
+    blocks, toc = [], []
+    if summary:
+        blocks.append(
+            f"<section class='block'><div class='box'><b>stage1b_summary</b>"
+            f"<pre class='cap'>{html.escape(str(summary)[:3000])}</pre></div></section>"
+        )
+    for r in rows:
+        sid = r["id"]
+        toc.append((sid, sid))
+        blocks.append(f"""
+<section class="block" id="{html.escape(sid, quote=True)}">
+  <div class="wrap">
+    <div class="img">{_img_html(sid, r.get('image'))}</div>
+    <div class="txt">
+      <h2>{html.escape(sid)}</h2>
+      <div class="box">
+        <div><b>counting:</b> {html.escape(str(r.get('counting')))}</div>
+        <div><b>relation:</b> {html.escape(str(r.get('relation')))}</div>
+        <div><b>distractor:</b> {html.escape(str(r.get('distractor')))}</div>
+        <div><b>attribute:</b> {html.escape(str(r.get('attribute')))}</div>
+      </div>
+    </div>
+  </div>
+</section>""")
+    return _page(
+        "demos_v2 · stage 1b allocation",
+        f"{len(rows)} allocated",
+        blocks,
+        toc,
+    )
 
 
 def render_stage2(rows: list[dict], rejected: list[dict]) -> str:
@@ -200,6 +251,11 @@ def render_variants(rows: list[dict], title: str) -> str:
             )
         rej = r.get("reject_reason")
         badge = f"<span class='fail'>REJECT {html.escape(str(rej))}</span> " if rej else ""
+        err = r.get("errors")
+        err_html = (
+            f"<div class='box'><b>errors</b><pre class='cap'>{html.escape(str(err)[:2000])}</pre></div>"
+            if err else ""
+        )
         blocks.append(f"""
 <section class="block" id="{html.escape(sid, quote=True)}">
   <div class="wrap">
@@ -207,6 +263,7 @@ def render_variants(rows: list[dict], title: str) -> str:
     <div class="txt">
       <h2>{badge}{html.escape(sid)}</h2>
       <div class="box"><b>truthful</b><div class="cap">{html.escape(truthful)}</div></div>
+      {err_html}
       {''.join(vars_html)}
       <div class="box"><b>anchors</b><pre class="cap">{html.escape(str(r.get('anchors',''))[:1500])}</pre></div>
     </div>
@@ -218,7 +275,7 @@ def render_variants(rows: list[dict], title: str) -> str:
 def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--stage", required=True,
-                   choices=["0", "1", "2", "3", "4", "final"])
+                   choices=["0", "1", "1b", "2", "3", "4", "final"])
     p.add_argument("--limit", type=int, default=None,
                    help="cap number of records shown (useful for large stage-0)")
     p.add_argument("--open", action="store_true")
@@ -239,29 +296,53 @@ def main() -> int:
         html_doc = render_stage0(rows)
         out = args.out or (review / "stage0_review.html")
     elif args.stage == "1":
-        html_doc = render_stage1(
-            read_jsonl(v2 / "stage1_verified.jsonl"),
-            read_jsonl(v2 / "stage1_rejected.jsonl"),
-        )
+        rows = read_jsonl(v2 / "stage1_verified.jsonl")
+        rej = read_jsonl(v2 / "stage1_rejected.jsonl")
+        if args.limit:
+            rows, rej = rows[: args.limit], rej[: args.limit]
+        html_doc = render_stage1(rows, rej)
         out = args.out or (review / "stage1_review.html")
+    elif args.stage == "1b":
+        import json
+        rows = read_jsonl(v2 / "stage1b_allocation.jsonl")
+        if args.limit:
+            rows = rows[: args.limit]
+        summary = None
+        sp = v2 / "stage1b_summary.json"
+        if sp.is_file():
+            summary = json.loads(sp.read_text())
+        html_doc = render_stage1b(rows, summary)
+        out = args.out or (review / "stage1b_review.html")
     elif args.stage == "2":
-        html_doc = render_stage2(
-            read_jsonl(v2 / "stage2_captions.jsonl"),
-            read_jsonl(v2 / "stage2_rejected.jsonl"),
-        )
+        rows = read_jsonl(v2 / "stage2_captions.jsonl")
+        rej = read_jsonl(v2 / "stage2_rejected.jsonl")
+        if args.limit:
+            rows, rej = rows[: args.limit], rej[: args.limit]
+        html_doc = render_stage2(rows, rej)
         out = args.out or (review / "stage2_review.html")
     elif args.stage == "3":
         rows = read_jsonl(v2 / "stage3_variants.jsonl")
-        html_doc = render_variants(rows, "demos_v2 · stage 3 variants")
+        rej = read_jsonl(v2 / "stage3_rejected.jsonl")
+        if args.limit:
+            rows, rej = rows[: args.limit], rej[: args.limit]
+        # Include rejects so error reasons are visible in the gallery.
+        html_doc = render_variants(
+            rows + [{**r, "h_values": r.get("h_values") or {}} for r in rej],
+            "demos_v2 · stage 3 variants",
+        )
         out = args.out or (review / "stage3_review.html")
     elif args.stage == "4":
         rows = read_jsonl(v2 / "stage4_verdicts.jsonl") + read_jsonl(
             v2 / "stage4_rejected.jsonl"
         )
+        if args.limit:
+            rows = rows[: args.limit]
         html_doc = render_variants(rows, "demos_v2 · stage 4 faithfulness")
         out = args.out or (review / "stage4_review.html")
     else:
         rows = read_jsonl(vti_demos_v2_path())
+        if args.limit:
+            rows = rows[: args.limit]
         html_doc = render_variants(rows, "demos_v2 · final")
         out = args.out or (review / "final_review.html")
 

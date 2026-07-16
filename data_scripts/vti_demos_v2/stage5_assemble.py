@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import sys
+from collections import Counter
 from pathlib import Path
 
 _PKG = Path(__file__).resolve().parent
@@ -80,14 +81,21 @@ def main() -> int:
 
     write_jsonl(out, final)
     digest = _content_hash(out)
-    write_summary(v2 / "stage5_summary.json", {
+    summary = {
         "n_final": len(final),
         "n_available": len(rows),
         "target": args.n_final,
         "out": str(out),
         "content_hash_sha256_16": digest,
         "pipeline_version": config.PIPELINE_VERSION,
-    })
+        "relation_types": dict(Counter(r["anchors"]["relation"].get("type") for r in final)),
+        "relation_directions": dict(Counter(r["anchors"]["relation"].get("true") for r in final)),
+        "attribute_types": dict(Counter(r["anchors"]["attribute"].get("type") for r in final)),
+        "counting_modes": dict(Counter(r["anchors"]["counting"].get("mode") for r in final)),
+        "counting_counts": dict(Counter(r["anchors"]["counting"].get("annotated_count") for r in final)),
+        "distractors": dict(Counter(r["anchors"]["existence"].get("distractor") for r in final)),
+    }
+    write_summary(v2 / "stage5_summary.json", summary)
     print(f"Wrote {len(final)} records -> {out} (hash={digest})")
     return 0
 

@@ -29,35 +29,74 @@ from vti_demos_v2.io_utils import (  # noqa: E402
 from vti_demos_v2.mllm_client import MLLMClient, extract_json_object  # noqa: E402
 from vti_demos_v2.number_words import number_to_word  # noqa: E402
 from vti_demos_v2.prompts import STAGE2_SYSTEM, stage2_user  # noqa: E402
-from vti_demos_v2.validators import structural_check_truthful  # noqa: E402
+from vti_demos_v2.validators import (  # noqa: E402
+    normalize_spans,
+    span_text,
+    structural_check_truthful,
+)
 from src.paths import vti_demos_v2_dir  # noqa: E402
 
 
+def _coerce_edit_spans(
+    spans: dict,
+    *,
+    true_phrase: str,
+    count_word: str,
+    attribute_value: str,
+) -> dict:
+    """Repair common model mistakes: full-sentence relation span, etc.
+
+    Stage-2 often returns spans.relation.text = entire S4 instead of the short
+    editable phrase (``left``, ``on top of``, …). If the required phrase is a
+    unique substring of the returned span (or of the span's sentence), coerce.
+    """
+    out = normalize_spans(spans)
+    for key, expected in (
+        ("relation", true_phrase),
+        ("counting", count_word),
+        ("attribute", attribute_value),
+    ):
+        cur = span_text(out.get(key)).strip()
+        exp = (expected or "").strip()
+        if not exp:
+            continue
+        if cur.lower() == exp.lower():
+            out[key] = {"sentence_idx": out[key]["sentence_idx"], "text": exp}
+            continue
+        # Prefer longer phrases first so "right" does not steal from "right next to"
+        if exp.lower() in cur.lower():
+            out[key] = {"sentence_idx": out[key]["sentence_idx"], "text": exp}
+    return out
+
+
 def _mock_caption(rec: dict) -> dict:
-    ca = rec["counting_anchor"]
-    ra = rec["relation_anchor"]
+    ca = rec["counting"]
+    ra = rec["relation"]
     attr = rec["attribute"]
     n_word = number_to_word(int(ca["count"]))
     a, b = ra["a"], ra["b"]
-    rel = ra["relation"]
+    rel = ra["true_phrase"]
     obj, val = attr["object"], attr["true_value"]
     # Build a rigid 4-sentence caption with unique spans
-    hint = f"including {ca['category']}s, {a}s, and {b}s"
-    # avoid plural weirdness for person etc. — keep simple for mock
     hint = f"including {ca['category']}, {a}, and {b}"
     s1 = f"The image shows a scene with objects, {hint}."
     s2 = f"The {obj} look {val}."
     # ensure attribute value appears once — if val in s1 somehow, simplify
-    s3 = f"There are at least {n_word} {ca['category']}."
-    s4 = f"The {a} is to the {rel} of the {b}."
+    s3 = f"There are {ca['mode'].replace('_', ' ')} {n_word} {ca['category']}."
+    if ra["type"] == "horizontal":
+        s4 = f"The {a} is to the {rel} of the {b}."
+    elif ra["type"] == "vertical":
+        s4 = f"The {a} is {rel} the {b}."
+    else:
+        s4 = f"The {a} is {rel} the {b}."
     caption = f"{s1} {s2} {s3} {s4}"
     return {
         "caption": caption,
         "spans": {
-            "existence_insertion_hint": hint,
-            "attribute": val,
-            "counting": n_word,
-            "relation": rel,
+            "existence_insertion_hint": {"sentence_idx": 0, "text": hint},
+            "attribute": {"sentence_idx": 1, "text": val},
+            "counting": {"sentence_idx": 2, "text": n_word},
+            "relation": {"sentence_idx": 3, "text": rel},
         },
     }
 
@@ -73,7 +112,7 @@ def parse_args():
 def main() -> int:
     args = parse_args()
     v2 = vti_demos_v2_dir()
-    inp = args.input or (v2 / "stage1_verified.jsonl")
+    inp = args.input or (v2 / "stage1b_allocation.jsonl")
     out_ok = v2 / "stage2_captions.jsonl"
     out_rej = v2 / "stage2_rejected.jsonl"
     calls = v2 / "calls" / "stage2.jsonl"
@@ -91,7 +130,7 @@ def main() -> int:
 
     for rec in pending:
         img_path = ensure_image(rec["id"])
-        ca = rec["counting_anchor"]
+        ca = rec["counting"]
         n_word = number_to_word(int(ca["count"]))
         user = stage2_user(rec)
         accepted = None
@@ -122,15 +161,26 @@ def main() -> int:
                 last_errs = [f"unparseable: {e}"]
                 continue
             caption = (parsed.get("caption") or "").strip()
-            spans = parsed.get("spans") or {}
+            spans = _coerce_edit_spans(
+                parsed.get("spans") or {},
+                true_phrase=rec["relation"]["true_phrase"],
+                count_word=n_word,
+                attribute_value=rec["attribute"]["true_value"],
+            )
             errs = structural_check_truthful(
                 caption,
                 count_word=n_word,
                 category=ca["category"],
-                relation_word=rec["relation_anchor"]["relation"],
+                relation_word=rec["relation"]["true_phrase"],
                 attribute_value=rec["attribute"]["true_value"],
-                distractor=rec["distractor"],
+                distractor=(
+                    rec["distractor"]
+                    if isinstance(rec["distractor"], str)
+                    else rec["distractor"].get("category", "")
+                ),
                 spans=spans,
+                count_mode=ca["mode"], relation_type=rec["relation"]["type"],
+                relation_a=rec["relation"]["a"], relation_b=rec["relation"]["b"],
             )
             if errs:
                 last_errs = errs

@@ -9,6 +9,7 @@ text-only Haiku grammar polish; full LLM insert only if that fails validation.
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -31,7 +32,7 @@ from vti_demos_v2.io_utils import (  # noqa: E402
     write_summary,
 )
 from vti_demos_v2.mllm_client import MLLMClient, extract_json_object  # noqa: E402
-from vti_demos_v2.number_words import false_count, number_to_word  # noqa: E402
+from vti_demos_v2.number_words import false_count, false_count_at_most, number_to_word  # noqa: E402
 from vti_demos_v2.prompts import (  # noqa: E402
     STAGE3_EXISTENCE_SYSTEM,
     STAGE3_GRAMMAR_SYSTEM,
@@ -39,18 +40,67 @@ from vti_demos_v2.prompts import (  # noqa: E402
     stage3_grammar_user,
 )
 from vti_demos_v2.validators import (  # noqa: E402
+    category_plural_form,
+    category_singular_form,
     deterministic_existence_insert,
+    replace_span_in_sentence,
+    span_sentence_idx,
+    span_text,
+    split_sentences,
+    validate_combined,
     validate_minimal_pair,
     validate_record_variants,
 )
 from src.paths import vti_demos_v2_dir  # noqa: E402
 
 
-def _replace_once(text: str, old: str, new: str) -> str:
-    idx = text.lower().find(old.lower())
-    if idx < 0:
-        raise ValueError(f"span {old!r} not found")
-    return text[:idx] + new + text[idx + len(old):]
+def _distractor_category(rec: dict) -> str:
+    d = rec.get("distractor")
+    if isinstance(d, dict):
+        return str(d.get("category") or d.get("choice") or "")
+    return str(d or "")
+
+
+def _false_relation_phrase(true_phrase: str) -> str:
+    t = true_phrase.lower().strip()
+    flips = {
+        "left": "right",
+        "right": "left",
+        "above": "below",
+        "below": "above",
+        "on top of": "underneath",
+        "underneath": "on top of",
+        "right next to": "far away from",
+        "far away from": "right next to",
+    }
+    if t not in flips:
+        raise ValueError(f"unknown relation phrase {true_phrase!r}")
+    return flips[t]
+
+
+def _counting_edit(
+    truthful: str,
+    spans: dict,
+    *,
+    mode: str,
+    category: str,
+    true_word: str,
+    false_word: str,
+    false_n: int,
+) -> tuple[str, bool]:
+    """Apply counting edit; return (variant, used_noun_morph)."""
+    sent_idx = span_sentence_idx(spans["counting"])
+    morph = mode == "at_most" and false_n == 1
+    if morph:
+        s3 = split_sentences(truthful)[sent_idx]
+        pl = category_plural_form(category)
+        sg = category_singular_form(category)
+        for form in (pl, sg, category):
+            old = f"{true_word} {form}"
+            if re.search(rf"\b{re.escape(old)}\b", s3, re.I):
+                new = f"{false_word} {sg}"
+                return replace_span_in_sentence(truthful, sent_idx, old, new), True
+    return replace_span_in_sentence(truthful, sent_idx, true_word, false_word), False
 
 
 def _mock_existence(caption: str, distractor: str, hint: str) -> dict:
@@ -202,21 +252,33 @@ def main() -> int:
     for rec in pending:
         truthful = rec["value"]
         spans = rec["spans"]
-        ca = rec["counting_anchor"]
+        ca = rec["counting"]
+        relation = rec["relation"]
         true_n = int(ca["count"])
-        true_word = spans["counting"]
-        false_word = number_to_word(false_count(true_n))
-        true_rel = spans["relation"]
-        false_rel = "right" if true_rel == "left" else "left"
-        true_attr = spans["attribute"]
+        true_word = span_text(spans["counting"])
+        false_n = (
+            false_count_at_most(true_n) if ca["mode"] == "at_most" else false_count(true_n)
+        )
+        false_word = number_to_word(false_n)
+        true_rel = span_text(spans["relation"])
+        false_rel = _false_relation_phrase(true_rel)
+        true_attr = span_text(spans["attribute"])
         false_attr = rec["attribute"]["false_value"]
-        distractor = rec["distractor"]
-        hint = spans["existence_insertion_hint"]
+        distractor = _distractor_category(rec)
+        hint = span_text(spans["existence_insertion_hint"])
 
         try:
-            h_counting = _replace_once(truthful, true_word, false_word)
-            h_relation = _replace_once(truthful, true_rel, false_rel)
-            h_attribute = _replace_once(truthful, true_attr, false_attr)
+            h_counting, count_morph = _counting_edit(
+                truthful, spans,
+                mode=ca["mode"], category=ca["category"],
+                true_word=true_word, false_word=false_word, false_n=false_n,
+            )
+            h_relation = replace_span_in_sentence(
+                truthful, span_sentence_idx(spans["relation"]), true_rel, false_rel,
+            )
+            h_attribute = replace_span_in_sentence(
+                truthful, span_sentence_idx(spans["attribute"]), true_attr, false_attr,
+            )
         except ValueError as e:
             append_jsonl(out_rej, {
                 **rec, "reject_reason": f"deterministic_edit_failed:{e}",
@@ -228,7 +290,9 @@ def main() -> int:
         det_errs = []
         for dim, variant, kw in (
             ("counting", h_counting, dict(
-                true_count_word=true_word, false_count_word=false_word)),
+                true_count_word=true_word, false_count_word=false_word,
+                count_category=ca["category"],
+                allow_count_noun_morph=count_morph)),
             ("relation", h_relation, dict(true_relation=true_rel)),
             ("attribute", h_attribute, dict(
                 true_attr=true_attr, false_attr=false_attr)),
@@ -270,6 +334,27 @@ def main() -> int:
             "counting": h_counting,
             "relation": h_relation,
         }
+        # Combined: S1 from existence + S2–S4 sentence-scoped swaps on that base.
+        h_all = h_existence
+        h_all = replace_span_in_sentence(
+            h_all, span_sentence_idx(spans["attribute"]), true_attr, false_attr,
+        )
+        if count_morph:
+            # Re-apply the same contiguous morph on the existence-based caption.
+            h_all, _ = _counting_edit(
+                h_all, spans,
+                mode=ca["mode"], category=ca["category"],
+                true_word=true_word, false_word=false_word, false_n=false_n,
+            )
+        else:
+            h_all = replace_span_in_sentence(
+                h_all, span_sentence_idx(spans["counting"]), true_word, false_word,
+            )
+        h_all = replace_span_in_sentence(
+            h_all, span_sentence_idx(spans["relation"]), true_rel, false_rel,
+        )
+        h_values["all"] = h_all
+        comb_errs = validate_combined(truthful, h_all)
         all_errs = validate_record_variants(
             truthful, h_values,
             distractor=distractor,
@@ -279,6 +364,20 @@ def main() -> int:
             false_count_word=false_word,
             true_relation=true_rel,
         )
+        all_errs.extend(comb_errs)
+        if count_morph:
+            # Re-check counting with morph flags (record validator uses defaults).
+            all_errs = [
+                e for e in all_errs
+                if not e.startswith("counting:")
+            ] + [
+                f"counting: {e}"
+                for e in validate_minimal_pair(
+                    truthful, h_counting, "counting",
+                    true_count_word=true_word, false_count_word=false_word,
+                    count_category=ca["category"], allow_count_noun_morph=True,
+                )
+            ]
         if all_errs:
             append_jsonl(out_rej, {
                 **rec, "reject_reason": "variant_validation_failed",
@@ -294,21 +393,26 @@ def main() -> int:
             "anchors": {
                 "existence": {"distractor": distractor},
                 "attribute": {
+                    "type": rec["attribute"]["type"],
                     "object": rec["attribute"]["object"],
                     "true_value": true_attr,
                     "false_value": false_attr,
                 },
                 "counting": {
-                    "category": ca["category"],
+                "category": ca["category"],
                     "annotated_count": true_n,
+                    "mode": ca["mode"],
                     "true_word": true_word,
                     "false_word": false_word,
                 },
                 "relation": {
-                    "a": rec["relation_anchor"]["a"],
-                    "b": rec["relation_anchor"]["b"],
+                    "a": relation["a"],
+                    "b": relation["b"],
+                    "type": relation["type"],
+                    "geometry": relation.get("geometry", {}),
                     "true": true_rel,
                     "false": false_rel,
+                    "false_phrase": false_rel,
                 },
             },
             "stage3_model": src or client.name,

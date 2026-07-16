@@ -45,3 +45,8 @@ def word_to_number(word: str) -> int | None:
 
 def false_count(n: int) -> int:
     return int(config.FALSE_COUNT(n))
+
+
+def false_count_at_most(n: int) -> int:
+    """False upper-bound for ``at_most`` mode: max(1, min(n-2, (2*n)//3))."""
+    return max(1, min(n - 2, (2 * n) // 3))

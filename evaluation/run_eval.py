@@ -60,6 +60,20 @@ def parse_args() -> argparse.Namespace:
                    help="Verbatim CHAIR caption prompt; replaces the stored "
                         "prompt for every CHAIR sample (e.g. the exact VTI "
                         "prompt 'Please Describe this image in detail.').")
+    p.add_argument("--demos_path", default=None,
+                   help="Paired-caption demos JSONL for textual VTI directions. "
+                        "Use data/vti/demos_v2.jsonl with --vector_dimension.")
+    p.add_argument("--vector_dimension", default=None,
+                   choices=["existence", "attribute", "counting", "relation", "all"],
+                   help="demos_v2 h_values dimension for textual VTI extraction.")
+    p.add_argument("--num_demos", type=int, default=None,
+                   help="Number of demos for textual VTI direction PCA.")
+    p.add_argument("--rank", type=int, default=None,
+                   help="PCA rank for textual VTI (demos_v2 caches rank=2; "
+                        "steering uses PC1+mean live recon).")
+    p.add_argument("--max_pixels", type=int, default=None,
+                   help="Qwen2/2.5-VL vision pixel budget (e.g. 1003520). "
+                        "Ignored for non-Qwen2 models.")
     return p.parse_args()
 
 
@@ -82,6 +96,11 @@ def main() -> None:
         chair_max_new_tokens=args.chair_max_new_tokens,
         subset_ids_file=args.subset_ids_file,
         chair_prompt=args.chair_prompt,
+        demos_path=args.demos_path,
+        vector_dimension=args.vector_dimension,
+        num_demos=args.num_demos,
+        rank=args.rank,
+        max_pixels=args.max_pixels,
     )
     print_comparison_table(out["model_short"], args.output_dir, run_date=out["run_date"])
 

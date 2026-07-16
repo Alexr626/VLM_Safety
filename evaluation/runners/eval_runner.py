@@ -189,6 +189,11 @@ def run_evaluation(
     chair_max_new_tokens: int = 64,
     subset_ids_file: Optional[str] = None,
     chair_prompt: Optional[str] = None,
+    demos_path: Optional[str] = None,
+    vector_dimension: Optional[str] = None,
+    num_demos: Optional[int] = None,
+    rank: Optional[int] = None,
+    max_pixels: Optional[int] = None,
 ) -> dict:
     interventions = interventions or list(ALL_INTERVENTIONS)
     benchmarks = benchmarks or list(_BENCHMARK_LOADERS)
@@ -225,6 +230,13 @@ def run_evaluation(
     if subset_map:
         print("  pinned subsets: "
               + ", ".join(f"{b}={len(ids)}" for b, ids in subset_map.items()))
+    if demos_path or vector_dimension is not None or num_demos is not None:
+        print(f"  demos_path   : {demos_path}")
+        print(f"  vector_dim   : {vector_dimension}")
+        print(f"  num_demos    : {num_demos}")
+        print(f"  rank         : {rank}")
+    if max_pixels is not None:
+        print(f"  max_pixels   : {max_pixels}")
 
     opts = {"limit": limit, "pope_split": pope_split, "amber_task": amber_task,
             "subset_map": subset_map, "chair_prompt": chair_prompt}
@@ -239,11 +251,24 @@ def run_evaluation(
         iv_kwargs["beta"] = beta
     if alpha is not None:
         iv_kwargs["alpha"] = alpha
+    if demos_path is not None:
+        iv_kwargs["demos_path"] = Path(demos_path)
+    if vector_dimension is not None:
+        iv_kwargs["vector_dimension"] = vector_dimension
+    if num_demos is not None:
+        iv_kwargs["num_demos"] = num_demos
+    if rank is not None:
+        iv_kwargs["rank"] = rank
     iv_runs = [(name, get_intervention(name, model_id=model_id, **iv_kwargs))
                for name in interventions]
 
     print(f"  loading wrapper for {model_id} ...")
-    wrapper = create_wrapper(model_id).load()
+    # Only Qwen2/2.5-VL accepts max_pixels; base wrapper __init__ rejects unknown kwargs.
+    wrapper_kwargs: dict = {}
+    if max_pixels is not None and "qwen2" in model_id.lower():
+        wrapper_kwargs["max_pixels"] = max_pixels
+        print(f"  [max_pixels] capping Qwen visual budget at {max_pixels} px")
+    wrapper = create_wrapper(model_id, **wrapper_kwargs).load()
     print(f"    num_layers={wrapper.num_layers}  hidden_dim={wrapper.hidden_dim}")
 
     benchmark_captions: dict[str, dict] = {}
@@ -262,14 +287,20 @@ def run_evaluation(
         bench_max_new_tokens = (chair_max_new_tokens if b_name == "chair"
                                 else max_new_tokens)
         for iv_name, iv in iv_runs:
-            # Encode beta in the result dir for interventions that use it, so
-            # grid points do not collide. no_intervention (config has no 'beta')
-            # stays at the bare {iv} path and is computed once across a sweep.
+            # Encode beta / vector config in the result dir so grid points do
+            # not collide. no_intervention (config has no 'beta') stays at the
+            # bare {iv} path and is computed once across a sweep.
             cfg = iv.config
             if alpha is not None and "alpha" in cfg:
                 iv_dir = f"{iv_name}__a{alpha}"
             elif beta is not None and "beta" in cfg:
                 iv_dir = f"{iv_name}__b{beta}"
+                dim = cfg.get("dimension") or vector_dimension
+                nd = cfg.get("num_demos") if vector_dimension or demos_path else None
+                if dim is not None:
+                    iv_dir = f"{iv_dir}__d{dim}"
+                if nd is not None and (vector_dimension is not None or demos_path):
+                    iv_dir = f"{iv_dir}__nd{nd}"
             else:
                 iv_dir = iv_name
             out_dir = output_dir / run_date / model_short / bench_key / iv_dir

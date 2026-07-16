@@ -24,9 +24,13 @@ from src.paths import project_root
 load_dotenv(project_root() / ".env")
 
 _DEFAULT_MODELS = {
-    "anthropic": "claude-sonnet-4-6",
+    "anthropic": "claude-sonnet-5",
     "openai": "gpt-4o",
 }
+
+# Sonnet 5 turns adaptive thinking on by default; for structured JSON
+# annotation that adds cost/latency without helping schema adherence.
+_DISABLE_THINKING_MODELS = frozenset({"claude-sonnet-5"})
 
 
 @dataclass
@@ -163,6 +167,10 @@ class MLLMClient:
         )
         if self.temperature is not None:
             kwargs["temperature"] = self.temperature
+        if self.model in _DISABLE_THINKING_MODELS:
+            # Older anthropic SDKs reject a top-level ``thinking`` kwarg;
+            # pass via extra_body so Sonnet 5 adaptive thinking stays off.
+            kwargs["extra_body"] = {"thinking": {"type": "disabled"}}
         resp = self._client.messages.create(**kwargs)
         parts = [b.text for b in resp.content if getattr(b, "type", None) == "text"]
         usage = getattr(resp, "usage", None)

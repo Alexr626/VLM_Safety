@@ -10,8 +10,22 @@ from PIL import Image
 
 from ..base import InterventionBase
 from .directions import compute_or_load_textual_directions
+from .directions_v2 import (
+    DIFF_POLARITY,
+    SELECTION_POLICY,
+    STEER_COMPONENT,
+    TOKEN_POLICY,
+    compute_or_load_textual_directions_v2,
+    demos_content_hash,
+)
 from .hooks import vti_hook_ctx
 from .steer import HOOK_SITES, STEER_VARIANTS
+
+
+def _is_demos_v2_path(path: Optional[Path]) -> bool:
+    if path is None:
+        return False
+    return Path(path).name == "demos_v2.jsonl"
 
 
 class VTITextualIntervention(InterventionBase):
@@ -31,6 +45,7 @@ class VTITextualIntervention(InterventionBase):
         demos_path: Optional[Path] = None,
         direction_cache: Optional[Path] = None,
         log_lambda_sim: bool = False,
+        vector_dimension: Optional[str] = None,
         _directions: Optional[np.ndarray] = None,
     ):
         if variant not in STEER_VARIANTS:
@@ -46,20 +61,28 @@ class VTITextualIntervention(InterventionBase):
         self._rank = rank
         self._seed = seed
         self._eps_coeff = eps_coeff
-        self._demos_path = demos_path
+        self._demos_path = Path(demos_path) if demos_path is not None else None
         self._direction_cache = direction_cache
         self._log_lambda_sim = log_lambda_sim
+        self._vector_dimension = vector_dimension
 
         self._directions: Optional[np.ndarray] = _directions
         self._lambda_log: list[dict] = []
+        self._demos_hash: Optional[str] = None
+        if self._demos_path is not None and self._demos_path.exists():
+            self._demos_hash = demos_content_hash(self._demos_path)
 
     @property
     def name(self) -> str:
         return f"vti_textual_{self._variant}_{self._hook_site}"
 
     @property
+    def uses_demos_v2(self) -> bool:
+        return self._vector_dimension is not None or _is_demos_v2_path(self._demos_path)
+
+    @property
     def config(self) -> dict:
-        return {
+        cfg = {
             "variant": self._variant,
             "hook_site": self._hook_site,
             "beta": self._beta,
@@ -69,6 +92,18 @@ class VTITextualIntervention(InterventionBase):
             "eps_coeff": self._eps_coeff,
             "log_lambda_sim": self._log_lambda_sim,
         }
+        if self._demos_path is not None:
+            cfg["demos_path"] = str(self._demos_path)
+        if self._demos_hash is not None:
+            cfg["demos_content_hash_sha256_16"] = self._demos_hash
+        if self.uses_demos_v2:
+            cfg["dimension"] = self._vector_dimension or "all"
+            cfg["selection_policy"] = SELECTION_POLICY
+            cfg["steer_component"] = STEER_COMPONENT
+            cfg["diff_polarity"] = DIFF_POLARITY
+            cfg["token_policy"] = TOKEN_POLICY
+            cfg["steer_reconstruction"] = "live_pc1_plus_mean"
+        return cfg
 
     @property
     def lambda_log(self) -> list[dict]:
@@ -76,15 +111,29 @@ class VTITextualIntervention(InterventionBase):
 
     def ensure_directions(self, wrapper) -> np.ndarray:
         if self._directions is None:
-            self._directions = compute_or_load_textual_directions(
-                wrapper,
-                wrapper.model_name,
-                num_demos=self._num_demos,
-                rank=self._rank,
-                seed=self._seed,
-                demos_path=self._demos_path,
-                cache_dir=self._direction_cache,
-            )
+            if self.uses_demos_v2:
+                dim = self._vector_dimension or "all"
+                # demos_v2 always caches rank>=2 components; steer with PC1+mean.
+                rank = max(self._rank, 2)
+                self._directions = compute_or_load_textual_directions_v2(
+                    wrapper,
+                    wrapper.model_name,
+                    dimension=dim,
+                    num_demos=self._num_demos,
+                    rank=rank,
+                    seed=self._seed,
+                    demos_path=self._demos_path,
+                )
+            else:
+                self._directions = compute_or_load_textual_directions(
+                    wrapper,
+                    wrapper.model_name,
+                    num_demos=self._num_demos,
+                    rank=self._rank,
+                    seed=self._seed,
+                    demos_path=self._demos_path,
+                    cache_dir=self._direction_cache,
+                )
         return self._directions
 
     def generate(

@@ -27,12 +27,9 @@ from vti_demos_v2.io_utils import (  # noqa: E402
     write_summary,
 )
 from vti_demos_v2.mllm_client import MLLMClient, extract_json_object, parse_provider_spec  # noqa: E402
-from vti_demos_v2.prompts import STAGE4_SYSTEM, stage4_user  # noqa: E402
+from vti_demos_v2.prompts import STAGE4_SYSTEM, stage4_statement_specs, stage4_user  # noqa: E402
 from vti_demos_v2.validators import split_sentences  # noqa: E402
 from src.paths import vti_demos_v2_dir  # noqa: E402
-
-# Expected verdicts for statements 1..8
-_EXPECTED = ["true"] * 4 + ["false"] * 4
 
 
 def _assert_independent(stage4_spec: str, stage2_spec: str, stage3_spec: str) -> None:
@@ -48,11 +45,12 @@ def _assert_independent(stage4_spec: str, stage2_spec: str, stage3_spec: str) ->
         )
 
 
-def _mock_answers() -> dict:
+def _mock_answers(rec: dict) -> dict:
+    specs = stage4_statement_specs(rec)
     return {
         "answers": [
-            {"idx": i, "verdict": _EXPECTED[i - 1], "reason": "mock"}
-            for i in range(1, 9)
+            {"idx": x["idx"], "verdict": x["expect"], "reason": "mock"}
+            for x in specs
         ]
     }
 
@@ -101,7 +99,7 @@ def main() -> int:
             system=STAGE4_SYSTEM,
             user_text=user,
             image=img_path,
-            mock_json=_mock_answers(),
+            mock_json=_mock_answers(rec_for_prompt),
         )
         tok_in += result.input_tokens
         tok_out += result.output_tokens
@@ -123,16 +121,17 @@ def main() -> int:
 
         by_idx = {int(a.get("idx", -1)): a for a in answers}
         failures = []
-        for i, expected in enumerate(_EXPECTED, start=1):
+        for spec in stage4_statement_specs(rec_for_prompt):
+            i, expected = spec["idx"], spec["expect"]
             a = by_idx.get(i)
             if a is None:
-                failures.append({"idx": i, "reason": "missing", "expected": expected})
+                failures.append({"idx": i, "dimension": spec["dimension"], "reason": "missing", "expected": expected})
                 continue
             verdict = str(a.get("verdict", "")).lower()
             if verdict != expected:
                 failures.append({
                     "idx": i, "verdict": verdict, "expected": expected,
-                    "reason": a.get("reason"),
+                    "reason": a.get("reason"), "dimension": spec["dimension"],
                 })
 
         out_base = {
@@ -145,6 +144,7 @@ def main() -> int:
                 **out_base,
                 "reject_reason": "faithfulness_mismatch",
                 "failures": failures,
+                "failing_dimensions": sorted({x["dimension"] for x in failures}),
             })
             n_rej += 1
             print(f"  reject {rec['id']}: {failures}")

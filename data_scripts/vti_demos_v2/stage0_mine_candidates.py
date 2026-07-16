@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 0 — mine demos_v2 candidates from COCO train2014 instance annotations."""
+"""Stage 0 — mine v2.1 option-set candidates from COCO train2014 annotations."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ import json
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Set
 
 _PKG = Path(__file__).resolve().parent
 _ROOT = _PKG.parents[1]
@@ -16,6 +16,7 @@ sys.path.insert(0, str(_ROOT))
 sys.path.insert(0, str(_PKG.parent))
 
 from vti_demos_v2 import config  # noqa: E402
+from vti_demos_v2.geometry import box_from_coco_bbox, evaluate_all_relation_types  # noqa: E402
 from vti_demos_v2.io_utils import (  # noqa: E402
     load_exclude_ids_from_demos,
     load_ids,
@@ -43,11 +44,12 @@ def _load_instances(path: Path) -> dict:
 
 def _build_indexes(coco: dict):
     cat_id_to_name = {c["id"]: c["name"] for c in coco["categories"]}
+    cat_to_supercat = {c["name"]: c["supercategory"] for c in coco["categories"]}
     images = {im["id"]: im for im in coco["images"]}
     anns_by_image: Dict[int, List[dict]] = defaultdict(list)
     for ann in coco["annotations"]:
         anns_by_image[ann["image_id"]].append(ann)
-    return cat_id_to_name, images, anns_by_image
+    return cat_id_to_name, cat_to_supercat, images, anns_by_image
 
 
 def build_cooccurrence(
@@ -90,15 +92,15 @@ def _median(xs: List[float]) -> float:
     return 0.5 * (ys[m - 1] + ys[m])
 
 
-def _counting_anchor(
+def _counting_options(
     anns: List[dict],
     cat_id_to_name: Dict[int, str],
     img_area: float,
-) -> Optional[dict]:
+) -> List[dict]:
     by_cat: Dict[str, List[dict]] = defaultdict(list)
     for a in anns:
         by_cat[cat_id_to_name[a["category_id"]]].append(a)
-    best = None
+    out = []
     for cat, items in by_cat.items():
         if any(a.get("iscrowd", 0) for a in items):
             continue
@@ -109,60 +111,41 @@ def _counting_anchor(
         med = _median(areas)
         if med < config.COUNT_MIN_AREA_FRAC:
             continue
-        cand = {"category": cat, "count": n, "median_area_frac": round(med, 6)}
-        if best is None or cand["median_area_frac"] > best["median_area_frac"]:
-            best = cand
-    return best
+        out.append({"category": cat, "count": n, "median_area_frac": round(med, 6)})
+    return sorted(out, key=lambda x: (-x["median_area_frac"], x["category"]))
 
 
-def _relation_anchor(
+def _relation_options(
     anns: List[dict],
     cat_id_to_name: Dict[int, str],
     width: float,
+    height: float,
     img_area: float,
-) -> Optional[dict]:
+) -> List[dict]:
     by_cat: Dict[str, List[dict]] = defaultdict(list)
     for a in anns:
         if a.get("iscrowd", 0):
             continue
         by_cat[cat_id_to_name[a["category_id"]]].append(a)
 
-    # filter by min area
-    usable: Dict[str, List[Tuple[float, float, float]]] = {}
+    usable: Dict[str, List[dict]] = {}
     for cat, items in by_cat.items():
-        boxes = []
-        for a in items:
-            x, y, w, h = a["bbox"]
-            if (w * h) / img_area < config.REL_MIN_AREA_FRAC:
-                continue
-            boxes.append((x, x + w, w * h))
-        if boxes:
-            usable[cat] = boxes
+        if len(items) == 1:
+            usable[cat] = items
 
-    best = None
-    cats = list(usable.keys())
-    gap_min = config.REL_GAP_FRAC * width
-    for i, a_cat in enumerate(cats):
+    out = []
+    cats = sorted(usable)
+    for a_cat in cats:
         for b_cat in cats:
             if a_cat == b_cat:
                 continue
-            a_boxes = usable[a_cat]
-            b_boxes = usable[b_cat]
-            max_a_x2 = max(x2 for _, x2, _ in a_boxes)
-            min_b_x1 = min(x1 for x1, _, _ in b_boxes)
-            if max_a_x2 < min_b_x1 - gap_min:
-                gap_frac = (min_b_x1 - max_a_x2) / width
-                cand = {
-                    "a": a_cat,
-                    "b": b_cat,
-                    "relation": "left",
-                    "gap_frac": round(gap_frac, 6),
-                    "a_n": len(a_boxes),
-                    "b_n": len(b_boxes),
-                }
-                if best is None or cand["gap_frac"] > best["gap_frac"]:
-                    best = cand
-    return best
+            a, b = usable[a_cat][0], usable[b_cat][0]
+            for result in evaluate_all_relation_types(
+                box_from_coco_bbox(a["bbox"]), box_from_coco_bbox(b["bbox"]),
+                b_category=b_cat, img_w=width, img_h=height, img_area=img_area, cfg=config,
+            ):
+                out.append({"a": a_cat, "b": b_cat, **result})
+    return out
 
 
 def _distractor_candidates(
@@ -170,7 +153,7 @@ def _distractor_candidates(
     cooc: Dict[str, Dict[str, float]],
     all_cats: List[str],
     top_k: int,
-) -> List[str]:
+) -> List[dict]:
     absent = [c for c in all_cats if c not in present]
     scored = []
     for c in absent:
@@ -180,12 +163,12 @@ def _distractor_candidates(
             score = sum(cooc.get(c, {}).get(p, 0.0) for p in present) / len(present)
         scored.append((score, c))
     scored.sort(key=lambda t: (-t[0], t[1]))
-    return [c for _, c in scored[:top_k]]
+    return [{"category": c, "score": round(score, 8)} for score, c in scored[:top_k]]
 
 
 def _score_candidate(rec: dict) -> float:
-    gap = float(rec["relation_anchor"]["gap_frac"])
-    area = float(rec["counting_anchor"]["median_area_frac"])
+    gap = max(float(x.get("gap_frac", 0.0)) for x in rec["relation_options"])
+    area = max(float(x["median_area_frac"]) for x in rec["counting_options"])
     n_cats = len(rec["present_categories"])
     # normalize n_cats roughly into [0,1] with soft cap at 10
     n_norm = min(n_cats / 10.0, 1.0)
@@ -193,6 +176,8 @@ def _score_candidate(rec: dict) -> float:
         config.W_REL_GAP * min(gap / 0.3, 1.0)
         + config.W_COUNT_AREA * min(area / 0.05, 1.0)
         + config.W_N_CATS * n_norm
+        + config.W_N_GE3 * float(any(x["count"] >= 3 for x in rec["counting_options"]))
+        + config.W_REL_TYPE_DIV * min(len({x["type"] for x in rec["relation_options"]}) / 4, 1.0)
     )
 
 
@@ -204,6 +189,7 @@ def mine_candidates(
     cat_id_to_name: Dict[int, str],
     images: dict,
     anns_by_image: Dict[int, List[dict]],
+    cat_to_supercat: Dict[str, str] | None = None,
 ) -> List[dict]:
     all_cats = sorted(cat_id_to_name.values())
     rows: List[dict] = []
@@ -223,11 +209,11 @@ def mine_candidates(
         present = set(present_counts)
         if len(present) < 2:
             continue
-        counting = _counting_anchor(anns, cat_id_to_name, img_area)
-        if counting is None:
+        counting = _counting_options(anns, cat_id_to_name, img_area)
+        if not counting:
             continue
-        relation = _relation_anchor(anns, cat_id_to_name, width, img_area)
-        if relation is None:
+        relation = _relation_options(anns, cat_id_to_name, width, height, img_area)
+        if not relation:
             continue
         distractors = _distractor_candidates(
             present, cooc, all_cats, config.DISTRACTOR_TOP_K
@@ -238,14 +224,26 @@ def mine_candidates(
             "id": sid,
             "image": im["file_name"],
             "present_categories": dict(present_counts),
-            "counting_anchor": counting,
-            "relation_anchor": relation,
+            "counting_options": counting,
+            "relation_options": relation,
             "distractor_candidates": distractors,
         }
         rec["score"] = round(_score_candidate(rec), 6)
         rows.append(rec)
     rows.sort(key=lambda r: (-r["score"], r["id"]))
-    return rows[:n_candidates]
+    cap = max(1, int(n_candidates * config.SUPERCAT_CAP_FRAC))
+    emitted, supercats = [], Counter()
+    for row in rows:
+        # Use the best available counting option's supercategory for a deterministic
+        # scene stratum while retaining every option for the allocator.
+        supercat = (cat_to_supercat or {}).get(row["counting_options"][0]["category"], "unknown")
+        if supercats[supercat] >= cap:
+            continue
+        emitted.append(row)
+        supercats[supercat] += 1
+        if len(emitted) == n_candidates:
+            break
+    return emitted
 
 
 def parse_args():
@@ -291,7 +289,7 @@ def main() -> int:
         print(f"--emit-next-batch: excluding {len(exclude)} known ids")
 
     coco = _load_instances(instances_path)
-    cat_id_to_name, images, anns_by_image = _build_indexes(coco)
+    cat_id_to_name, cat_to_supercat, images, anns_by_image = _build_indexes(coco)
 
     if cooc_path.is_file():
         print(f"Loading co-occurrence cache {cooc_path}")
@@ -309,10 +307,11 @@ def main() -> int:
         cat_id_to_name=cat_id_to_name,
         images=images,
         anns_by_image=anns_by_image,
+        cat_to_supercat=cat_to_supercat,
     )
     write_jsonl(out_path, rows)
 
-    cat_hist = Counter(r["counting_anchor"]["category"] for r in rows)
+    cat_hist = Counter(x["category"] for r in rows for x in r["counting_options"])
     summary = {
         "n_candidates": len(rows),
         "out": str(out_path),

@@ -15,7 +15,7 @@ sys.path.insert(0, str(_PKG.parent))
 from vti_demos_v2.io_utils import read_jsonl, write_jsonl  # noqa: E402
 from src.paths import vti_data_dir, vti_demos_v2_path  # noqa: E402
 
-DIMENSIONS = ("existence", "attribute", "counting", "relation")
+DIMENSIONS = ("existence", "attribute", "counting", "relation", "all")
 
 
 def parse_args():
@@ -23,6 +23,8 @@ def parse_args():
     p.add_argument("--dimension", required=True, choices=DIMENSIONS)
     p.add_argument("--input", type=Path, default=None)
     p.add_argument("--out", type=Path, default=None)
+    p.add_argument("--subtype", default=None,
+                   help="optional selected anchor subtype, e.g. vertical or at_most")
     return p.parse_args()
 
 
@@ -36,6 +38,11 @@ def main() -> int:
 
     flat = []
     for r in rows:
+        if args.subtype:
+            anchor = (r.get("anchors") or {}).get(args.dimension, {})
+            subtype = anchor.get("type") or anchor.get("mode")
+            if subtype != args.subtype:
+                continue
         hv = (r.get("h_values") or {}).get(args.dimension)
         if not hv:
             raise SystemExit(f"Record {r.get('id')} missing h_values.{args.dimension}")
