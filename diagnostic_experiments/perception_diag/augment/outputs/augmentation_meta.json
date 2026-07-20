@@ -1,0 +1,23 @@
+{
+  "template_set_id": "leading_clauses_v1",
+  "template_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/diagnostic_experiments/perception_diag/templates/leading_clauses_v1.json",
+  "template_hash": "32fd37da7f3f65fc",
+  "subsets": {
+    "amber100": {
+      "benchmark": "amber",
+      "subset_file": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/amber/pinned_amber_disc_100.json",
+      "n_ids_requested": 100,
+      "n_rows": 100,
+      "jsonl": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/diagnostic_experiments/perception_diag/augment/outputs/augmented_amber100.jsonl",
+      "content_hash_sha256_16": "56b6d2c9b36375c2"
+    },
+    "pope30": {
+      "benchmark": "pope",
+      "subset_file": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/pope/pinned_pope_existence_yes_30.json",
+      "n_ids_requested": 30,
+      "n_rows": 30,
+      "jsonl": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/diagnostic_experiments/perception_diag/augment/outputs/augmented_pope30.jsonl",
+      "content_hash_sha256_16": "d5b088ce4ca4bc2a"
+    }
+  }
+}

@@ -105,10 +105,10 @@ class VLMWrapperBase:
         raise NotImplementedError
 
     def generate_vl(self, image: Image.Image, text: str,
-                    max_new_tokens: int = 256) -> str:
+                    max_new_tokens: int = 128) -> str:
         raise NotImplementedError
 
-    def generate_text(self, text: str, max_new_tokens: int = 256) -> str:
+    def generate_text(self, text: str, max_new_tokens: int = 128) -> str:
         raise NotImplementedError
 
     def generate_caption(self, image: Image.Image,
@@ -325,7 +325,7 @@ class LLaVAWrapper(VLMWrapperBase):
         ]
 
     def generate_vl(self, image: Image.Image, text: str,
-                    max_new_tokens: int = 256) -> str:
+                    max_new_tokens: int = 128) -> str:
         inputs = self._prepare_vl(text, image)
         input_len = inputs["input_ids"].shape[1]
         with torch.no_grad():
@@ -336,7 +336,7 @@ class LLaVAWrapper(VLMWrapperBase):
         return self.processor.decode(
             generated[0][input_len:], skip_special_tokens=True).strip()
 
-    def generate_text(self, text: str, max_new_tokens: int = 256) -> str:
+    def generate_text(self, text: str, max_new_tokens: int = 128) -> str:
         inputs = self._prepare_text(text)
         input_len = inputs["input_ids"].shape[1]
         with torch.no_grad():
@@ -570,7 +570,7 @@ class ShareGPT4VWrapper(VLMWrapperBase):
 
     # ── Generation ─────────────────────────────────────────────────────────
     def generate_vl(self, image: Image.Image, text: str,
-                    max_new_tokens: int = 256) -> str:
+                    max_new_tokens: int = 128) -> str:
         inputs_embeds, _ = self._prepare_vl_embeds(image, text)
         with torch.no_grad():
             generated = self.model.generate(
@@ -580,7 +580,7 @@ class ShareGPT4VWrapper(VLMWrapperBase):
             )
         return self.tokenizer.decode(generated[0], skip_special_tokens=True).strip()
 
-    def generate_text(self, text: str, max_new_tokens: int = 256) -> str:
+    def generate_text(self, text: str, max_new_tokens: int = 128) -> str:
         input_ids = self._prepare_text(text)
         input_len = input_ids.shape[1]
         with torch.no_grad():
@@ -785,7 +785,7 @@ class MiniGPT4Wrapper(VLMWrapperBase):
 
     # ── Generation ─────────────────────────────────────────────────────────
     def generate_vl(self, image: Image.Image, text: str,
-                    max_new_tokens: int = 256) -> str:
+                    max_new_tokens: int = 128) -> str:
         inputs_embeds, _ = self._prepare_vl_embeds(image, text)
         with torch.no_grad():
             generated = self.model.llama_model.generate(
@@ -799,7 +799,7 @@ class MiniGPT4Wrapper(VLMWrapperBase):
             output = output[:output.index(self._END_SYM)]
         return output.strip()
 
-    def generate_text(self, text: str, max_new_tokens: int = 256) -> str:
+    def generate_text(self, text: str, max_new_tokens: int = 128) -> str:
         input_ids = self._prepare_text(text)
         input_len = input_ids.shape[1]
         with torch.no_grad():
@@ -1040,13 +1040,13 @@ class InternVL2Wrapper(VLMWrapperBase):
                                 max_new_tokens=max_new_tokens)
 
     def generate_vl(self, image: Image.Image, text: str,
-                    max_new_tokens: int = 256) -> str:
+                    max_new_tokens: int = 128) -> str:
         prompt = self._build_vl_prompt(text)
         input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(self.device)
         pixel_values = self._preprocess_image(image)
         return self._generate(input_ids, pixel_values, max_new_tokens)
 
-    def generate_text(self, text: str, max_new_tokens: int = 256) -> str:
+    def generate_text(self, text: str, max_new_tokens: int = 128) -> str:
         prompt = self._build_text_prompt(text)
         input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(self.device)
         return self._generate(input_ids, None, max_new_tokens)
@@ -1261,7 +1261,7 @@ class QwenVLWrapper(VLMWrapperBase):
 
     # ── Generation ─────────────────────────────────────────────────────────
     def generate_vl(self, image: Image.Image, text: str,
-                    max_new_tokens: int = 256) -> str:
+                    max_new_tokens: int = 128) -> str:
         img_path = self._save_image_temp(image)
         query = self.tokenizer.from_list_format([
             {"image": img_path},
@@ -1304,7 +1304,7 @@ class QwenVLWrapper(VLMWrapperBase):
                 pass
         return response.strip()
 
-    def generate_text(self, text: str, max_new_tokens: int = 256) -> str:
+    def generate_text(self, text: str, max_new_tokens: int = 128) -> str:
         input_ids = self._prepare_text(text)
         input_len = input_ids.shape[1]
         with torch.no_grad():
@@ -1622,11 +1622,11 @@ class Qwen2VLWrapper(VLMWrapperBase):
         return self.processor.decode(new_tokens, skip_special_tokens=True).strip()
 
     def generate_vl(self, image: Image.Image, text: str,
-                    max_new_tokens: int = 256) -> str:
+                    max_new_tokens: int = 128) -> str:
         return self._generate_from_inputs(
             self._prepare_vl(image, text), max_new_tokens)
 
-    def generate_text(self, text: str, max_new_tokens: int = 256) -> str:
+    def generate_text(self, text: str, max_new_tokens: int = 128) -> str:
         return self._generate_from_inputs(
             self._prepare_text(text), max_new_tokens)
 

@@ -34,7 +34,7 @@ from typing import Any, Dict, List, Optional, Tuple
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_PROJECT_ROOT))
 
-CHAIR_CAP = 64
+CHAIR_CAP = 256
 SUBSET_SEED = 1234
 BETA_GRID = [0.4, 0.1, 0.2, 0.3, 0.5, 0.6, 0.7, 0.8, 0.9]
 COLLAPSE_EMPTY_FRAC = 0.5

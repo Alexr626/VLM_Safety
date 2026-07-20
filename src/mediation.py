@@ -218,6 +218,8 @@ def _prepare_inputs_for_logits(wrapper, image, text):
             except OSError:
                 pass
         return {"input_ids": input_ids}, _cleanup
+    if fam == "qwen2_vl":
+        return wrapper._prepare_vl(image, text), None
     raise NotImplementedError(fam)
 
 

@@ -138,10 +138,22 @@ class ResponseSet:
         self.source_path = source_path
         self.question: Optional[str] = None
         self.ground_truth: Optional[str] = None
-        self.items: List[Tuple[str, str, Optional[str]]] = []
+        # (label, display_text, note, badge_text|None)
+        # badge_text: if set, yes/no chip uses this instead of display_text
+        # (needed when display_text embeds a leading-clause prompt).
+        self.items: List[Tuple[str, str, Optional[str], Optional[str]]] = []
 
-    def add(self, label: str, text: str, note: Optional[str] = None) -> None:
-        self.items.append((label, text if text is not None else "", note))
+    def add(
+        self,
+        label: str,
+        text: str,
+        note: Optional[str] = None,
+        *,
+        badge_text: Optional[str] = None,
+    ) -> None:
+        self.items.append(
+            (label, text if text is not None else "", note, badge_text)
+        )
 
     def __bool__(self) -> bool:
         return bool(self.items)
@@ -285,8 +297,10 @@ def print_summary(sample_id: str, benchmark: str, meta: Optional[Dict[str, Any]]
         print(f"  results: {rs.source_label}")
         print(f"  file   : {rs.source_path}")
         print("-" * 78)
-        for lbl, text, note in rs.items:
-            yn = normalize_yes_no(text)
+        for item in rs.items:
+            lbl, text, note = item[0], item[1], item[2]
+            badge_src = item[3] if len(item) > 3 and item[3] is not None else text
+            yn = normalize_yes_no(badge_src)
             tag = f" [{note}]" if note else ""
             yn_tag = f" -> {yn}" if yn else ""
             print(f"\n  • {lbl}{tag}{yn_tag}")
@@ -398,12 +412,14 @@ def _resp_sections_html(resp_sets: List[ResponseSet]) -> str:
     sections = []
     for rs in resp_sets:
         rows = []
-        for lbl, text, note in rs.items:
+        for item in rs.items:
+            lbl, text, note = item[0], item[1], item[2]
+            badge_src = item[3] if len(item) > 3 and item[3] is not None else text
             note_html = f"<span class='note'>{html.escape(note)}</span>" if note else ""
             body = html.escape(text.strip()) if text.strip() else "<em>&lt;empty&gt;</em>"
             rows.append(
                 f"<div class='resp'>"
-                f"<div class='resp-head'>{_yn_badge(text)}"
+                f"<div class='resp-head'>{_yn_badge(badge_src)}"
                 f"<span class='lbl'>{html.escape(lbl)}</span>{note_html}</div>"
                 f"<div class='resp-body'>{body}</div></div>"
             )

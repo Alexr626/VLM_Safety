@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "source": "evaluation/results/2026-06-22/_samples/llava-1.5-7b-hf/{amber,chair}/",
+    "description": "LLaVA-derived 2026-06-22 qualitative bundle (AMBER-25 ordered + CHAIR-5); used for both models",
+    "created": "2026-07-13",
+    "n_chair": 5,
+    "n_amber": 25
+  },
+  "chair": [
+    "chair_000000357659",
+    "chair_000000256343",
+    "chair_000000146973",
+    "chair_000000245049",
+    "chair_000000154861"
+  ],
+  "amber": [
+    "amber_disc_07689",
+    "amber_disc_10131",
+    "amber_disc_12416",
+    "amber_disc_10100",
+    "amber_disc_08252",
+    "amber_disc_05115",
+    "amber_disc_05583",
+    "amber_disc_03747",
+    "amber_disc_01777",
+    "amber_disc_04171",
+    "amber_disc_02664",
+    "amber_disc_00498",
+    "amber_disc_06740",
+    "amber_disc_07276",
+    "amber_disc_03870",
+    "amber_disc_13789",
+    "amber_disc_13673",
+    "amber_disc_13607",
+    "amber_disc_14202",
+    "amber_disc_14139",
+    "amber_disc_13791",
+    "amber_disc_12588",
+    "amber_disc_13264",
+    "amber_disc_13805",
+    "amber_disc_13087"
+  ]
+}

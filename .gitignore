@@ -110,5 +110,14 @@ data/pope/*
 !data/vti/
 data/vti/*
 !data/vti/demos.jsonl
+!data/vti/demos_v2.jsonl
+!data/vti/demos_v2_order_s42.json
+!data/vti/qual_subset_chair5_amber25.json
+!data/amber/
+data/amber/*
+!data/amber/pinned_amber_disc_450.json
 perturbed_examples*
 textual_v2*
+diagnostic_experiments/perception_diag/**/dumps/
+diagnostic_experiments/perception_diag/**/__pycache__/
+diagnostic_experiments/perception_diag/artifact_checks

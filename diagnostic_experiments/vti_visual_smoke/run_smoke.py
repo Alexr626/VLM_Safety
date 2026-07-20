@@ -35,7 +35,7 @@ from diagnostic_experiments.vti_visual_smoke.analyze_gate import (
 
 MODEL_ID = "llava-hf/llava-1.5-7b-hf"
 CHAIR_PROMPT = "Please Describe this image in detail."
-CHAIR_CAP = 64
+CHAIR_CAP = 256
 AMBER_SAMPLE_JSON = (
     _PROJECT_ROOT
     / "evaluation/results/2026-06-22/_samples/llava-1.5-7b-hf/amber"

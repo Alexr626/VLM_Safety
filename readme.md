@@ -456,6 +456,7 @@ The report writes `evaluation/results/{run_date}/_diagnostic_summary_chair_amber
 | `helper_scripts/run_sample_responses.sh` | Wrapper with default CHAIR+AMBER β slices |
 | `helper_scripts/runai/setup_vlm.sh` | One-time RunAI setup: extract repo tarball on NFS, bootstrap micromamba, build env, download COCO val2014 + model weights |
 | `helper_scripts/runai/run_vti.sh` | RunAI eval job: activate NFS env and run VTI POPE eval |
+| `helper_scripts/runai/run_smoke_pope.sh` | Minimal RunAI e2e smoke (5 POPE samples, no intervention) |
 | `helper_scripts/runai/bootstrap_micromamba.py` | Download micromamba without curl/wget (used by `setup_vlm.sh`) |
 | `helper_scripts/runai/run_bash_lf.py` | Strip Windows CRLF and run a shell script via bash (avoids line-ending failures in pods) |
 
