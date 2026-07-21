@@ -9,8 +9,8 @@ conda activate vlm_hallucination_mitigation
 export HF_HOME="${HF_HOME:-/data/romanus/huggingface}"
 GPU="${CUDA_VISIBLE_DEVICES:-0}"
 
-AUG_AMBER=diagnostic_experiments/perception_diag/augment/outputs/augmented_amber100.jsonl
-AUG_POPE=diagnostic_experiments/perception_diag/augment/outputs/augmented_pope30.jsonl
+AUG_AMBER=data/amber/augmented_amber100.jsonl
+AUG_POPE=data/pope/augmented_pope30.jsonl
 test -f "$AUG_AMBER"
 test -f "$AUG_POPE"
 

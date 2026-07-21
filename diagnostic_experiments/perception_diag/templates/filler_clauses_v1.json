@@ -1,0 +1,22 @@
+{
+  "template_set_id": "filler_clauses_v1",
+  "version": 3,
+  "created": "2026-07-20",
+  "updated": "2026-07-20",
+  "author": "cursor_for_attention_knockout",
+  "notes": [
+    "Semantically inert length-matched prefix for attention-dilution control.",
+    "No answer valence, object, attribute, or relation references.",
+    "Single filler condition filler_b, length-matched to assertive leading clauses (8 tokens under LLaVA-1.5 and Qwen2.5-VL). Trailing space required (without space → 7 tokens)."
+  ],
+  "conditions": [
+    {
+      "condition_id": "filler_b",
+      "tone": "filler",
+      "direction": null,
+      "template_id": "filler_b_v2_assertive_matched",
+      "prefix": "Answer the question about the image. ",
+      "join": ""
+    }
+  ]
+}

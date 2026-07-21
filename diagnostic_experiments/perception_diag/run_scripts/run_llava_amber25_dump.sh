@@ -8,7 +8,7 @@ conda activate vlm_hallucination_mitigation
 export HF_HOME="${HF_HOME:-/data/romanus/huggingface}"
 GPU="${CUDA_VISIBLE_DEVICES:-0}"
 
-AUG=diagnostic_experiments/perception_diag/augment/outputs/augmented_amber25.jsonl
+AUG=data/amber/augmented_amber25.jsonl
 test -f "$AUG"
 
 CUDA_VISIBLE_DEVICES="$GPU" python diagnostic_experiments/perception_diag/run_dump.py \
@@ -19,4 +19,4 @@ CUDA_VISIBLE_DEVICES="$GPU" python diagnostic_experiments/perception_diag/run_du
   --max_new_tokens 512 \
   --device_map cuda:0
 
-echo "Done: diagnostic_experiments/perception_diag/llava-1.5-7b-hf/dumps/amber25_all_steering_settings"
+echo "Done: data/amber/dumps/llava-1.5-7b-hf/amber25_all_steering_settings"

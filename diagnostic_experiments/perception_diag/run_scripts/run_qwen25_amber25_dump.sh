@@ -8,7 +8,7 @@ conda activate vlm_hallucination_mitigation
 export HF_HOME="${HF_HOME:-/data/romanus/huggingface}"
 GPU="${CUDA_VISIBLE_DEVICES:-0}"
 
-AUG=diagnostic_experiments/perception_diag/augment/outputs/augmented_amber25.jsonl
+AUG=data/amber/augmented_amber25.jsonl
 test -f "$AUG"
 
 echo "[dump] Qwen2.5-VL AMBER-25 on GPU=$GPU"
@@ -21,4 +21,4 @@ CUDA_VISIBLE_DEVICES="$GPU" python diagnostic_experiments/perception_diag/run_du
   --max_pixels 1003520 \
   --device_map cuda:0
 
-echo "Done: diagnostic_experiments/perception_diag/qwen2.5-vl-7b-instruct/dumps/amber25_steering_settings"
+echo "Done: data/amber/dumps/qwen2.5-vl-7b-instruct/amber25_steering_settings"
