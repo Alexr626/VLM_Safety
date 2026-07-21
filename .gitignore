@@ -116,8 +116,20 @@ data/vti/*
 !data/amber/
 data/amber/*
 !data/amber/pinned_amber_disc_450.json
+!data/amber/pinned_amber_disc_100.json
+!data/pope/pinned_pope_existence_yes_30.json
+!data/pope/pinned_pope_existence_yes_120.json
+!data/pope/pinned_pope_existence_no_120.json
+!data/amber/augmented_amber25.jsonl
+!data/amber/augmented_amber100.jsonl
+!data/pope/augmented_pope30.jsonl
+!data/pope/augmented_pope_yes_120.jsonl
+!data/pope/augmented_pope_no_120.jsonl
+# Heavy steered-capture dumps stay local / untracked
+data/amber/dumps/
+data/pope/dumps/
 perturbed_examples*
 textual_v2*
-diagnostic_experiments/perception_diag/**/dumps/
 diagnostic_experiments/perception_diag/**/__pycache__/
 diagnostic_experiments/perception_diag/artifact_checks
+diagnostic_experiments/leading_clause_attention_knockout

@@ -1,0 +1,3960 @@
+{
+	"item_id": "pope_random_00001",
+	"image_id": "COCO_val2014_000000310196.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00003",
+	"image_id": "COCO_val2014_000000310196.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"question_neutral": "Is there a sandwich in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a sandwich in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a sandwich in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a sandwich in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00005",
+	"image_id": "COCO_val2014_000000310196.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"question_neutral": "Is there a couch in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a couch in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a couch in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a couch in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00007",
+	"image_id": "COCO_val2014_000000210789.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"question_neutral": "Is there a pizza in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a pizza in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a pizza in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a pizza in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00009",
+	"image_id": "COCO_val2014_000000210789.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"question_neutral": "Is there a sink in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a sink in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a sink in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a sink in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00011",
+	"image_id": "COCO_val2014_000000210789.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"question_neutral": "Is there a cell phone in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a cell phone in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a cell phone in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a cell phone in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00013",
+	"image_id": "COCO_val2014_000000429109.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"question_neutral": "Is there a sheep in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a sheep in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a sheep in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a sheep in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00015",
+	"image_id": "COCO_val2014_000000429109.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"question_neutral": "Is there a broccoli in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a broccoli in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a broccoli in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a broccoli in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00017",
+	"image_id": "COCO_val2014_000000429109.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"question_neutral": "Is there a tennis racket in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a tennis racket in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a tennis racket in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a tennis racket in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00019",
+	"image_id": "COCO_val2014_000000211674.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"question_neutral": "Is there a teddy bear in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a teddy bear in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a teddy bear in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a teddy bear in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00021",
+	"image_id": "COCO_val2014_000000211674.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"question_neutral": "Is there a broccoli in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a broccoli in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a broccoli in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a broccoli in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00023",
+	"image_id": "COCO_val2014_000000211674.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"question_neutral": "Is there an orange in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there an orange in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there an orange in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there an orange in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00025",
+	"image_id": "COCO_val2014_000000458338.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"question_neutral": "Is there a train in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a train in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a train in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a train in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00027",
+	"image_id": "COCO_val2014_000000458338.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"question_neutral": "Is there a surfboard in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a surfboard in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a surfboard in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a surfboard in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00029",
+	"image_id": "COCO_val2014_000000458338.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"question_neutral": "Is there a kite in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a kite in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a kite in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a kite in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00031",
+	"image_id": "COCO_val2014_000000283412.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"question_neutral": "Is there a toaster in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a toaster in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a toaster in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a toaster in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00033",
+	"image_id": "COCO_val2014_000000283412.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"question_neutral": "Is there a sports ball in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a sports ball in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a sports ball in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a sports ball in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00035",
+	"image_id": "COCO_val2014_000000283412.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"question_neutral": "Is there a book in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a book in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a book in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a book in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00037",
+	"image_id": "COCO_val2014_000000265719.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"question_neutral": "Is there a traffic light in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a traffic light in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a traffic light in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a traffic light in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00039",
+	"image_id": "COCO_val2014_000000265719.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"question_neutral": "Is there a bird in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a bird in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a bird in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a bird in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00041",
+	"image_id": "COCO_val2014_000000265719.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"question_neutral": "Is there a truck in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a truck in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a truck in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a truck in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00043",
+	"image_id": "COCO_val2014_000000461331.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"question_neutral": "Is there a bowl in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a bowl in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a bowl in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a bowl in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00045",
+	"image_id": "COCO_val2014_000000461331.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"question_neutral": "Is there a cow in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a cow in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a cow in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a cow in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00047",
+	"image_id": "COCO_val2014_000000461331.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"question_neutral": "Is there a laptop in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a laptop in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a laptop in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a laptop in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00049",
+	"image_id": "COCO_val2014_000000544456.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"question_neutral": "Is there a cell phone in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a cell phone in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a cell phone in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a cell phone in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00051",
+	"image_id": "COCO_val2014_000000544456.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"question_neutral": "Is there a couch in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a couch in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a couch in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a couch in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00053",
+	"image_id": "COCO_val2014_000000544456.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"question_neutral": "Is there a tennis racket in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a tennis racket in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a tennis racket in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a tennis racket in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00055",
+	"image_id": "COCO_val2014_000000017708.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"question_neutral": "Is there a fire hydrant in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a fire hydrant in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a fire hydrant in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a fire hydrant in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00057",
+	"image_id": "COCO_val2014_000000017708.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"question_neutral": "Is there a bed in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a bed in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a bed in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a bed in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00059",
+	"image_id": "COCO_val2014_000000017708.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"question_neutral": "Is there a bench in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a bench in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a bench in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a bench in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00061",
+	"image_id": "COCO_val2014_000000574692.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"question_neutral": "Is there a bear in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a bear in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a bear in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a bear in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00063",
+	"image_id": "COCO_val2014_000000574692.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"question_neutral": "Is there a cow in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a cow in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a cow in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a cow in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00065",
+	"image_id": "COCO_val2014_000000574692.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"question_neutral": "Is there a bed in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a bed in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a bed in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a bed in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00067",
+	"image_id": "COCO_val2014_000000353180.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"question_neutral": "Is there a potted plant in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a potted plant in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a potted plant in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a potted plant in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00069",
+	"image_id": "COCO_val2014_000000353180.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"question_neutral": "Is there a wine glass in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a wine glass in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a wine glass in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a wine glass in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00071",
+	"image_id": "COCO_val2014_000000353180.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"question_neutral": "Is there a suitcase in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a suitcase in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a suitcase in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a suitcase in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00073",
+	"image_id": "COCO_val2014_000000239444.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"question_neutral": "Is there an airplane in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there an airplane in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there an airplane in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there an airplane in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00075",
+	"image_id": "COCO_val2014_000000239444.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"question_neutral": "Is there a clock in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a clock in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a clock in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a clock in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00077",
+	"image_id": "COCO_val2014_000000239444.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"question_neutral": "Is there a horse in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a horse in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a horse in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a horse in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_random_00079",
+	"image_id": "COCO_val2014_000000569839.jpg",
+	"gold": "no",
+	"qtype": "random",
+	"split": "random",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000569839.jpg",
+	"question_neutral": "Is there a zebra in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a zebra in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a zebra in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a zebra in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00001",
+	"image_id": "COCO_val2014_000000310196.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00003",
+	"image_id": "COCO_val2014_000000310196.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00005",
+	"image_id": "COCO_val2014_000000310196.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"question_neutral": "Is there a chair in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a chair in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a chair in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a chair in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00007",
+	"image_id": "COCO_val2014_000000210789.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00009",
+	"image_id": "COCO_val2014_000000210789.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00011",
+	"image_id": "COCO_val2014_000000210789.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"question_neutral": "Is there a chair in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a chair in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a chair in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a chair in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00013",
+	"image_id": "COCO_val2014_000000429109.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00015",
+	"image_id": "COCO_val2014_000000429109.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"question_neutral": "Is there a chair in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a chair in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a chair in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a chair in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00017",
+	"image_id": "COCO_val2014_000000429109.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"question_neutral": "Is there a cup in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a cup in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a cup in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a cup in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00019",
+	"image_id": "COCO_val2014_000000211674.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00021",
+	"image_id": "COCO_val2014_000000211674.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"question_neutral": "Is there a chair in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a chair in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a chair in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a chair in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00023",
+	"image_id": "COCO_val2014_000000211674.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"question_neutral": "Is there a cup in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a cup in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a cup in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a cup in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00025",
+	"image_id": "COCO_val2014_000000458338.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00027",
+	"image_id": "COCO_val2014_000000458338.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"question_neutral": "Is there a chair in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a chair in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a chair in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a chair in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00029",
+	"image_id": "COCO_val2014_000000458338.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"question_neutral": "Is there a cup in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a cup in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a cup in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a cup in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00031",
+	"image_id": "COCO_val2014_000000283412.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"question_neutral": "Is there a person in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a person in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a person in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a person in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00033",
+	"image_id": "COCO_val2014_000000283412.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00035",
+	"image_id": "COCO_val2014_000000283412.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"question_neutral": "Is there a chair in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a chair in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a chair in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a chair in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00037",
+	"image_id": "COCO_val2014_000000265719.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00039",
+	"image_id": "COCO_val2014_000000265719.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00041",
+	"image_id": "COCO_val2014_000000265719.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"question_neutral": "Is there a chair in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a chair in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a chair in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a chair in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00043",
+	"image_id": "COCO_val2014_000000461331.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"question_neutral": "Is there a person in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a person in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a person in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a person in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00045",
+	"image_id": "COCO_val2014_000000461331.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00047",
+	"image_id": "COCO_val2014_000000461331.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00049",
+	"image_id": "COCO_val2014_000000544456.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00051",
+	"image_id": "COCO_val2014_000000544456.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00053",
+	"image_id": "COCO_val2014_000000544456.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"question_neutral": "Is there a chair in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a chair in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a chair in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a chair in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00055",
+	"image_id": "COCO_val2014_000000017708.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00057",
+	"image_id": "COCO_val2014_000000017708.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00059",
+	"image_id": "COCO_val2014_000000017708.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"question_neutral": "Is there a chair in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a chair in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a chair in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a chair in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00061",
+	"image_id": "COCO_val2014_000000574692.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00063",
+	"image_id": "COCO_val2014_000000574692.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00065",
+	"image_id": "COCO_val2014_000000574692.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"question_neutral": "Is there a chair in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a chair in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a chair in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a chair in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00067",
+	"image_id": "COCO_val2014_000000353180.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00069",
+	"image_id": "COCO_val2014_000000353180.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00071",
+	"image_id": "COCO_val2014_000000353180.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"question_neutral": "Is there a chair in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a chair in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a chair in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a chair in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00073",
+	"image_id": "COCO_val2014_000000239444.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00075",
+	"image_id": "COCO_val2014_000000239444.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"question_neutral": "Is there a cup in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a cup in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a cup in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a cup in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00077",
+	"image_id": "COCO_val2014_000000239444.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"question_neutral": "Is there a bottle in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a bottle in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a bottle in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a bottle in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_popular_00079",
+	"image_id": "COCO_val2014_000000569839.jpg",
+	"gold": "no",
+	"qtype": "popular",
+	"split": "popular",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000569839.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00001",
+	"image_id": "COCO_val2014_000000310196.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"question_neutral": "Is there a backpack in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a backpack in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a backpack in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a backpack in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00003",
+	"image_id": "COCO_val2014_000000310196.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00005",
+	"image_id": "COCO_val2014_000000310196.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"question_neutral": "Is there a dog in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dog in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dog in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dog in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00007",
+	"image_id": "COCO_val2014_000000210789.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00009",
+	"image_id": "COCO_val2014_000000210789.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00011",
+	"image_id": "COCO_val2014_000000210789.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"question_neutral": "Is there a handbag in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a handbag in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a handbag in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a handbag in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00013",
+	"image_id": "COCO_val2014_000000429109.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00015",
+	"image_id": "COCO_val2014_000000429109.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"question_neutral": "Is there a motorcycle in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a motorcycle in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a motorcycle in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a motorcycle in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00017",
+	"image_id": "COCO_val2014_000000429109.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"question_neutral": "Is there a truck in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a truck in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a truck in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a truck in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00019",
+	"image_id": "COCO_val2014_000000211674.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00021",
+	"image_id": "COCO_val2014_000000211674.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"question_neutral": "Is there a vase in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a vase in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a vase in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a vase in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00023",
+	"image_id": "COCO_val2014_000000211674.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"question_neutral": "Is there a truck in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a truck in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a truck in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a truck in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00025",
+	"image_id": "COCO_val2014_000000458338.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"question_neutral": "Is there a bus in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a bus in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a bus in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a bus in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00027",
+	"image_id": "COCO_val2014_000000458338.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00029",
+	"image_id": "COCO_val2014_000000458338.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"question_neutral": "Is there a truck in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a truck in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a truck in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a truck in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00031",
+	"image_id": "COCO_val2014_000000283412.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"question_neutral": "Is there a person in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a person in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a person in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a person in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00033",
+	"image_id": "COCO_val2014_000000283412.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"question_neutral": "Is there a chair in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a chair in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a chair in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a chair in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00035",
+	"image_id": "COCO_val2014_000000283412.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"question_neutral": "Is there a book in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a book in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a book in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a book in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00037",
+	"image_id": "COCO_val2014_000000265719.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00039",
+	"image_id": "COCO_val2014_000000265719.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"question_neutral": "Is there a cup in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a cup in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a cup in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a cup in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00041",
+	"image_id": "COCO_val2014_000000265719.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00043",
+	"image_id": "COCO_val2014_000000461331.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"question_neutral": "Is there a person in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a person in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a person in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a person in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00045",
+	"image_id": "COCO_val2014_000000461331.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"question_neutral": "Is there a book in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a book in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a book in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a book in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00047",
+	"image_id": "COCO_val2014_000000461331.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"question_neutral": "Is there a bottle in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a bottle in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a bottle in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a bottle in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00049",
+	"image_id": "COCO_val2014_000000544456.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"question_neutral": "Is there a handbag in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a handbag in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a handbag in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a handbag in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00051",
+	"image_id": "COCO_val2014_000000544456.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00053",
+	"image_id": "COCO_val2014_000000544456.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"question_neutral": "Is there a snowboard in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a snowboard in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a snowboard in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a snowboard in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00055",
+	"image_id": "COCO_val2014_000000017708.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"question_neutral": "Is there a handbag in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a handbag in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a handbag in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a handbag in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00057",
+	"image_id": "COCO_val2014_000000017708.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00059",
+	"image_id": "COCO_val2014_000000017708.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"question_neutral": "Is there a chair in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a chair in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a chair in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a chair in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00061",
+	"image_id": "COCO_val2014_000000574692.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00063",
+	"image_id": "COCO_val2014_000000574692.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"question_neutral": "Is there a dining table in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a dining table in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a dining table in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00065",
+	"image_id": "COCO_val2014_000000574692.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"question_neutral": "Is there a cup in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a cup in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a cup in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a cup in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00067",
+	"image_id": "COCO_val2014_000000353180.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"question_neutral": "Is there a handbag in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a handbag in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a handbag in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a handbag in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00069",
+	"image_id": "COCO_val2014_000000353180.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00071",
+	"image_id": "COCO_val2014_000000353180.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"question_neutral": "Is there a traffic light in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a traffic light in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a traffic light in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a traffic light in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00073",
+	"image_id": "COCO_val2014_000000239444.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00075",
+	"image_id": "COCO_val2014_000000239444.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"question_neutral": "Is there a cup in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a cup in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a cup in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a cup in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00077",
+	"image_id": "COCO_val2014_000000239444.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"question_neutral": "Is there a couch in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a couch in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a couch in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a couch in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}
+{
+	"item_id": "pope_adversarial_00079",
+	"image_id": "COCO_val2014_000000569839.jpg",
+	"gold": "no",
+	"qtype": "adversarial",
+	"split": "adversarial",
+	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000569839.jpg",
+	"question_neutral": "Is there a car in the image?",
+	"variants": [
+		{
+			"condition_id": "neutral",
+			"template_id": "neutral_v1",
+			"tone": null,
+			"direction": null,
+			"prompt": "Is there a car in the image?"
+		},
+		{
+			"condition_id": "assertive_toward_yes",
+			"template_id": "assert_yes_v1",
+			"tone": "assertive",
+			"direction": "toward_yes",
+			"prompt": "The correct answer is clearly yes. Is there a car in the image?"
+		},
+		{
+			"condition_id": "filler_b",
+			"template_id": "filler_b_v2_assertive_matched",
+			"tone": "filler",
+			"direction": null,
+			"prompt": "Answer the question about the image. Is there a car in the image?"
+		}
+	],
+	"template_set_id": "leading_clauses_v1+filler_clauses_v1"
+}

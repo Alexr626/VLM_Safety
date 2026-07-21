@@ -1,23 +1,127 @@
 {
-  "template_set_id": "leading_clauses_v1",
+  "template_set_id": "leading_clauses_v1+filler_clauses_v1",
   "template_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/diagnostic_experiments/perception_diag/templates/leading_clauses_v1.json",
   "template_hash": "32fd37da7f3f65fc",
+  "filler_template_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/diagnostic_experiments/perception_diag/templates/filler_clauses_v1.json",
+  "filler_template_hash": "58f8a2f4c823da95",
+  "condition_ids": [
+    "neutral",
+    "assertive_toward_yes",
+    "filler_b"
+  ],
+  "condition_filter": [
+    "neutral",
+    "assertive_toward_yes",
+    "filler_b"
+  ],
   "subsets": {
     "amber100": {
       "benchmark": "amber",
+      "subset_name": "amber100",
       "subset_file": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/amber/pinned_amber_disc_100.json",
       "n_ids_requested": 100,
       "n_rows": 100,
-      "jsonl": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/diagnostic_experiments/perception_diag/augment/outputs/augmented_amber100.jsonl",
-      "content_hash_sha256_16": "56b6d2c9b36375c2"
+      "n_conditions": 6,
+      "condition_ids": [
+        "neutral",
+        "tentative_toward_yes",
+        "tentative_toward_no",
+        "assertive_toward_yes",
+        "assertive_toward_no",
+        "filler_b"
+      ],
+      "jsonl": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/amber/augmented_amber100.jsonl",
+      "content_hash_sha256_16": "c614a07bd6edf61d"
     },
     "pope30": {
       "benchmark": "pope",
+      "subset_name": "pope30",
       "subset_file": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/pope/pinned_pope_existence_yes_30.json",
       "n_ids_requested": 30,
       "n_rows": 30,
-      "jsonl": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/diagnostic_experiments/perception_diag/augment/outputs/augmented_pope30.jsonl",
-      "content_hash_sha256_16": "d5b088ce4ca4bc2a"
+      "n_conditions": 6,
+      "condition_ids": [
+        "neutral",
+        "tentative_toward_yes",
+        "tentative_toward_no",
+        "assertive_toward_yes",
+        "assertive_toward_no",
+        "filler_b"
+      ],
+      "jsonl": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/pope/augmented_pope30.jsonl",
+      "content_hash_sha256_16": "2e117f476c8ded8f"
+    },
+    "pope120_assertive_no": {
+      "benchmark": "pope",
+      "subset_name": "pope120",
+      "subset_file": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/pope/pinned_pope_existence_yes_120.json",
+      "n_ids_requested": 120,
+      "n_rows": 120,
+      "n_conditions": 3,
+      "condition_ids": [
+        "neutral",
+        "assertive_toward_no",
+        "filler_b"
+      ],
+      "jsonl": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/pope/augmented_pope120_assertive_no.jsonl",
+      "content_hash_sha256_16": "3db73dd8e287cc27"
+    },
+    "pope_no_120": {
+      "benchmark": "pope",
+      "subset_name": "pope_no_120",
+      "subset_file": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/pope/pinned_pope_existence_no_120.json",
+      "n_ids_requested": 120,
+      "n_rows": 120,
+      "n_conditions": 3,
+      "condition_ids": [
+        "neutral",
+        "assertive_toward_yes",
+        "filler_b"
+      ],
+      "jsonl": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/pope/augmented_pope_no_120.jsonl",
+      "content_hash_sha256_16": "281dc5e54b1af994"
+    }
+  },
+  "prefix_token_counts_by_model": {
+    "llava-1.5-7b-hf": {
+      "tokenizer_id": "llava-hf/llava-1.5-7b-hf",
+      "templates": {
+        "neutral_v1": {
+          "condition_id": "neutral",
+          "prefix_token_count": 0,
+          "prefix": ""
+        },
+        "assert_yes_v1": {
+          "condition_id": "assertive_toward_yes",
+          "prefix_token_count": 8,
+          "prefix": "The correct answer is clearly yes. "
+        },
+        "filler_b_v2_assertive_matched": {
+          "condition_id": "filler_b",
+          "prefix_token_count": 8,
+          "prefix": "Answer the question about the image. "
+        }
+      }
+    },
+    "qwen2.5-vl-7b-instruct": {
+      "tokenizer_id": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "templates": {
+        "neutral_v1": {
+          "condition_id": "neutral",
+          "prefix_token_count": 0,
+          "prefix": ""
+        },
+        "assert_yes_v1": {
+          "condition_id": "assertive_toward_yes",
+          "prefix_token_count": 8,
+          "prefix": "The correct answer is clearly yes. "
+        },
+        "filler_b_v2_assertive_matched": {
+          "condition_id": "filler_b",
+          "prefix_token_count": 8,
+          "prefix": "Answer the question about the image. "
+        }
+      }
     }
   }
 }
