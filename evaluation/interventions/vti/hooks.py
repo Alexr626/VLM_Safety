@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 import torch
 
@@ -59,6 +59,7 @@ def vti_hook_ctx(
     decode_input_ids: Optional[torch.Tensor] = None,
     steer_prefill: bool = True,
     skip_first_token: bool = False,
+    layer_indices: Optional[Sequence[int]] = None,
 ):
     """Register per-layer steer hooks; always removed on exit.
 
@@ -67,6 +68,10 @@ def vti_hook_ctx(
             steering only single-token decode steps.
         skip_first_token: if True, leave sequence position 0 unsteered during
             prefill (the BOS / attention-sink position).
+        layer_indices: if provided, register hooks only on these decoder-layer
+            indices (absolute ``0..num_layers-1``). ``directions`` remains
+            full-length ``(num_layers, hidden_dim)`` and is indexed by absolute
+            layer. Default ``None`` steers all layers (unchanged behavior).
     """
     dispatch = get_dispatch(wrapper)
     verify_layout(wrapper, dispatch)
@@ -79,6 +84,18 @@ def vti_hook_ctx(
         raise ValueError(
             f"Expected {n_layers} direction vectors, got {len(directions)}"
         )
+
+    if layer_indices is None:
+        layers = list(range(n_layers))
+    else:
+        layers = sorted({int(i) for i in layer_indices})
+        bad = [i for i in layers if i < 0 or i >= n_layers]
+        if bad:
+            raise ValueError(
+                f"layer_indices out of range for num_layers={n_layers}: {bad}"
+            )
+        if not layers:
+            raise ValueError("layer_indices must be non-empty when provided")
 
     token_strings = _decode_tokens(wrapper, decode_input_ids)
     handles = []
@@ -114,7 +131,7 @@ def vti_hook_ctx(
         return hook
 
     try:
-        for layer_idx in range(n_layers):
+        for layer_idx in layers:
             mod = _resolve_module(dispatch, wrapper, layer_idx, hook_site)
             handles.append(mod.register_forward_hook(_make_hook(layer_idx)))
         yield

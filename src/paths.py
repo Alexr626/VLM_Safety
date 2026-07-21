@@ -79,3 +79,55 @@ def vti_demos_v2_dir() -> Path:
 def vti_demos_v2_path() -> Path:
     """Final multi-dimension demos_v2 JSONL (one row per image)."""
     return vti_data_dir() / "demos_v2.jsonl"
+
+
+def amber_data_dir() -> Path:
+    return data_root() / "amber"
+
+
+def pope_data_dir() -> Path:
+    return data_root() / "pope"
+
+
+def benchmark_data_dir(benchmark: str) -> Path:
+    """``data/{amber|pope|…}/`` for a benchmark key."""
+    key = benchmark.strip().lower()
+    if key == "amber":
+        return amber_data_dir()
+    if key == "pope":
+        return pope_data_dir()
+    return data_root() / key
+
+
+def augmented_jsonl_path(benchmark: str, stem: str) -> Path:
+    """Leading-clause augmented JSONL under the benchmark data dir.
+
+    Example: ``augmented_jsonl_path("amber", "amber100")``
+    → ``data/amber/augmented_amber100.jsonl``.
+    """
+    return benchmark_data_dir(benchmark) / f"augmented_{stem}.jsonl"
+
+
+def perception_dump_dir(
+    benchmark: str, model_short: str, run_tag: str
+) -> Path:
+    """Steered-capture dump root for a (benchmark, model, run_tag).
+
+    Layout: ``data/{benchmark}/dumps/{model_short}/{run_tag}/``.
+    """
+    return (
+        benchmark_data_dir(benchmark) / "dumps" / model_short / run_tag
+    )
+
+
+def infer_benchmark_from_run_tag(run_tag: str) -> str:
+    """Map a perception dump ``run_tag`` to ``amber`` or ``pope``."""
+    tag = run_tag.strip().lower()
+    if tag.startswith("amber"):
+        return "amber"
+    if tag.startswith("pope"):
+        return "pope"
+    raise ValueError(
+        f"Cannot infer benchmark from run_tag={run_tag!r}; "
+        "expected amber* or pope* prefix"
+    )

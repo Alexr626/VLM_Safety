@@ -96,6 +96,7 @@ def optional_steer_ctx(wrapper, directions, cell: Optional[dict]):
     if cell is None or cell.get("method") in (None, "none"):
         yield
         return
+    layer_indices = cell.get("layer_indices")
     with vti_hook_ctx(
         wrapper,
         directions,
@@ -103,6 +104,7 @@ def optional_steer_ctx(wrapper, directions, cell: Optional[dict]):
         alpha=float(cell["strength"]),
         hook_site=cell["site"],
         eps_coeff=float(cell.get("eps_coeff", 0.1)),
+        layer_indices=layer_indices,
     ):
         yield
 
@@ -198,7 +200,18 @@ def verify_steered_capture_equality(
     """
     dispatch = get_dispatch(wrapper)
     site = cell["site"]
-    mod = dispatch.get_mlp(wrapper, 0) if site == "mlp" else dispatch.get_layer(wrapper, 0)
+    # G1 probes the first steered layer (layer 0 when full-depth; first index
+    # inside a window when layer_indices is set — layer 0 may be unsteered).
+    layer_indices = cell.get("layer_indices")
+    if layer_indices:
+        probe_layer = int(min(layer_indices))
+    else:
+        probe_layer = 0
+    mod = (
+        dispatch.get_mlp(wrapper, probe_layer)
+        if site == "mlp"
+        else dispatch.get_layer(wrapper, probe_layer)
+    )
 
     def _cap(store):
         def hook(_m, _inp, output):
@@ -229,20 +242,20 @@ def verify_steered_capture_equality(
         return {
             "pass": False,
             "error": "capture_miss",
-            "layer": 0,
+            "layer": probe_layer,
             "site": site,
             "method": cell.get("method"),
             "strength": cell.get("strength"),
         }
 
-    d0 = torch.tensor(directions[0], dtype=torch.float32)
+    d0 = torch.tensor(directions[probe_layer], dtype=torch.float32)
     x = clean_out["t"].view(1, 1, -1)
     offline = steer(
         x, d0, float(cell["strength"]), cell["method"], float(cell.get("eps_coeff", 0.1)),
     )[0, 0].float()
     max_abs = float((steer_out["t"] - offline).abs().max().item())
     return {
-        "layer": 0,
+        "layer": probe_layer,
         "site": site,
         "method": cell.get("method"),
         "strength": cell.get("strength"),

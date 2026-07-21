@@ -37,7 +37,8 @@ DEFAULT_OLD = "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026"
 # Prefer these trees; they hold the baked absolute paths that break RunAI.
 DEFAULT_ROOTS = (
     "data",
-    "diagnostic_experiments/perception_diag/augment/outputs",
+    # augmented JSONLs now live under data/{amber,pope}/
+    # (covered by the "data" root above)
     "experiment_artifacts",
 )
 
