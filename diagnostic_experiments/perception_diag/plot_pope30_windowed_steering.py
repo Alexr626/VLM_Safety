@@ -409,62 +409,14 @@ def collect_cell_metrics(
     return out
 
 
-def count_leading_clause_directed_flips(
-    baseline_man: Dict[Tuple[str, str], dict],
-    *,
-    neutral_condition: str,
-    assertive_condition: str,
-    flip_from: str,
-    flip_to: str,
-) -> int:
-    """Count directed flips from neutral baseline → assertive baseline.
-
-    Used as the grey reference bar on leading-clause flip panes: same
-    direction as the plot's steering flip metric (yes→no or no→yes).
-    """
-    item_ids = sorted(
-        {
-            iid
-            for (iid, cond) in baseline_man
-            if cond in (neutral_condition, assertive_condition)
-        }
-    )
-    n = 0
-    for iid in item_ids:
-        brow_n = baseline_man.get((iid, neutral_condition))
-        brow_a = baseline_man.get((iid, assertive_condition))
-        if brow_n is None or brow_a is None:
-            continue
-        n_out = brow_n.get("parsed_outcome")
-        a_out = brow_a.get("parsed_outcome")
-        if not is_parseable(n_out) or not is_parseable(a_out):
-            continue
-        if n_out == flip_from and a_out == flip_to:
-            n += 1
-    return n
-
-
 def baseline_condition_stats(
     baseline_man: Dict[Tuple[str, str], dict],
     *,
     conditions: Sequence[str],
     correct_label: str,
     flip_from: str,
-    flip_to: str,
     prob_score_field: str,
 ) -> Dict[str, Dict[str, Any]]:
-    neutral_cond = conditions[0]
-    assertive_cond = conditions[1] if len(conditions) > 1 else None
-    leading_flips = 0
-    if assertive_cond is not None:
-        leading_flips = count_leading_clause_directed_flips(
-            baseline_man,
-            neutral_condition=neutral_cond,
-            assertive_condition=assertive_cond,
-            flip_from=flip_from,
-            flip_to=flip_to,
-        )
-
     stats: Dict[str, Dict[str, Any]] = {}
     for cond in conditions:
         rows = [r for (iid, c), r in baseline_man.items() if c == cond]
@@ -478,19 +430,12 @@ def baseline_condition_stats(
             [float(r[prob_score_field]) for r in rows], dtype=float
         )
         accuracy = (n_correct / n_parseable) if n_parseable else float("nan")
-        # Grey flip-plot bar: leading-clause effect only on assertive panes.
-        n_leading = (
-            float(leading_flips)
-            if assertive_cond is not None and cond == assertive_cond
-            else 0.0
-        )
         stats[cond] = {
             "n_items": n,
             "n_parseable": n_parseable,
             "n_unparseable": n_unparseable,
             "n_correct": n_correct,
             "n_flip_from": n_flip_from,
-            "n_leading_clause_flips": n_leading,
             "accuracy": accuracy,
             "mean_p_token_raw": (
                 float(np.mean(p_token)) if len(p_token) else float("nan")
@@ -499,25 +444,6 @@ def baseline_condition_stats(
         }
     return stats
 
-
-def _flip_baseline_bar_values(
-    baseline_stats: Dict[str, Dict[str, Any]],
-    cond: str,
-    n_windows: int,
-) -> List[float]:
-    """Grey hatched bar heights for flip plots (repeated per window)."""
-    height = float(baseline_stats[cond].get("n_leading_clause_flips", 0.0))
-    return [height] * n_windows
-
-
-FLIP_BASELINE_BAR_LABEL = "leading clause alone (vs neutral)"
-FLIP_BASELINE_CAPTION = (
-    " Grey hatched bars on leading-clause panes = directed flips from the "
-    "neutral-question baseline to the leading-clause baseline (same yes→no / "
-    "no→yes direction as the colored bars). Neutral panes: hatched bar at 0. "
-    "Colored bars = flips from the same-condition no-intervention baseline to "
-    "the steered response."
-)
 
 def bootstrap_mean_ci(
     values: np.ndarray,
@@ -1019,7 +945,6 @@ def plot_flips_method(
     flip_from = dataset_cfg["flip_from"]
     wlabs = window_labels(num_layers)
     xpos = window_display_positions(wlabs)
-    mode_note = FLIP_BASELINE_CAPTION if baseline_as_bars else ""
     fig, axes = _method_fig(
         method_title=method_title,
         figsize=(8.5, 8.6),
@@ -1030,10 +955,10 @@ def plot_flips_method(
         caption=(
             f"n={dataset_cfg['n_items']} items per cell-condition. "
             + dataset_cfg["flip_caption"]
-            + " Pairs with either side unparseable are excluded "
-            "(x=k excl when some pairs remain). Fully unparseable cells: no bar, "
-            "labeled “all unparseable”."
-            + mode_note
+            + " Bars = flips from the same-condition no-intervention baseline "
+            "to the steered response. Pairs with either side unparseable are "
+            "excluded (x=k excl when some pairs remain). Fully unparseable "
+            "cells: no bar, labeled “all unparseable”."
             + _omit_note(prefix)
         ),
     )
@@ -1042,13 +967,10 @@ def plot_flips_method(
     for row, cond in enumerate(conditions):
         ax = axes[row]
         bs = baseline_stats[cond]
-        lead_n = int(bs.get("n_leading_clause_flips", 0))
         denom_subtitle = (
             f"{condition_labels[cond]}  ·  baseline: "
             f"{bs['n_flip_from']}/{bs['n_items']} parsed {flip_from}"
         )
-        if lead_n and cond != conditions[0]:
-            denom_subtitle += f"  ·  leading-clause flips vs neutral: {lead_n}"
         bar_values: Dict[float, List[float]] = {b: [] for b in betas}
         annotations: Dict[float, List[Optional[str]]] = {b: [] for b in betas}
         full_notes: Dict[float, List[Optional[str]]] = {b: [] for b in betas}
@@ -1069,13 +991,6 @@ def plot_flips_method(
                     annotations[beta].append(f"x={excl} excl" if excl else None)
                     full_notes[beta].append(None)
 
-        if baseline_as_bars:
-            baseline_bars = _flip_baseline_bar_values(
-                baseline_stats, cond, len(wlabs)
-            )
-            observed_max = max(observed_max, float(baseline_bars[0]))
-        else:
-            baseline_bars = None
         y_top = flips_ylim_max(int(dataset_cfg["n_items"]), observed_max)
         _draw_grouped_bars(
             ax,
@@ -1086,7 +1001,7 @@ def plot_flips_method(
             annotations=annotations,
             full_height_notes=full_notes,
             baseline_y=None,
-            baseline_bars=baseline_bars,
+            baseline_bars=None,
             ylabel=dataset_cfg["flip_ylabel"],
             title=denom_subtitle,
             ylim=(0, y_top),
@@ -1102,10 +1017,9 @@ def plot_flips_method(
         fig,
         betas,
         include_baseline_line=False,
-        include_baseline_bar=baseline_as_bars,
-        baseline_bar_label=FLIP_BASELINE_BAR_LABEL,
+        include_baseline_bar=False,
     )
-    fig.tight_layout(rect=[0.02, 0.06, 1.0, 0.86 if baseline_as_bars else 0.90])
+    fig.tight_layout(rect=[0.02, 0.06, 1.0, 0.90])
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, dpi=160, bbox_inches="tight")
     plt.close(fig)
@@ -1217,7 +1131,6 @@ def _load_model_bundle(model_short: str, dataset: str) -> Dict[str, Any]:
         conditions=conditions,
         correct_label=cfg["correct_label"],
         flip_from=cfg["flip_from"],
-        flip_to=cfg["flip_to"],
         prob_score_field=cfg["prob_score_field"],
     )
     metrics = collect_cell_metrics(
@@ -1416,8 +1329,7 @@ def plot_joint_flips_model_by_mlp(
     fig.suptitle(
         f"{dataset_cfg['dataset_title']}: {dataset_cfg['flip_title']}, "
         "by steering layer window\n"
-        "Rows = model · columns = MLP intervention · grey hatched = "
-        "leading clause alone (vs neutral)",
+        "Rows = model · columns = MLP intervention",
         fontsize=13,
         y=0.985,
     )
@@ -1461,18 +1373,11 @@ def plot_joint_flips_model_by_mlp(
                             )
                             full_notes[beta].append(None)
 
-                baseline_bars = _flip_baseline_bar_values(
-                    baseline_stats, cond, len(wlabs)
-                )
-                observed_max = max(observed_max, float(baseline_bars[0]))
-                lead_n = int(bs.get("n_leading_clause_flips", 0))
                 pane_title = (
                     f"{model_title}  ·  {method_title}  ·  "
                     f"{condition_labels[cond]}  ·  baseline: "
                     f"{bs['n_flip_from']}/{bs['n_items']} parsed {flip_from}"
                 )
-                if lead_n and cond != conditions[0]:
-                    pane_title += f"  ·  leading-clause flips vs neutral: {lead_n}"
                 _draw_grouped_bars(
                     ax,
                     betas=betas,
@@ -1482,7 +1387,7 @@ def plot_joint_flips_model_by_mlp(
                     annotations=annotations,
                     full_height_notes=full_notes,
                     baseline_y=None,
-                    baseline_bars=baseline_bars,
+                    baseline_bars=None,
                     ylabel=dataset_cfg["flip_ylabel"] if col == 0 else "",
                     title=pane_title,
                     ylim=(0, flips_ylim_max(n_items, observed_max)),
@@ -1498,8 +1403,7 @@ def plot_joint_flips_model_by_mlp(
     handles, labels = _legend_handles(
         BETAS_BY_PREFIX["additive_mlp"],
         include_baseline_line=False,
-        include_baseline_bar=True,
-        baseline_bar_label=FLIP_BASELINE_BAR_LABEL,
+        include_baseline_bar=False,
     )
     fig.legend(
         handles,
@@ -1518,8 +1422,9 @@ def plot_joint_flips_model_by_mlp(
         0.008,
         f"n={n_items} items per cell-condition. "
         + dataset_cfg["flip_caption"]
-        + FLIP_BASELINE_CAPTION
-        + " Layer windows differ by model depth (LLaVA 32 vs Qwen 28).",
+        + " Bars = flips from the same-condition no-intervention baseline "
+        "to the steered response. "
+        "Layer windows differ by model depth (LLaVA 32 vs Qwen 28).",
         ha="center",
         va="bottom",
         fontsize=8,
@@ -1640,17 +1545,16 @@ def plot_joint_llava_by_gold_mlp(
             f"{model_title}, {family_label}: items flipped from baseline "
             "by steering layer window\n"
             "Top = yes→no (gold=yes) · bottom = no→yes (gold=no) · "
-            "columns = MLP intervention · grey hatched = leading clause alone "
-            "(vs neutral)",
+            "columns = MLP intervention",
             fontsize=13,
             y=0.985,
         )
         footer = (
             f"n={n_items} items per cell-condition. "
             "Top: flip = baseline yes and steered no. "
-            "Bottom: flip = baseline no and steered yes."
-            + FLIP_BASELINE_CAPTION
-            + " rotation @ layer omitted."
+            "Bottom: flip = baseline no and steered yes. "
+            "Bars = flips from the same-condition no-intervention baseline "
+            "to the steered response. rotation @ layer omitted."
         )
 
     observed_flip_max = 0.0
@@ -1754,16 +1658,11 @@ def plot_joint_llava_by_gold_mlp(
                     annotations = {b: [] for b in betas}
                     full_notes = {b: [] for b in betas}
                     bs = baseline_stats[cond]
-                    lead_n = int(bs.get("n_leading_clause_flips", 0))
                     pane_title = (
                         f"{gold_label}  ·  {method_title}  ·  "
                         f"{condition_labels[cond]}  ·  baseline: "
                         f"{bs['n_flip_from']}/{bs['n_items']} parsed {flip_from}"
                     )
-                    if lead_n and cond != conditions[0]:
-                        pane_title += (
-                            f"  ·  leading-clause flips vs neutral: {lead_n}"
-                        )
                     for wlab in wlabs:
                         for beta in betas:
                             cell = _cell_id_for(prefix, beta, wlab)
@@ -1782,12 +1681,6 @@ def plot_joint_llava_by_gold_mlp(
                                     f"x={excl} excl" if excl else None
                                 )
                                 full_notes[beta].append(None)
-                    baseline_bars = _flip_baseline_bar_values(
-                        baseline_stats, cond, len(wlabs)
-                    )
-                    observed_flip_max = max(
-                        observed_flip_max, float(baseline_bars[0])
-                    )
                     _draw_grouped_bars(
                         ax,
                         betas=betas,
@@ -1797,7 +1690,7 @@ def plot_joint_llava_by_gold_mlp(
                         annotations=annotations,
                         full_height_notes=full_notes,
                         baseline_y=None,
-                        baseline_bars=baseline_bars,
+                        baseline_bars=None,
                         ylabel=cfg["flip_ylabel"] if col == 0 else "",
                         title=pane_title,
                         ylim=(0, flips_ylim_max(n_items, observed_flip_max)),
@@ -1814,8 +1707,7 @@ def plot_joint_llava_by_gold_mlp(
         _legend_and_footer(
             fig,
             footer=footer,
-            include_baseline_bar=True,
-            baseline_bar_label=FLIP_BASELINE_BAR_LABEL,
+            include_baseline_bar=False,
         )
     else:
         _legend_and_footer(fig, footer=footer, include_baseline_bar=True)
