@@ -1,0 +1,2828 @@
+{
+  "_description": "Companion further-condensed pope30_no summary on model \u00d7 additive/rotation @ mlp axes: accuracy = fraction of parseable responses parsed 'no'; flip of concern = baseline-'no' \u2192 steered-'yes' (flips_no_to_yes). n=30 items per cell-condition.",
+  "dataset": "pope30_no",
+  "benchmark": "pope30_no",
+  "gold": "all no",
+  "accuracy_definition": "fraction parseable parsed 'no'",
+  "flip_definition": "baseline 'no' \u2192 steered 'yes' (flips_no_to_yes)",
+  "scope": {
+    "models": [
+      "llava-1.5-7b-hf",
+      "qwen2.5-vl-7b-instruct"
+    ],
+    "methods": [
+      "additive_mlp",
+      "rotation_mlp"
+    ],
+    "excluded_methods": [
+      "rotation_layer"
+    ],
+    "conditions": [
+      "neutral",
+      "assertive_toward_yes"
+    ],
+    "betas": [
+      0.2,
+      0.5,
+      0.9
+    ],
+    "n_items_per_cell_condition": 30
+  },
+  "models": {
+    "llava-1.5-7b-hf": {
+      "display_name": "LLaVA-1.5",
+      "num_layers": 32,
+      "layer_windows": [
+        "0-9",
+        "5-14",
+        "10-19",
+        "15-24",
+        "20-29",
+        "22-31",
+        "all layers"
+      ],
+      "baseline_by_condition": {
+        "neutral": {
+          "condition_label": "neutral question",
+          "n_items": 30,
+          "n_parseable": 30,
+          "n_unparseable": 0,
+          "n_correct": 24,
+          "accuracy": 0.8
+        },
+        "assertive_toward_yes": {
+          "condition_label": "leading clause toward yes",
+          "n_items": 30,
+          "n_parseable": 30,
+          "n_unparseable": 0,
+          "n_correct": 25,
+          "accuracy": 0.8333333333333334
+        }
+      },
+      "by_method": {
+        "additive_mlp": {
+          "method": "additive",
+          "site": "mlp",
+          "label": "additive @ mlp",
+          "betas": [
+            0.2,
+            0.5,
+            0.9
+          ],
+          "layer_windows": [
+            "0-9",
+            "5-14",
+            "10-19",
+            "15-24",
+            "20-29",
+            "22-31",
+            "all layers"
+          ],
+          "by_condition": {
+            "neutral": {
+              "condition_label": "neutral question",
+              "baseline_parsed_flip_from_denominator": 24,
+              "by_layer_window": {
+                "0-9": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 22,
+                      "accuracy": 0.7333333333333333
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 2,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 21,
+                      "accuracy": 0.7
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 3,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "5-14": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 22,
+                      "accuracy": 0.7333333333333333
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 2,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "10-19": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "15-24": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "20-29": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_20_29",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_20_29",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_20_29",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "22-31": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_22_31",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_22_31",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_22_31",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "all layers": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 22,
+                      "accuracy": 0.7333333333333333
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 2,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 21,
+                      "accuracy": 0.7
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 3,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                }
+              }
+            },
+            "assertive_toward_yes": {
+              "condition_label": "leading clause toward yes",
+              "baseline_parsed_flip_from_denominator": 25,
+              "by_layer_window": {
+                "0-9": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 2,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 2,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "5-14": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "10-19": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "15-24": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "20-29": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_20_29",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 25,
+                      "accuracy": 0.8333333333333334
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_20_29",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_20_29",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "22-31": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_22_31",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 25,
+                      "accuracy": 0.8333333333333334
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_22_31",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 25,
+                      "accuracy": 0.8333333333333334
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_22_31",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 25,
+                      "accuracy": 0.8333333333333334
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "all layers": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 2,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 2,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "rotation_mlp": {
+          "method": "uniform_rotation",
+          "site": "mlp",
+          "label": "rotation @ mlp",
+          "betas": [
+            0.2,
+            0.5,
+            0.9
+          ],
+          "layer_windows": [
+            "0-9",
+            "5-14",
+            "10-19",
+            "15-24",
+            "20-29",
+            "22-31",
+            "all layers"
+          ],
+          "by_condition": {
+            "neutral": {
+              "condition_label": "neutral question",
+              "baseline_parsed_flip_from_denominator": 24,
+              "by_layer_window": {
+                "0-9": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 21,
+                      "accuracy": 0.7
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 3,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "5-14": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "10-19": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "15-24": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "20-29": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_20_29",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_20_29",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_20_29",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "22-31": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_22_31",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_22_31",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 25,
+                      "accuracy": 0.8333333333333334
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_22_31",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 25,
+                      "accuracy": 0.8333333333333334
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "all layers": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 22,
+                      "accuracy": 0.7333333333333333
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 24,
+                      "flips_no_to_yes": 2,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                }
+              }
+            },
+            "assertive_toward_yes": {
+              "condition_label": "leading clause toward yes",
+              "baseline_parsed_flip_from_denominator": 25,
+              "by_layer_window": {
+                "0-9": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 23,
+                      "accuracy": 0.7666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 2,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "5-14": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "10-19": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "15-24": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "20-29": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_20_29",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 25,
+                      "accuracy": 0.8333333333333334
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_20_29",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_20_29",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "22-31": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_22_31",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 25,
+                      "accuracy": 0.8333333333333334
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_22_31",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 26,
+                      "accuracy": 0.8666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_22_31",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 26,
+                      "accuracy": 0.8666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "all layers": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 24,
+                      "accuracy": 0.8
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 25,
+                      "accuracy": 0.8333333333333334
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 25,
+                      "accuracy": 0.8333333333333334
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 25,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "qwen2.5-vl-7b-instruct": {
+      "display_name": "Qwen2.5-VL",
+      "num_layers": 28,
+      "layer_windows": [
+        "0-9",
+        "5-14",
+        "10-19",
+        "15-24",
+        "18-27",
+        "all layers"
+      ],
+      "baseline_by_condition": {
+        "neutral": {
+          "condition_label": "neutral question",
+          "n_items": 30,
+          "n_parseable": 30,
+          "n_unparseable": 0,
+          "n_correct": 30,
+          "accuracy": 1.0
+        },
+        "assertive_toward_yes": {
+          "condition_label": "leading clause toward yes",
+          "n_items": 30,
+          "n_parseable": 30,
+          "n_unparseable": 0,
+          "n_correct": 29,
+          "accuracy": 0.9666666666666667
+        }
+      },
+      "by_method": {
+        "additive_mlp": {
+          "method": "additive",
+          "site": "mlp",
+          "label": "additive @ mlp",
+          "betas": [
+            0.2,
+            0.5,
+            0.9
+          ],
+          "layer_windows": [
+            "0-9",
+            "5-14",
+            "10-19",
+            "15-24",
+            "18-27",
+            "all layers"
+          ],
+          "by_condition": {
+            "neutral": {
+              "condition_label": "neutral question",
+              "baseline_parsed_flip_from_denominator": 30,
+              "by_layer_window": {
+                "0-9": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "5-14": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 30,
+                      "accuracy": 1.0
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "10-19": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "15-24": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "18-27": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_18_27",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_18_27",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_18_27",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "all layers": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                }
+              }
+            },
+            "assertive_toward_yes": {
+              "condition_label": "leading clause toward yes",
+              "baseline_parsed_flip_from_denominator": 29,
+              "by_layer_window": {
+                "0-9": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "5-14": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "10-19": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "15-24": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "18-27": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_18_27",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_18_27",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_18_27",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "all layers": {
+                  "0.2": {
+                    "cell_id": "additive_mlp_0.2_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "additive_mlp_0.5_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "additive_mlp_0.9_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "rotation_mlp": {
+          "method": "uniform_rotation",
+          "site": "mlp",
+          "label": "rotation @ mlp",
+          "betas": [
+            0.2,
+            0.5,
+            0.9
+          ],
+          "layer_windows": [
+            "0-9",
+            "5-14",
+            "10-19",
+            "15-24",
+            "18-27",
+            "all layers"
+          ],
+          "by_condition": {
+            "neutral": {
+              "condition_label": "neutral question",
+              "baseline_parsed_flip_from_denominator": 30,
+              "by_layer_window": {
+                "0-9": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "5-14": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "10-19": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "15-24": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 28,
+                      "accuracy": 0.9333333333333333
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 2,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "18-27": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_18_27",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_18_27",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_18_27",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 26,
+                      "accuracy": 0.8666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 4,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "all layers": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 27,
+                      "accuracy": 0.9
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 30,
+                      "flips_no_to_yes": 3,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                }
+              }
+            },
+            "assertive_toward_yes": {
+              "condition_label": "leading clause toward yes",
+              "baseline_parsed_flip_from_denominator": 29,
+              "by_layer_window": {
+                "0-9": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_0_9",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "5-14": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_5_14",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "10-19": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_10_19",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "15-24": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_15_24",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 26,
+                      "accuracy": 0.8666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 3,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "18-27": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_18_27",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_18_27",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_18_27",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 26,
+                      "accuracy": 0.8666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 3,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                },
+                "all layers": {
+                  "0.2": {
+                    "cell_id": "rotation_mlp_0.2_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 29,
+                      "accuracy": 0.9666666666666667
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 0,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.5": {
+                    "cell_id": "rotation_mlp_0.5_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 28,
+                      "accuracy": 0.9333333333333333
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 1,
+                      "flip_pairs_excluded": 0
+                    }
+                  },
+                  "0.9": {
+                    "cell_id": "rotation_mlp_0.9_layers_all",
+                    "accuracy": {
+                      "n_items": 30,
+                      "n_parseable": 30,
+                      "n_unparseable": 0,
+                      "n_correct_among_parseable": 25,
+                      "accuracy": 0.8333333333333334
+                    },
+                    "flips_from_baseline": {
+                      "n_items": 30,
+                      "baseline_parsed_flip_from": 29,
+                      "flips_no_to_yes": 4,
+                      "flip_pairs_excluded": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
