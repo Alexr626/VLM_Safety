@@ -46,7 +46,9 @@ SUBSET_FILES = {
     "amber25": DATA / "vti" / "qual_subset_chair5_amber25.json",
     "amber100": DATA / "amber" / "pinned_amber_disc_100.json",
     "amber450": DATA / "amber" / "pinned_amber_disc_450.json",
-    "pope30": DATA / "pope" / "pinned_pope_existence_yes_30.json",
+    "pope30": DATA / "pope" / "pinned_pope_existence_yes_30.json",  # legacy stem; prefer pope30_yes
+    "pope30_yes": DATA / "pope" / "pinned_pope_existence_yes_30.json",
+    "pope30_no": DATA / "pope" / "pinned_pope_existence_no_30.json",
     "pope120": DATA / "pope" / "pinned_pope_existence_yes_120.json",  # alias → POPE-yes-120
     "pope_yes_120": DATA / "pope" / "pinned_pope_existence_yes_120.json",
     "pope_no_120": DATA / "pope" / "pinned_pope_existence_no_120.json",
@@ -126,7 +128,14 @@ def _ids_from_subset(name: str, path: Path) -> list[str]:
     obj = json.loads(path.read_text())
     if name.startswith("amber"):
         return list(obj["amber"])
-    if name in ("pope30", "pope120", "pope_yes_120", "pope_no_120"):
+    if name in (
+        "pope30",
+        "pope30_yes",
+        "pope30_no",
+        "pope120",
+        "pope_yes_120",
+        "pope_no_120",
+    ):
         if obj.get("ids"):
             return list(obj["ids"])
         ids: list[str] = []

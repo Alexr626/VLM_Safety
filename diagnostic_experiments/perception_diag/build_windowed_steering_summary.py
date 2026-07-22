@@ -34,16 +34,38 @@ MODELS = [
 
 BENCHMARKS = [
     {
+        "dataset": "pope30_yes",
+        "name": "pope",
+        "run_tag": "pope30_yes_windowed_steering",
+        "baseline_in_run_tag": True,
+        "augmented_jsonl": "data/pope/augmented_pope30_yes.jsonl",
+        "gold_filter": "yes",
+    },
+    {
+        "dataset": "pope30_no",
+        "name": "pope",
+        "run_tag": "pope30_no_windowed_steering",
+        "baseline_in_run_tag": True,
+        "augmented_jsonl": "data/pope/augmented_pope30_no.jsonl",
+        "gold_filter": "no",
+    },
+    {
+        "dataset": "pope30_legacy",
         "name": "pope",
         "run_tag": "pope30_windowed_steering",
         "baseline_run_tag": "pope30_existence_yes_baseline",
+        "baseline_in_run_tag": False,
         "augmented_jsonl": "data/pope/augmented_pope30.jsonl",
+        "gold_filter": "yes",
     },
     {
+        "dataset": "amber100",
         "name": "amber",
         "run_tag": "amber100_windowed_steering",
         "baseline_run_tag": "amber100_baseline",
+        "baseline_in_run_tag": False,
         "augmented_jsonl": "data/amber/augmented_amber100.jsonl",
+        "gold_filter": None,
     },
 ]
 
@@ -72,7 +94,8 @@ def _gold_opposing(gold: str) -> str:
     raise ValueError(f"Unexpected gold: {gold!r}")
 
 
-def expected_cell_ids(num_layers: int) -> List[str]:
+def expected_cell_ids(num_layers: int, *, include_baseline: bool = False) -> List[str]:
+    """Steered windowed-grid cell ids; optionally prepend in-grid ``baseline``."""
     windows = layer_windows(num_layers, width=10, stride=5)
     win_labels = [f"layers_{s}_{e}" for s, e in windows] + ["layers_all"]
     out = []
@@ -80,6 +103,8 @@ def expected_cell_ids(num_layers: int) -> List[str]:
         for strength in STRENGTHS:
             for wl in win_labels:
                 out.append(f"{prefix}_{strength}_{wl}")
+    if include_baseline:
+        return ["baseline"] + out
     return out
 
 
@@ -223,12 +248,12 @@ def build_summary(
         if model_filter is not None and model_short not in model_filter:
             continue
         completeness["models_requested"].append(model_short)
-        expected = expected_cell_ids(n_layers)
         model_has_any = False
         model_block: Dict[str, Any] = {}
 
         for bench in BENCHMARKS:
             bname = bench["name"]
+            dataset = bench["dataset"]
             aug_path = root / bench["augmented_jsonl"]
             if not aug_path.exists():
                 warnings.append(f"missing augmented jsonl: {aug_path}")
@@ -236,24 +261,38 @@ def build_summary(
             items = load_augmented(aug_path)
 
             steered_dir = perception_dump_dir(bname, model_short, bench["run_tag"])
-            baseline_dir = perception_dump_dir(
-                bname, model_short, bench["baseline_run_tag"]
-            )
+            if bench.get("baseline_in_run_tag"):
+                baseline_dir = steered_dir
+            else:
+                baseline_dir = perception_dump_dir(
+                    bname, model_short, bench["baseline_run_tag"]
+                )
 
-            tag_key = f"{model_short}/{bname}"
+            tag_key = f"{model_short}/{dataset}"
             completeness["run_tags"][tag_key] = {
+                "dataset": dataset,
                 "steered": str(steered_dir),
                 "steered_exists": steered_dir.is_dir(),
                 "baseline": str(baseline_dir),
-                "baseline_exists": baseline_dir.is_dir(),
+                "baseline_exists": (
+                    (baseline_dir / "baseline").is_dir()
+                    if bench.get("baseline_in_run_tag")
+                    else baseline_dir.is_dir()
+                ),
+                "baseline_in_run_tag": bool(bench.get("baseline_in_run_tag")),
             }
 
+            expected_here = expected_cell_ids(
+                n_layers, include_baseline=bool(bench.get("baseline_in_run_tag"))
+            )
             found_cells: List[str] = []
             missing_cells: List[str] = []
             cell_manifests: Dict[str, Dict[Tuple[str, str], dict]] = {}
 
             if steered_dir.is_dir():
-                for cell_id in expected:
+                for cell_id in expected_here:
+                    if cell_id == "baseline":
+                        continue  # loaded separately below
                     cell_dir = steered_dir / cell_id
                     man = load_manifest(cell_dir)
                     if man:
@@ -261,14 +300,22 @@ def build_summary(
                         found_cells.append(cell_id)
                     else:
                         missing_cells.append(cell_id)
+                if bench.get("baseline_in_run_tag"):
+                    if load_manifest(steered_dir / "baseline"):
+                        found_cells = ["baseline"] + found_cells
+                    else:
+                        missing_cells = ["baseline"] + missing_cells
             else:
-                missing_cells = list(expected)
+                missing_cells = list(expected_here)
 
             completeness["cells_found"][tag_key] = found_cells
             completeness["cells_expected_but_missing"][tag_key] = missing_cells
 
             baseline_man = load_manifest(baseline_dir / "baseline")
-            if not baseline_man and baseline_dir.is_dir():
+            if not baseline_man and (
+                baseline_dir.is_dir()
+                or (bench.get("baseline_in_run_tag") and steered_dir.is_dir())
+            ):
                 warnings.append(
                     f"baseline manifest missing/empty: {baseline_dir / 'baseline'}"
                 )
@@ -295,21 +342,10 @@ def build_summary(
                     if brow is None:
                         continue
                     prompt = _prompt_for(item, cond)
-                    # Baseline dumps do not store prompt; compare if we can via
-                    # steered neutral/assertive prompts only when steered exists.
-                    # Record mismatch if a steered row for same (item,cond) has a
-                    # different stored prompt — but baseline itself has no prompt
-                    # field; we attach the augmented JSONL prompt and note if any
-                    # steered cell used a different string (should not happen).
                     for cell_id, man in cell_manifests.items():
                         srow = man.get((item_id, cond))
                         if srow is None:
                             continue
-                        # No prompt on steered manifest either; prompts come from
-                        # augmented JSONL for both. Mismatch check is deferred to
-                        # comparing against a future baseline re-run that embeds
-                        # prompts — here we compare nothing unless metadata stores
-                        # one. Keep hook for plan compliance:
                         pass
                     runs.append(
                         _record_from_manifest(
@@ -364,6 +400,7 @@ def build_summary(
 
                 bench_items[item_id] = {
                     "item_id": item_id,
+                    "dataset": dataset,
                     "qtype": item.get("qtype"),
                     "gold": gold,
                     "image_path": item.get("image_path"),
@@ -372,7 +409,13 @@ def build_summary(
                 }
 
             if bench_items:
-                model_block[bname] = bench_items
+                model_block[dataset] = {
+                    "dataset": dataset,
+                    "benchmark": bname,
+                    "gold_filter": bench.get("gold_filter"),
+                    "run_tag": bench["run_tag"],
+                    "items": bench_items,
+                }
 
         if model_has_any:
             completeness["models_included"].append(model_short)
@@ -389,9 +432,12 @@ def build_summary(
             steered_dir = perception_dump_dir(
                 bench["name"], model_short, bench["run_tag"]
             )
-            baseline_dir = perception_dump_dir(
-                bench["name"], model_short, bench["baseline_run_tag"]
-            )
+            if bench.get("baseline_in_run_tag"):
+                baseline_dir = steered_dir
+            else:
+                baseline_dir = perception_dump_dir(
+                    bench["name"], model_short, bench["baseline_run_tag"]
+                )
             aug = str(root / bench["augmented_jsonl"])
             for label, d in (("steered", steered_dir), ("baseline", baseline_dir)):
                 meta_p = d / "run_metadata.json"
@@ -407,7 +453,7 @@ def build_summary(
                     # Resolve may fail across hosts; also compare basenames
                     if Path(recorded).name != Path(aug).name:
                         warnings.append(
-                            f"{label} {model_short}/{bench['name']}: "
+                            f"{label} {model_short}/{bench['dataset']}: "
                             f"augmented_jsonl mismatch "
                             f"recorded={recorded!r} expected={aug!r}"
                         )
@@ -415,8 +461,9 @@ def build_summary(
     # Per-item prompt consistency: for each (item, condition), all runs should
     # share the same prompt string (from augmented JSONL). If a future dump
     # embeds a different prompt in the manifest, flag it.
-    for model_short, benches in out.items():
-        for bname, items in benches.items():
+    for model_short, datasets in out.items():
+        for dataset, block in datasets.items():
+            items = block.get("items") or {}
             for item_id, item_block in items.items():
                 by_cond: Dict[str, Set[str]] = defaultdict(set)
                 for run in item_block["runs"]:
@@ -425,7 +472,7 @@ def build_summary(
                 for cond, prompts in by_cond.items():
                     if len(prompts) > 1:
                         warnings.append(
-                            f"prompt mismatch {model_short}/{bname}/{item_id}/{cond}: "
+                            f"prompt mismatch {model_short}/{dataset}/{item_id}/{cond}: "
                             f"{len(prompts)} distinct strings"
                         )
 

@@ -118,11 +118,14 @@ data/amber/*
 !data/amber/pinned_amber_disc_450.json
 !data/amber/pinned_amber_disc_100.json
 !data/pope/pinned_pope_existence_yes_30.json
+!data/pope/pinned_pope_existence_no_30.json
 !data/pope/pinned_pope_existence_yes_120.json
 !data/pope/pinned_pope_existence_no_120.json
 !data/amber/augmented_amber25.jsonl
 !data/amber/augmented_amber100.jsonl
 !data/pope/augmented_pope30.jsonl
+!data/pope/augmented_pope30_yes.jsonl
+!data/pope/augmented_pope30_no.jsonl
 !data/pope/augmented_pope_yes_120.jsonl
 !data/pope/augmented_pope_no_120.jsonl
 # Heavy steered-capture dumps stay local / untracked

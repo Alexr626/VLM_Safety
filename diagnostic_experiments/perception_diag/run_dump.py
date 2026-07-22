@@ -192,9 +192,10 @@ def apply_gold_conditional(rows: list[dict]) -> list[dict]:
 def build_windowed_cell_specs(
     num_layers: int,
 ) -> Tuple[Dict[str, dict], List[str], dict]:
-    """3 configs × 3 strengths × (layer_windows + all-layers).
+    """Baseline + 3 configs × 3 strengths × (layer_windows + all-layers).
 
     Returns (specs_dict, ordered_cell_ids, grid_metadata).
+    ``baseline`` (method=none) is first so no-intervention is always in-grid.
     """
     windows = layer_windows(num_layers, width=10, stride=5)
     window_entries: List[Tuple[str, Optional[List[int]]]] = [
@@ -202,8 +203,15 @@ def build_windowed_cell_specs(
     ]
     window_entries.append(("layers_all", None))  # None → all layers in vti_hook_ctx
 
-    specs: Dict[str, dict] = {}
-    order: List[str] = []
+    specs: Dict[str, dict] = {
+        "baseline": {
+            "method": "none",
+            "site": None,
+            "strength": 0.0,
+            "readout": "full",
+        },
+    }
+    order: List[str] = ["baseline"]
     for prefix, method, site in WINDOWED_CONFIGS:
         for strength in WINDOWED_STRENGTHS:
             for win_label, layer_idxs in window_entries:
@@ -227,6 +235,7 @@ def build_windowed_cell_specs(
             {"prefix": p, "method": m, "site": s} for p, m, s in WINDOWED_CONFIGS
         ],
         "strengths": list(WINDOWED_STRENGTHS),
+        "includes_baseline": True,
         "n_cells": len(order),
         "cell_ids": order,
     }
@@ -268,7 +277,7 @@ def main() -> None:
                    help="Comma list of cell ids, 'all', or 'default_subset'. "
                         "Ignored when --windowed_grid is set.")
     p.add_argument("--windowed_grid", action="store_true",
-                   help="Build cell specs from 3 configs × 3 strengths × "
+                   help="Build cell specs: baseline + 3 configs × 3 strengths × "
                         "(layer_windows + all-layers) after model load.")
     p.add_argument("--conditions", default="all",
                    choices=("all", "gold_conditional"),

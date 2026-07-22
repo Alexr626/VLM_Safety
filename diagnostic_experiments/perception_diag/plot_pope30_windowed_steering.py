@@ -1,28 +1,33 @@
 #!/usr/bin/env python3
-"""Plot POPE-30 windowed-steering results (accuracy, P(yes), flips).
+"""Plot POPE-30 and AMBER-100 windowed-steering results (accuracy, P(token), flips).
 
 Supports LLaVA-1.5 and Qwen2.5-VL. One PNG per (metric × intervention method),
 always with no-intervention baseline drawn as grey hatched bars on the same
 x-axis. For rotation @ layer, β=0.9 is omitted (degenerate generations).
 
-Outputs land under model-named subdirectories::
+Mean first-token probability: P(yes) for gold=yes subsets, P(no) for gold=no.
 
-    windowed_steering_summary/plots/llava-1.5-7b-hf/
-    windowed_steering_summary/plots/qwen2.5-vl-7b-instruct/
+Outputs land under model × dataset subdirectories::
 
-Also can write a joint 2×2 mean-P(yes) figure (model × mlp method).
+    windowed_steering_summary/plots/llava-1.5-7b-hf/pope30_yes/
+    windowed_steering_summary/plots/llava-1.5-7b-hf/amber100_attribute_yes/
+    …
 
-Plan: implementation_plans/pope30_windowed_steering_plots_plan_2026-07-21.md
-      (+ Alex feedback 2026-07-21)
+Gold=yes: accuracy = fraction parsed yes; flips = baseline yes → steered no.
+Gold=no: accuracy = fraction parsed no; flips = baseline no → steered yes.
 
 Usage::
 
     python diagnostic_experiments/perception_diag/plot_pope30_windowed_steering.py \\
-      --model llava-1.5-7b-hf
+      --model llava-1.5-7b-hf --datasets pope30_yes pope30_no
     python diagnostic_experiments/perception_diag/plot_pope30_windowed_steering.py \\
-      --model qwen2.5-vl-7b-instruct
+      --model llava-1.5-7b-hf --datasets \\
+      amber100_attribute_yes amber100_attribute_no \\
+      amber100_relation_yes amber100_relation_no
     python diagnostic_experiments/perception_diag/plot_pope30_windowed_steering.py \\
-      --joint_mean_p_yes
+      --joint_amber_llava
+    python diagnostic_experiments/perception_diag/plot_pope30_windowed_steering.py \\
+      --joint_pope_llava
 """
 
 from __future__ import annotations
@@ -60,11 +65,176 @@ MODEL_SPECS = {
         "plots_subdir": "qwen2.5-vl-7b-instruct",
     },
 }
-CONDITIONS = ("neutral", "assertive_toward_no")
-CONDITION_LABELS = {
-    "neutral": "neutral question",
-    "assertive_toward_no": "leading clause toward no",
+
+
+def _amber100_subset_spec(
+    *,
+    key: str,
+    qtype: str,
+    gold: str,
+) -> dict:
+    """Build DATASET_SPECS entry for an AMBER-100 (qtype, gold) filter."""
+    if gold == "yes":
+        conditions = ("neutral", "assertive_toward_no")
+        condition_labels = {
+            "neutral": "neutral question",
+            "assertive_toward_no": "leading clause toward no",
+        }
+        correct_label = "yes"
+        flip_from, flip_to = "yes", "no"
+        flip_key = "flips_yes_to_no"
+        prob_token = "yes"
+        prob_field = "score_p_yes_raw"
+        accuracy_phrase = (
+            f"Accuracy = fraction of parseable responses answered yes "
+            f"(AMBER-100 {qtype}, gold=yes; n=20)."
+        )
+        flip_title = "items flipped from baseline yes to no"
+        flip_ylabel = "Items flipped yes→no"
+        flip_caption = (
+            "Flip = baseline parsed_outcome=yes and steered=no for the same "
+            "item_id and condition_id."
+        )
+    else:
+        conditions = ("neutral", "assertive_toward_yes")
+        condition_labels = {
+            "neutral": "neutral question",
+            "assertive_toward_yes": "leading clause toward yes",
+        }
+        correct_label = "no"
+        flip_from, flip_to = "no", "yes"
+        flip_key = "flips_no_to_yes"
+        prob_token = "no"
+        prob_field = "score_p_no_raw"
+        accuracy_phrase = (
+            f"Accuracy = fraction of parseable responses answered no "
+            f"(AMBER-100 {qtype}, gold=no; n=20)."
+        )
+        flip_title = "items flipped from baseline no to yes"
+        flip_ylabel = "Items flipped no→yes"
+        flip_caption = (
+            "Flip = baseline parsed_outcome=no and steered=yes for the same "
+            "item_id and condition_id."
+        )
+    return {
+        "benchmark": "amber",
+        "run_tag": "amber100_windowed_steering",
+        "baseline_in_run_tag": False,
+        "baseline_run_tag": "amber100_baseline",
+        "qtype": qtype,
+        "gold": gold,
+        "n_items": 20,
+        "conditions": conditions,
+        "condition_labels": condition_labels,
+        "correct_label": correct_label,
+        "flip_from": flip_from,
+        "flip_to": flip_to,
+        "flip_key": flip_key,
+        "dataset_title": f"AMBER-100 {qtype} (gold={gold})",
+        "accuracy_phrase": accuracy_phrase,
+        "flip_title": flip_title,
+        "flip_ylabel": flip_ylabel,
+        "flip_caption": flip_caption,
+        "flip_filename_stem": f"{key}_flips_from_baseline_{flip_from}",
+        "prob_score_field": prob_field,
+        "prob_token_label": prob_token,
+        "prob_filename_stem": f"{key}_mean_p_{prob_token}_raw",
+        "accuracy_filename_stem": f"{key}_accuracy",
+    }
+
+
+DATASET_SPECS: Dict[str, dict] = {
+    "pope30_yes": {
+        "benchmark": "pope",
+        "run_tag": "pope30_yes_windowed_steering",
+        "baseline_in_run_tag": True,
+        "qtype": None,
+        "gold": "yes",
+        "n_items": 30,
+        "conditions": ("neutral", "assertive_toward_no"),
+        "condition_labels": {
+            "neutral": "neutral question",
+            "assertive_toward_no": "leading clause toward no",
+        },
+        "correct_label": "yes",
+        "flip_from": "yes",
+        "flip_to": "no",
+        "flip_key": "flips_yes_to_no",
+        "dataset_title": "POPE-30-yes (all gold=yes)",
+        "accuracy_phrase": (
+            "Accuracy = fraction of parseable responses answered yes "
+            "(all items are gold=yes)."
+        ),
+        "flip_title": "items flipped from baseline yes to no",
+        "flip_ylabel": "Items flipped yes→no",
+        "flip_caption": (
+            "Flip = baseline parsed_outcome=yes and steered=no for the same "
+            "item_id and condition_id."
+        ),
+        "flip_filename_stem": "pope30_flips_from_baseline_yes",
+        "prob_score_field": "score_p_yes_raw",
+        "prob_token_label": "yes",
+        "prob_filename_stem": "pope30_mean_p_yes_raw",
+        "accuracy_filename_stem": "pope30_accuracy",
+    },
+    "pope30_no": {
+        "benchmark": "pope",
+        "run_tag": "pope30_no_windowed_steering",
+        "baseline_in_run_tag": True,
+        "qtype": None,
+        "gold": "no",
+        "n_items": 30,
+        "conditions": ("neutral", "assertive_toward_yes"),
+        "condition_labels": {
+            "neutral": "neutral question",
+            "assertive_toward_yes": "leading clause toward yes",
+        },
+        "correct_label": "no",
+        "flip_from": "no",
+        "flip_to": "yes",
+        "flip_key": "flips_no_to_yes",
+        "dataset_title": "POPE-30-no (all gold=no)",
+        "accuracy_phrase": (
+            "Accuracy = fraction of parseable responses answered no "
+            "(all items are gold=no)."
+        ),
+        "flip_title": "items flipped from baseline no to yes",
+        "flip_ylabel": "Items flipped no→yes",
+        "flip_caption": (
+            "Flip = baseline parsed_outcome=no and steered=yes for the same "
+            "item_id and condition_id."
+        ),
+        "flip_filename_stem": "pope30_flips_from_baseline_no",
+        "prob_score_field": "score_p_no_raw",
+        "prob_token_label": "no",
+        "prob_filename_stem": "pope30_mean_p_no_raw",
+        "accuracy_filename_stem": "pope30_accuracy",
+    },
 }
+for _amber_key, _qtype, _gold in (
+    ("amber100_attribute_yes", "attribute", "yes"),
+    ("amber100_attribute_no", "attribute", "no"),
+    ("amber100_relation_yes", "relation", "yes"),
+    ("amber100_relation_no", "relation", "no"),
+):
+    DATASET_SPECS[_amber_key] = _amber100_subset_spec(
+        key=_amber_key, qtype=_qtype, gold=_gold
+    )
+
+# LLaVA-only merged figures: gold=yes on top, gold=no on bottom; MLP methods as cols.
+AMBER_LLAVA_CAPABILITIES: Dict[str, Tuple[str, str]] = {
+    "attribute": ("amber100_attribute_yes", "amber100_attribute_no"),
+    "relation": ("amber100_relation_yes", "amber100_relation_no"),
+}
+
+MLP_JOINT_COLS: Tuple[Tuple[str, str], ...] = (
+    ("additive_mlp", "additive @ mlp"),
+    ("rotation_mlp", "rotation @ mlp"),
+)
+
+# Legacy aliases used by joint figure / older call sites (yes-set only).
+CONDITIONS = DATASET_SPECS["pope30_yes"]["conditions"]
+CONDITION_LABELS = DATASET_SPECS["pope30_yes"]["condition_labels"]
 CONFIG_ORDER = (
     ("rotation_mlp", "rotation @ mlp", "rotation_mlp"),
     ("rotation_layer", "rotation @ layer", "rotation_layer"),
@@ -79,9 +249,17 @@ BETAS_BY_PREFIX = {
 BETA_COLORS = {0.2: "#4C78A8", 0.5: "#F58518", 0.9: "#54A24B"}
 BASELINE_COLOR = "#9E9E9E"
 BASELINE_EDGE = "#424242"
-N_ITEMS = 30
 BOOTSTRAP_N = 1000
 BOOTSTRAP_SEED = 42
+
+
+def flips_ylim_max(n_items: int, observed_max: float = 0.0) -> int:
+    """Tighter flips y-axis: prefer round(n/4), but never clip bars."""
+    preferred = max(1, int(round(n_items / 4.0)))
+    if not np.isfinite(observed_max) or observed_max <= 0:
+        return preferred
+    needed = int(np.ceil(float(observed_max)))
+    return max(preferred, needed)
 
 
 def window_labels(num_layers: int) -> List[str]:
@@ -105,12 +283,64 @@ def is_parseable(outcome: Optional[str]) -> bool:
     return outcome in ("yes", "no")
 
 
+def _row_matches_subset(row: dict, *, qtype: Optional[str], gold: Optional[str]) -> bool:
+    if qtype is not None and row.get("qtype") != qtype:
+        return False
+    if gold is not None and row.get("gold") != gold:
+        return False
+    return True
+
+
+def _filter_manifest(
+    man: Dict[Tuple[str, str], dict],
+    *,
+    conditions: Sequence[str],
+    qtype: Optional[str],
+    gold: Optional[str],
+) -> Dict[Tuple[str, str], dict]:
+    return {
+        k: v
+        for k, v in man.items()
+        if k[1] in conditions and _row_matches_subset(v, qtype=qtype, gold=gold)
+    }
+
+
+def _gate_item_counts(
+    man: Dict[Tuple[str, str], dict],
+    *,
+    conditions: Sequence[str],
+    n_items: int,
+    label: str,
+) -> None:
+    for cond in conditions:
+        ids = {iid for iid, c in man if c == cond}
+        if len(ids) != n_items:
+            raise SystemExit(
+                f"{label}: condition {cond!r} has {len(ids)} items, expected {n_items}"
+            )
+    all_ids = {iid for iid, _c in man}
+    if len(all_ids) != n_items:
+        raise SystemExit(
+            f"{label}: {len(all_ids)} distinct item_ids, expected {n_items}"
+        )
+
+
 def collect_cell_metrics(
     steered_root: Path,
     baseline_man: Dict[Tuple[str, str], dict],
     cell_ids: Sequence[str],
+    *,
+    conditions: Sequence[str],
+    correct_label: str,
+    flip_from: str,
+    flip_to: str,
+    flip_key: str,
+    prob_score_field: str,
+    qtype: Optional[str] = None,
+    gold: Optional[str] = None,
+    n_items: Optional[int] = None,
 ) -> Dict[str, Dict[str, Dict[str, Any]]]:
-    """cell_id -> condition_id -> metrics dict."""
+    """cell_id -> condition_id -> metrics dict (gold-aware accuracy / flips / P)."""
     out: Dict[str, Dict[str, Dict[str, Any]]] = {}
     for cell_id in cell_ids:
         man = load_manifest(steered_root / cell_id)
@@ -118,8 +348,18 @@ def collect_cell_metrics(
             raise FileNotFoundError(
                 f"missing/empty steered manifest: {steered_root / cell_id}"
             )
+        man = _filter_manifest(
+            man, conditions=conditions, qtype=qtype, gold=gold
+        )
+        if n_items is not None:
+            _gate_item_counts(
+                man,
+                conditions=conditions,
+                n_items=n_items,
+                label=f"steered cell {cell_id}",
+            )
         out[cell_id] = {}
-        for cond in CONDITIONS:
+        for cond in conditions:
             item_ids = sorted({iid for iid, c in man if c == cond})
             rows = [man[(iid, cond)] for iid in item_ids]
 
@@ -128,11 +368,13 @@ def collect_cell_metrics(
                 1 for r in rows if not is_parseable(r.get("parsed_outcome"))
             )
             n_parseable = len(parseable)
-            n_yes = sum(1 for r in parseable if r.get("parsed_outcome") == "yes")
-            accuracy = (n_yes / n_parseable) if n_parseable else float("nan")
+            n_correct = sum(
+                1 for r in parseable if r.get("parsed_outcome") == correct_label
+            )
+            accuracy = (n_correct / n_parseable) if n_parseable else float("nan")
 
-            p_yes = np.asarray(
-                [float(r["score_p_yes_raw"]) for r in rows], dtype=float
+            p_token = np.asarray(
+                [float(r[prob_score_field]) for r in rows], dtype=float
             )
 
             flips = 0
@@ -148,53 +390,134 @@ def collect_cell_metrics(
                 if not is_parseable(b_out) or not is_parseable(s_out):
                     excluded += 1
                     continue
-                if b_out == "yes" and s_out == "no":
+                if b_out == flip_from and s_out == flip_to:
                     flips += 1
 
             out[cell_id][cond] = {
                 "n_items": len(rows),
                 "n_parseable": n_parseable,
                 "n_unparseable": n_unparseable,
-                "n_yes_parseable": n_yes,
+                "n_correct_parseable": n_correct,
                 "accuracy": accuracy,
-                "p_yes_raw": p_yes,
-                "mean_p_yes_raw": float(np.mean(p_yes)) if len(p_yes) else float("nan"),
-                "flips_yes_to_no": flips,
+                "p_token_raw": p_token,
+                "mean_p_token_raw": (
+                    float(np.mean(p_token)) if len(p_token) else float("nan")
+                ),
+                flip_key: flips,
                 "flip_pairs_excluded": excluded,
             }
     return out
 
 
+def count_leading_clause_directed_flips(
+    baseline_man: Dict[Tuple[str, str], dict],
+    *,
+    neutral_condition: str,
+    assertive_condition: str,
+    flip_from: str,
+    flip_to: str,
+) -> int:
+    """Count directed flips from neutral baseline → assertive baseline.
+
+    Used as the grey reference bar on leading-clause flip panes: same
+    direction as the plot's steering flip metric (yes→no or no→yes).
+    """
+    item_ids = sorted(
+        {
+            iid
+            for (iid, cond) in baseline_man
+            if cond in (neutral_condition, assertive_condition)
+        }
+    )
+    n = 0
+    for iid in item_ids:
+        brow_n = baseline_man.get((iid, neutral_condition))
+        brow_a = baseline_man.get((iid, assertive_condition))
+        if brow_n is None or brow_a is None:
+            continue
+        n_out = brow_n.get("parsed_outcome")
+        a_out = brow_a.get("parsed_outcome")
+        if not is_parseable(n_out) or not is_parseable(a_out):
+            continue
+        if n_out == flip_from and a_out == flip_to:
+            n += 1
+    return n
+
+
 def baseline_condition_stats(
     baseline_man: Dict[Tuple[str, str], dict],
+    *,
+    conditions: Sequence[str],
+    correct_label: str,
+    flip_from: str,
+    flip_to: str,
+    prob_score_field: str,
 ) -> Dict[str, Dict[str, Any]]:
+    neutral_cond = conditions[0]
+    assertive_cond = conditions[1] if len(conditions) > 1 else None
+    leading_flips = 0
+    if assertive_cond is not None:
+        leading_flips = count_leading_clause_directed_flips(
+            baseline_man,
+            neutral_condition=neutral_cond,
+            assertive_condition=assertive_cond,
+            flip_from=flip_from,
+            flip_to=flip_to,
+        )
+
     stats: Dict[str, Dict[str, Any]] = {}
-    for cond in CONDITIONS:
+    for cond in conditions:
         rows = [r for (iid, c), r in baseline_man.items() if c == cond]
         n = len(rows)
-        n_parseable = sum(1 for r in rows if is_parseable(r.get("parsed_outcome")))
-        n_yes = sum(1 for r in rows if r.get("parsed_outcome") == "yes")
-        n_unparseable = n - n_parseable
-        p_yes = np.asarray(
-            [float(r["score_p_yes_raw"]) for r in rows], dtype=float
-        )
         parseable = [r for r in rows if is_parseable(r.get("parsed_outcome"))]
-        accuracy = (
-            sum(1 for r in parseable if r.get("parsed_outcome") == "yes") / n_parseable
-            if n_parseable
-            else float("nan")
+        n_parseable = len(parseable)
+        n_correct = sum(1 for r in parseable if r.get("parsed_outcome") == correct_label)
+        n_flip_from = sum(1 for r in rows if r.get("parsed_outcome") == flip_from)
+        n_unparseable = n - n_parseable
+        p_token = np.asarray(
+            [float(r[prob_score_field]) for r in rows], dtype=float
+        )
+        accuracy = (n_correct / n_parseable) if n_parseable else float("nan")
+        # Grey flip-plot bar: leading-clause effect only on assertive panes.
+        n_leading = (
+            float(leading_flips)
+            if assertive_cond is not None and cond == assertive_cond
+            else 0.0
         )
         stats[cond] = {
             "n_items": n,
             "n_parseable": n_parseable,
             "n_unparseable": n_unparseable,
-            "n_yes": n_yes,
+            "n_correct": n_correct,
+            "n_flip_from": n_flip_from,
+            "n_leading_clause_flips": n_leading,
             "accuracy": accuracy,
-            "mean_p_yes_raw": float(np.mean(p_yes)) if len(p_yes) else float("nan"),
-            "p_yes_raw": p_yes,
+            "mean_p_token_raw": (
+                float(np.mean(p_token)) if len(p_token) else float("nan")
+            ),
+            "p_token_raw": p_token,
         }
     return stats
 
+
+def _flip_baseline_bar_values(
+    baseline_stats: Dict[str, Dict[str, Any]],
+    cond: str,
+    n_windows: int,
+) -> List[float]:
+    """Grey hatched bar heights for flip plots (repeated per window)."""
+    height = float(baseline_stats[cond].get("n_leading_clause_flips", 0.0))
+    return [height] * n_windows
+
+
+FLIP_BASELINE_BAR_LABEL = "leading clause alone (vs neutral)"
+FLIP_BASELINE_CAPTION = (
+    " Grey hatched bars on leading-clause panes = directed flips from the "
+    "neutral-question baseline to the leading-clause baseline (same yes→no / "
+    "no→yes direction as the colored bars). Neutral panes: hatched bar at 0. "
+    "Colored bars = flips from the same-condition no-intervention baseline to "
+    "the steered response."
+)
 
 def bootstrap_mean_ci(
     values: np.ndarray,
@@ -378,20 +701,11 @@ def _draw_grouped_bars(
     if ylim is not None:
         ax.set_ylim(*ylim)
     if integer_y:
-        ymax = (
-            ylim[1]
-            if ylim is not None
-            else max(
-                (
-                    v
-                    for vals in bar_values.values()
-                    for v in vals
-                    if v is not None and np.isfinite(v)
-                ),
-                default=1,
-            )
+        from matplotlib.ticker import MaxNLocator
+
+        ax.yaxis.set_major_locator(
+            MaxNLocator(integer=True, nbins=8, min_n_ticks=3)
         )
-        ax.set_yticks(list(range(0, int(np.ceil(ymax)) + 1)))
 
 
 def _legend_handles(
@@ -399,6 +713,7 @@ def _legend_handles(
     *,
     include_baseline_line: bool,
     include_baseline_bar: bool,
+    baseline_bar_label: str = "no-intervention baseline",
 ) -> Tuple[List[Any], List[str]]:
     handles: List[Any] = []
     labels: List[str] = []
@@ -408,10 +723,10 @@ def _legend_handles(
                 facecolor=BASELINE_COLOR,
                 edgecolor=BASELINE_EDGE,
                 hatch="//",
-                label="no-intervention baseline",
+                label=baseline_bar_label,
             )
         )
-        labels.append("no-intervention baseline")
+        labels.append(baseline_bar_label)
     for beta in betas:
         handles.append(Patch(facecolor=BETA_COLORS[beta], edgecolor="black", linewidth=0.4))
         labels.append(f"β={beta}")
@@ -429,12 +744,14 @@ def _shared_legend(
     *,
     include_baseline_line: bool,
     include_baseline_bar: bool,
+    baseline_bar_label: str = "no-intervention baseline",
 ) -> None:
     """Legend below the title with enough spacing so line/bar keys do not overlap."""
     handles, labels = _legend_handles(
         betas,
         include_baseline_line=include_baseline_line,
         include_baseline_bar=include_baseline_bar,
+        baseline_bar_label=baseline_bar_label,
     )
     # Two rows when both baseline and betas are present: betas on row 1, baseline alone on row 2
     if include_baseline_line or include_baseline_bar:
@@ -513,7 +830,10 @@ def plot_accuracy_method(
     baseline_as_bars: bool,
     model_title: str,
     num_layers: int,
+    dataset_cfg: dict,
 ) -> None:
+    conditions = dataset_cfg["conditions"]
+    condition_labels = dataset_cfg["condition_labels"]
     wlabs = window_labels(num_layers)
     xpos = window_display_positions(wlabs)
     mode_note = (
@@ -524,18 +844,20 @@ def plot_accuracy_method(
     fig, axes = _method_fig(
         method_title=method_title,
         suptitle=(
-            f"{model_title}, POPE-30 (all gold=yes): accuracy by steering layer window"
+            f"{model_title}, {dataset_cfg['dataset_title']}: "
+            "accuracy by steering layer window"
         ),
         caption=(
-            "n=30 items per cell-condition. Accuracy = fraction of parseable responses "
-            "answered yes (all items are gold=yes). Annotations: u=k = k unparseable; "
+            f"n={dataset_cfg['n_items']} items per cell-condition. "
+            + dataset_cfg["accuracy_phrase"]
+            + " Annotations: u=k = k unparseable; "
             "“all unparseable” when no bar."
             + mode_note
             + _omit_note(prefix)
         ),
     )
 
-    for row, cond in enumerate(CONDITIONS):
+    for row, cond in enumerate(conditions):
         ax = axes[row]
         bar_values: Dict[float, List[float]] = {b: [] for b in betas}
         annotations: Dict[float, List[Optional[str]]] = {b: [] for b in betas}
@@ -567,7 +889,7 @@ def plot_accuracy_method(
             baseline_y=None if baseline_as_bars else base_acc,
             baseline_bars=baseline_bars,
             ylabel="Accuracy",
-            title=CONDITION_LABELS[cond],
+            title=condition_labels[cond],
             ylim=(0.0, 1.15),
         )
 
@@ -583,7 +905,7 @@ def plot_accuracy_method(
     plt.close(fig)
 
 
-def plot_mean_p_yes_raw_method(
+def plot_mean_token_prob_method(
     metrics: Dict[str, Dict[str, Dict[str, Any]]],
     baseline_stats: Dict[str, Dict[str, Any]],
     *,
@@ -594,7 +916,12 @@ def plot_mean_p_yes_raw_method(
     baseline_as_bars: bool,
     model_title: str,
     num_layers: int,
+    dataset_cfg: dict,
 ) -> None:
+    conditions = dataset_cfg["conditions"]
+    condition_labels = dataset_cfg["condition_labels"]
+    token = dataset_cfg["prob_token_label"]
+    score_field = dataset_cfg["prob_score_field"]
     wlabs = window_labels(num_layers)
     xpos = window_display_positions(wlabs)
     mode_note = (
@@ -606,11 +933,12 @@ def plot_mean_p_yes_raw_method(
         method_title=method_title,
         figsize=(8.5, 8.4),
         suptitle=(
-            f"{model_title}, POPE-30: mean unconditional P(yes) at first answer token, "
+            f"{model_title}, {dataset_cfg['dataset_title']}: "
+            f"mean unconditional P({token}) at first answer token, "
             "by steering layer window"
         ),
         caption=(
-            "n=30 items per cell-condition. Mean of score_p_yes_raw over all items "
+            f"n={dataset_cfg['n_items']} items per cell-condition. Mean of {score_field} over all items "
             "(scores exist regardless of parseability). Error bars: bootstrap 95% CI "
             f"(n={BOOTSTRAP_N} resamples over items)."
             + mode_note
@@ -618,10 +946,10 @@ def plot_mean_p_yes_raw_method(
         ),
     )
 
-    for row, cond in enumerate(CONDITIONS):
+    for row, cond in enumerate(conditions):
         ax = axes[row]
         base_mean, base_lo, base_hi = bootstrap_mean_ci(
-            baseline_stats[cond]["p_yes_raw"]
+            baseline_stats[cond]["p_token_raw"]
         )
         bar_values: Dict[float, List[float]] = {b: [] for b in betas}
         bar_errs: Dict[float, Tuple[List[float], List[float]]] = {
@@ -630,7 +958,7 @@ def plot_mean_p_yes_raw_method(
         for wlab in wlabs:
             for beta in betas:
                 cell = _cell_id_for(prefix, beta, wlab)
-                mean, lo, hi = bootstrap_mean_ci(metrics[cell][cond]["p_yes_raw"])
+                mean, lo, hi = bootstrap_mean_ci(metrics[cell][cond]["p_token_raw"])
                 bar_values[beta].append(mean)
                 bar_errs[beta][0].append(lo)
                 bar_errs[beta][1].append(hi)
@@ -651,8 +979,8 @@ def plot_mean_p_yes_raw_method(
             baseline_y=None if baseline_as_bars else base_mean,
             baseline_bars=baseline_bars,
             baseline_bar_errs=baseline_bar_errs,
-            ylabel="Mean unconditional P(yes)",
-            title=CONDITION_LABELS[cond],
+            ylabel=f"Mean unconditional P({token})",
+            title=condition_labels[cond],
             ylim=(0.0, 1.05),
         )
 
@@ -668,6 +996,10 @@ def plot_mean_p_yes_raw_method(
     plt.close(fig)
 
 
+# Back-compat alias for older import sites.
+plot_mean_p_yes_raw_method = plot_mean_token_prob_method
+
+
 def plot_flips_method(
     metrics: Dict[str, Dict[str, Dict[str, Any]]],
     baseline_stats: Dict[str, Dict[str, Any]],
@@ -679,38 +1011,44 @@ def plot_flips_method(
     baseline_as_bars: bool,
     model_title: str,
     num_layers: int,
+    dataset_cfg: dict,
 ) -> None:
+    conditions = dataset_cfg["conditions"]
+    condition_labels = dataset_cfg["condition_labels"]
+    flip_key = dataset_cfg["flip_key"]
+    flip_from = dataset_cfg["flip_from"]
     wlabs = window_labels(num_layers)
     xpos = window_display_positions(wlabs)
-    mode_note = (
-        " Grey hatched bars = no-intervention baseline (0 flips by definition)."
-        if baseline_as_bars
-        else ""
-    )
+    mode_note = FLIP_BASELINE_CAPTION if baseline_as_bars else ""
     fig, axes = _method_fig(
         method_title=method_title,
         figsize=(8.5, 8.6),
         suptitle=(
-            f"{model_title}, POPE-30: items flipped from baseline yes to no, "
-            "by steering layer window"
+            f"{model_title}, {dataset_cfg['dataset_title']}: "
+            f"{dataset_cfg['flip_title']}, by steering layer window"
         ),
         caption=(
-            "n=30 items per cell-condition. Flip = baseline parsed_outcome=yes and "
-            "steered=no for the same item_id and condition_id. Pairs with either side "
-            "unparseable are excluded (x=k excl when some pairs remain). Fully "
-            "unparseable cells: no bar, labeled “all unparseable”."
+            f"n={dataset_cfg['n_items']} items per cell-condition. "
+            + dataset_cfg["flip_caption"]
+            + " Pairs with either side unparseable are excluded "
+            "(x=k excl when some pairs remain). Fully unparseable cells: no bar, "
+            "labeled “all unparseable”."
             + mode_note
             + _omit_note(prefix)
         ),
     )
 
-    for row, cond in enumerate(CONDITIONS):
+    observed_max = 0.0
+    for row, cond in enumerate(conditions):
         ax = axes[row]
         bs = baseline_stats[cond]
+        lead_n = int(bs.get("n_leading_clause_flips", 0))
         denom_subtitle = (
-            f"{CONDITION_LABELS[cond]}  ·  baseline: {bs['n_yes']}/{bs['n_items']} "
-            f"parsed yes"
+            f"{condition_labels[cond]}  ·  baseline: "
+            f"{bs['n_flip_from']}/{bs['n_items']} parsed {flip_from}"
         )
+        if lead_n and cond != conditions[0]:
+            denom_subtitle += f"  ·  leading-clause flips vs neutral: {lead_n}"
         bar_values: Dict[float, List[float]] = {b: [] for b in betas}
         annotations: Dict[float, List[Optional[str]]] = {b: [] for b in betas}
         full_notes: Dict[float, List[Optional[str]]] = {b: [] for b in betas}
@@ -723,12 +1061,22 @@ def plot_flips_method(
                     annotations[beta].append(None)
                     full_notes[beta].append("all unparseable")
                 else:
-                    bar_values[beta].append(float(m["flips_yes_to_no"]))
+                    val = float(m[flip_key])
+                    bar_values[beta].append(val)
+                    if np.isfinite(val):
+                        observed_max = max(observed_max, val)
                     excl = m["flip_pairs_excluded"]
                     annotations[beta].append(f"x={excl} excl" if excl else None)
                     full_notes[beta].append(None)
 
-        baseline_bars = [0.0] * len(wlabs) if baseline_as_bars else None
+        if baseline_as_bars:
+            baseline_bars = _flip_baseline_bar_values(
+                baseline_stats, cond, len(wlabs)
+            )
+            observed_max = max(observed_max, float(baseline_bars[0]))
+        else:
+            baseline_bars = None
+        y_top = flips_ylim_max(int(dataset_cfg["n_items"]), observed_max)
         _draw_grouped_bars(
             ax,
             betas=betas,
@@ -739,17 +1087,23 @@ def plot_flips_method(
             full_height_notes=full_notes,
             baseline_y=None,
             baseline_bars=baseline_bars,
-            ylabel="Items flipped yes→no",
+            ylabel=dataset_cfg["flip_ylabel"],
             title=denom_subtitle,
-            ylim=(0, N_ITEMS + 2),
+            ylim=(0, y_top),
             integer_y=True,
         )
+
+    # Re-apply shared ylim after both rows collected observed_max.
+    y_top = flips_ylim_max(int(dataset_cfg["n_items"]), observed_max)
+    for ax in axes:
+        ax.set_ylim(0, y_top)
 
     _shared_legend(
         fig,
         betas,
         include_baseline_line=False,
         include_baseline_bar=baseline_as_bars,
+        baseline_bar_label=FLIP_BASELINE_BAR_LABEL,
     )
     fig.tight_layout(rect=[0.02, 0.06, 1.0, 0.86 if baseline_as_bars else 0.90])
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -764,16 +1118,19 @@ def _write_plot_set(
     baseline_stats: Dict[str, Dict[str, Any]],
     model_title: str,
     num_layers: int,
+    dataset_cfg: dict,
 ) -> List[Path]:
-    """Write per-method accuracy / P(yes) / flips plots (baseline bars always on)."""
+    """Write per-method accuracy / mean P(token) / flips plots (baseline bars always on)."""
     written: List[Path] = []
+    flip_stem = dataset_cfg["flip_filename_stem"]
+    prob_stem = dataset_cfg["prob_filename_stem"]
+    acc_stem = dataset_cfg.get("accuracy_filename_stem", "pope30_accuracy")
     for prefix, method_title, slug in CONFIG_ORDER:
         betas = BETAS_BY_PREFIX[prefix]
         paths = {
-            "accuracy": out_dir / f"pope30_accuracy_by_layer_window_{slug}.png",
-            "p_yes": out_dir / f"pope30_mean_p_yes_raw_by_layer_window_{slug}.png",
-            "flips": out_dir
-            / f"pope30_flips_from_baseline_yes_by_layer_window_{slug}.png",
+            "accuracy": out_dir / f"{acc_stem}_by_layer_window_{slug}.png",
+            "p_token": out_dir / f"{prob_stem}_by_layer_window_{slug}.png",
+            "flips": out_dir / f"{flip_stem}_by_layer_window_{slug}.png",
         }
         plot_accuracy_method(
             metrics,
@@ -785,17 +1142,19 @@ def _write_plot_set(
             baseline_as_bars=True,
             model_title=model_title,
             num_layers=num_layers,
+            dataset_cfg=dataset_cfg,
         )
-        plot_mean_p_yes_raw_method(
+        plot_mean_token_prob_method(
             metrics,
             baseline_stats,
             prefix=prefix,
             method_title=method_title,
             betas=betas,
-            out_path=paths["p_yes"],
+            out_path=paths["p_token"],
             baseline_as_bars=True,
             model_title=model_title,
             num_layers=num_layers,
+            dataset_cfg=dataset_cfg,
         )
         plot_flips_method(
             metrics,
@@ -807,35 +1166,78 @@ def _write_plot_set(
             baseline_as_bars=True,
             model_title=model_title,
             num_layers=num_layers,
+            dataset_cfg=dataset_cfg,
         )
         written.extend(paths.values())
     return written
 
 
-def _load_model_bundle(model_short: str) -> Dict[str, Any]:
+def _load_model_bundle(model_short: str, dataset: str) -> Dict[str, Any]:
+    if dataset not in DATASET_SPECS:
+        raise SystemExit(f"unknown dataset {dataset!r}; choose from {sorted(DATASET_SPECS)}")
+    cfg = DATASET_SPECS[dataset]
     spec = MODEL_SPECS[model_short]
     num_layers = int(spec["num_layers"])
-    steered_root = perception_dump_dir("pope", model_short, "pope30_windowed_steering")
-    baseline_dir = (
-        perception_dump_dir("pope", model_short, "pope30_existence_yes_baseline")
-        / "baseline"
-    )
-    cell_ids = expected_cell_ids(num_layers)
+    benchmark = cfg.get("benchmark", "pope")
+    steered_root = perception_dump_dir(benchmark, model_short, cfg["run_tag"])
+    if cfg.get("baseline_in_run_tag", True):
+        baseline_dir = steered_root / "baseline"
+    else:
+        baseline_dir = (
+            perception_dump_dir(benchmark, model_short, cfg["baseline_run_tag"])
+            / "baseline"
+        )
+    cell_ids = expected_cell_ids(num_layers, include_baseline=False)
     missing = [
         c for c in cell_ids if not (steered_root / c / "manifest.jsonl").exists()
     ]
     if missing:
         raise SystemExit(
-            f"{model_short}: missing {len(missing)} steered cells, e.g. {missing[:3]}"
+            f"{model_short}/{dataset}: missing {len(missing)} steered cells, "
+            f"e.g. {missing[:3]}"
         )
     baseline_man = load_manifest(baseline_dir)
     if not baseline_man:
         raise SystemExit(f"Empty baseline manifest at {baseline_dir}")
-    baseline_man = {k: v for k, v in baseline_man.items() if k[1] in CONDITIONS}
-    baseline_stats = baseline_condition_stats(baseline_man)
-    metrics = collect_cell_metrics(steered_root, baseline_man, cell_ids)
+    conditions = cfg["conditions"]
+    qtype = cfg.get("qtype")
+    gold = cfg.get("gold")
+    n_items = int(cfg["n_items"])
+    baseline_man = _filter_manifest(
+        baseline_man, conditions=conditions, qtype=qtype, gold=gold
+    )
+    _gate_item_counts(
+        baseline_man,
+        conditions=conditions,
+        n_items=n_items,
+        label=f"{model_short}/{dataset} baseline",
+    )
+    baseline_stats = baseline_condition_stats(
+        baseline_man,
+        conditions=conditions,
+        correct_label=cfg["correct_label"],
+        flip_from=cfg["flip_from"],
+        flip_to=cfg["flip_to"],
+        prob_score_field=cfg["prob_score_field"],
+    )
+    metrics = collect_cell_metrics(
+        steered_root,
+        baseline_man,
+        cell_ids,
+        conditions=conditions,
+        correct_label=cfg["correct_label"],
+        flip_from=cfg["flip_from"],
+        flip_to=cfg["flip_to"],
+        flip_key=cfg["flip_key"],
+        prob_score_field=cfg["prob_score_field"],
+        qtype=qtype,
+        gold=gold,
+        n_items=n_items,
+    )
     return {
         "model_short": model_short,
+        "dataset": dataset,
+        "dataset_cfg": cfg,
         "display_name": spec["display_name"],
         "num_layers": num_layers,
         "metrics": metrics,
@@ -843,20 +1245,31 @@ def _load_model_bundle(model_short: str) -> Dict[str, Any]:
     }
 
 
-def plot_joint_mean_p_yes_raw_model_by_mlp(
+def plot_joint_mean_token_prob_model_by_mlp(
     bundles: Sequence[Dict[str, Any]],
     out_path: Path,
 ) -> None:
     """2x2: rows = model, cols = additive @ mlp | rotation @ mlp.
 
-    Each pane stacks the two prompt conditions (neutral / leading toward no).
+    Each pane stacks the two prompt conditions for the shared dataset.
+    Plots mean P(yes) for pope30_yes and mean P(no) for pope30_no.
     """
+    if not bundles:
+        raise ValueError("bundles must be non-empty")
+    dataset_cfg = bundles[0]["dataset_cfg"]
+    for b in bundles[1:]:
+        if b["dataset"] != bundles[0]["dataset"]:
+            raise ValueError("joint figure requires a single dataset across bundles")
+    conditions = dataset_cfg["conditions"]
+    condition_labels = dataset_cfg["condition_labels"]
+    token = dataset_cfg["prob_token_label"]
+    score_field = dataset_cfg["prob_score_field"]
     mlp_cols = (
         ("additive_mlp", "additive @ mlp"),
         ("rotation_mlp", "rotation @ mlp"),
     )
     n_models = len(bundles)
-    n_conds = len(CONDITIONS)
+    n_conds = len(conditions)
     fig = plt.figure(figsize=(16.5, 3.6 * n_models * n_conds + 1.4))
     outer = fig.add_gridspec(
         n_models,
@@ -869,8 +1282,8 @@ def plot_joint_mean_p_yes_raw_model_by_mlp(
         bottom=0.05,
     )
     fig.suptitle(
-        "POPE-30: mean unconditional P(yes) at first answer token, "
-        "by steering layer window\n"
+        f"{dataset_cfg['dataset_title']}: mean unconditional P({token}) at first "
+        "answer token, by steering layer window\n"
         "Rows = model · columns = MLP intervention "
         "(baseline = grey hatched bars)",
         fontsize=13,
@@ -888,10 +1301,10 @@ def plot_joint_mean_p_yes_raw_model_by_mlp(
 
         for col, (prefix, method_title) in enumerate(mlp_cols):
             inner = outer[row, col].subgridspec(n_conds, 1, hspace=0.38)
-            for crow, cond in enumerate(CONDITIONS):
+            for crow, cond in enumerate(conditions):
                 ax = fig.add_subplot(inner[crow, 0])
                 base_mean, base_lo, base_hi = bootstrap_mean_ci(
-                    baseline_stats[cond]["p_yes_raw"]
+                    baseline_stats[cond]["p_token_raw"]
                 )
                 bar_values: Dict[float, List[float]] = {b: [] for b in betas}
                 bar_errs: Dict[float, Tuple[List[float], List[float]]] = {
@@ -901,7 +1314,7 @@ def plot_joint_mean_p_yes_raw_model_by_mlp(
                     for beta in betas:
                         cell = _cell_id_for(prefix, beta, wlab)
                         mean, lo, hi = bootstrap_mean_ci(
-                            metrics[cell][cond]["p_yes_raw"]
+                            metrics[cell][cond]["p_token_raw"]
                         )
                         bar_values[beta].append(mean)
                         bar_errs[beta][0].append(lo)
@@ -909,7 +1322,7 @@ def plot_joint_mean_p_yes_raw_model_by_mlp(
 
                 pane_title = (
                     f"{model_title}  ·  {method_title}  ·  "
-                    f"{CONDITION_LABELS[cond]}"
+                    f"{condition_labels[cond]}"
                 )
                 _draw_grouped_bars(
                     ax,
@@ -924,7 +1337,7 @@ def plot_joint_mean_p_yes_raw_model_by_mlp(
                         [base_lo] * len(wlabs),
                         [base_hi] * len(wlabs),
                     ),
-                    ylabel="Mean P(yes)" if col == 0 else "",
+                    ylabel=f"Mean P({token})" if col == 0 else "",
                     title=pane_title,
                     ylim=(0.0, 1.05),
                 )
@@ -951,8 +1364,8 @@ def plot_joint_mean_p_yes_raw_model_by_mlp(
     fig.text(
         0.5,
         0.008,
-        "n=30 items per cell-condition. Mean of score_p_yes_raw over all items; "
-        f"error bars = bootstrap 95% CI (n={BOOTSTRAP_N}). "
+        f"n={dataset_cfg['n_items']} items per cell-condition. Mean of {score_field} "
+        f"over all items; error bars = bootstrap 95% CI (n={BOOTSTRAP_N}). "
         "Grey hatched = no-intervention baseline (repeated at each window). "
         "Layer windows differ by model depth (LLaVA 32 vs Qwen 28).",
         ha="center",
@@ -964,6 +1377,472 @@ def plot_joint_mean_p_yes_raw_model_by_mlp(
     plt.close(fig)
 
 
+plot_joint_mean_p_yes_raw_model_by_mlp = plot_joint_mean_token_prob_model_by_mlp
+
+
+def plot_joint_flips_model_by_mlp(
+    bundles: Sequence[Dict[str, Any]],
+    out_path: Path,
+) -> None:
+    """2x2: rows = model, cols = additive @ mlp | rotation @ mlp (flips metric)."""
+    if not bundles:
+        raise ValueError("bundles must be non-empty")
+    dataset_cfg = bundles[0]["dataset_cfg"]
+    for b in bundles[1:]:
+        if b["dataset"] != bundles[0]["dataset"]:
+            raise ValueError("joint figure requires a single dataset across bundles")
+    conditions = dataset_cfg["conditions"]
+    condition_labels = dataset_cfg["condition_labels"]
+    flip_key = dataset_cfg["flip_key"]
+    flip_from = dataset_cfg["flip_from"]
+    n_items = int(dataset_cfg["n_items"])
+    mlp_cols = (
+        ("additive_mlp", "additive @ mlp"),
+        ("rotation_mlp", "rotation @ mlp"),
+    )
+    n_models = len(bundles)
+    n_conds = len(conditions)
+    fig = plt.figure(figsize=(16.5, 3.6 * n_models * n_conds + 1.4))
+    outer = fig.add_gridspec(
+        n_models,
+        2,
+        hspace=0.32,
+        wspace=0.16,
+        left=0.06,
+        right=0.98,
+        top=0.90,
+        bottom=0.05,
+    )
+    fig.suptitle(
+        f"{dataset_cfg['dataset_title']}: {dataset_cfg['flip_title']}, "
+        "by steering layer window\n"
+        "Rows = model · columns = MLP intervention · grey hatched = "
+        "leading clause alone (vs neutral)",
+        fontsize=13,
+        y=0.985,
+    )
+
+    observed_max = 0.0
+    axes_drawn: List[Any] = []
+    for row, bundle in enumerate(bundles):
+        metrics = bundle["metrics"]
+        baseline_stats = bundle["baseline_stats"]
+        num_layers = bundle["num_layers"]
+        model_title = bundle["display_name"]
+        wlabs = window_labels(num_layers)
+        xpos = window_display_positions(wlabs)
+        betas = BETAS_BY_PREFIX["additive_mlp"]
+
+        for col, (prefix, method_title) in enumerate(mlp_cols):
+            inner = outer[row, col].subgridspec(n_conds, 1, hspace=0.38)
+            for crow, cond in enumerate(conditions):
+                ax = fig.add_subplot(inner[crow, 0])
+                axes_drawn.append(ax)
+                bs = baseline_stats[cond]
+                bar_values: Dict[float, List[float]] = {b: [] for b in betas}
+                annotations: Dict[float, List[Optional[str]]] = {b: [] for b in betas}
+                full_notes: Dict[float, List[Optional[str]]] = {b: [] for b in betas}
+                for wlab in wlabs:
+                    for beta in betas:
+                        cell = _cell_id_for(prefix, beta, wlab)
+                        m = metrics[cell][cond]
+                        if m["n_parseable"] == 0:
+                            bar_values[beta].append(float("nan"))
+                            annotations[beta].append(None)
+                            full_notes[beta].append("all unparseable")
+                        else:
+                            val = float(m[flip_key])
+                            bar_values[beta].append(val)
+                            if np.isfinite(val):
+                                observed_max = max(observed_max, val)
+                            excl = m["flip_pairs_excluded"]
+                            annotations[beta].append(
+                                f"x={excl} excl" if excl else None
+                            )
+                            full_notes[beta].append(None)
+
+                baseline_bars = _flip_baseline_bar_values(
+                    baseline_stats, cond, len(wlabs)
+                )
+                observed_max = max(observed_max, float(baseline_bars[0]))
+                lead_n = int(bs.get("n_leading_clause_flips", 0))
+                pane_title = (
+                    f"{model_title}  ·  {method_title}  ·  "
+                    f"{condition_labels[cond]}  ·  baseline: "
+                    f"{bs['n_flip_from']}/{bs['n_items']} parsed {flip_from}"
+                )
+                if lead_n and cond != conditions[0]:
+                    pane_title += f"  ·  leading-clause flips vs neutral: {lead_n}"
+                _draw_grouped_bars(
+                    ax,
+                    betas=betas,
+                    window_labs=wlabs,
+                    x_pos=xpos,
+                    bar_values=bar_values,
+                    annotations=annotations,
+                    full_height_notes=full_notes,
+                    baseline_y=None,
+                    baseline_bars=baseline_bars,
+                    ylabel=dataset_cfg["flip_ylabel"] if col == 0 else "",
+                    title=pane_title,
+                    ylim=(0, flips_ylim_max(n_items, observed_max)),
+                    integer_y=True,
+                )
+                if crow < n_conds - 1:
+                    ax.set_xticklabels([])
+
+    y_top = flips_ylim_max(n_items, observed_max)
+    for ax in axes_drawn:
+        ax.set_ylim(0, y_top)
+
+    handles, labels = _legend_handles(
+        BETAS_BY_PREFIX["additive_mlp"],
+        include_baseline_line=False,
+        include_baseline_bar=True,
+        baseline_bar_label=FLIP_BASELINE_BAR_LABEL,
+    )
+    fig.legend(
+        handles,
+        labels,
+        loc="upper center",
+        ncol=len(handles),
+        fontsize=10,
+        frameon=True,
+        fancybox=False,
+        edgecolor="#cccccc",
+        columnspacing=1.4,
+        bbox_to_anchor=(0.5, 0.955),
+    )
+    fig.text(
+        0.5,
+        0.008,
+        f"n={n_items} items per cell-condition. "
+        + dataset_cfg["flip_caption"]
+        + FLIP_BASELINE_CAPTION
+        + " Layer windows differ by model depth (LLaVA 32 vs Qwen 28).",
+        ha="center",
+        va="bottom",
+        fontsize=8,
+    )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=160, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _legend_and_footer(
+    fig: Any,
+    *,
+    footer: str,
+    include_baseline_bar: bool = True,
+    baseline_bar_label: str = "no-intervention baseline",
+) -> None:
+    handles, labels = _legend_handles(
+        BETAS_BY_PREFIX["additive_mlp"],
+        include_baseline_line=False,
+        include_baseline_bar=include_baseline_bar,
+        baseline_bar_label=baseline_bar_label,
+    )
+    fig.legend(
+        handles,
+        labels,
+        loc="upper center",
+        ncol=len(handles),
+        fontsize=10,
+        frameon=True,
+        fancybox=False,
+        edgecolor="#cccccc",
+        columnspacing=1.4,
+        bbox_to_anchor=(0.5, 0.955),
+    )
+    fig.text(0.5, 0.008, footer, ha="center", va="bottom", fontsize=8)
+
+
+def plot_joint_llava_by_gold_mlp(
+    yes_bundle: Dict[str, Any],
+    no_bundle: Dict[str, Any],
+    *,
+    metric: str,
+    out_path: Path,
+    family_label: str,
+) -> None:
+    """LLaVA merged figure: gold=yes (top) vs gold=no (bottom) × MLP methods.
+
+    Outer rows = gold=yes then gold=no.
+    Outer cols = additive @ mlp | rotation @ mlp.
+    Each cell stacks the two gold-conditional prompt conditions.
+    metric: "accuracy" | "mean_p" | "flips".
+    family_label: e.g. "AMBER-100 attribute" or "POPE-30".
+    """
+    if metric not in {"accuracy", "mean_p", "flips"}:
+        raise ValueError(f"unknown metric {metric!r}")
+    yes_cfg = yes_bundle["dataset_cfg"]
+    no_cfg = no_bundle["dataset_cfg"]
+    if yes_cfg.get("qtype") != no_cfg.get("qtype"):
+        raise ValueError("yes/no bundles must share the same qtype")
+    if yes_cfg.get("gold") != "yes" or no_cfg.get("gold") != "no":
+        raise ValueError("bundles must be gold=yes then gold=no")
+    n_items = int(yes_cfg["n_items"])
+    model_title = yes_bundle["display_name"]
+    num_layers = yes_bundle["num_layers"]
+    wlabs = window_labels(num_layers)
+    xpos = window_display_positions(wlabs)
+    betas = BETAS_BY_PREFIX["additive_mlp"]
+
+    gold_rows = (
+        ("gold=yes", yes_bundle, yes_cfg),
+        ("gold=no", no_bundle, no_cfg),
+    )
+    # Each gold half has two condition panes → 4 panes top, 4 bottom.
+    panes_per_gold = 2
+    fig = plt.figure(figsize=(16.5, 3.4 * len(gold_rows) * panes_per_gold + 1.6))
+    outer = fig.add_gridspec(
+        len(gold_rows),
+        2,
+        hspace=0.36,
+        wspace=0.16,
+        left=0.06,
+        right=0.98,
+        top=0.90,
+        bottom=0.05,
+    )
+
+    if metric == "accuracy":
+        fig.suptitle(
+            f"{model_title}, {family_label}: accuracy by steering layer window\n"
+            "Rows = gold answer (yes then no) · columns = MLP intervention "
+            "(baseline = grey hatched bars)",
+            fontsize=13,
+            y=0.985,
+        )
+        footer = (
+            f"n={n_items} items per cell-condition. "
+            "Top half: accuracy = fraction parsed yes (gold=yes). "
+            "Bottom half: accuracy = fraction parsed no (gold=no). "
+            "Grey hatched = no-intervention baseline. rotation @ layer omitted."
+        )
+    elif metric == "mean_p":
+        fig.suptitle(
+            f"{model_title}, {family_label}: mean unconditional first-token "
+            "probability by steering layer window\n"
+            "Top = mean P(yes) (gold=yes) · bottom = mean P(no) (gold=no) · "
+            "columns = MLP intervention (baseline = grey hatched bars)",
+            fontsize=13,
+            y=0.985,
+        )
+        footer = (
+            f"n={n_items} items per cell-condition. "
+            "Top: mean score_p_yes_raw; bottom: mean score_p_no_raw. "
+            f"Error bars: bootstrap 95% CI (n={BOOTSTRAP_N}). "
+            "Grey hatched = no-intervention baseline. rotation @ layer omitted."
+        )
+    else:
+        fig.suptitle(
+            f"{model_title}, {family_label}: items flipped from baseline "
+            "by steering layer window\n"
+            "Top = yes→no (gold=yes) · bottom = no→yes (gold=no) · "
+            "columns = MLP intervention · grey hatched = leading clause alone "
+            "(vs neutral)",
+            fontsize=13,
+            y=0.985,
+        )
+        footer = (
+            f"n={n_items} items per cell-condition. "
+            "Top: flip = baseline yes and steered no. "
+            "Bottom: flip = baseline no and steered yes."
+            + FLIP_BASELINE_CAPTION
+            + " rotation @ layer omitted."
+        )
+
+    observed_flip_max = 0.0
+    flip_axes: List[Any] = []
+
+    for row, (gold_label, bundle, cfg) in enumerate(gold_rows):
+        metrics = bundle["metrics"]
+        baseline_stats = bundle["baseline_stats"]
+        conditions = cfg["conditions"]
+        condition_labels = cfg["condition_labels"]
+        flip_key = cfg["flip_key"]
+        flip_from = cfg["flip_from"]
+        token = cfg["prob_token_label"]
+
+        for col, (prefix, method_title) in enumerate(MLP_JOINT_COLS):
+            inner = outer[row, col].subgridspec(len(conditions), 1, hspace=0.38)
+            for crow, cond in enumerate(conditions):
+                ax = fig.add_subplot(inner[crow, 0])
+                pane_title = (
+                    f"{gold_label}  ·  {method_title}  ·  "
+                    f"{condition_labels[cond]}"
+                )
+
+                if metric == "accuracy":
+                    bar_values: Dict[float, List[float]] = {b: [] for b in betas}
+                    annotations: Dict[float, List[Optional[str]]] = {
+                        b: [] for b in betas
+                    }
+                    full_notes: Dict[float, List[Optional[str]]] = {
+                        b: [] for b in betas
+                    }
+                    for wlab in wlabs:
+                        for beta in betas:
+                            cell = _cell_id_for(prefix, beta, wlab)
+                            m = metrics[cell][cond]
+                            if m["n_parseable"] == 0:
+                                bar_values[beta].append(float("nan"))
+                                annotations[beta].append(None)
+                                full_notes[beta].append("all unparseable")
+                            else:
+                                bar_values[beta].append(m["accuracy"])
+                                note = (
+                                    f"u={m['n_unparseable']}"
+                                    if m["n_unparseable"]
+                                    else None
+                                )
+                                annotations[beta].append(note)
+                                full_notes[beta].append(None)
+                    base_acc = baseline_stats[cond]["accuracy"]
+                    _draw_grouped_bars(
+                        ax,
+                        betas=betas,
+                        window_labs=wlabs,
+                        x_pos=xpos,
+                        bar_values=bar_values,
+                        annotations=annotations,
+                        full_height_notes=full_notes,
+                        baseline_y=None,
+                        baseline_bars=[base_acc] * len(wlabs),
+                        ylabel="Accuracy" if col == 0 else "",
+                        title=pane_title,
+                        ylim=(0.0, 1.15),
+                    )
+                elif metric == "mean_p":
+                    bar_values = {b: [] for b in betas}
+                    bar_errs: Dict[float, Tuple[List[float], List[float]]] = {
+                        b: ([], []) for b in betas
+                    }
+                    base_mean, base_lo, base_hi = bootstrap_mean_ci(
+                        baseline_stats[cond]["p_token_raw"]
+                    )
+                    for wlab in wlabs:
+                        for beta in betas:
+                            cell = _cell_id_for(prefix, beta, wlab)
+                            mean, lo, hi = bootstrap_mean_ci(
+                                metrics[cell][cond]["p_token_raw"]
+                            )
+                            bar_values[beta].append(mean)
+                            bar_errs[beta][0].append(lo)
+                            bar_errs[beta][1].append(hi)
+                    _draw_grouped_bars(
+                        ax,
+                        betas=betas,
+                        window_labs=wlabs,
+                        x_pos=xpos,
+                        bar_values=bar_values,
+                        bar_errs=bar_errs,
+                        baseline_y=None,
+                        baseline_bars=[base_mean] * len(wlabs),
+                        baseline_bar_errs=(
+                            [base_lo] * len(wlabs),
+                            [base_hi] * len(wlabs),
+                        ),
+                        ylabel=f"Mean P({token})" if col == 0 else "",
+                        title=pane_title,
+                        ylim=(0.0, 1.05),
+                    )
+                else:
+                    flip_axes.append(ax)
+                    bar_values = {b: [] for b in betas}
+                    annotations = {b: [] for b in betas}
+                    full_notes = {b: [] for b in betas}
+                    bs = baseline_stats[cond]
+                    lead_n = int(bs.get("n_leading_clause_flips", 0))
+                    pane_title = (
+                        f"{gold_label}  ·  {method_title}  ·  "
+                        f"{condition_labels[cond]}  ·  baseline: "
+                        f"{bs['n_flip_from']}/{bs['n_items']} parsed {flip_from}"
+                    )
+                    if lead_n and cond != conditions[0]:
+                        pane_title += (
+                            f"  ·  leading-clause flips vs neutral: {lead_n}"
+                        )
+                    for wlab in wlabs:
+                        for beta in betas:
+                            cell = _cell_id_for(prefix, beta, wlab)
+                            m = metrics[cell][cond]
+                            if m["n_parseable"] == 0:
+                                bar_values[beta].append(float("nan"))
+                                annotations[beta].append(None)
+                                full_notes[beta].append("all unparseable")
+                            else:
+                                val = float(m[flip_key])
+                                bar_values[beta].append(val)
+                                if np.isfinite(val):
+                                    observed_flip_max = max(observed_flip_max, val)
+                                excl = m["flip_pairs_excluded"]
+                                annotations[beta].append(
+                                    f"x={excl} excl" if excl else None
+                                )
+                                full_notes[beta].append(None)
+                    baseline_bars = _flip_baseline_bar_values(
+                        baseline_stats, cond, len(wlabs)
+                    )
+                    observed_flip_max = max(
+                        observed_flip_max, float(baseline_bars[0])
+                    )
+                    _draw_grouped_bars(
+                        ax,
+                        betas=betas,
+                        window_labs=wlabs,
+                        x_pos=xpos,
+                        bar_values=bar_values,
+                        annotations=annotations,
+                        full_height_notes=full_notes,
+                        baseline_y=None,
+                        baseline_bars=baseline_bars,
+                        ylabel=cfg["flip_ylabel"] if col == 0 else "",
+                        title=pane_title,
+                        ylim=(0, flips_ylim_max(n_items, observed_flip_max)),
+                        integer_y=True,
+                    )
+
+                if crow < len(conditions) - 1:
+                    ax.set_xticklabels([])
+
+    if metric == "flips":
+        y_top = flips_ylim_max(n_items, observed_flip_max)
+        for ax in flip_axes:
+            ax.set_ylim(0, y_top)
+        _legend_and_footer(
+            fig,
+            footer=footer,
+            include_baseline_bar=True,
+            baseline_bar_label=FLIP_BASELINE_BAR_LABEL,
+        )
+    else:
+        _legend_and_footer(fig, footer=footer, include_baseline_bar=True)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=160, bbox_inches="tight")
+    plt.close(fig)
+
+
+# Backward-compatible alias.
+def plot_joint_amber_llava_by_gold_mlp(
+    yes_bundle: Dict[str, Any],
+    no_bundle: Dict[str, Any],
+    *,
+    metric: str,
+    out_path: Path,
+) -> None:
+    yes_cfg = yes_bundle["dataset_cfg"]
+    qtype = yes_cfg.get("qtype") or "subset"
+    plot_joint_llava_by_gold_mlp(
+        yes_bundle,
+        no_bundle,
+        metric=metric,
+        out_path=out_path,
+        family_label=f"AMBER-100 {qtype}",
+    )
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -973,26 +1852,81 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         help="Model short name; omit when only writing the joint figure",
     )
     parser.add_argument(
+        "--datasets",
+        nargs="+",
+        choices=sorted(DATASET_SPECS.keys()),
+        default=None,
+        help="Dataset keys (default: both pope30_yes and pope30_no)",
+    )
+    parser.add_argument(
         "--joint_mean_p_yes",
         action="store_true",
-        help="Write 2x2 joint mean-P(yes) PNG (LLaVA/Qwen x additive/rotation mlp)",
+        help="Write 2x2 joint mean-P(token) PNG (LLaVA/Qwen x additive/rotation mlp)",
+    )
+    parser.add_argument(
+        "--joint_flips",
+        action="store_true",
+        help="Write 2x2 joint flips PNG (LLaVA/Qwen x additive/rotation mlp)",
+    )
+    parser.add_argument(
+        "--joint_amber_llava",
+        action="store_true",
+        help=(
+            "Write LLaVA AMBER-100 merged PNGs (gold=yes top / gold=no bottom × "
+            "additive|rotation mlp) for accuracy, mean P, and flips"
+        ),
+    )
+    parser.add_argument(
+        "--joint_pope_llava",
+        action="store_true",
+        help=(
+            "Write LLaVA POPE-30 merged flips PNG (gold=yes top / gold=no bottom × "
+            "additive|rotation mlp)"
+        ),
+    )
+    parser.add_argument(
+        "--amber_capabilities",
+        nargs="+",
+        choices=sorted(AMBER_LLAVA_CAPABILITIES.keys()),
+        default=None,
+        help="With --joint_amber_llava: which capabilities (default: attribute relation)",
     )
     parser.add_argument(
         "--out_dir",
         type=Path,
         default=None,
-        help="Output plot directory for --model (default: plots/<model_short>/)",
+        help=(
+            "Output plot directory for a single --datasets entry "
+            "(default: plots/<model>/<dataset>/)"
+        ),
     )
     parser.add_argument(
         "--joint_out",
         type=Path,
         default=None,
-        help="Path for joint PNG (default under plots/)",
+        help="Path for a single joint PNG when writing one joint figure",
     )
     args = parser.parse_args(argv)
 
-    if args.model is None and not args.joint_mean_p_yes:
-        parser.error("pass --model and/or --joint_mean_p_yes")
+    joint_flags = (
+        args.joint_mean_p_yes,
+        args.joint_flips,
+        args.joint_amber_llava,
+        args.joint_pope_llava,
+    )
+    if args.model is None and not any(joint_flags):
+        parser.error(
+            "pass --model and/or --joint_mean_p_yes / --joint_flips / "
+            "--joint_amber_llava / --joint_pope_llava"
+        )
+
+    datasets = (
+        list(args.datasets)
+        if args.datasets is not None
+        else (["pope30_yes", "pope30_no"] if args.model is not None else [])
+    )
+    if args.out_dir is not None and len(datasets) != 1:
+        parser.error("--out_dir requires exactly one --datasets entry")
 
     root = project_root()
     plots_root = (
@@ -1005,40 +1939,139 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     written: List[Path] = []
 
     if args.model is not None:
-        bundle = _load_model_bundle(args.model)
-        for cond in CONDITIONS:
-            bs = bundle["baseline_stats"][cond]
-            print(
-                f"{args.model} baseline[{cond}]: n={bs['n_items']} "
-                f"parseable={bs['n_parseable']} yes={bs['n_yes']} "
-                f"accuracy={bs['accuracy']:.3f} "
-                f"mean_p_yes_raw={bs['mean_p_yes_raw']:.4f}"
+        for dataset in datasets:
+            bundle = _load_model_bundle(args.model, dataset)
+            cfg = bundle["dataset_cfg"]
+            for cond in cfg["conditions"]:
+                bs = bundle["baseline_stats"][cond]
+                print(
+                    f"{args.model}/{dataset} baseline[{cond}]: n={bs['n_items']} "
+                    f"parseable={bs['n_parseable']} correct={bs['n_correct']} "
+                    f"flip_from={bs['n_flip_from']} "
+                    f"accuracy={bs['accuracy']:.3f} "
+                    f"mean_p_{cfg['prob_token_label']}_raw={bs['mean_p_token_raw']:.4f}"
+                )
+            out_dir = args.out_dir or (
+                plots_root
+                / str(MODEL_SPECS[args.model]["plots_subdir"])
+                / dataset
             )
-        out_dir = args.out_dir or (
-            plots_root / str(MODEL_SPECS[args.model]["plots_subdir"])
-        )
-        written.extend(
-            _write_plot_set(
-                out_dir=out_dir,
-                metrics=bundle["metrics"],
-                baseline_stats=bundle["baseline_stats"],
-                model_title=bundle["display_name"],
-                num_layers=bundle["num_layers"],
+            written.extend(
+                _write_plot_set(
+                    out_dir=out_dir,
+                    metrics=bundle["metrics"],
+                    baseline_stats=bundle["baseline_stats"],
+                    model_title=bundle["display_name"],
+                    num_layers=bundle["num_layers"],
+                    dataset_cfg=cfg,
+                )
             )
-        )
 
-    if args.joint_mean_p_yes:
+    joint_requested = args.joint_mean_p_yes or args.joint_flips
+    if joint_requested:
+        if len(datasets) != 1:
+            parser.error(
+                "--joint_mean_p_yes / --joint_flips require exactly one --datasets entry"
+            )
+        if args.joint_mean_p_yes and args.joint_flips and args.joint_out is not None:
+            parser.error("--joint_out cannot be used when writing both joint figures")
+        dataset = datasets[0]
         bundles = [
-            _load_model_bundle("llava-1.5-7b-hf"),
-            _load_model_bundle("qwen2.5-vl-7b-instruct"),
+            _load_model_bundle("llava-1.5-7b-hf", dataset),
+            _load_model_bundle("qwen2.5-vl-7b-instruct", dataset),
         ]
-        joint_out = args.joint_out or (
-            plots_root
-            / "pope30_mean_p_yes_raw_by_layer_window_"
-            "llava_vs_qwen_additive_vs_rotation_mlp.png"
+        cfg = DATASET_SPECS[dataset]
+        pope_joint_dir = plots_root / "merged_plots" / "pope-30-runs"
+        if args.joint_mean_p_yes:
+            token = cfg["prob_token_label"]
+            joint_out = args.joint_out or (
+                pope_joint_dir
+                / (
+                    f"{dataset}_mean_p_{token}_raw_by_layer_window_"
+                    "llava_vs_qwen_additive_vs_rotation_mlp.png"
+                )
+            )
+            plot_joint_mean_token_prob_model_by_mlp(bundles, joint_out)
+            written.append(joint_out)
+        if args.joint_flips:
+            flip_from = cfg["flip_from"]
+            joint_out = args.joint_out or (
+                pope_joint_dir
+                / (
+                    f"{dataset}_flips_from_baseline_{flip_from}_by_layer_window_"
+                    "llava_vs_qwen_additive_vs_rotation_mlp.png"
+                )
+            )
+            plot_joint_flips_model_by_mlp(bundles, joint_out)
+            written.append(joint_out)
+
+    if args.joint_amber_llava:
+        if args.joint_out is not None:
+            parser.error("--joint_out cannot be used with --joint_amber_llava")
+        caps = list(args.amber_capabilities) if args.amber_capabilities else list(
+            AMBER_LLAVA_CAPABILITIES.keys()
         )
-        plot_joint_mean_p_yes_raw_model_by_mlp(bundles, joint_out)
-        written.append(joint_out)
+        amber_dir = plots_root / "merged_plots" / "amber-100-runs"
+        for capability in caps:
+            yes_key, no_key = AMBER_LLAVA_CAPABILITIES[capability]
+            yes_bundle = _load_model_bundle("llava-1.5-7b-hf", yes_key)
+            no_bundle = _load_model_bundle("llava-1.5-7b-hf", no_key)
+            metric_files = (
+                (
+                    "accuracy",
+                    (
+                        f"amber100_{capability}_accuracy_by_layer_window_"
+                        "llava_gold_yes_vs_no_additive_vs_rotation_mlp.png"
+                    ),
+                ),
+                (
+                    "mean_p",
+                    (
+                        f"amber100_{capability}_mean_p_yes_vs_p_no_raw_by_layer_window_"
+                        "llava_gold_yes_vs_no_additive_vs_rotation_mlp.png"
+                    ),
+                ),
+                (
+                    "flips",
+                    (
+                        f"amber100_{capability}_flips_from_baseline_by_layer_window_"
+                        "llava_gold_yes_vs_no_additive_vs_rotation_mlp.png"
+                    ),
+                ),
+            )
+            for metric, filename in metric_files:
+                out_path = amber_dir / filename
+                plot_joint_llava_by_gold_mlp(
+                    yes_bundle,
+                    no_bundle,
+                    metric=metric,
+                    out_path=out_path,
+                    family_label=f"AMBER-100 {capability}",
+                )
+                written.append(out_path)
+
+    if args.joint_pope_llava:
+        if args.joint_out is not None:
+            parser.error("--joint_out cannot be used with --joint_pope_llava")
+        yes_bundle = _load_model_bundle("llava-1.5-7b-hf", "pope30_yes")
+        no_bundle = _load_model_bundle("llava-1.5-7b-hf", "pope30_no")
+        out_path = (
+            plots_root
+            / "merged_plots"
+            / "pope-30-runs"
+            / (
+                "pope30_flips_from_baseline_by_layer_window_"
+                "llava_gold_yes_vs_no_additive_vs_rotation_mlp.png"
+            )
+        )
+        plot_joint_llava_by_gold_mlp(
+            yes_bundle,
+            no_bundle,
+            metric="flips",
+            out_path=out_path,
+            family_label="POPE-30",
+        )
+        written.append(out_path)
 
     for p in written:
         print(f"wrote {p}")

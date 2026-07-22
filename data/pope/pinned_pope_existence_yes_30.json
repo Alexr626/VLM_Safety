@@ -1,46 +1,11 @@
 {
   "benchmark": "pope",
   "n": 30,
-  "generated": "2026-07-19",
-  "selection": "first 10 gold=yes per split from data/pope/pinned_eval_ids.json order; existence questions (POPE default)",
-  "splits": {
-    "random": [
-      "pope_random_00000",
-      "pope_random_00002",
-      "pope_random_00004",
-      "pope_random_00006",
-      "pope_random_00008",
-      "pope_random_00010",
-      "pope_random_00012",
-      "pope_random_00014",
-      "pope_random_00016",
-      "pope_random_00018"
-    ],
-    "popular": [
-      "pope_popular_00000",
-      "pope_popular_00002",
-      "pope_popular_00004",
-      "pope_popular_00006",
-      "pope_popular_00008",
-      "pope_popular_00010",
-      "pope_popular_00012",
-      "pope_popular_00014",
-      "pope_popular_00016",
-      "pope_popular_00018"
-    ],
-    "adversarial": [
-      "pope_adversarial_00000",
-      "pope_adversarial_00002",
-      "pope_adversarial_00004",
-      "pope_adversarial_00006",
-      "pope_adversarial_00008",
-      "pope_adversarial_00010",
-      "pope_adversarial_00012",
-      "pope_adversarial_00014",
-      "pope_adversarial_00016",
-      "pope_adversarial_00018"
-    ]
-  },
+  "generated": "2026-07-21",
+  "selection": "first 30 gold=yes items from the RANDOM split, in data/pope/pinned_eval_ids.json order (the random split is the canonical source since yes-questions are identical across splits)",
+  "supersedes": "2026-07-19 triplicated version; ids archived in pope_yes_no_30_dataset_rebuild_plan_2026-07-22.md",
+  "gold_filter": "yes",
+  "protocol_name": "POPE-30-yes",
   "ids": [
     "pope_random_00000",
     "pope_random_00002",
@@ -52,25 +17,209 @@
     "pope_random_00014",
     "pope_random_00016",
     "pope_random_00018",
-    "pope_popular_00000",
-    "pope_popular_00002",
-    "pope_popular_00004",
-    "pope_popular_00006",
-    "pope_popular_00008",
-    "pope_popular_00010",
-    "pope_popular_00012",
-    "pope_popular_00014",
-    "pope_popular_00016",
-    "pope_popular_00018",
-    "pope_adversarial_00000",
-    "pope_adversarial_00002",
-    "pope_adversarial_00004",
-    "pope_adversarial_00006",
-    "pope_adversarial_00008",
-    "pope_adversarial_00010",
-    "pope_adversarial_00012",
-    "pope_adversarial_00014",
-    "pope_adversarial_00016",
-    "pope_adversarial_00018"
-  ]
+    "pope_random_00020",
+    "pope_random_00022",
+    "pope_random_00024",
+    "pope_random_00026",
+    "pope_random_00028",
+    "pope_random_00030",
+    "pope_random_00032",
+    "pope_random_00034",
+    "pope_random_00036",
+    "pope_random_00038",
+    "pope_random_00040",
+    "pope_random_00042",
+    "pope_random_00044",
+    "pope_random_00046",
+    "pope_random_00048",
+    "pope_random_00050",
+    "pope_random_00052",
+    "pope_random_00054",
+    "pope_random_00056",
+    "pope_random_00058"
+  ],
+  "items": [
+    {
+      "id": "pope_random_00000",
+      "image_id": "COCO_val2014_000000310196.jpg",
+      "question": "Is there a snowboard in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00002",
+      "image_id": "COCO_val2014_000000310196.jpg",
+      "question": "Is there a person in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00004",
+      "image_id": "COCO_val2014_000000310196.jpg",
+      "question": "Is there a skis in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00006",
+      "image_id": "COCO_val2014_000000210789.jpg",
+      "question": "Is there a truck in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00008",
+      "image_id": "COCO_val2014_000000210789.jpg",
+      "question": "Is there a person in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00010",
+      "image_id": "COCO_val2014_000000210789.jpg",
+      "question": "Is there an umbrella in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00012",
+      "image_id": "COCO_val2014_000000429109.jpg",
+      "question": "Is there a person in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00014",
+      "image_id": "COCO_val2014_000000429109.jpg",
+      "question": "Is there a bicycle in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00016",
+      "image_id": "COCO_val2014_000000429109.jpg",
+      "question": "Is there a car in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00018",
+      "image_id": "COCO_val2014_000000211674.jpg",
+      "question": "Is there a person in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00020",
+      "image_id": "COCO_val2014_000000211674.jpg",
+      "question": "Is there a potted plant in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00022",
+      "image_id": "COCO_val2014_000000211674.jpg",
+      "question": "Is there a car in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00024",
+      "image_id": "COCO_val2014_000000458338.jpg",
+      "question": "Is there a traffic light in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00026",
+      "image_id": "COCO_val2014_000000458338.jpg",
+      "question": "Is there a person in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00028",
+      "image_id": "COCO_val2014_000000458338.jpg",
+      "question": "Is there a car in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00030",
+      "image_id": "COCO_val2014_000000283412.jpg",
+      "question": "Is there a dog in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00032",
+      "image_id": "COCO_val2014_000000283412.jpg",
+      "question": "Is there a dining table in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00034",
+      "image_id": "COCO_val2014_000000283412.jpg",
+      "question": "Is there a bed in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00036",
+      "image_id": "COCO_val2014_000000265719.jpg",
+      "question": "Is there a person in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00038",
+      "image_id": "COCO_val2014_000000265719.jpg",
+      "question": "Is there a spoon in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00040",
+      "image_id": "COCO_val2014_000000265719.jpg",
+      "question": "Is there a fork in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00042",
+      "image_id": "COCO_val2014_000000461331.jpg",
+      "question": "Is there a tv in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00044",
+      "image_id": "COCO_val2014_000000461331.jpg",
+      "question": "Is there a toaster in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00046",
+      "image_id": "COCO_val2014_000000461331.jpg",
+      "question": "Is there a microwave in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00048",
+      "image_id": "COCO_val2014_000000544456.jpg",
+      "question": "Is there a backpack in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00050",
+      "image_id": "COCO_val2014_000000544456.jpg",
+      "question": "Is there a person in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00052",
+      "image_id": "COCO_val2014_000000544456.jpg",
+      "question": "Is there a skis in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00054",
+      "image_id": "COCO_val2014_000000017708.jpg",
+      "question": "Is there a bird in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00056",
+      "image_id": "COCO_val2014_000000017708.jpg",
+      "question": "Is there a person in the image?",
+      "gold": "yes"
+    },
+    {
+      "id": "pope_random_00058",
+      "image_id": "COCO_val2014_000000017708.jpg",
+      "question": "Is there a boat in the image?",
+      "gold": "yes"
+    }
+  ],
+  "content_hash": "f83d5577d7a2356bfe5b686c62f28bc045db6ca22c83b6f047e7cc1ce4b16903",
+  "n_distinct_images": 10
 }

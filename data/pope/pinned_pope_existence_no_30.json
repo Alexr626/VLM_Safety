@@ -1,0 +1,294 @@
+{
+  "benchmark": "pope",
+  "n": 30,
+  "generated": "2026-07-21",
+  "selection": "10 gold=no items from EACH split (random, popular, adversarial), restricted to images in the POPE-30-yes image set, taken in data/pope/pinned_eval_ids.json order within each split; if a (image_id, questioned-object) pair collides with one already selected from another split, skip and take the next candidate",
+  "gold_filter": "no",
+  "per_split": 10,
+  "protocol_name": "POPE-30-no",
+  "image_matched_to": "POPE-30-yes",
+  "splits": {
+    "random": [
+      "pope_random_00001",
+      "pope_random_00003",
+      "pope_random_00005",
+      "pope_random_00007",
+      "pope_random_00009",
+      "pope_random_00011",
+      "pope_random_00013",
+      "pope_random_00015",
+      "pope_random_00017",
+      "pope_random_00019"
+    ],
+    "popular": [
+      "pope_popular_00001",
+      "pope_popular_00005",
+      "pope_popular_00007",
+      "pope_popular_00009",
+      "pope_popular_00011",
+      "pope_popular_00013",
+      "pope_popular_00015",
+      "pope_popular_00017",
+      "pope_popular_00019",
+      "pope_popular_00021"
+    ],
+    "adversarial": [
+      "pope_adversarial_00001",
+      "pope_adversarial_00005",
+      "pope_adversarial_00011",
+      "pope_adversarial_00015",
+      "pope_adversarial_00017",
+      "pope_adversarial_00021",
+      "pope_adversarial_00023",
+      "pope_adversarial_00025",
+      "pope_adversarial_00027",
+      "pope_adversarial_00029"
+    ]
+  },
+  "ids": [
+    "pope_random_00001",
+    "pope_random_00003",
+    "pope_random_00005",
+    "pope_random_00007",
+    "pope_random_00009",
+    "pope_random_00011",
+    "pope_random_00013",
+    "pope_random_00015",
+    "pope_random_00017",
+    "pope_random_00019",
+    "pope_popular_00001",
+    "pope_popular_00005",
+    "pope_popular_00007",
+    "pope_popular_00009",
+    "pope_popular_00011",
+    "pope_popular_00013",
+    "pope_popular_00015",
+    "pope_popular_00017",
+    "pope_popular_00019",
+    "pope_popular_00021",
+    "pope_adversarial_00001",
+    "pope_adversarial_00005",
+    "pope_adversarial_00011",
+    "pope_adversarial_00015",
+    "pope_adversarial_00017",
+    "pope_adversarial_00021",
+    "pope_adversarial_00023",
+    "pope_adversarial_00025",
+    "pope_adversarial_00027",
+    "pope_adversarial_00029"
+  ],
+  "items": [
+    {
+      "id": "pope_random_00001",
+      "image_id": "COCO_val2014_000000310196.jpg",
+      "question": "Is there a car in the image?",
+      "gold": "no",
+      "split": "random"
+    },
+    {
+      "id": "pope_random_00003",
+      "image_id": "COCO_val2014_000000310196.jpg",
+      "question": "Is there a sandwich in the image?",
+      "gold": "no",
+      "split": "random"
+    },
+    {
+      "id": "pope_random_00005",
+      "image_id": "COCO_val2014_000000310196.jpg",
+      "question": "Is there a couch in the image?",
+      "gold": "no",
+      "split": "random"
+    },
+    {
+      "id": "pope_random_00007",
+      "image_id": "COCO_val2014_000000210789.jpg",
+      "question": "Is there a pizza in the image?",
+      "gold": "no",
+      "split": "random"
+    },
+    {
+      "id": "pope_random_00009",
+      "image_id": "COCO_val2014_000000210789.jpg",
+      "question": "Is there a sink in the image?",
+      "gold": "no",
+      "split": "random"
+    },
+    {
+      "id": "pope_random_00011",
+      "image_id": "COCO_val2014_000000210789.jpg",
+      "question": "Is there a cell phone in the image?",
+      "gold": "no",
+      "split": "random"
+    },
+    {
+      "id": "pope_random_00013",
+      "image_id": "COCO_val2014_000000429109.jpg",
+      "question": "Is there a sheep in the image?",
+      "gold": "no",
+      "split": "random"
+    },
+    {
+      "id": "pope_random_00015",
+      "image_id": "COCO_val2014_000000429109.jpg",
+      "question": "Is there a broccoli in the image?",
+      "gold": "no",
+      "split": "random"
+    },
+    {
+      "id": "pope_random_00017",
+      "image_id": "COCO_val2014_000000429109.jpg",
+      "question": "Is there a tennis racket in the image?",
+      "gold": "no",
+      "split": "random"
+    },
+    {
+      "id": "pope_random_00019",
+      "image_id": "COCO_val2014_000000211674.jpg",
+      "question": "Is there a teddy bear in the image?",
+      "gold": "no",
+      "split": "random"
+    },
+    {
+      "id": "pope_popular_00001",
+      "image_id": "COCO_val2014_000000310196.jpg",
+      "question": "Is there a dining table in the image?",
+      "gold": "no",
+      "split": "popular"
+    },
+    {
+      "id": "pope_popular_00005",
+      "image_id": "COCO_val2014_000000310196.jpg",
+      "question": "Is there a chair in the image?",
+      "gold": "no",
+      "split": "popular"
+    },
+    {
+      "id": "pope_popular_00007",
+      "image_id": "COCO_val2014_000000210789.jpg",
+      "question": "Is there a dining table in the image?",
+      "gold": "no",
+      "split": "popular"
+    },
+    {
+      "id": "pope_popular_00009",
+      "image_id": "COCO_val2014_000000210789.jpg",
+      "question": "Is there a car in the image?",
+      "gold": "no",
+      "split": "popular"
+    },
+    {
+      "id": "pope_popular_00011",
+      "image_id": "COCO_val2014_000000210789.jpg",
+      "question": "Is there a chair in the image?",
+      "gold": "no",
+      "split": "popular"
+    },
+    {
+      "id": "pope_popular_00013",
+      "image_id": "COCO_val2014_000000429109.jpg",
+      "question": "Is there a dining table in the image?",
+      "gold": "no",
+      "split": "popular"
+    },
+    {
+      "id": "pope_popular_00015",
+      "image_id": "COCO_val2014_000000429109.jpg",
+      "question": "Is there a chair in the image?",
+      "gold": "no",
+      "split": "popular"
+    },
+    {
+      "id": "pope_popular_00017",
+      "image_id": "COCO_val2014_000000429109.jpg",
+      "question": "Is there a cup in the image?",
+      "gold": "no",
+      "split": "popular"
+    },
+    {
+      "id": "pope_popular_00019",
+      "image_id": "COCO_val2014_000000211674.jpg",
+      "question": "Is there a dining table in the image?",
+      "gold": "no",
+      "split": "popular"
+    },
+    {
+      "id": "pope_popular_00021",
+      "image_id": "COCO_val2014_000000211674.jpg",
+      "question": "Is there a chair in the image?",
+      "gold": "no",
+      "split": "popular"
+    },
+    {
+      "id": "pope_adversarial_00001",
+      "image_id": "COCO_val2014_000000310196.jpg",
+      "question": "Is there a backpack in the image?",
+      "gold": "no",
+      "split": "adversarial"
+    },
+    {
+      "id": "pope_adversarial_00005",
+      "image_id": "COCO_val2014_000000310196.jpg",
+      "question": "Is there a dog in the image?",
+      "gold": "no",
+      "split": "adversarial"
+    },
+    {
+      "id": "pope_adversarial_00011",
+      "image_id": "COCO_val2014_000000210789.jpg",
+      "question": "Is there a handbag in the image?",
+      "gold": "no",
+      "split": "adversarial"
+    },
+    {
+      "id": "pope_adversarial_00015",
+      "image_id": "COCO_val2014_000000429109.jpg",
+      "question": "Is there a motorcycle in the image?",
+      "gold": "no",
+      "split": "adversarial"
+    },
+    {
+      "id": "pope_adversarial_00017",
+      "image_id": "COCO_val2014_000000429109.jpg",
+      "question": "Is there a truck in the image?",
+      "gold": "no",
+      "split": "adversarial"
+    },
+    {
+      "id": "pope_adversarial_00021",
+      "image_id": "COCO_val2014_000000211674.jpg",
+      "question": "Is there a vase in the image?",
+      "gold": "no",
+      "split": "adversarial"
+    },
+    {
+      "id": "pope_adversarial_00023",
+      "image_id": "COCO_val2014_000000211674.jpg",
+      "question": "Is there a truck in the image?",
+      "gold": "no",
+      "split": "adversarial"
+    },
+    {
+      "id": "pope_adversarial_00025",
+      "image_id": "COCO_val2014_000000458338.jpg",
+      "question": "Is there a bus in the image?",
+      "gold": "no",
+      "split": "adversarial"
+    },
+    {
+      "id": "pope_adversarial_00027",
+      "image_id": "COCO_val2014_000000458338.jpg",
+      "question": "Is there a dining table in the image?",
+      "gold": "no",
+      "split": "adversarial"
+    },
+    {
+      "id": "pope_adversarial_00029",
+      "image_id": "COCO_val2014_000000458338.jpg",
+      "question": "Is there a truck in the image?",
+      "gold": "no",
+      "split": "adversarial"
+    }
+  ],
+  "content_hash": "9e4a7d34323b051ba1bba89c6866df1b05314462200f81ca9e55aa735b41c4e5",
+  "n_distinct_images": 5
+}
