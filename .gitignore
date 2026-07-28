@@ -61,8 +61,16 @@ plans_and_project_descriptions
 # ── Large binary / generated outputs ─────────────────
 /outputs/
 /outputs_old/
-.claude/
+# Claude Code harness is tracked; keep machine-local overrides private
+.claude/settings.local.json
 .ipynb_checkpoints/
+
+# Shuffled-control (and similar) activation dumps — keep directions/metadata only
+experiment_artifacts/**/_act_cache/
+
+# Nested upstream clones — do not vendor into this repo
+/VTI/
+/llava-interp/
 
 # Intervention: keep summaries + plots, ignore large result files
 # intervention/*/outputs/results/*_results.json
