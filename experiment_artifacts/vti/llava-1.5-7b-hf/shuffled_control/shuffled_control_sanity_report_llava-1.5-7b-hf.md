@@ -1,0 +1,64 @@
+# Shuffled-control sanity report — `llava-1.5-7b-hf`
+
+Date: 2026-07-22
+Control for: `demosv2_9a44f4af_all_nd200_s42_r2_prefix`
+Derangement: `experiment_artifacts/vti/shuffled_control_image_derangement_nd200_s1234.json` (seed=1234)
+Direction dir: `experiment_artifacts/vti/llava-1.5-7b-hf/shuffled_control/all_nd200/`
+Act cache: `experiment_artifacts/vti/llava-1.5-7b-hf/shuffled_control/_act_cache/`
+
+## Gating checks
+
+| Check | Observed | Expect | Pass |
+|---|---|---|---|
+| Derangement validity (fixed points) | 0 | 0 | PASS |
+| Captions unchanged | 200 of 200 | 200 of 200 | PASS |
+| Same demos / order (positional id mismatches) | 0 | 0 | PASS |
+| Direction array shape | [32, 4096] | [32, 4096] | PASS |
+| No cache reuse (forward passes executed) | 400 | 400 | PASS |
+
+**All gating checks pass:** yes
+
+## Non-gating: per-layer magnitude (L2)
+
+Shuffled-control `direction_layer_norms` alongside the deployed direction's norms (includes embedding row at index 0; same layout as deployed `metadata.json`).
+
+| Layer | Deployed norm | Shuffled-control norm |
+|---:|---:|---:|
+| 0 | 3.174215237322642e-07 | 2.2697041401897877e-07 |
+| 1 | 0.021243935450911522 | 0.021327540278434753 |
+| 2 | 0.024774961173534393 | 0.024891741573810577 |
+| 3 | 0.0346943698823452 | 0.03445184975862503 |
+| 4 | 0.04183999076485634 | 0.04155543074011803 |
+| 5 | 0.052134931087493896 | 0.051747117191553116 |
+| 6 | 0.0605604350566864 | 0.060519907623529434 |
+| 7 | 0.0998033657670021 | 0.0996151864528656 |
+| 8 | 0.12027037143707275 | 0.12013094872236252 |
+| 9 | 0.17486445605754852 | 0.17728300392627716 |
+| 10 | 0.21805018186569214 | 0.21641451120376587 |
+| 11 | 0.3572772145271301 | 0.3401033878326416 |
+| 12 | 0.3753553032875061 | 0.3537483811378479 |
+| 13 | 0.5394704341888428 | 0.5248687267303467 |
+| 14 | 0.6954460740089417 | 0.6271739602088928 |
+| 15 | 0.8189150094985962 | 0.7134215831756592 |
+| 16 | 0.9076486825942993 | 0.8091381192207336 |
+| 17 | 1.1063114404678345 | 0.9958429932594299 |
+| 18 | 1.1904727220535278 | 1.1081087589263916 |
+| 19 | 1.3869831562042236 | 1.2991327047348022 |
+| 20 | 1.524749994277954 | 1.4334393739700317 |
+| 21 | 1.6971532106399536 | 1.5947527885437012 |
+| 22 | 2.1139607429504395 | 2.0106403827667236 |
+| 23 | 2.2729551792144775 | 2.15051007270813 |
+| 24 | 2.4371235370635986 | 2.323683738708496 |
+| 25 | 2.597811460494995 | 2.480872631072998 |
+| 26 | 2.8303380012512207 | 2.693824052810669 |
+| 27 | 3.2401881217956543 | 3.106240749359131 |
+| 28 | 3.7582287788391113 | 3.5890309810638428 |
+| 29 | 4.002462387084961 | 3.8416249752044678 |
+| 30 | 4.357831954956055 | 4.182985782623291 |
+| 31 | 5.101406574249268 | 4.898595333099365 |
+| 32 | 3.4835219383239746 | 3.229480743408203 |
+
+All shuffled norms finite: True
+Deployed direction shape (decoder layers): [32, 4096]
+Cache files after extraction: 400
+
