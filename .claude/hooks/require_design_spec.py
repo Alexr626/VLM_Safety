@@ -33,8 +33,11 @@ DECL = re.compile(r"^\s*(design_spec|extraction_spec):\s*(\S+)\s*$")
 MIN_SPEC_CHARS = 400
 
 # Angle-bracket placeholders as they appear in the templates: <answer>, <prediction>,
-# <condition 1>, <comparison - and which artifacts above support it>.
-PLACEHOLDER = re.compile(r"<[a-z][a-z0-9 ,._/|+-]{2,70}>")
+# <condition 1>, <name — source — n — purpose>, <primitive — output path — what it must not
+# overwrite>. Any angle-bracket span on one line counts, so em-dashes, capitals, quotes, and
+# digits do not smuggle an unfilled field past the gate. Bracketed URLs are exempt; a literal
+# HTML tag would be flagged, which has not come up and errs toward blocking.
+PLACEHOLDER = re.compile(r"<(?!https?://)[^<>\n]{3,90}>")
 MAX_PLACEHOLDERS = 2
 
 
@@ -59,8 +62,19 @@ def main():
 
     content = ti.get("content") or ti.get("new_string") or ""
 
-    # Edits to an existing plan inherit its declaration.
-    if not content and os.path.exists(path):
+    # An Edit carries a fragment, not the whole file, so the declaration to validate is the
+    # one already on disk. Read it and check that instead. This keeps the gate honest — a plan
+    # whose spec was deleted or emptied still fails, and an edit that strips line 2 fails on
+    # the next write — without demanding that every fragment repeat the declaration. Checking
+    # the fragment was the old behaviour and it blocked every real edit to an existing plan.
+    tool = event.get("tool_name", "")
+    if tool in ("Edit", "MultiEdit") and os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                content = fh.read()
+        except OSError as exc:
+            fail(f"BLOCKED: cannot read existing plan {path}: {exc}")
+    elif not content and os.path.exists(path):
         sys.exit(0)
 
     found = []

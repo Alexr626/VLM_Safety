@@ -49,7 +49,7 @@ tool-call events, so it does not depend on talking an agent into attempting a wr
 fails, every gate below is decoration.
 
 Two things the script cannot check, because Claude Code rather than the hook enforces them: ask
-an agent to write to `analysis/` and to `designs/` and confirm both are refused.
+an agent to write to `analysis/` and to `designs/` and confirm both are refused. However, editing existing experiment or extracting designs is okay in some cases. See the rules below for more details. 
 
 ## The four roles
 
@@ -95,7 +95,7 @@ contrasted, it is an experiment.
 
 ## The files you write
 
-Nobody else writes these. Agents are denied write access to all of them in `settings.json`.
+Check the `settings.json` for allowed capabilitites. While you're not able to write to any of the files below when they don't already exist, you are able to edit some of them once they exist (ex. when Alex has created an initial version, given it to you for review, and, only after advising Alex through questioning and feedback, have you both agreed on edits you can make to improve them).
 
 `designs/<exp_id>_design.md` — before an experiment. From `templates/design_template.md`. The
 prediction table is the part that matters: one row per condition, one column per competing
@@ -168,9 +168,12 @@ filled spec on its second line. Deterministic — the file exists or it does not
 
 **Extraction gate.** The same hook, accepting
 `extraction_spec: extractions/<ext_id>_extraction.md` instead. It enforces that exactly one
-declaration is present and that it points inside its own directory. A plan that would produce
-primitives *and* measure something from them is two plans behind two specs, and the hook refuses
-the combined form.
+declaration is present and that it points inside its own directory.
+
+What the hook rejects is two *declarations*, not a plan that does two things. A design spec may
+carry the primitives it strictly requires — list them under *Primitives this design requires*,
+declare `design_spec:` alone, and one plan covers both. See "What this does not fix" below for
+why the boundary runs in only one direction.
 
 **Reading gate.** The Examiner refuses without `analysis/<run_id>_reading.md`. Enforced by the
 command file and the agent definition rather than by a hook, because the trigger is
@@ -195,6 +198,13 @@ harder gate. It will feel reasonable at the time — the work is offline, the ar
 the hypothesis is not ready. The test is whether the plan produces a number you would read. If
 it does, it is an experiment no matter which directory the spec sits in.
 
+The boundary runs one way only. Producing data is not the consequential act; reading a number
+off it is. So an experiment that happens to need new primitives first does **not** need a second
+spec — list them under *Primitives this design requires* in the design spec and the plan covers
+both. What the rule catches is the reverse: a comparison filed as an extraction, where the
+prediction table never gets written. Writing two specs for one question is friction with nothing
+on the other side of it.
+
 **Leading questions leak answers.** An examiner asking exactly the right pointed question has
 told you the answer with a question mark on it. The agent definition pitches questions at the
 level of category rather than instance, which reduces the leak without closing it. Expect some
@@ -211,6 +221,16 @@ nothing else. Asking a general session a tutor question does not get you the tut
 **You can always open an unconstrained session.** No configuration prevents you from starting a
 plain Claude Code session with no `CLAUDE.md` and asking for the answer. The bypass log is the
 only defence, and it is self-report.
+
+**The permission surface is not finished.** The general shape is right and the gates below hold,
+but the read-only edges are still being tuned. Occasionally an agent is denied a call that would
+have answered a factual question — listing a directory, parsing a stored `.npz` to report what
+is in it — without doing any of your thinking for it. The failure mode to watch for is not the
+denial; it is an agent that answers from reasoning instead of from the repo and does not say
+which read it was missing. Denials should be reported by name, with the fact left marked
+unverified. When one looks like an edge case rather than the rule working, it is yours to widen
+or leave alone — an agent proposing a workaround for its own permissions has the wrong end of
+the loop.
 
 **None of this makes the work faster.** The gates cost you time on every loop, and the first few
 will feel like ceremony. The evidence that they earn it is already on record: the gold-yes-only

@@ -80,9 +80,9 @@ piece of work passes through.
 | Spec | `designs/<exp_id>_design.md` | `extractions/<ext_id>_extraction.md` |
 | Produces | a number read as evidence | primitives |
 | Examples | cosine between two directions, split-half reliability, benchmark scores under steering, any contrast between arms | activation caches, per-layer stacks, attention weights, per-head values, residual streams, extracted directions |
-| Load-bearing field | the prediction table | independence structure, and comparisons this must support later |
-| Examined by | `/examine-design` | `/examine-extraction` |
-| Post-run stage | `analysis/<run_id>_reading.md`, then `/examine-results` | verification section of its own spec |
+| Load-bearing field | the prediction table | how the sets relate, checked against what it must support later |
+| Examined by | `/examine-design` | `/examine-extraction`, capped at three questions |
+| Post-run stage | `analysis/<run_id>_reading.md`, then `/examine-results` | verification checks written by the plan |
 
 **The test:** would a different value change what you believe? Producing a tensor cannot come
 out wrong in a way that changes a belief; measuring something can.
@@ -98,7 +98,7 @@ the existing cache, and being cheap does not make them extractions.
 | Path | Written by | Read by | Purpose |
 |---|---|---|---|
 | `designs/*_design.md` | Alex | examiner, planner | Hypothesis, competing explanations, prediction table, cells, item sets, n, falsifier. Gates the planner. |
-| `extractions/*_extraction.md` | Alex | examiner, planner | What is produced, independence structure, comparisons it must support, what already exists, what it forecloses, namespacing, cost, verification. Gates the planner. |
+| `extractions/*_extraction.md` | Alex | examiner, planner | Three fields: what data, how the sets relate, what it must support later. Everything an implementer can read from the repo is deliberately absent. Gates the planner. |
 | `analysis/*_reading.md` | Alex | examiner | Prediction copied forward unedited, the numbers, the reading, rejected alternatives, evidence tier. Gates the examiner. |
 | `analysis/bypass_log.md` | Alex | examiner | Every gate lift, dated. The rate is the instrument. |
 | `ABSTRACT.md` | Alex | — | Every claim names the file supporting it. Unsupported wants go in the parked section. |
@@ -151,6 +151,17 @@ The destructive concern was always `rm` and `mv`; both remain denied.
 These hold as long as the model follows its file. Subagent files load **only when the subagent is
 invoked** — a plain session gets `CLAUDE.md` and nothing else, which is the leading explanation
 for the tutor compliance failures.
+
+### Gate weight
+
+The two gates are deliberately unequal. A bad design costs a belief — numbers get read, the
+reading is wrong, and it survives into a paper. A bad extraction costs compute — you notice and
+rerun. Gate weight scales with what the mistake costs.
+
+The one exception is why the extraction gate exists at all: an error in how the sets relate to
+each other does not announce itself. It produces artifacts that look correct, get used, and
+confound everything downstream. That failure has design-sized cost in extraction clothing, and
+it is the only thing the extraction examiner is really looking for.
 
 ### Unenforceable
 

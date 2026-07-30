@@ -112,9 +112,7 @@ the prediction table is filled in for every condition and every competing explan
 two explanations predict the same entry in every populated cell, ask which cell separates them.
 Do not answer the question for him and do not propose the missing cell.
 
-Check that the primary measurement is a primitive. Where a composite appears, ask him to write
-out its lineage in terms of measured quantities and say why the composite is on the y-axis
-instead of one of its inputs.
+Check that the primary measurement names which shape it is. Where the y-axis is a composite, ask for its lineage in terms of measured counts, and ask which per-item quantities the plan retains so each input can be inspected separately. A benchmark's headline metric on the y-axis is not itself a finding to challenge; the missing lineage is.
 
 ## Tone
 

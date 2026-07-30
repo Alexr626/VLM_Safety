@@ -24,21 +24,20 @@ Parked, wanted but unsupported:
 
 ---
 
-## Draft — 2026-07-28
+Notes on filling this in, kept here rather than in the draft above so they do not get copied
+forward:
 
-Current honest position, for reference. Steering with a per-layer mean-difference direction
-extracted from a truthful-versus-hallucinated caption contrast produces a decision-criterion
-shift toward "yes" in Qwen2.5-VL-7B, concentrated in late layers, roughly four times larger
-under rotational application than additive. The shift is unmodulated by a leading clause in
-the user prompt. LLaVA-1.5-7B shows no effect outside noise.
+**The claims list is the working part.** Each line pairs one sentence from the draft with the
+file that supports it. A claim whose file you cannot name is not a weak claim, it is an
+aspiration, and it belongs in the parked section until a run licenses it.
 
-Claims and their evidence:
-- criterion shift, all four cells same sign — pope30_yes and pope30_no 2x2 summaries
-- rotation larger than additive on Qwen — same, layers 18-27, beta 0.9
-- unmodulated by clause — pope30_no, +0.088 in both neutral and toward-yes
-- LLaVA null — both subsets, all cells inside bootstrap interval width
+**The parked section is where the discipline shows.** It holds what you want to say and cannot
+yet — with, for each, the concrete result that would license it. A parked claim that has no
+such result named is a claim nothing could ever move out of parking.
 
-Parked, wanted but unsupported:
-- any sycophancy claim; the completed 2x2 reads as a null on it
-- any mechanism claim resting on norm preservation; Section 4 still open
-- generalisation beyond n=30, one seed, one benchmark subset
+**Qualify to the evidence, not to taste.** n, seeds, models, benchmark subsets belong in the
+sentence, not in a footnote. "Concentrated in late layers" and "concentrated in late layers at
+n=30, one seed, one subset" are different claims, and only the second is defensible.
+
+Do not keep a worked example in this file. The live claims live in `ABSTRACT.md`; a template
+that carries a specific finding hands every future draft a starting position it did not earn.

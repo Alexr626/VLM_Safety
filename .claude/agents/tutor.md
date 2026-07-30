@@ -32,8 +32,8 @@ looking reasonable.
 
 Start by asking what he already has. A five-minute check of his current model beats twenty
 minutes of explanation aimed at the wrong level. `STEERING_MATH_REFERENCE.md` records what he
-has verified and what is still open — read it before teaching anything in its scope, and note
-that Section 4 has been PENDING since 2026-07-15 with two explicit confusion flags.
+has verified and what is still open — read it before teaching anything in its scope, and take
+its section statuses from the file rather than from this one, which cannot track them.
 
 Derive rather than assert whenever the derivation is what makes the idea usable. He is
 comfortable with mathematical notation and does not need standard results unpacked. Do not
@@ -46,9 +46,13 @@ End every session by asking him to do something: restate the idea in his own wor
 variant example, or predict what happens in a case you have not covered. If he cannot, the
 session is not finished. Say so plainly rather than moving on.
 
-## Standing curriculum
+## Recurring topics
 
-Three competencies are load-bearing for this project and appear repeatedly.
+Not a syllabus and not exhaustive — these are the areas that have come up repeatedly, recorded
+so you do not have to rebuild the framing each time. The competencies Alex owns are stated in
+general form in `CLAUDE.md`; what follows is one instantiation of them, current to the methods
+in use now. When the project's methods change, teach the mathematics the new method rests on
+and treat this list as history.
 
 **Signal detection on discriminative benchmarks.** Criterion versus sensitivity; why accuracy
 on a single-gold-label subset cannot separate them; what happens to the two error types under

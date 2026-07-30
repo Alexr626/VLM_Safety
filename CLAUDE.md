@@ -1,7 +1,17 @@
-# VLM sycophancy and decision-state geometry — shared project context
+# VLM mechanistic interpretability — shared project context
 
 This file is shared context for every agent in this repo. It contains facts, not roles.
 Role constraints live in `.claude/agents/`. Read `WORKFLOW.md` for how the roles fit together.
+
+Two rules about this file itself:
+
+**Nothing here states a result.** Results live in `ABSTRACT.md` and `analysis/`. If a sentence
+here would change when a run finishes, it is in the wrong file.
+
+**Nothing here is the authority on what exists.** Which benchmarks, models, demo sets, subsets,
+directions, or metrics are in play is a question about disk and code. Every claim of that kind
+below is a pointer to where to check, not a list to trust. Read the pointer.
+
 
 ## The division of labour this repo enforces
 
@@ -23,76 +33,103 @@ question, not an answer. This is not a stylistic preference; it is the purpose o
 
 ## Project
 
-Re-implementation and extension of VTI-style activation steering on vision-language models,
-on discriminative hallucination benchmarks. The steering direction is a per-layer
-mean-difference vector extracted from a truthful-versus-hallucinated caption contrast,
-applied either additively or as a rotation. `steer.py` unit-normalizes each layer's direction
-slice at application time, for both variants — extracted magnitude does not reach the model.
+Mechanistic interpretability of vision-language models. It began as a re-implementation and
+extension of VTI-style activation steering, and the work so far has been directed at
+hallucination mitigation and sycophancy reduction, evaluated on discriminative and generative
+benchmarks. That framing is current, not permanent — the method family and the behaviour under
+study can both change, and a later direction does not make this file wrong.
 
-Current evidence state, as of 2026-07-28, stated plainly so that no agent overstates it:
+Do not restate the method here. What the steering operation does, which variants exist, how a
+direction is extracted and how it is applied: read it from the code. `WORKFLOW_MAP.md` names
+where.
 
-- The deployed direction is mean-dominated. Cosine with the raw CAA mean-difference is at or
-  above 0.999; PC1 accounts for under 1% of direction norm on Qwen2.5-VL and under 9% on
-  LLaVA. Treat it as per-layer CAA mean-difference steering.
-- On the POPE-30 2x2 (gold-yes and gold-no subsets, neutral and counter-leading clause,
-  n=30 per cell), Qwen rotation @ mlp layers 18-27 raises the probability of "yes" in all
-  four cells. Accuracy rises where gold is yes and falls where gold is no. On the gold-no
-  subset the clause changes the effect by zero.
-- That pattern is a decision-criterion shift. The sycophancy hypothesis — that steering makes
-  the model agree with a misleading user assertion — is **not currently supported**, and the
-  completed 2x2 reads as a null on it.
-- Rotation produces a substantially larger criterion shift than addition on Qwen. LLaVA shows
-  effects at or inside noise across all cells. Two other Qwen variants appear inert.
-- Everything above is n=30, single seed, one benchmark subset.
+## Standing rules for extractions
 
-No agent should describe the project's headline claim as sycophancy induction. The response-bias
-result is the finding on the table; whether a sycophancy effect exists anywhere is open.
+These hold by default so that Alex never restates them in a spec. He writes a line only to
+override one.
+
+**Extractions are additive.** Nothing already on disk becomes unreachable, unreproducible, or
+silently shadowed. This covers more than file deletion: a change that alters a content hash,
+an ordering file, or a slug component makes existing artifacts unreachable even though the
+bytes survive. Trace the chain before assuming a run is additive.
+
+**If additive is impossible, the plan stops and asks.** It does not proceed with a note, and it
+does not choose a workaround that changes what was asked for.
+
+**The plan resolves everything an implementer can work out by reading the repo**: namespacing,
+slugs, cache layout, output paths, what already exists and should be reused rather than
+regenerated, verification checks, forward-pass counts, and whether peak memory fits what is free
+on the target machine. Where the requested structure needs code that does not exist yet, that is
+a step in the plan, not a question for Alex.
+
+**The plan returns to Alex in one case**: when resolving one of the above would change what the
+spec asked for.
 
 ## Competencies Alex owns and must not delegate
 
-Three, identified because objections to the paper land on them:
+Not a list of topics — a list of judgements. Where they touch project results they are his,
+regardless of who could produce them faster.
 
-1. Signal detection reasoning on discriminative benchmarks — separating a shift in decision
-   criterion from a change in discrimination; recognising when a design cannot distinguish two
-   explanations; floor and ceiling compression on a probability scale.
-2. Finite-sample behaviour of estimated directions — what cosine two legitimate extractions of
-   the same quantity produce at a given n, and how that scales.
-3. The geometry of the steering operation — Section 4 of `STEERING_MATH_REFERENCE.md`, still
-   marked PENDING with two explicit confusion flags. This is the mechanism the paper claims.
+1. **The mathematics under the method.** Whatever the current method rests on: the geometry of
+   the operation, the statistics of what is estimated from finite samples, the linear algebra
+   of how directions are found and compared. He owns the understanding of it. The Tutor may
+   teach any of it, on synthetic examples, without touching project results.
+2. **Inference from measurement.** Whether a number supports the claim being made of it;
+   whether a design can distinguish the explanations it names; what a result does and does not
+   answer.
+3. **Design and specification.** Design specs, extraction specs, the prediction table, what to
+   run next, what to abandon. Agents expand, ground, and question these. They do not originate
+   them.
+4. **First reading of a result.** Written from the result files, before any agent has
+   characterised them. A factual summary from an agent arrives with an implied reading
+   attached; reading it first is how the reading stops being his.
 
-The Tutor may teach these. No agent may apply them to project results on Alex's behalf.
+The Tutor teaches. No agent applies any of these to project results on Alex's behalf.
+
 
 ## Infrastructure
 
-Compute: lambdab2, 4x RTX A6000 48GB, sm_86, driver 535 / CUDA 12.2, shared — check
-`nvidia-smi` and pick a free GPU with `CUDA_VISIBLE_DEVICES`. RunAI (H100s, NFS-backed) for
-larger batch jobs; required for activation extraction, because device_map sharding silently
-breaks hook-based interventions.
+Repo entry points: `WORKFLOW_MAP.md` for the file map. `src/paths.py` resolves dataset, demo
+set, and artifact paths — read it rather than assuming a location.
 
-Storage: `/data` for datasets, weights, logs. `HF_HOME` and `WANDB_DIR` redirected there.
+What exists is a question about disk, not about this file:
 
-Environment: conda env `vlm_hallucination_mitigation`. torch cu121 (cu124 fallback).
-flash-attn intentionally absent — LLaVA and Qwen fall back to sdpa, InternVL needs
-`use_flash_attn=False`. sdpa/eager is preferred for interpretability anyway. numpy,
-transformers, and tokenizers pins are load-bearing; do not bump them casually.
+- Benchmarks and their loaders: `BENCHMARK_REGISTRY` in `src/dataset.py`. Raw data and drawn
+  item sets: `data/<benchmark>/`, with `data/*/pinned_*.json` naming the subsets already fixed.
+- Demo sets used for direction extraction, with content hashes and selection policies:
+  `data/vti/`, and the `metadata.json` beside each extracted direction set.
+- Extracted directions and caches: `experiment_artifacts/`.
+- Which models are wired: `src/model.py` (`create_wrapper`). Local weights under `HF_HOME`.
+- Metric definitions: `evaluation/classifiers/metrics.py`.
 
-Repo: `src/model.py` (`create_wrapper`), `src/dataset.py` (`BENCHMARK_REGISTRY`),
-`src/extraction.py` (`ActivationCache`, SVD), `src/mediation.py`, `src/paths.py`,
-`steer.py`, `directions_v2.py`, `metrics.py`, `run_eval.py`.
+Do not name a benchmark, subset size, demo set, content hash, or model in an answer without
+reading it from one of the above.
 
-Models: `llava-hf/llava-1.5-7b-hf`, `Qwen/Qwen2.5-VL-7B-Instruct` primary;
-Qwen-VL-Chat and Qwen2-VL-7B as inert baselines.
+One reporting convention, because it is not derivable from the code: report a metric together
+with the counts it is built from. A ratio can hold steady while its numerator and denominator
+both move, so a ratio reported alone cannot be attributed afterwards. `p_yes_norm` and
+`answer_mass` are the instances this project has already been bitten by and are not reported.
+Per-run summaries under `evaluation/results/` and `diagnostic_experiments/*/dumps/` are the
+record.
 
-Benchmarks: POPE, AMBER, CHAIR, HallusionBench, MMHal-Bench. Counting infrastructure
-(FSC-147, MAE/RMSE) does **not** exist in this repo. Do not assume it does.
+## The harness is still being tuned
 
-Reporting primitives: parsed outcome, `score_p_yes_raw`, `score_p_no_raw`. `p_yes_norm` and
-`answer_mass` are banned from all reporting.
+The scaffolding — permissions, hooks, agent scoping — is settled in its general shape and should
+be followed. What is still being tuned is the edges: an occasional read-only call gets denied
+that would have answered a factual question without doing any of Alex's thinking for it.
 
-Demo set: `demosv2`, 555 finals, content hash `9a44f4afde0324b5`, COCO train2014.
+Treat a denial as correct by default. Do not argue with it, do not retry the same call, and
+never substitute a guess for the read you were denied. Say plainly which call was refused, use
+another read-only route if one exists, and if none does, report the fact as unverified and
+finish the rest of the task.
 
-No W&B logging exists in this project. Per-run metric summaries under `evaluation/results/`
-and `diagnostic_experiments/*/dumps/` are the record.
+Where a specific denial looks like an edge case rather than the rule working, name it — the call
+and what it would have established — and leave the decision to Alex. Adjusting the harness is
+his call, not a workaround to take unilaterally.
+
+None of this touches the division of labour above. Being unable to read a file is never a reason
+to supply an interpretation, a hypothesis, or a ranking in place of the fact.
+See `WORKFLOW.md`, "What this does not fix".
 
 ## Confidentiality
 

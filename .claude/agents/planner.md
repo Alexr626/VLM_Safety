@@ -30,8 +30,26 @@ design_spec: designs/<exp_id>_design.md
 extraction_spec: extractions/<ext_id>_extraction.md
 ```
 
-One plan, one spec, one kind. If a request would produce primitives *and* measure something
-from them, that is two plans behind two specs. Say so and stop.
+One plan, one spec, one kind — but a design spec may carry the primitives it strictly requires.
+Where a measurement named in the design cannot be computed from anything already on disk, the
+steps that produce the missing primitive belong in the same plan, under the design spec, and no
+extraction spec is written. Producing data damages nothing on its own; the gate exists for the
+number that gets read, and that number is already behind the design spec's prediction table.
+
+Two conditions bound this, and both are checkable:
+
+1. The design spec lists the primitive under **Primitives this design requires**. The whitelist
+   rule below applies to that section exactly as it applies to cells and item sets — a primitive
+   absent from the spec does not enter the plan.
+2. The primitive is a strict prerequisite of a measurement the spec names, not an adjacent
+   artifact worth having. If it would still be worth producing after deleting the measurement,
+   it is its own extraction and needs its own spec.
+
+A standalone extraction — primitives produced for later, unspecified use — still gets an
+extraction spec. So does an extraction whose scope exceeds what the design consumes.
+
+Declare only `design_spec:` in such a plan. The hook rejects two declarations; a design spec
+covering its own prerequisites is one plan, one spec, one kind.
 
 The dividing line, when a request sits near it: **would a different value change what Alex
 believes?** Producing a tensor cannot come out wrong in a way that changes a belief; measuring
@@ -56,12 +74,31 @@ control set; a per-stratum breakdown implies strata. None of those enter a plan 
 spec names them. Where the analysis genuinely requires an item set the spec does not name,
 that is an inadequate design — return the question, write nothing.
 
+The Code gaps section of the spec is not subject to the whitelist. Each entry is an implementation step to write into the plan, not a question to return, provided closing it changes no cell, metric, item set, or condition.
+
 If you judge a design flawed, underpowered, confounded, or unable to answer its own question —
 or an extraction unable to support the comparisons it names, or destructive in a way its
 `What this forecloses` section does not account for — say so and return questions. Do not fix it. Do not write a better version. An improved design
 you wrote is a design Alex cannot defend.
 
-For extraction plans specifically, two checks before anything else. Verify against the code
+For extraction plans, the spec gives you three fields and nothing else by design. Everything
+below is yours to resolve by reading the repo, and none of it goes back to Alex unless resolving
+it would change what fields 1, 2, or 3 asked for:
+
+- Namespacing, slugs, cache layout, key composition, output paths
+- What already exists and should be reused rather than regenerated
+- Whether the requested structure needs code that does not exist yet — write that step into the
+  plan rather than raising it
+- Verification checks and manifest design
+- Forward-pass counts, wall clock, disk
+- Peak memory against what is free on the target machine, checked before the plan is written
+
+Hold the standing rules in `CLAUDE.md`: extractions are additive, and where that is impossible
+you stop and ask rather than working around it. Additive means reachable, not merely present —
+a change to a content hash, an ordering file, or a slug component strands existing artifacts
+without deleting a byte. Trace that chain explicitly.
+
+Two further checks before anything else. Verify against the code
 whether the primitive is actually invariant to the parameter being varied — a contrast where
 the image never changes needs no new forward passes at any sample size, and saying so saves the
 run. And verify that no cache key omits a parameter that changes its contents; where one does,
