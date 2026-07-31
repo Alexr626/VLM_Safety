@@ -68,6 +68,10 @@ plans_and_project_descriptions
 # Shuffled-control (and similar) activation dumps — keep directions/metadata only
 experiment_artifacts/**/_act_cache/
 
+# demos_850 shuffled-control direction trees (large .npz); derangement JSON maps stay tracked
+experiment_artifacts/vti/**/shuffled_control_demos850/
+experiment_artifacts/vti/**/shuffled_control_demos850_perlayer/
+
 # Nested upstream clones — do not vendor into this repo
 /VTI/
 /llava-interp/
@@ -96,8 +100,6 @@ RESEARCH_LOG.md
 data/
 SimSun.ttf
 wandb
-implementation_plans
-answers
 scripts/
 --*
 -i
