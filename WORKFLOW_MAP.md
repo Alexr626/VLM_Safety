@@ -37,19 +37,19 @@ HANDOFF_<date>.md             point-in-time state
     tutor.md                  concepts only, never project results
     planner.md                spec to plan, gated, both spec kinds
   commands/
-    examine-results.md        /examine-results <run_id>
-    examine-design.md         /examine-design <exp_id>
-    examine-extraction.md     /examine-extraction <ext_id>
-    plan.md                   /plan <id>, routes on whichever spec exists
+    examine-results.md        /examine-results analysis/<date>/<name>.md
+    examine-design.md         /examine-design designs/<date>/<name>.md
+    examine-extraction.md     /examine-extraction extractions/<date>/<name>.md
+    plan.md                   /plan <path>, routes on the leading directory
   hooks/
     require_design_spec.py    PreToolUse gate on plan writes, both spec kinds
     verify_harness.sh         deterministic test of the gate, 14 cases
 
 .cursor/rules/                Cursor-side rules; implementation agent only
 
-designs/<exp_id>_design.md         experiment spec, before a run         [Alex only]
-extractions/<ext_id>_extraction.md extraction spec, before primitives    [Alex only]
-analysis/<run_id>_reading.md       reading, before any agent sees it     [Alex only]
+designs/[<date>/]<exp_id>.md       experiment spec, before a run         [Alex only]
+extractions/[<date>/]<ext_id>.md   extraction spec, before primitives    [Alex only]
+analysis/[<date>/]<run_id>.md      reading, before any agent sees it     [Alex only]
 analysis/bypass_log.md             record of every gate lift             [Alex only]
 answers/                      shared scratchpad; see answers/README.md
   README.md                   what may and may not be persisted here
@@ -77,12 +77,12 @@ piece of work passes through.
 
 | | Experiment | Extraction |
 |---|---|---|
-| Spec | `designs/<exp_id>_design.md` | `extractions/<ext_id>_extraction.md` |
+| Spec | `designs/<date>/<name>.md` | `extractions/<date>/<name>.md` |
 | Produces | a number read as evidence | primitives |
 | Examples | cosine between two directions, split-half reliability, benchmark scores under steering, any contrast between arms | activation caches, per-layer stacks, attention weights, per-head values, residual streams, extracted directions |
 | Load-bearing field | the prediction table | how the sets relate, checked against what it must support later |
 | Examined by | `/examine-design` | `/examine-extraction`, capped at three questions |
-| Post-run stage | `analysis/<run_id>_reading.md`, then `/examine-results` | verification checks written by the plan |
+| Post-run stage | `analysis/<date>/<name>.md`, then `/examine-results` | verification checks written by the plan |
 
 **The test:** would a different value change what you believe? Producing a tensor cannot come
 out wrong in a way that changes a belief; measuring something can.
@@ -97,9 +97,9 @@ the existing cache, and being cheap does not make them extractions.
 
 | Path | Written by | Read by | Purpose |
 |---|---|---|---|
-| `designs/*_design.md` | Alex | examiner, planner | Hypothesis, competing explanations, prediction table, cells, item sets, n, falsifier. Gates the planner. |
-| `extractions/*_extraction.md` | Alex | examiner, planner | Three fields: what data, how the sets relate, what it must support later. Everything an implementer can read from the repo is deliberately absent. Gates the planner. |
-| `analysis/*_reading.md` | Alex | examiner | Prediction copied forward unedited, the numbers, the reading, rejected alternatives, evidence tier. Gates the examiner. |
+| `designs/*.md` | Alex | examiner, planner | Hypothesis, competing explanations, prediction table, cells, item sets, n, falsifier. Gates the planner. |
+| `extractions/*.md` | Alex | examiner, planner | Three fields: what data, how the sets relate, what it must support later. Everything an implementer can read from the repo is deliberately absent. Gates the planner. |
+| `analysis/*.md` | Alex | examiner | Prediction copied forward unedited, the numbers, the reading, rejected alternatives, evidence tier. Gates the examiner. |
 | `analysis/bypass_log.md` | Alex | examiner | Every gate lift, dated. The rate is the instrument. |
 | `ABSTRACT.md` | Alex | — | Every claim names the file supporting it. Unsupported wants go in the parked section. |
 | `implementation_plans/*.md` | planner | Alex, implementation agent | Spec expanded with real identifiers, paths, signatures, sanity checks. Must declare exactly one of `design_spec:` or `extraction_spec:` on line 2. |

@@ -1,7 +1,7 @@
 # Reading — <run_id>
 
 Written by Alex, after the numbers are in and before the examiner sees anything. Copy to
-`analysis/<run_id>_reading.md`.
+`analysis/<run_id>.md`, or `analysis/<date>/<run_id>.md`.
 
 Write this from the result files directly. Do not ask an agent what the files show before you
 have written this; a factual summary from an agent arrives with an implied reading attached.
@@ -10,7 +10,7 @@ have written this; a factual summary from an agent arrives with an implied readi
 
 ## Design spec this run came from
 
-`designs/<exp_id>_design.md`
+`designs/<exp_id>.md`
 
 ## What I predicted
 

@@ -144,3 +144,6 @@ textual_v2*
 diagnostic_experiments/perception_diag/**/__pycache__/
 diagnostic_experiments/perception_diag/artifact_checks
 diagnostic_experiments/leading_clause_attention_knockout
+
+# Generated harness export bundles (helper_scripts/export_agentic_workflow_harness.sh)
+exports/

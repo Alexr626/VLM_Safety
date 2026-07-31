@@ -1,12 +1,26 @@
 ---
-description: Expand an approved design spec into a repo-grounded implementation plan. Usage /plan <exp_id>
+description: Expand an approved design spec into a repo-grounded implementation plan. Usage /plan designs/<MM_DD_YY>/<name>.md or extractions/<MM_DD_YY>/<name>.md
 ---
 
-Spec id: $1
+Spec: $1
 
-Read `designs/$1_design.md` or `extractions/$1_extraction.md`, whichever exists. If neither
-exists, say so and stop — do not draft one, do not sketch what one might contain. If both
-exist, ask which this plan is for rather than guessing from the id.
+**Resolving the spec.** `$1` is a repo-relative path to the spec file, pasted from the editor:
+`designs/<MM_DD_YY>/<name>.md` for an experiment, `extractions/<MM_DD_YY>/<name>.md` for a
+primitive. Take it literally. Do not glob, do not search for near matches, do not try `_design`
+or `_extraction` suffix variants.
+
+- Append `.md` if it is missing. Strip a leading `./`.
+- If the path does not exist, or starts with neither `designs/` nor `extractions/`, say so,
+  name the path, and stop — do not draft a spec and do not sketch what one might contain.
+- Only if `$1` contains no `/` at all is it a bare id. Then, and only then, glob
+  `designs/**/$1.md` and `extractions/**/$1.md`; if that matches more than one file, list every
+  match and ask which. Never guess between the two directories.
+
+The leading directory settles the spec kind, and with it the declaration the plan must carry
+for the pre-write hook: `designs/` → `design_spec: $1`, `extractions/` → `extraction_spec: $1`.
+The spec id is the filename stem.
+
+Everything below that names a spec path means this path, repo-relative.
 
 Delegate to the planner subagent under the constraints below.
 
@@ -96,11 +110,13 @@ Filename: plain English with a date suffix, under `implementation_plans/`, for e
 leaving the old one in place — plan lineage is load-bearing, because artifacts trace back
 through it.
 
-The file must carry exactly one of `design_spec: designs/$1_design.md` or
-`extraction_spec: extractions/$1_extraction.md` on its second line. A pre-write hook enforces
-that exactly one declaration is present, that it points inside the matching directory, and that
-the file it names exists and is not an unfilled template. **The hook is not an obstacle to work
-around.** If it fires, the spec does not exist in usable form and the plan should not be written.
+The file must carry exactly one of `design_spec:` or `extraction_spec:` on its second line,
+followed by the **resolved spec path exactly as it sits on disk**, repo-relative and including
+any subdirectory — `design_spec: designs/07_30_26/toward_yes_grid.md`. Do not reconstruct the
+path from the id; copy the path you resolved. A pre-write hook enforces that exactly one
+declaration is present, that it points inside the matching directory, and that the file it
+names exists and is not an unfilled template. **The hook is not an obstacle to work around.**
+If it fires, the spec does not exist in usable form and the plan should not be written.
 
 A design spec that carries its own required primitives still declares only `design_spec:`. Two
 declarations are rejected.

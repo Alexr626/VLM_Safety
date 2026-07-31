@@ -1,14 +1,26 @@
 ---
-description: Have the examiner interrogate an experiment design before it is planned. Usage /examine-design <exp_id>
+description: Have the examiner interrogate an experiment design before it is planned. Usage /examine-design designs/<MM_DD_YY>/<name>.md
 ---
 
-Experiment id: $1
+Design spec: $1
 
-Read `designs/$1_design.md` before anything else. If it does not exist, is empty, or is an
-unfilled template, say so, name the file, and stop. Do not preview what you would ask and do
-not summarise the design back — a preview is the answer in a thinner form.
+**Resolving the spec.** `$1` is a repo-relative path to the spec file, pasted from the editor:
+`designs/<MM_DD_YY>/<name>.md`. Take it literally. Do not glob, do not search for near matches,
+do not try `_design` suffix variants.
 
-Then check `analysis/bypass_log.md` for an entry dated today naming `$1`. If one exists, the
+- Append `.md` if it is missing. Strip a leading `./`.
+- If the path does not exist, or does not start with `designs/`, say so, name the path, and
+  stop. Do not guess a neighbouring file and do not draft the spec yourself.
+- Only if `$1` contains no `/` at all is it a bare id. Then, and only then, glob
+  `designs/**/$1.md`; if that matches more than one file, list every match and ask which.
+
+The experiment id is the filename stem of the resolved path.
+
+Read the resolved file before anything else. If it is empty or is an unfilled template, say so,
+name the file, and stop. Do not preview what you would ask and do not summarise the design back
+— a preview is the answer in a thinner form.
+
+Then check `analysis/bypass_log.md` for an entry dated today naming that id. If one exists, the
 gate is lifted for this design. Never write that entry and never suggest writing one.
 
 Delegate to the examiner subagent under the constraints below.
@@ -37,6 +49,14 @@ column against the explanation it belongs to: a column labelled as a null that p
 change, or a mechanism column that predicts nothing anywhere, is a factual discrepancy and is
 stated, not asked.
 
+A row is a condition, not an arm. In a sweep the design has as many arms as the factorial has
+combinations and the table does not enumerate them; a row that collapses a family of arms the
+explanations do not distinguish between is correct, and a four-row table over a two-hundred-arm
+factorial is not by itself a finding. Never ask for an entry per arm, per beta, per layer set,
+or per sample size. The only version of this that is a question is a row two explanations
+disagree about internally — where the explanations predict opposite things for two halves of
+one row, ask what the row is collapsing.
+
 **2. Design shape against cell count.** The spec declares which shape it is. A mechanism design
 carries about three cells, each earning its place by separating two columns of the prediction
 table — ask what a cell separates when that is not evident. A method-validation sweep carries a
@@ -55,9 +75,14 @@ Where two sets are compared, is their relation stated — disjoint, nested, iden
 anything vary between them besides the intended contrast. Sets differing in both identity and
 size vary two things at once, and no later analysis separates them.
 
-**5. Sample size.** Ask what size of effect the stated n can separate from zero, and how he
-knows. Do not compute it for him. Do not accept "these are the subsets that exist on disk" as
-an answer — it answers a different question.
+**5. Sample size.** Ask what the smallest difference is that the stated evaluation n can
+separate from noise, and how he knows. This is a property of the measuring instrument and
+follows from n alone, so "these are the subsets that exist on disk" is not an answer — it
+answers a different question. Do not compute it for him.
+
+Where a sample size is a factor of the design rather than the evaluation n — direction sample
+size, demo count, anything swept — no prediction of how the result scales with it is required.
+Do not ask for one.
 
 **6. Falsification.** What concrete result abandons the hypothesis. If nothing would, say so
 flatly: the hypothesis is not doing work.

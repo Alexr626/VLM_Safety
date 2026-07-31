@@ -75,11 +75,11 @@ artifact traces back to something you wrote.
 The workflow has two entry points because two different things get produced.
 
 **Experiments** produce a number you read as evidence. Comparisons, measurements, benchmark
-scores, reliability curves, cosines between directions. These need `designs/<exp_id>_design.md`.
+scores, reliability curves, cosines between directions. These need `designs/<exp_id>.md`.
 
 **Extractions** produce primitives. Activations, per-layer stacks, attention weights, per-head
 values, residual streams, extracted directions, caches. These need
-`extractions/<ext_id>_extraction.md`.
+`extractions/<ext_id>.md`.
 
 The dividing test, when something sits near the line: **would a different value change what you
 believe?** Producing a tensor cannot come out wrong in a way that changes a belief. Measuring
@@ -97,19 +97,27 @@ contrasted, it is an experiment.
 
 Check the `settings.json` for allowed capabilitites. While you're not able to write to any of the files below when they don't already exist, you are able to edit some of them once they exist (ex. when Alex has created an initial version, given it to you for review, and, only after advising Alex through questioning and feedback, have you both agreed on edits you can make to improve them).
 
-`designs/<exp_id>_design.md` — before an experiment. From `templates/design_template.md`. The
+**Naming.** A spec or reading is `<dir>/<id>.md`, and it may sit either at the top of its
+directory or inside a subdirectory — `designs/07_30_26/toward_yes_grid.md`. Put the date in the
+subdirectory or in the id, whichever you prefer; nothing requires both, and nothing requires a
+`_design` / `_extraction` / `_reading` suffix. The slash commands take the bare id, search their
+directory recursively, and still resolve the older suffixed filenames, so existing files keep
+working and need no renaming. Where a bare id matches more than one file, the command lists the
+matches and asks rather than guessing; pass `<date>/<id>` to name one directly.
+
+`designs/<exp_id>.md` — before an experiment. From `templates/design_template.md`. The
 prediction table is the part that matters: one row per condition, one column per competing
 explanation, what each predicts. If two columns come out identical across every row, the design
 cannot separate those explanations and should not be run. That check costs ten minutes.
 
-`extractions/<ext_id>_extraction.md` — before an extraction. From
+`extractions/<ext_id>.md` — before an extraction. From
 `templates/extraction_template.md`. Two fields carry the weight. **Independence structure** —
 which id sets are disjoint, nested, or identical, and why — because that is the one choice no
 later analysis can undo. And **comparisons this must support later**, which does the job the
 prediction table does: it needs no hypothesis, only a statement of what you must be *able* to
 compute, and it is checkable against the artifacts afterwards.
 
-`analysis/<run_id>_reading.md` — after a run, before any agent sees the numbers. From
+`analysis/<run_id>.md` — after a run, before any agent sees the numbers. From
 `templates/reading_template.md`. Write it from the result files directly. Asking an agent what
 the files show before you have written this defeats the gate, because a factual summary arrives
 with an implied reading attached.
@@ -126,22 +134,22 @@ a sentence stops matching a number, one of them has to change.
               need primitives?                    need an answer?
                      |                                   |
                      v                                   v
-   extractions/<ext_id>_extraction.md     designs/<exp_id>_design.md      [you]
+   extractions/<date>/<name>.md           designs/<date>/<name>.md        [you]
                      |                                   |
                      v                                   v
-   /examine-extraction <ext_id>           /examine-design <exp_id>        [examiner]
+   /examine-extraction <path>             /examine-design <path>          [examiner]
                      |                                   |
                      v  revise until it holds            v  revise until it holds
-   /plan <ext_id>                         /plan <exp_id>                  [planner]
+   /plan <path>                           /plan <path>                    [planner]
                      |                                   |
                      v  you review the plan              v  you review the plan
    Cursor runs the extraction             Cursor implements and runs
                      |                                   |
                      v                                   v
-   artifacts on disk ---------- feed ---->  analysis/<run_id>_reading.md  [you]
+   artifacts on disk ---------- feed ---->  analysis/<date>/<name>.md     [you]
                                                          |
                                                          v
-                                            /examine-results <run_id>     [examiner]
+                                            /examine-results <path>       [examiner]
                                                          |
                                                          v  revise your reading
                                             ABSTRACT.md updated           [you]
@@ -162,12 +170,12 @@ paper, a file, or a function is a plain agent request with no ceremony attached.
 
 ## The gates
 
-**Design gate.** The Planner refuses without `designs/<exp_id>_design.md`, and the pre-write
+**Design gate.** The Planner refuses without `designs/<exp_id>.md`, and the pre-write
 hook blocks any file landing in `implementation_plans/` that does not declare an existing,
 filled spec on its second line. Deterministic — the file exists or it does not.
 
 **Extraction gate.** The same hook, accepting
-`extraction_spec: extractions/<ext_id>_extraction.md` instead. It enforces that exactly one
+`extraction_spec: extractions/<ext_id>.md` instead. It enforces that exactly one
 declaration is present and that it points inside its own directory.
 
 What the hook rejects is two *declarations*, not a plan that does two things. A design spec may
@@ -175,7 +183,7 @@ carry the primitives it strictly requires — list them under *Primitives this d
 declare `design_spec:` alone, and one plan covers both. See "What this does not fix" below for
 why the boundary runs in only one direction.
 
-**Reading gate.** The Examiner refuses without `analysis/<run_id>_reading.md`. Enforced by the
+**Reading gate.** The Examiner refuses without `analysis/<run_id>.md`. Enforced by the
 command file and the agent definition rather than by a hook, because the trigger is
 conversational rather than a file write. It is therefore softer, and the honest statement is
 that you can talk your way past it if you want to.

@@ -1,17 +1,30 @@
 ---
-description: Have the examiner interrogate your written reading of a run. Usage /examine-results <run_id>
+description: Have the examiner interrogate your written reading of a run. Usage /examine-results analysis/<MM_DD_YY>/<name>.md
 ---
 
-Run id: $1
+Reading: $1
 
-Read `analysis/$1_reading.md` before anything else.
+**Resolving the reading.** `$1` is a repo-relative path to the reading, pasted from the editor:
+`analysis/<MM_DD_YY>/<name>.md`. Take it literally. Do not glob, do not search for near matches,
+do not try `_reading` suffix variants.
 
-If that file does not exist, is empty, or still contains unfilled template placeholders: say
+- Append `.md` if it is missing. Strip a leading `./`.
+- If the path does not exist, or does not start with `analysis/`, say so, name the path, and
+  stop. Do not guess a neighbouring file and do not write the reading yourself.
+- Only if `$1` contains no `/` at all is it a bare id. Then, and only then, glob
+  `analysis/**/$1.md`; if that matches more than one file, list every match and ask which.
+- `analysis/bypass_log.md` is never the reading. If `$1` resolves to it, stop and say so.
+
+The run id is the filename stem of the resolved path.
+
+Read the resolved file before anything else.
+
+If the file is empty, or it still contains unfilled template placeholders: say
 so, name the file, and stop. Do not summarise the result files, do not preview your questions,
 do not say what you would ask about. A preview is the answer in a thinner form, and the whole
 point of this gate is that Alex's reading exists before any agent has characterised the numbers.
 
-Then check `analysis/bypass_log.md` for an entry dated today naming `$1`. If one exists, the
+Then check `analysis/bypass_log.md` for an entry dated today naming that run id. If one exists, the
 gate is lifted and you may answer directly. Never write that entry and never suggest writing
 one — the log is an instrument for measuring how often the gate gets lifted, and an agent that
 suggests lifting it corrupts the measurement.
@@ -60,7 +73,8 @@ what was stored.
 **7. Competing explanations.** What else produces this pattern. If the reading names one, ask
 for a second. Do not supply the second, even hedged, even as an example.
 
-**8. Claim drift.** Compare the current wording against earlier files in `analysis/` and against
+**8. Claim drift.** Compare the current wording against earlier files anywhere under
+`analysis/`, subdirectories included, and against
 `ABSTRACT.md`. Where a hypothesis has become "the finding" without new evidence, name the change
 and ask what supplied it. Where a sentence in `ABSTRACT.md` no longer matches a number, say
 which two disagree — and stop there, because deciding which of them changes is his.

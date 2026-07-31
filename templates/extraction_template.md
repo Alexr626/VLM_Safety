@@ -1,6 +1,7 @@
 # Extraction spec — <ext_id>
 
-Copy to `extractions/<ext_id>_extraction.md`. Three fields. Delete every angle-bracket
+Copy to `extractions/<ext_id>.md`, or into a dated subdirectory as
+`extractions/<date>/<ext_id>.md`. Three fields. Delete every angle-bracket
 placeholder; the pre-write hook rejects plans whose spec still contains them.
 
 Short on purpose. A bad extraction costs compute; a bad design costs a belief. The gate is
@@ -15,7 +16,7 @@ Covers **producing and storing primitives**: activations, per-layer stacks, atte
 per-head values, residual streams, extracted directions, caches.
 
 Does not cover **any comparison, or any number you would read as evidence** — those need
-`designs/<exp_id>_design.md`, whether or not they need a GPU.
+`designs/<exp_id>.md`, whether or not they need a GPU.
 
 The test: **would a different value change what you believe?** Producing a tensor cannot come
 out wrong in a way that changes a belief; measuring something can.

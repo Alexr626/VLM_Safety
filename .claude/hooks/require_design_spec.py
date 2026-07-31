@@ -3,8 +3,12 @@
 
 Two spec types are accepted, declared within the first 10 lines of the outgoing content:
 
-    design_spec: designs/<exp_id>_design.md          experiments: comparisons, measurements
-    extraction_spec: extractions/<ext_id>_extraction.md   primitives: activations, directions
+    design_spec: designs/<path to spec>          experiments: comparisons, measurements
+    extraction_spec: extractions/<path to spec>  primitives: activations, directions
+
+The path is whatever the spec is actually called, repo-relative: any filename, at any depth
+under its directory, so `designs/07_30_26/toward_yes_grid.md` and `designs/foo_design.md` are
+both fine. Only the leading directory is constrained.
 
 Exactly one must be present. The referenced file must exist and must not be an unfilled
 template. Exit 0 to allow, exit 2 to block (stderr is shown to the model).
@@ -88,10 +92,11 @@ def main():
             "BLOCKED: no spec declared.\n"
             "Every file under implementation_plans/ must carry, within its first 10 lines,\n"
             "exactly one of:\n"
-            "    design_spec: designs/<exp_id>_design.md\n"
+            "    design_spec: designs/<path to the spec, as it sits on disk>\n"
             "        for experiments - any comparison, or any number read as evidence\n"
-            "    extraction_spec: extractions/<ext_id>_extraction.md\n"
+            "    extraction_spec: extractions/<path to the spec, as it sits on disk>\n"
             "        for producing primitives - activations, attention, directions, caches\n"
+            "Any filename, at any depth under that directory.\n"
             "If neither spec exists, it has not been written yet. Stop and return questions\n"
             "to Alex rather than drafting one."
         )

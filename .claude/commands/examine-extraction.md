@@ -1,11 +1,22 @@
 ---
-description: Have the examiner check an extraction spec against the ways extracted data silently stops answering the question. Usage /examine-extraction <ext_id>
+description: Have the examiner check an extraction spec against the ways extracted data silently stops answering the question. Usage /examine-extraction extractions/<MM_DD_YY>/<name>.md
 ---
 
-Extraction id: $1
+Extraction spec: $1
 
-Read `extractions/$1_extraction.md`. If it does not exist or is an unfilled template, say so and
-stop.
+**Resolving the spec.** `$1` is a repo-relative path to the spec file, pasted from the editor:
+`extractions/<MM_DD_YY>/<name>.md`. Take it literally. Do not glob, do not search for near
+matches, do not try `_extraction` suffix variants.
+
+- Append `.md` if it is missing. Strip a leading `./`.
+- If the path does not exist, or does not start with `extractions/`, say so, name the path, and
+  stop. Do not guess a neighbouring file and do not draft the spec yourself.
+- Only if `$1` contains no `/` at all is it a bare id. Then, and only then, glob
+  `extractions/**/$1.md`; if that matches more than one file, list every match and ask which.
+
+The extraction id is the filename stem of the resolved path.
+
+Read the resolved file. If it is empty or is an unfilled template, say so and stop.
 
 Delegate to the examiner subagent under the constraints below.
 

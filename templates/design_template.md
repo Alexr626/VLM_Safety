@@ -1,6 +1,7 @@
 # Design spec — <exp_id>
 
-Written by Alex, before any plan exists. Copy to `designs/<exp_id>_design.md` and fill in.
+Written by Alex, before any plan exists. Copy to `designs/<exp_id>.md`, or into a dated subdirectory as
+`designs/<date>/<exp_id>.md`, and fill in.
 Delete every angle-bracket placeholder; the pre-write hook rejects plans whose design spec
 still contains them.
 
@@ -27,6 +28,14 @@ the primary measurement — direction and rough magnitude, not just "changes".
 This is the load-bearing part of the spec. If two columns are identical across every row, the
 design cannot distinguish those explanations and should not be run. Find that out here rather
 than after the GPU time.
+
+**A row is a condition, not an arm.** In a method-validation sweep the design has as many arms
+as the factorial has combinations, and the table does not enumerate them. A row collapses a
+family of arms that the explanations do not distinguish between — "LLaVA on a discriminative
+benchmark" is a legitimate row even when forty arms sit under it. The job of this table is to
+show that you know what each explanation would look like in the result data, at the coarsest
+grain that still separates the explanations. Splitting a row is worth doing only when two
+explanations disagree about the two halves.
 
 | Condition | Explanation A predicts | Explanation B predicts |
 |---|---|---|
@@ -149,11 +158,17 @@ For each composite on the y-axis:
 
 ## Sample size
 
-n per cell: <n>
+Evaluation n per cell: <n>
 
-Why that n — what size of effect it can separate from zero, and how you know:
+Resolution at that n — the smallest difference this n can separate from noise:
 
-<answer>
+<One line. This is a property of the measuring instrument, not a forecast: it follows from n
+alone, before anything is known about the effect. For a yes/no benchmark the binomial standard
+error at the baseline rate is enough.>
+
+Where a sample size is itself a factor of the design — direction sample size, demo count,
+anything swept rather than fixed — no prediction of how the result scales with it is required.
+State the direction you expect, if any, and that the scaling is read off after the run.
 
 ## What I predict
 
