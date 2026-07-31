@@ -1,6 +1,5 @@
 {
   "permissions": {
-    "defaultMode": "default",
     "allow": [
       "Read",
       "Grep",
@@ -47,7 +46,9 @@
       "Bash(conda env list)",
       "Bash(conda list*)",
       "Bash(pip list*)",
-      "Bash(pip show*)"
+      "Bash(pip show*)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(python -c ' *)"
     ],
     "deny": [
       "Write(answers/interpretations/**)",
@@ -117,7 +118,8 @@
       "Write(IMPLEMENTATION.md)",
       "Edit(environment.yml)",
       "Write(environment.yml)"
-    ]
+    ],
+    "defaultMode": "default"
   },
   "hooks": {
     "PreToolUse": [

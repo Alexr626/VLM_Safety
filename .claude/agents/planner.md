@@ -153,12 +153,52 @@ Do not pad. End with the open questions.
 
 ## Sanity checks
 
-Where the design rests on an assumption about the data, the tokenizer, the extraction, a
-benchmark subset, the parser, or model behaviour on the intended items, that assumption is
-checked before the main experiment runs, not alongside it. Name each check, say what it
-verifies and what result would invalidate the design, and put them in a section that gates the
-rest of the plan. Where the checks are substantial, write them as their own plan file first and
-say in chat that the main plan waits on their results.
+A sanity check exists for one reason: an assumption **the experiment** rests on could be false
+in a way that makes the numbers meaningless, and finding that out afterwards costs the run.
+Nothing else belongs in this section.
 
-This project has run a full experiment on a broken data premise before. Treat the sequencing
-as hard.
+**Hard cap: five.** Fewer is better and zero is a legitimate result, stated in one line. If more
+than five candidates survive the tests below, the design rests on more unverified premises than
+it can carry — say so and return the question rather than writing a longer list. A check is
+never added for completeness, for symmetry with the other checks, or because a section looks
+thin.
+
+**What qualifies.** An assumption about the data, the tokenizer, the parser, a benchmark subset,
+a generation setting, or model behaviour on the intended items, where a plausible outcome of the
+check would change what the experiment measures or invalidate a named cell. The spec's
+`## Assumptions that need checking first` is the primary source. A check with no counterpart
+there must carry one sentence naming the cell it protects; if you cannot write that sentence,
+it is not a check.
+
+**What never qualifies, regardless of how cheap it is.**
+
+- How the code works — what a function returns, what arguments it takes, whether an entry point
+  exists, whether an argument is forwarded. That is `IMPLEMENTATION.md` and the source, and
+  reading it is your job now, not a step for the implementer.
+- Where artifacts are written, how they are named, what a cache directory holds, or whether an
+  existing artifact has the properties its extraction recorded — including artifacts produced by
+  a different experiment and reused here. That is `IMPLEMENTATION.md`.
+- Whether a pinned subset file exists or still resolves, whether a partition is disjoint,
+  whether a file count matches, whether a hash agrees. Those are reads, not checks.
+- Environment, throughput, memory headroom, device placement. Those are launch prerequisites.
+  Put them under a separate heading, and they do not count toward the five.
+
+**Read `IMPLEMENTATION.md` before proposing any check.** It is the standing record of what has
+already been established about this repo — module APIs, hook sites, registry keys, data paths,
+metric schemas, and the properties of every extracted artifact set on disk. Consult it first. If
+it answers the question, the check does not exist: write the fact into the plan and cite the
+line that supplies it. If it is silent and you can settle the question by reading the repo,
+settle it during planning and record it as a resolved fact with a file and line. A sanity check
+is only what survives when neither route closes it. Where `IMPLEMENTATION.md` and the code
+disagree, the code is reality — say so in the plan's open questions so the file gets fixed.
+
+For each check that does survive: name it, say what it verifies and what result would invalidate
+the design, and put it in a section that gates the rest of the plan. Where the checks are
+substantial, write them as their own plan file first and say in chat that the main plan waits on
+their results — this is the exception, not the default shape, and the cap of five applies to
+that file exactly as it applies here.
+
+This project has run a full experiment on a broken data premise before, and the sequencing is
+hard for that reason. The cap does not weaken it: a check that protects no cell protects
+nothing, and a list long enough to bury the two checks that matter is how the premise gets
+missed again.

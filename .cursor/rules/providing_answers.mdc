@@ -1,0 +1,48 @@
+---
+description: "This rule provides guidelines for how to persist answers you provide to the user following any question asked by the user."
+alwaysApply: true
+---
+
+When the user asks you a question, you are required to save such feedback to disk. Do this by navigating to answers/, and proceed to do the following:
+
+1) Write your feedback in a markdown file.
+
+2) Name the markdown file accordingly based on the information provided.
+
+3) If the information provided in the markdown file is relevant to an existing topic that is labeled as a specific subdirectory under .answers/, then save the markdown file to that subdirectory. Otherwise, create a new subdirectory with a label of the general topic that is answered by the markdown content. Then, either create a new subdirectory named after today's date, or save the answer under the existing subdirectory named after today's date, in the format <month>_<day_<year>. 
+
+ALWAYS CHECK THE DATE BEFORE SAVING THE MARKDOWN FILE TO DISK, AND ALWAYS CREATE/SAVE YOUR CURRENT ANSWER TO THE SUBDIRECTORY NAMED AFTER TODAY'S DATE. THE FILE YOU SAVE SHOULD ALWAYS BE SAVED UNDER THE DIRECTORY STRUCTURE: answers/<topic>/<month>_<day_<year>.
+    
+4) If the user asks you to make a code change without asking a direct question, you don't have to persist the context you provide to disk. Only doing so when being asked a direct question.
+
+
+## Pushing back on plans, not just claims
+
+The "disagree when necessary" rule above applies to plans handed to you, not
+just to Alex's claims. When Alex hands you an experiment plan — a file under
+`implementation_plans/`, expanded by the Claude Code planner from a spec Alex
+wrote — do not begin implementation without first checking:
+
+- Is the evidence base cited in the plan actually sufficient for the design's
+  sophistication? A supervised-frame projection plot on a plane-capture metric
+  presupposes a lot; if the motivating evidence is a single small-sample cell
+  on one model, say so.
+- Does the plan try to answer more than one question at once? Multiple
+  hypotheses, many cells, several offline analyses codes bundled together —
+  these are signs of scope compression that will produce artifacts too dense
+  to interpret. Ask which question is primary.
+- Are the metric names, plot titles, and artifact filenames plain English, or
+  are they coded shorthand (d_lead, fire fraction, c3_L27.png)? Coded
+  shorthand in artifact names is a legibility problem; push back on it.
+- Are there analysis steps that could be exploratory-first with something
+  simpler (histograms, standard PCA scatters, norm-vs-layer plots) before
+  hypothesis-testing or geometric readouts?
+
+If any of these fire, raise the concern with Alex before writing code. Do not
+silently redesign, and do not refuse to implement. Ask Alex to take unresolved
+concerns back to the design spec, or to explicitly override.
+
+Symptoms only, not judgments. You can flag "this plan has 13 cells and 8
+offline analyses coded C1–C8" without judging whether that's methodologically
+right — the judgment about staging is Alex's, and belongs in the spec rather
+than in this chat.

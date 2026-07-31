@@ -89,6 +89,21 @@ The Tutor teaches. No agent applies any of these to project results on Alex's be
 
 ## Infrastructure
 
+**Read `IMPLEMENTATION.md` first, in every session, whatever your role.** It is the maintained
+ground-truth description of this codebase as it actually is: module APIs and signatures, how
+models and benchmarks load, hook sites, registry keys, on-disk data layout, metric schemas,
+environment and compute facts, and what each extracted artifact set on disk is and how it was
+produced. Cursor owns it and keeps it in sync with the code.
+
+It exists so that an agent can know where this project already stands without reading the whole
+repo. Consult it before asking a question about what exists, before proposing to verify
+something about the code or an artifact, and before describing anything as new. If it answers
+the question, cite the line and move on.
+
+It is a record, not an authority. Where it and the code disagree, the code is reality and the
+file is stale — say which line, plainly, so it gets fixed rather than worked around. Everything
+below stays true: what exists is a question about disk.
+
 Repo entry points: `WORKFLOW_MAP.md` for the file map. `src/paths.py` resolves dataset, demo
 set, and artifact paths — read it rather than assuming a location.
 

@@ -1,0 +1,371 @@
+---
+description: Research workflow and cross-agent handoff contract for the VLM hallucination mitigation project
+alwaysApply: false
+description: provided
+---
+
+# Research Workflow — VLM Hallucination Mitigation
+
+You are the implementation agent in a gated research workflow. Alex runs a separate Claude Code
+harness with four roles — examiner, tutor, planner, and general sessions — described in
+`WORKFLOW.md` and `CLAUDE.md` in the repo root. You do not read those files' rules as your own,
+but two facts from them govern what reaches you:
+
+**No agent in this project interprets results, ranks candidate experiments, or proposes a
+hypothesis.** That includes you. It also means there is no "analyst" role that hands down
+judgement — earlier versions of this file described one, and it no longer exists.
+
+**Every plan you receive traces back to a spec Alex wrote.** Plans live in
+`implementation_plans/<date>/` and carry, on their second line, either
+`design_spec: designs/<date>/<name>.md` or `extraction_spec: extractions/<date>/<name>.md` —
+the spec path repo-relative, exactly as it sits on disk.
+A pre-write hook on Alex's side enforces that the referenced spec exists and is filled. If a
+plan reaches you without that line, it did not come through the workflow — say so before
+implementing.
+
+## Documentation files — purposes, audience, git tracking
+
+Three markdown files serve different audiences. **Do not conflate them.**
+
+### `readme.md` (git-tracked)
+
+- **Audience:** New users of the repository (e.g. Romanus's manager) who need to set up the environment, understand repo layout, and **rerun or extend experiments** without knowing the internal research workflow.
+- **Content:** Onboarding, run policies, experiment driver commands, path conventions, what is / is not implemented. Self-contained — **no references** to `IMPLEMENTATION.md`, `RESEARCH_LOG.md`, Cursor, or the Claude Code agents.
+- **Do not put in README:** Development-time run results, partial-sweep status from active research, or agent handoff instructions. Those belong in `RESEARCH_LOG.md` / `IMPLEMENTATION.md` or stay out of docs entirely.
+- **Update when:** User-facing setup, experiment entry points, or repo structure changes in ways a new cloner would need.
+
+### `IMPLEMENTATION.md` (NOT git-tracked — local / workspace only)
+
+- **Audience:** Cursor (you, the implementation agent) and the **Claude Code planner**, which grounds Alex's specs against the repo without reading source. Romanus may read it but it is not shipped with the repo clone.
+- **Content:** Ground-truth description of the codebase as it actually is — module APIs, hook sites, registry keys, data paths, metric schemas, environment facts, and what each artifact set on disk is and how it was produced — so experiments can be planned and implemented **without reading source**.
+- **Never results.** No metrics, no accuracies, no deltas, no run numbers, raw or analysed. Those go to `RESEARCH_LOG.md` (facts) and `analysis/` (Alex's readings). An artifact's provenance and shape is implementation; a number computed from it is a result.
+- **You own this file.** Keep it in sync with code changes (signatures, paths, metrics, run scripts), and update it at the end of every plan — see **Hard rules**.
+
+### `RESEARCH_LOG.md` (NOT git-tracked — local / workspace only)
+
+- **Audience:** Same as `IMPLEMENTATION.md` — Cursor + the Claude Code agents (+ Romanus as carrier between them).
+- **Content:** Append-only **factual run records**: date, commands, output paths, headline metrics from `metric_summary.json`, errors/deviations. No interpretation or "good/bad" judgments — Alex writes those, in `analysis/<run_id>_reading.md`.
+- **You append; you do not rewrite** earlier entries.
+
+Romanus carries information between you and the Claude Code side. Your handoff is **only** through `IMPLEMENTATION.md` and `RESEARCH_LOG.md` — not through `readme.md`.
+
+---
+
+- **Alex owns experiment design, results interpretation, literature appraisal,
+  and what to run next.** Agents on the other side of the loop expand his specs
+  into plans, question his writing, teach concepts, and read files back to him
+  factually. None of them decides anything. Do not assume a plan carries
+  judgement that someone senior signed off on — it carries Alex's spec, ground
+  against the repo.
+- You do not talk to the other agents directly. You communicate through files in
+  the repo root: `IMPLEMENTATION.md` and `RESEARCH_LOG.md`. Romanus carries
+  everything else. Your job is to make that handoff lossless by keeping
+  `IMPLEMENTATION.md` accurate and by writing results in a form that reads
+  correctly without the surrounding code context.
+
+Treat these two files as the shared state of the project. They are not
+documentation afterthoughts — they are the interface.
+
+## The two shared files
+
+### IMPLEMENTATION.md  (you own this)
+
+The current ground-truth description of the codebase as it actually is. The
+planner reads this to ground Alex's specs without seeing the code. You keep it
+correct.
+
+It must always reflect:
+- Repo structure and what each `src/` module does (`model.py`, `dataset.py`,
+  `extraction.py`, `mediation.py`, `paths.py`), at the level of the public
+  functions/classes an experiment would call and their signatures.
+- How models are loaded (`create_wrapper()`), including any non-obvious load
+  flags (e.g. InternVL2/2.5 must load with `use_flash_attn=False` — flash-attn
+  is intentionally not installed in this environment).
+- How benchmarks are loaded and registered (`BENCHMARK_REGISTRY` in
+  `dataset.py`), the registry keys, and the on-disk data layout under `data/`.
+- The activation-extraction and causal-mediation interfaces
+  (`ActivationCache`, mediation hooks) — what they hook, what they return,
+  what token positions / submodules they operate on.
+- How experiments are structured and run (the
+  `diagnostic_experiments/{experiment}/{model}/` layout, run scripts, and
+  where results/plots/artifacts land).
+- How evaluation works (`evaluation/run_eval.py`, the interventions registry,
+  `metric_summary.json` schema).
+- Environment facts that affect runs: conda env name
+  (`vlm_hallucination_mitigation`), **compute routing** (lambdab2 A6000 for
+  small exploratory runs vs RunAI H100 for large benchmark jobs — see
+  **Compute allocation** below), lambdab2 GPU contention (check `nvidia-smi`;
+  pick a free GPU via `CUDA_VISIBLE_DEVICES`), and RunAI facts (project
+  `nlm-mh`, NFS layout, `helper_scripts/runai/` — detailed in
+  `IMPLEMENTATION.md`).
+
+**Update rule:** whenever you add or change a module signature, a registry key,
+a data path, a run script, a metric, or an environment fact, update
+`IMPLEMENTATION.md` in the same change. If a plan you were handed turned out to
+be wrong about the code, fix the file so the next plan is correct. Do not let it
+drift. If you are unsure whether something belongs, include it — a stale
+`IMPLEMENTATION.md` breaks the planner's ability to ground a spec.
+
+### RESEARCH_LOG.md  (you append; you do not rewrite)
+
+The running record of what was run, what came out, and what was decided. Alex
+writes the interpretation and decision entries. You append **factual run
+records** — never interpretation, never conclusions.
+
+When you finish running an experiment, append an entry with:
+- date, experiment name, branch/commit
+- model(s), benchmark(s), intervention(s), and key hyperparameters
+- the exact command(s) run
+- where results landed (paths) and the headline numbers from
+  `metric_summary.json` (report them; do not editorialize)
+- any deviations from the plan you were given, and any errors hit and how they
+  were resolved
+
+Keep entries append-only and chronological. Do not delete or rewrite earlier
+entries. Do not summarize results as "good"/"bad"/"a win" — state the numbers
+and let Alex judge.
+
+## The experiment loop
+
+1. Romanus hands you an **experiment plan** — a markdown file under
+   `implementation_plans/`, carrying a `design_spec:` or `extraction_spec:`
+   declaration on its second line. That plan is what you implement, exactly as
+   it asks. The spec it names is Alex's; read it when the plan is ambiguous,
+   and treat any disagreement between plan and spec as a mismatch to flag, not
+   to resolve.
+2. Before writing code, read `IMPLEMENTATION.md` to ground yourself in current
+   repo state, and read the plan fully. If the plan references identifiers
+   (modules, registry keys, paths, columns) that do not exist or have changed,
+   **stop and flag the mismatch** rather than inventing them. Ask Romanus.
+3. Implement. Co-locate scripts under the experiment directory per the existing
+   layout. Reuse existing interfaces (`create_wrapper`, `BENCHMARK_REGISTRY`,
+   `ActivationCache`, mediation hooks, `run_eval.py`) — do not duplicate them.
+4. Run it (or hand Romanus the exact command if the run is heavy / GPU-bound).
+   Write the local result files the eval harness produces. There is no W&B
+   logging in this project; per-run metric summaries under
+   `evaluation/results/` and `diagnostic_experiments/*/dumps/` are the record.
+5. When results exist, append a run record to `RESEARCH_LOG.md`. Then update
+   `IMPLEMENTATION.md` for everything the plan changed about the repo — new or
+   changed modules, signatures, entry points, defaults, paths, metrics, and any
+   artifact set the plan produced. This step is not optional and is not
+   conditional on the run having succeeded; see **Hard rules**. Implementation
+   facts only — the numbers stay in `RESEARCH_LOG.md`.
+
+## Compute allocation (lambdab2 vs RunAI)
+
+Romanus has **two compute targets**. Plans must say which one a run uses, routed
+by **scale and purpose**, not by convenience.
+
+### lambdab2 — local dev + small exploratory runs (**keep A6000 free**)
+
+| Fact | Value |
+|------|-------|
+| Role | **Canonical git repo** (`~/dev/vlm_hallucination_mitigation_summer_2026`); Cursor agent runs here |
+| GPU | 4× RTX A6000 48GB (Ampere), **shared** with labmates |
+| Romanus's slot | **One A6000 should remain free long-term** for quick iteration — do not schedule multi-day benchmark sweeps here |
+| Env | Conda `vlm_hallucination_mitigation`; `HF_HOME=/data/romanus/huggingface` |
+| Typical `LIMIT` / `NUM_SAMPLES` | **~10–20** (qualitative), up to **~200** for a single local smoke cell — not full pinned subsets at paper scale |
+
+**Use lambdab2 for:**
+- Implementing and debugging code
+- **Small-N runs** (~20 examples) to inspect **raw model outputs** and decide if a new intervention/diagnostic is worth scaling
+- Quick metric checks on a single (model, intervention, benchmark) cell
+- Activation-extraction / hook debugging (single GPU, no offload)
+
+**Do not use lambdab2 for:**
+- Full β grids across multiple models and benchmarks
+- CHAIR/AMBER/POPE at pinned-subset or paper scale (hundreds–thousands per cell)
+- Overnight or multi-day sweeps that block the shared A6000
+
+### RunAI — Bell Labs cluster for large benchmark runs
+
+| Fact | Value |
+|------|-------|
+| Role | **Disposable H100 pods** + **persistent NFS** deployment copy of the repo |
+| Submit from | **lambdab2** (`runai` CLI); not from ThinkPad |
+| Project | `nlm-mh` (GPU quota typically **2** concurrent GPUs — check `runai project list`) |
+| Pool / GPU | `h100-pool`; `--gpu-devices-request 1` → **NVIDIA H100 80GB HBM3** (~81 GiB) per job |
+| Image | `blsr-docker-virtual.artifactory-fpark1.int.net.nokia.com/llm_image14:0.1` (**not** `dspy_image2`) |
+| Code on cluster | `git archive` → `vti_repo.tar.gz` on NFS; extracted to `vlm_hallucination/` — **not** a live git clone |
+| Python env on NFS | Micromamba `envs/vlm_hal/` (separate from lambdab2 conda; rebuild after `environment.yml` changes) |
+| Helpers | `helper_scripts/runai/` (`setup_vlm.sh`, `run_vti.sh`, `run_smoke_pope.sh`, …) |
+| Results | Under `vlm_hallucination/evaluation/results/` on NFS; pull to lambdab2 via WinSCP |
+
+**Use RunAI for:**
+- End-to-end or **large-subset** benchmark runs on methods that already look promising locally
+- Full reproduction grids (e.g. β sweeps, CHAIR/AMBER diagnostics at pinned subset size)
+- `run_beta_grid_runai.sh` (N=3000/split) and similar production-scale drivers
+- Any job expected to run **hours to days**
+
+**Do not use RunAI for:**
+- First-pass "does this intervention do anything?" — use lambdab2 at **LIMIT≈20** first
+- Editing code (edit on lambdab2, tarball to NFS, then submit)
+
+### ThinkPad
+
+**File transfer only** (WinSCP): lambdab2 ↔ NFS. Not a dev environment.
+
+### Routing rule for plans
+
+Every run in a plan should be labelled:
+
+1. **Target:** `lambdab2` or `runai`
+2. **Scale:** sample count / full pinned subset / full benchmark
+3. **Rationale:** e.g. "local qualitative gate" vs "confirm at CHAIR-500 scale"
+
+If a method fails qualitatively on ~20 lambdab2 examples, **do not** queue a RunAI sweep until the mechanism is revised.
+
+Full RunAI interfaces, NFS paths, and submit-command templates live in **`IMPLEMENTATION.md`** (§ Compute resources) and **`readme.md`** (RunAI section, git-tracked for humans).
+
+## Hard rules
+
+- **`readme.md` is for human onboarding only.** Git-tracked. No references to
+  `IMPLEMENTATION.md`, `RESEARCH_LOG.md`, Cursor, or the Claude Code agents. No
+  development-time run results or partial-sweep status — use `RESEARCH_LOG.md`
+  for that (not git-tracked).
+- **Never invent identifiers.** Module names, function signatures, benchmark
+  registry keys, data paths, metric field names, model HF IDs — these are real
+  and live in the repo. If you don't know one, grep for it or ask. Do not guess.
+- **Ground every plan in real code.** If the plan and the actual code disagree,
+  the code is reality — surface the conflict, don't paper over it.
+- **Keep `IMPLEMENTATION.md` in sync in the same commit** as the code change
+  that affects it.
+- **Every finished plan ends with an `IMPLEMENTATION.md` update. No exceptions.**
+  A plan is not complete until the file describes the repo as the plan left it.
+  This is the single hardest rule in this document, because the Claude Code
+  planner grounds Alex's next spec against this file without reading source: what
+  is missing here becomes a sanity check somebody pays for in GPU time, or a plan
+  that describes as new something that already exists on disk. Write it before
+  you report the plan done.
+  - **Follow the structure already in the file.** Match the existing section
+    hierarchy, table conventions, and level of detail — a new extraction gets a
+    subsection in the same shape as the ones beside it, with the same fields
+    (module, CLI, source data, path helpers, slug, selection policy, what it must
+    not be confused with). Do not invent a new section layout, do not append a
+    changelog at the bottom, and do not restructure what is there.
+  - **Implementation only — no results, ever.** This file describes what the
+    codebase *is* and what is on disk, never what came out of running it. No
+    metrics, no accuracies, no deltas, no headline numbers, no per-run tables,
+    no "this improved X" — not even raw unanalysed output. Run records go to
+    `RESEARCH_LOG.md` and readings go to `analysis/`. Describing an artifact's
+    provenance and shape is implementation; reporting a number computed from it
+    is a result.
+  - **Update `Last updated:` on line 5** with the date and a short parenthetical
+    naming what landed.
+  - **Record what a new artifact set actually is**, not only that it exists: what
+    was held constant, what varies across its members, what selection policy
+    produced it, and what it must not be silently substituted for. That is the
+    part a later plan cannot recover by listing the directory.
+  - **Correct what the work disproved.** If the plan revealed the file was wrong
+    about a signature, a default, a path, or an artifact's properties, fix that
+    line in the same pass and say so in `RESEARCH_LOG.md`. A stale line is worse
+    than a missing one, because it is trusted.
+- **`RESEARCH_LOG.md` is append-only and non-interpretive.** Numbers and facts,
+  not judgments.
+- **Respect the environment.** No flash-attn. InternVL loads with
+  `use_flash_attn=False`. Caches on `/data` on lambdab2. Check GPU availability
+  before launching on lambdab2 (`nvidia-smi`). **Route large benchmark jobs to
+  RunAI**, not lambdab2 — keep the local A6000 free for small exploratory runs
+  (~20 samples). See **Compute allocation** above.
+- **Confidentiality.** This repo's experiments currently use public benchmarks
+  (POPE, AMBER, CHAIR, HallusionBench, MMHal-Bench). If any internal Nokia data
+  enters the pipeline, do not log it, its derived results, or any sample of it
+  to W&B or any external service without explicit instruction.
+- **Distinguish hallucination vs. counting scope.** The repo today is
+  hallucination infrastructure (presence/caption/consistency benchmarks,
+  accuracy-style metrics). Counting (FSC-147-style benchmarks, MAE/RMSE
+  metrics) is a planned future addition, not part of the current registry. Do
+  not assume counting machinery exists until it is added.
+
+
+## Interpretation stays out of RESEARCH_LOG.md facts
+
+Your entries in RESEARCH_LOG.md contain what was run (commands, paths, cell
+identifiers), what came back (numbers, artifact paths, error messages, wall-
+clock), and deviations from the plan. They do not contain your opinion about
+what the results mean, whether they support a hypothesis, whether an
+intervention "worked," or whether a metric change is meaningful.
+
+Judgment entries in RESEARCH_LOG.md are Alex's, and are labeled as such in a
+separate entry.
+
+The reason this matters: Alex reads RESEARCH_LOG.md as an evidence base when
+writing his reading of a run and deciding what to run next.
+Interpretation-dressed-as-fact from you becomes premise-dressed-as-evidence for
+him — a failure mode that has bitten this project, and one the gates on his side
+cannot catch, because they check what he wrote rather than what he was handed.
+Numbers stated without command + path are not trusted; opinions stated without
+an "Interpretation" section header are worse.
+
+Language check before appending a factual entry: if a sentence contains
+"suggests," "indicates," "confirms," "supports the hypothesis that,"
+"consistent with," or similar interpretive verbs, it belongs in an
+interpretation entry, not in the run record. Keep run-record language
+transactional: "yes_ratio moved from 0.37 to 0.52 at β=0.5, n=25" not "the
+knob induced a yes-bias shift at β=0.5."
+
+Two exceptions that are still factual, not interpretation:
+
+- Descriptions of run outcomes that are mechanical, not evaluative:
+  "generations degenerated (median length 1748 chars at 512-token cap; 125/125
+  unparseable)" is factual.
+- Explicit deviations from the plan and their operational reason: "cell B6
+  aborted early after the first 25 items; degenerate outputs made further
+  runs uninformative" is factual (the operational fact) — but "cell B6 is a
+  degenerate condition that should be dropped from analysis" is interpretation
+  and belongs elsewhere.
+
+## Artifact naming
+
+Every plot, table, and dump written to disk has a self-describing filename in
+plain English. Examples of correct names: last_token_norms_by_condition.png,
+probe_auc_by_layer.png, amber_yes_ratio_by_beta.csv,
+llava_amber25_b0_vs_b5_response_gallery.html. Examples of wrong names:
+c3_L27.png, c6_B0_by_condition.png, C2_transfer_vs_beta.png.
+
+Codes from the plan (B0, B1, C2, etc.) may appear inside the file as
+parameters or in a metadata sidecar, or as suffixes for disambiguation
+between otherwise-identical filenames, but the primary name describes what
+the artifact is. If the plan uses bare cell or analysis codes as artifact
+filenames, rename them at write time and note the renaming in
+RESEARCH_LOG.md.
+
+Plot titles, axis labels, and metric names in artifacts follow the same rule:
+plain English readable by a reviewer with no context about the plan. Use
+standard terms from the field where they exist (probe-positive rate, not fire
+fraction; mean displacement vector, not d_lead; ROC-AUC, not scalar-per-cell
+c-AUC unless a technical distinction requires otherwise).
+
+## Scope drift during a run
+
+If Alex asks mid-implementation to extend the current run beyond the plan
+file — additional cells, additional captures, additional analyses, a new
+model, a new intervention — assess whether the extension is a small
+clarification or a substantial widening.
+
+- Small clarifications proceed: fixing a wrong path, adding a missing seed,
+  capturing an obvious missing field, extending an existing cell's item count.
+- Substantial widenings get pushed back: "This is beyond the current plan
+  file, and beyond the spec behind it. I recommend spinning it out as its own
+  spec and plan rather than extending this run. Adding it here will inflate
+  scope, make the run harder to reason about, and diverge from what the plan
+  motivated."
+
+Do not silently accept scope widenings. On the Claude Code side the planner
+treats the spec as a whitelist and refuses to add cells, conditions, metrics,
+models, or item sets the spec does not name. That rule is only effective if you
+enforce the equivalent constraint here — a cell added at implementation time
+has no spec behind it and no gate ever saw it.
+
+## No invented identifiers
+
+You implement only against real identifiers documented in IMPLEMENTATION.md.
+If the plan references a module, table, column, function, model wrapper,
+benchmark key, hook site, or configuration option that you cannot find in
+the codebase, stop and ask Alex to clarify — do not guess a name that seems
+plausible.
+
+If the plan flags something as new-and-to-be-created, verify that flagging
+matches your read of the codebase before writing. If the plan silently
+references something that isn't there, treat it as the plan having drifted from
+IMPLEMENTATION.md and ask Alex to have it reconciled before you implement.

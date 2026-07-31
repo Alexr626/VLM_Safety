@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # Export the Claude Code / Cloud Agentic research-workflow harness into one directory.
 #
-# Copies agents, slash commands, hooks, settings, workflow docs, templates, and the
-# Cursor-side rules that belong to the same loop — everything listed in WORKFLOW.md
-# Install, plus newer harness files that Install has not caught up to yet.
+# Copies agents, slash commands, hooks, settings, workflow docs, Cursor rules,
+# templates, and the shared handoff markdown agents read (IMPLEMENTATION.md,
+# RESEARCH_LOG.md, ABSTRACT.md, readme.md) — everything listed in WORKFLOW.md
+# Install / TOOLING.md / WORKFLOW_MAP.md, plus newer harness files Install may
+# not have caught up to yet.
 #
-# Does not copy live experiment content (designs/, extractions specs, analysis readings,
-# implementation_plans/, experiment_artifacts/, ABSTRACT.md drafts).
+# Does not copy live experiment content (designs/, extraction specs, analysis
+# readings, implementation_plans/, experiment_artifacts/).
 # Does not copy .claude/settings.local.json (machine-local).
 #
 # Usage:
@@ -41,7 +43,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     -h|--help)
-      sed -n '2,25p' "$0"
+      sed -n '2,28p' "$0"
       exit 0
       ;;
     *)
@@ -51,14 +53,20 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Relative paths from repo root. Keep in sync with WORKFLOW.md Install + TOOLING.md.
+# Relative paths from repo root. Keep in sync with WORKFLOW.md Install + TOOLING.md
+# + WORKFLOW_MAP.md. Cursor rules and dated HANDOFF_*.md are discovered on disk
+# after this static list so new rule files are picked up without editing the script.
 FILES=(
-  # Shared workflow docs
+  # Shared workflow docs / agent-facing project markdown
   CLAUDE.md
   WORKFLOW.md
   TOOLING.md
   WORKFLOW_MAP.md
   STEERING_MATH_REFERENCE.md
+  ABSTRACT.md
+  IMPLEMENTATION.md
+  RESEARCH_LOG.md
+  readme.md
   answers/README.md
 
   # Claude Code harness
@@ -80,11 +88,33 @@ FILES=(
   templates/design_template.md
   templates/extraction_template.md
   templates/reading_template.md
-
-  # Cursor side of the same loop (see TOOLING.md)
-  .cursor/rules/providing_answers.mdc
-  .cursor/rules/research_workflow.mdc
 )
+
+# Cursor harness: every rule file under .cursor/rules/ (mdc / md).
+# Named explicitly in TOOLING.md as the Cursor-only half of the loop.
+if [[ -d "${ROOT}/.cursor/rules" ]]; then
+  while IFS= read -r -d '' f; do
+    FILES+=("${f#"${ROOT}/"}")
+  done < <(find "${ROOT}/.cursor/rules" -type f \( -name '*.mdc' -o -name '*.md' \) -print0 | sort -z)
+fi
+
+# Point-in-time handoffs (WORKFLOW_MAP.md); include whichever exist on disk.
+while IFS= read -r -d '' f; do
+  FILES+=("${f#"${ROOT}/"}")
+done < <(find "${ROOT}" -maxdepth 1 -type f -name 'HANDOFF_*.md' -print0 | sort -z)
+
+# De-duplicate while preserving order (static list may overlap discovery).
+declare -A SEEN=()
+UNIQUE_FILES=()
+for rel in "${FILES[@]}"; do
+  [[ -n "$rel" ]] || continue
+  if [[ -n "${SEEN[$rel]+x}" ]]; then
+    continue
+  fi
+  SEEN[$rel]=1
+  UNIQUE_FILES+=("$rel")
+done
+FILES=("${UNIQUE_FILES[@]}")
 
 copy_one() {
   local rel="$1"
@@ -132,10 +162,12 @@ MANIFEST="${OUT}/MANIFEST.md"
 
 Exported from \`${ROOT}\` on $(date -Is).
 
-This directory is a self-contained copy of the Claude Code / Cloud Agentic research
-workflow harness so you can iterate on it with other chat web UI agents. It is the
-install set from \`WORKFLOW.md\`, plus the tutor slash command and Cursor rules that
-belong to the same loop (\`TOOLING.md\`).
+This directory is a self-contained copy of the Claude Code + Cursor research
+workflow harness so you can iterate on it with other chat web UI agents. It
+covers the install set from \`WORKFLOW.md\` / \`TOOLING.md\` / \`WORKFLOW_MAP.md\`:
+role prompts, slash commands, hooks, Cursor rules, templates, and the shared
+markdown agents read across the loop (\`CLAUDE.md\`, \`IMPLEMENTATION.md\`,
+\`RESEARCH_LOG.md\`, \`ABSTRACT.md\`, \`readme.md\`).
 
 ## What is included
 
@@ -157,8 +189,9 @@ EOF
 
 ## What is deliberately excluded
 
-- Live Alex-authored content: `designs/`, `extractions/`, `analysis/`, `ABSTRACT.md`
+- Live Alex-authored content: `designs/`, `extractions/`, `analysis/` readings
 - Planner output: `implementation_plans/`
+- Chat answer scratchpad contents under `answers/<topic>/` (only `answers/README.md`)
 - Machine-local Claude settings: `.claude/settings.local.json`
 - Experiment code, data, and artifacts
 
@@ -166,10 +199,13 @@ EOF
 
 1. Upload this whole folder, or attach the files listed above.
 2. Start from `WORKFLOW.md` (the loop) and `CLAUDE.md` (shared context every role inherits).
-3. Role prompts live under `.claude/agents/` (or the flat `__` names if `--flat` was used).
-4. Slash-command wrappers live under `.claude/commands/`.
-5. Spec shapes live under `templates/` — copy them; do not treat the templates as filled specs.
-6. The deterministic gate is `.claude/hooks/require_design_spec.py`; exercise it with
+3. Implementation-agent handoff state: `IMPLEMENTATION.md` + `RESEARCH_LOG.md`
+   (see `.cursor/rules/research_workflow.mdc`).
+4. Role prompts live under `.claude/agents/` (or the flat `__` names if `--flat` was used).
+5. Slash-command wrappers live under `.claude/commands/`.
+6. Cursor rules live under `.cursor/rules/`.
+7. Spec shapes live under `templates/` — copy them; do not treat the templates as filled specs.
+8. The deterministic gate is `.claude/hooks/require_design_spec.py`; exercise it with
    `.claude/hooks/verify_harness.sh` when you are back in a Claude Code checkout.
 
 ## Re-install into a repo root
@@ -177,7 +213,8 @@ EOF
 From this export (tree mode, not `--flat`):
 
 ```bash
-cp -a CLAUDE.md WORKFLOW.md TOOLING.md WORKFLOW_MAP.md STEERING_MATH_REFERENCE.md /path/to/repo/
+cp -a CLAUDE.md WORKFLOW.md TOOLING.md WORKFLOW_MAP.md STEERING_MATH_REFERENCE.md \
+  ABSTRACT.md IMPLEMENTATION.md RESEARCH_LOG.md readme.md /path/to/repo/
 mkdir -p /path/to/repo/{.claude,.cursor/rules,templates,answers}
 cp -a .claude/. /path/to/repo/.claude/
 cp -a .cursor/rules/. /path/to/repo/.cursor/rules/

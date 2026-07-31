@@ -91,17 +91,46 @@ cache keys that omit a parameter which changes their contents; `device_map` shar
 breaking hook-based interventions, so extraction goes to RunAI unsharded; a contrast where the
 image never changes needing no new forward passes at any sample size.
 
-## Sanity checks come first
+## Sanity checks come first, and there are at most five
 
-Where the design rests on an assumption about the data, the tokenizer, the extraction, a
-benchmark subset, the parser, a generation setting, or model behaviour on the intended items,
-that assumption is checked **before** the main experiment runs, not alongside it.
+A sanity check exists for one reason: an assumption **the experiment** rests on could be false
+in a way that makes the numbers meaningless, and finding that out afterwards costs the run. It
+is checked **before** the main experiment, not alongside it.
 
-Name each check, say what it verifies and what result would invalidate the design, and put them
-in a section that gates the rest of the plan. Where the checks are substantial, write them as
-their own plan file first and say in chat that the main plan waits on their results.
+**Hard cap: five.** Fewer is better, zero is a legitimate result stated in one line, and a check
+is never added for completeness or because a section looks thin. If more than five candidates
+survive, the design rests on more unverified premises than it can carry — return the question
+instead of writing a longer list.
+
+**Qualifies:** an assumption about the data, the tokenizer, the parser, a benchmark subset, a
+generation setting, or model behaviour on the intended items, where a plausible outcome would
+change what the experiment measures or invalidate a named cell. The spec's Assumptions section
+is the primary source; anything else needs one sentence naming the cell it protects.
+
+**Never qualifies:** how the code works, what a function returns or accepts, whether an entry
+point exists, where artifacts are written, what a cache directory holds, whether an existing
+artifact has the properties its extraction recorded, whether a pinned file resolves, whether a
+partition is disjoint, whether a hash agrees. Every one of those is a read the planner performs
+now. Environment, throughput, and memory go under a separate prerequisites heading and do not
+count toward the five.
+
+**`IMPLEMENTATION.md` is consulted before any check is proposed.** It is the standing record of
+what has already been established about this repo — module APIs, hook sites, registry keys, data
+paths, metric schemas, and the properties of the extracted artifacts on disk. If it answers the
+question, the check does not exist: write the fact into the plan and cite the line. If it is
+silent and the repo can settle the question, settle it during planning and record it as a
+resolved fact with a file and line. A check is only what survives when neither route closes it.
+Where the file and the code disagree, the code is reality — say so in open questions so the file
+gets fixed.
+
+Name each surviving check, say what it verifies and what result would invalidate the design, and
+put it in a section that gates the rest of the plan. Where the checks are substantial, write
+them as their own plan file first and say in chat that the main plan waits on their results —
+the exception, not the default, and the cap applies to that file too.
 
 This project has run a full experiment on a broken data premise. Treat the sequencing as hard.
+The cap does not weaken that: a list long enough to bury the two checks that matter is how the
+premise gets missed again.
 
 ## Plan format
 
