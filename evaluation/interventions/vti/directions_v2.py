@@ -44,6 +44,8 @@ SIGN_CONVENTION = (
     "steering direction = (PC1 + mean) reshaped — no mean-diff sign-align"
 )
 STEER_COMPONENT = 0  # PC1 only (live recon with n_components effective 1)
+FIT_LOCUS_GLOBAL = "global"
+FIT_LOCUS_PERLAYER = "perlayer"
 
 
 def demos_content_hash(path: Path) -> str:
@@ -159,9 +161,20 @@ def textual_v2_slug(
     seed: int = 42,
     rank: int = 2,
     selection_policy: str = SELECTION_POLICY,
+    fit_locus: str = FIT_LOCUS_GLOBAL,
 ) -> str:
     policy = "prefix" if selection_policy == SELECTION_POLICY else selection_policy
-    return f"demosv2_{demos_hash[:8]}_{dimension}_nd{num_demos}_s{seed}_r{rank}_{policy}"
+    base = (
+        f"demosv2_{demos_hash[:8]}_{dimension}_nd{num_demos}_"
+        f"s{seed}_r{rank}_{policy}"
+    )
+    if fit_locus == FIT_LOCUS_GLOBAL:
+        return base
+    if fit_locus == FIT_LOCUS_PERLAYER:
+        return f"{base}_perlayer"
+    raise ValueError(
+        f"fit_locus must be one of ('global', 'perlayer'); got {fit_locus!r}"
+    )
 
 
 def textual_v2_cache_dir(model_short: str, slug: str) -> Path:
