@@ -81,6 +81,16 @@ def vti_demos_v2_path() -> Path:
     return vti_data_dir() / "demos_v2.jsonl"
 
 
+def vti_demos_850_path() -> Path:
+    """850-row demos pool: 555 demos_v2 rows + 295 top-up (separate file)."""
+    return vti_data_dir() / "demos_850.jsonl"
+
+
+def vti_demos_850_partition_path() -> Path:
+    """Disjoint 50/100/200/500 partition over demos_850.jsonl (seed 42)."""
+    return vti_data_dir() / "demos_850_partition_s42.json"
+
+
 def amber_data_dir() -> Path:
     return data_root() / "amber"
 

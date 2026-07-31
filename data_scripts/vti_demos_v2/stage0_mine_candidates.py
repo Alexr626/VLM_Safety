@@ -254,6 +254,7 @@ def parse_args():
     p.add_argument("--emit-next-batch", action="store_true",
                    help="Exclude ids already present in any stage artifact; emit next N")
     p.add_argument("--out", type=Path, default=None)
+    p.add_argument("--summary-out", type=Path, default=None)
     p.add_argument("--cooccurrence-cache", type=Path, default=None)
     p.add_argument("--instances", type=Path, default=None)
     return p.parse_args()
@@ -321,7 +322,7 @@ def main() -> int:
         "score_min": rows[-1]["score"] if rows else None,
         "score_max": rows[0]["score"] if rows else None,
     }
-    write_summary(v2 / "stage0_summary.json", summary)
+    write_summary(args.summary_out or (v2 / "stage0_summary.json"), summary)
     print(f"Wrote {len(rows)} candidates -> {out_path}")
     print(f"Top counting categories: {cat_hist.most_common(10)}")
     return 0

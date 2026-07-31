@@ -93,7 +93,6 @@ logs
 .venv
 IMPLEMENTATION.md
 RESEARCH_LOG.md
-.cursor
 data/
 SimSun.ttf
 wandb
@@ -120,6 +119,8 @@ data/vti/*
 !data/vti/demos.jsonl
 !data/vti/demos_v2.jsonl
 !data/vti/demos_v2_order_s42.json
+!data/vti/demos_850.jsonl
+!data/vti/demos_850_partition_s42.json
 !data/vti/qual_subset_chair5_amber25.json
 !data/amber/
 data/amber/*
