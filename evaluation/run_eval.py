@@ -18,6 +18,34 @@ from evaluation.runners import run_evaluation, print_comparison_table  # noqa: E
 _DEFAULT_BENCHMARKS = ["pope", "amber", "chair", "hallusionbench", "mmhal_bench"]
 
 
+def _parse_layer_set(raw: str | None):
+    """Return (layer_indices, layer_set_label).
+
+    ``all`` → (None, ``\"all\"``); ``A-B`` inclusive → (range list, ``\"A_B\"``).
+    """
+    if raw is None:
+        return None, None
+    s = raw.strip().lower()
+    if s == "all":
+        return None, "all"
+    if "-" not in s:
+        raise argparse.ArgumentTypeError(
+            f"--layer_set must be 'all' or inclusive 'A-B'; got {raw!r}"
+        )
+    a_str, b_str = s.split("-", 1)
+    try:
+        a, b = int(a_str), int(b_str)
+    except ValueError as e:
+        raise argparse.ArgumentTypeError(
+            f"--layer_set must be 'all' or inclusive 'A-B'; got {raw!r}"
+        ) from e
+    if b < a:
+        raise argparse.ArgumentTypeError(
+            f"--layer_set range must satisfy A <= B; got {raw!r}"
+        )
+    return list(range(a, b + 1)), f"{a}_{b}"
+
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="VLM hallucination evaluation.")
     p.add_argument("--model", required=True,
@@ -47,8 +75,8 @@ def parse_args() -> argparse.Namespace:
                    help="MMHal-Bench judge: mock (default, offline) | "
                         "openai[:model] | anthropic[:model] | gemini[:model]. "
                         "Only used for the mmhal_bench benchmark.")
-    p.add_argument("--chair_max_new_tokens", type=int, default=64,
-                   help="Frozen caption length for CHAIR generation (default 64). "
+    p.add_argument("--chair_max_new_tokens", type=int, default=256,
+                   help="Frozen caption length for CHAIR generation (default 256). "
                         "Kept constant across baseline and interventions because "
                         "caption length confounds CHAIR; independent of "
                         "--max_new_tokens (used by other benchmarks).")
@@ -74,11 +102,19 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--max_pixels", type=int, default=None,
                    help="Qwen2/2.5-VL vision pixel budget (e.g. 1003520). "
                         "Ignored for non-Qwen2 models.")
+    p.add_argument("--directions_dir", default=None,
+                   help="Precomputed textual_v2-format direction directory "
+                        "(directions.npz + metadata.json). Takes precedence "
+                        "over demos_v2 / legacy extraction.")
+    p.add_argument("--layer_set", default=None,
+                   help="Decoder layers to steer: 'all' or inclusive 'A-B' "
+                        "(e.g. 5-14). Absolute layer indices.")
     return p.parse_args()
 
 
 def main() -> None:
     args = parse_args()
+    layer_indices, layer_set_label = _parse_layer_set(args.layer_set)
     out = run_evaluation(
         model_id=args.model,
         interventions=args.interventions,
@@ -101,6 +137,9 @@ def main() -> None:
         num_demos=args.num_demos,
         rank=args.rank,
         max_pixels=args.max_pixels,
+        directions_dir=args.directions_dir,
+        layer_indices=layer_indices,
+        layer_set_label=layer_set_label,
     )
     print_comparison_table(out["model_short"], args.output_dir, run_date=out["run_date"])
 

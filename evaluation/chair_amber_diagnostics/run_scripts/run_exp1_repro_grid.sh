@@ -17,7 +17,7 @@
 # Both benchmarks score the PINNED subsets (identical ids across all cells):
 #   CHAIR : data/chair/pinned_chair_500.json  (500 COCO val2014 images)
 #   AMBER : data/amber/pinned_amber_disc_450.json (150 ea existence/attr/relation)
-# CHAIR uses the frozen cap (64, Step 0) + the verbatim VTI prompt. AMBER uses
+# CHAIR uses the frozen cap (default 256) + the verbatim VTI prompt. AMBER uses
 # --amber_task discriminative. Greedy decoding + Policy-A native resolution are
 # the wrapper defaults (unchanged here => frozen across conditions).
 #
@@ -38,7 +38,7 @@ RUN_DATE="${RUN_DATE:-$(date +%Y-%m-%d)}"
 # Lead with 0.4 (paper's primary CHAIR setting) so comparable numbers come first.
 BETAS="${BETAS:-0.4 0.1 0.2 0.3 0.5 0.6 0.7 0.8 0.9}"
 CHAIR_PROMPT="${CHAIR_PROMPT:-Please Describe this image in detail.}"
-CHAIR_CAP="${CHAIR_CAP:-64}"
+CHAIR_CAP="${CHAIR_CAP:-256}"
 
 CHAIR_SUBSET="data/chair/pinned_chair_500.json"
 AMBER_SUBSET="data/amber/pinned_amber_disc_450.json"

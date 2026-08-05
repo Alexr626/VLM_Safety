@@ -244,7 +244,7 @@ python evaluation/run_eval.py \
     --limit 200 \
     --pope_split random \
     --amber_task discriminative \
-    --chair_max_new_tokens 64 \
+    --chair_max_new_tokens 256 \
     --skip_if_exists
 ```
 
@@ -256,7 +256,7 @@ python evaluation/run_eval.py \
 | `--beta FLOAT` | Textual VTI coefficient β; result dir becomes `{iv}__b{beta}` |
 | `--pope_split random\|popular\|adversarial` | POPE split (each → `pope_{split}/` dir) |
 | `--amber_task discriminative\|generative` | AMBER task filter |
-| `--chair_max_new_tokens N` | CHAIR caption length (default **64**; frozen across baselines/interventions) |
+| `--chair_max_new_tokens N` | CHAIR caption length (default **256**; frozen across baselines/interventions) |
 | `--chair_prompt STR` | Override CHAIR caption prompt (VTI uses capital-D *"Please Describe this image in detail."*) |
 | `--subset_ids_file PATH` | Pin exact sample ids per benchmark |
 | `--judge mock\|openai\|anthropic\|gemini` | MMHal judge (only used when `mmhal_bench` in `--benchmarks`) |
@@ -411,7 +411,7 @@ CUDA_VISIBLE_DEVICES=0 RUN_DATE=$(date +%Y-%m-%d) \
   bash evaluation/chair_amber_diagnostics/run_scripts/run_exp1_repro_grid.sh
 ```
 
-Uses `--subset_ids_file` for pinned CHAIR/AMBER ids, `--chair_max_new_tokens 64`, verbatim VTI CHAIR prompt. Output: `evaluation/results/{run_date}/{model}/{chair|amber}/{iv}__b{beta}/`.
+Uses `--subset_ids_file` for pinned CHAIR/AMBER ids, `--chair_max_new_tokens 256`, verbatim VTI CHAIR prompt. Output: `evaluation/results/{run_date}/{model}/{chair|amber}/{iv}__b{beta}/`.
 
 **Experiment 3b — rotation-strength** (`uniform_rotation @ layer`, finer β grid):
 
