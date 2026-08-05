@@ -1,0 +1,162 @@
+{
+  "date": "2026-07-30",
+  "generated_at": "2026-07-30T23:39:46",
+  "demos_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/vti/demos_850.jsonl",
+  "demos_content_hash_sha256_16": "ba05bd960cad0c18",
+  "partition_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/vti/demos_850_partition_s42.json",
+  "dimension": "all",
+  "sizes": [
+    50,
+    100,
+    200,
+    500
+  ],
+  "steer_reconstruction": "raw_mean_difference",
+  "forwards_executed": 0,
+  "act_cache_before": {
+    "llava-1.5-7b-hf": {
+      "path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/_act_cache",
+      "n_files": 5100,
+      "mtime_digest_sha256_16": "40399b5d0ad63afc"
+    },
+    "qwen2.5-vl-7b-instruct": {
+      "path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/_act_cache",
+      "n_files": 5100,
+      "mtime_digest_sha256_16": "f9378147c42bebd6"
+    }
+  },
+  "act_cache_after": {
+    "llava-1.5-7b-hf": {
+      "path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/_act_cache",
+      "n_files": 5100,
+      "mtime_digest_sha256_16": "40399b5d0ad63afc"
+    },
+    "qwen2.5-vl-7b-instruct": {
+      "path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/_act_cache",
+      "n_files": 5100,
+      "mtime_digest_sha256_16": "f9378147c42bebd6"
+    }
+  },
+  "cells": [
+    {
+      "model": "llava-hf/llava-1.5-7b-hf",
+      "model_short": "llava-1.5-7b-hf",
+      "slug": "demos850_ba05bd96_all_nd50_s42_meandiff_partition",
+      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/demos850_ba05bd96_all_nd50_s42_meandiff_partition",
+      "num_demos": 50,
+      "directions_shape": [
+        32,
+        4096
+      ],
+      "n_pairs": 50,
+      "forwards_executed": 0,
+      "directions_npz_sha256": "e0d75c41fd4e309e6836fb09b53bfc27c66457ccb2caa158852a7038bb9d9082",
+      "metadata_json_sha256": "edc7196595bd88a21a2b2567b684f8862d6ae663d9fc62f47af38a52f562489c"
+    },
+    {
+      "model": "llava-hf/llava-1.5-7b-hf",
+      "model_short": "llava-1.5-7b-hf",
+      "slug": "demos850_ba05bd96_all_nd100_s42_meandiff_partition",
+      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/demos850_ba05bd96_all_nd100_s42_meandiff_partition",
+      "num_demos": 100,
+      "directions_shape": [
+        32,
+        4096
+      ],
+      "n_pairs": 100,
+      "forwards_executed": 0,
+      "directions_npz_sha256": "a22245176b58b7724ec5636b63503cda79c8fb0ca2592798bcf9a0628d957db6",
+      "metadata_json_sha256": "e83d46e07c86a78212139b20819ae9980911483048d16afe24fcd2a989735be6"
+    },
+    {
+      "model": "llava-hf/llava-1.5-7b-hf",
+      "model_short": "llava-1.5-7b-hf",
+      "slug": "demos850_ba05bd96_all_nd200_s42_meandiff_partition",
+      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/demos850_ba05bd96_all_nd200_s42_meandiff_partition",
+      "num_demos": 200,
+      "directions_shape": [
+        32,
+        4096
+      ],
+      "n_pairs": 200,
+      "forwards_executed": 0,
+      "directions_npz_sha256": "3dd09ec837bfdc29f7995202d86ece13dafa293e1d8f375e6d7d74d2d7c6d059",
+      "metadata_json_sha256": "70c44b03178cf8ff1b5dbff64d29867e8b06f765a46e4eec1848b2b72f543aa3"
+    },
+    {
+      "model": "llava-hf/llava-1.5-7b-hf",
+      "model_short": "llava-1.5-7b-hf",
+      "slug": "demos850_ba05bd96_all_nd500_s42_meandiff_partition",
+      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/demos850_ba05bd96_all_nd500_s42_meandiff_partition",
+      "num_demos": 500,
+      "directions_shape": [
+        32,
+        4096
+      ],
+      "n_pairs": 500,
+      "forwards_executed": 0,
+      "directions_npz_sha256": "0a5a350e5d54835807d72ebe23526e8d94630a4e957e96f08649594d5bf65655",
+      "metadata_json_sha256": "a11d81d032eda8e8ad70fc92ea49403ab77d540808c786e938b011f5bdd1d29f"
+    },
+    {
+      "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "model_short": "qwen2.5-vl-7b-instruct",
+      "slug": "demos850_ba05bd96_all_nd50_s42_meandiff_partition",
+      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/demos850_ba05bd96_all_nd50_s42_meandiff_partition",
+      "num_demos": 50,
+      "directions_shape": [
+        28,
+        3584
+      ],
+      "n_pairs": 50,
+      "forwards_executed": 0,
+      "directions_npz_sha256": "771984594d5f44ed803ef881da1ab1b92f8d18e689d25a4a4eb8a9d31730e1c1",
+      "metadata_json_sha256": "885204d47895ea4a446fe6e1b6538d7b607c12d4850b7194d1798e939150d807"
+    },
+    {
+      "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "model_short": "qwen2.5-vl-7b-instruct",
+      "slug": "demos850_ba05bd96_all_nd100_s42_meandiff_partition",
+      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/demos850_ba05bd96_all_nd100_s42_meandiff_partition",
+      "num_demos": 100,
+      "directions_shape": [
+        28,
+        3584
+      ],
+      "n_pairs": 100,
+      "forwards_executed": 0,
+      "directions_npz_sha256": "9e39b084edca0ea4187bd053c3cc8e9d88523c0233d32c770cccb5a505ff4667",
+      "metadata_json_sha256": "168a76051a8fbfcde4270d366420c05deebebc0fad1de7d24f098e605900bb10"
+    },
+    {
+      "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "model_short": "qwen2.5-vl-7b-instruct",
+      "slug": "demos850_ba05bd96_all_nd200_s42_meandiff_partition",
+      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/demos850_ba05bd96_all_nd200_s42_meandiff_partition",
+      "num_demos": 200,
+      "directions_shape": [
+        28,
+        3584
+      ],
+      "n_pairs": 200,
+      "forwards_executed": 0,
+      "directions_npz_sha256": "9d6d0be9066310b4c385feb2a6e5e7b781f4d9aa7d1b5b35652118bd21939bfc",
+      "metadata_json_sha256": "d9adf68efb31556d98c4317793746a0c21728e4818a5ae61a138c4b4d42a70d3"
+    },
+    {
+      "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "model_short": "qwen2.5-vl-7b-instruct",
+      "slug": "demos850_ba05bd96_all_nd500_s42_meandiff_partition",
+      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/demos850_ba05bd96_all_nd500_s42_meandiff_partition",
+      "num_demos": 500,
+      "directions_shape": [
+        28,
+        3584
+      ],
+      "n_pairs": 500,
+      "forwards_executed": 0,
+      "directions_npz_sha256": "62f426dc66e6c02f1b2d15cbb721ccaa84b1edd74af57cc924f1e0124f90b397",
+      "metadata_json_sha256": "3a2a2c4bcad5c2337fa363ab7085ee41aff1828907ff65036fe54dd02219ae0c"
+    }
+  ]
+}
