@@ -95,8 +95,6 @@ original_environment.yml
 MiniGPT-4
 logs
 .venv
-IMPLEMENTATION.md
-RESEARCH_LOG.md
 data/
 SimSun.ttf
 wandb
@@ -128,6 +126,9 @@ data/vti/*
 data/amber/*
 !data/amber/pinned_amber_disc_450.json
 !data/amber/pinned_amber_disc_100.json
+!data/chair/
+data/chair/*
+!data/chair/pinned_chair_500.json
 !data/pope/pinned_pope_existence_yes_30.json
 !data/pope/pinned_pope_existence_no_30.json
 !data/pope/pinned_pope_existence_yes_120.json
