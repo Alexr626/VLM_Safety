@@ -108,6 +108,9 @@ the existing cache, and being cheap does not make them extractions.
 | `answers/concepts/<date>/*.md` | tutor | Alex, agents | Derivations in LaTeX, read in a preview pane rather than a terminal. |
 | `answers/<topic>/<date>/*.md` | implementation agent | Alex, agents | Mechanism write-ups and factual lookups. Facts, never readings. |
 | `CLAUDE.md` | Alex | every agent | Project facts, evidence state, competencies not to delegate. |
+| `learning/review_queue.md` | tutor (append), Alex (status) | tutor, Alex | Concept gaps surfaced mid-task; textbook source, not agent-generated |
+| `learning/lit_review_queue.md` | Alex | Alex | Papers/references flagged for reading |
+| `learning/open_questions.md` | Alex | Alex | Rollup of "Open questions this raises" from analysis readings |
 
 ---
 
@@ -227,7 +230,7 @@ everything under `.claude/agents/`, `.claude/commands/`, `.claude/hooks/`, `.cla
 `.cursor/rules/`, and `templates/`. `IMPLEMENTATION.md` keeps its own older form of the same
 convention — `Last updated:` on line 5 with a parenthetical naming what landed, maintained under
 `.cursor/rules/research_workflow.mdc` — and is left alone. Not stamped: `ABSTRACT.md`,
-`RESEARCH_LOG.md`, `readme.md`, `STEERING_MATH_REFERENCE.md`, which date their own entries.
+`RESEARCH_LOG.md`, `readme.md`, which date their own entries.
 
 ### Exporting the harness for another client
 

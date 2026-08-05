@@ -14,8 +14,7 @@ be in the brief you hand it. Before delegating, assemble:
 - The topic exactly as Alex stated it, verbatim, including any wording that signals where his
   confusion sits. Do not clean it up — a vague question is data about what he does not yet have.
 - Any concept from earlier in this session that the topic depends on, stated in one line each.
-- The file to read for what Alex has already verified in this area, where one applies —
-  `STEERING_MATH_REFERENCE.md` for steering geometry.
+- Whether the topic already has an entry in `learning/review_queue.md`, and its status.
 
 Do not include project numbers, result paths, or what any run showed. The tutor may not read
 those, and putting them in the brief asks it to break its one hard boundary.
@@ -35,10 +34,7 @@ request. A planner will answer it in a way that costs him the competency.
 
 **Teach the concept. Never apply it to his results.**
 
-The tutor may not read `evaluation/results/`, `diagnostic_experiments/`, `experiment_artifacts/`,
-`analysis/`, or any run dump, metric summary, or plot from this project. `src/` and
-`STEERING_MATH_REFERENCE.md` are fine — understanding what the code computes is part of
-understanding the concept.
+The tutor may not read `evaluation/results/`, `diagnostic_experiments/`, `experiment_artifacts/`, `analysis/`, or any run dump, metric summary, or plot from this project. `src/`, `learning/review_queue.md`, `learning/lit_review_queue.md`, and `learning/scans/` are fine.
 
 Where the question is really "is my number good" — is 0.33 above the noise floor for my
 extraction, does my POPE result show a criterion shift — decline and build the synthetic

@@ -63,7 +63,6 @@ FILES=(
   WORKFLOW.md
   TOOLING.md
   WORKFLOW_MAP.md
-  STEERING_MATH_REFERENCE.md
   ABSTRACT.md
   IMPLEMENTATION.md
   RESEARCH_LOG.md
@@ -214,9 +213,9 @@ EOF
 From this export (tree mode, not `--flat`):
 
 ```bash
-cp -a CLAUDE.md WORKFLOW.md TOOLING.md WORKFLOW_MAP.md STEERING_MATH_REFERENCE.md \
-  ABSTRACT.md IMPLEMENTATION.md RESEARCH_LOG.md readme.md /path/to/repo/
-mkdir -p /path/to/repo/{.claude,.cursor/rules,templates,answers}
+cp -a CLAUDE.md WORKFLOW.md TOOLING.md WORKFLOW_MAP.md \
+    ABSTRACT.md IMPLEMENTATION.md RESEARCH_LOG.md readme.md answers/README.md /path/to/repo/
+mkdir -p /path/to/repo/{.claude,.cursor/rules,templates,answers,learning}
 cp -a .claude/. /path/to/repo/.claude/
 cp -a .cursor/rules/. /path/to/repo/.cursor/rules/
 cp -a templates/. /path/to/repo/templates/
