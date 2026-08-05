@@ -2,6 +2,8 @@
 description: Have the examiner interrogate your written reading of a run. Usage /examine-results analysis/<MM_DD_YY>/<name>.md
 ---
 
+<!-- Last updated: 2026-07-30 -->
+
 Reading: $1
 
 **Resolving the reading.** `$1` is a repo-relative path to the reading, pasted from the editor:

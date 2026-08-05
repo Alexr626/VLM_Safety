@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Last updated: 2026-07-30
 # Export the Claude Code / Cloud Agentic research-workflow harness into one directory.
 #
 # Copies agents, slash commands, hooks, settings, workflow docs, Cursor rules,

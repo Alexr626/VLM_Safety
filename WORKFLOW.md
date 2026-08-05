@@ -1,3 +1,5 @@
+<!-- Last updated: 2026-07-30 -->
+
 # Research workflow
 
 Four roles, three gates, and a small set of files only you write. This document is how to run it.

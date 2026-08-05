@@ -2,6 +2,8 @@
 description: Have the examiner check an extraction spec against the ways extracted data silently stops answering the question. Usage /examine-extraction extractions/<MM_DD_YY>/<name>.md
 ---
 
+<!-- Last updated: 2026-07-30 -->
+
 Extraction spec: $1
 
 **Resolving the spec.** `$1` is a repo-relative path to the spec file, pasted from the editor:

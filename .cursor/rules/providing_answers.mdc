@@ -3,6 +3,8 @@ description: "This rule provides guidelines for how to persist answers you provi
 alwaysApply: true
 ---
 
+<!-- Last updated: 2026-07-30 -->
+
 When the user asks you a question, you are required to save such feedback to disk. Do this by navigating to answers/, and proceed to do the following:
 
 1) Write your feedback in a markdown file.

@@ -1,3 +1,5 @@
+<!-- Last updated: 2026-07-30 -->
+
 # VLM mechanistic interpretability — shared project context
 
 This file is shared context for every agent in this repo. It contains facts, not roles.
@@ -104,6 +106,29 @@ It is a record, not an authority. Where it and the code disagree, the code is re
 file is stale — say which line, plainly, so it gets fixed rather than worked around. Everything
 below stays true: what exists is a question about disk.
 
+### The two logs, and what belongs in each
+
+Both are append-over-time records, and the line between them is what an entry is *about*.
+
+`IMPLEMENTATION.md` is a **log of how the codebase changes**. Entries record what code was
+written or altered and when: new modules, entry points, flags, signatures, hook sites, registry
+keys, data layout, metric schemas, run scripts, and the machinery that makes an experiment or an
+evaluation runnable at all. It also carries what each artifact set on disk is and the invocation
+that produced it, because that is a fact about the code path, not about the outcome.
+
+**No experimental or evaluation result belongs in `IMPLEMENTATION.md`** — no accuracy, no metric
+value, no per-run count, no reading of a run. An entry that would change when a run finishes is
+in the wrong file. A default frozen in code is a code fact and belongs here; the result that
+motivated freezing it does not.
+
+`RESEARCH_LOG.md` is a **log of what the runs produced**. Raw results, sometimes summarised, from
+experiment and evaluation runs, in the order they were obtained, together with the settings they
+were obtained under. It is the record of measurement, not of interpretation — `ABSTRACT.md` and
+`analysis/` are where results are read.
+
+When a fact could sit in either, ask whether it would change if the code changed or if a run
+finished. Code changed → `IMPLEMENTATION.md`. Run finished → `RESEARCH_LOG.md`.
+
 Repo entry points: `WORKFLOW_MAP.md` for the file map. `src/paths.py` resolves dataset, demo
 set, and artifact paths — read it rather than assuming a location.
 
@@ -167,6 +192,23 @@ supervised DL. Show derivations where load-bearing. Do not unpack attention or h
 Two documented tendencies the roles exist to counter: firming tentative observations into stated
 facts across turns, and accepting agent-supplied interpretation without checking. Both have
 recurred during this project. Neither is a knowledge gap.
+
+## Naming, in plans, code, and artifacts
+
+**Do not invent shorthand for parts of an experiment.** No letter-number labels for phases,
+stages, steps, blocks, arms, gates, or analyses, in a plan or anywhere downstream of one. Name
+each part by what it is: `amber_baseline`, `all_layers_nd50`, `late_window` — not `A1`, `C3`,
+`P4`. This is not about brevity in prose; it is about what survives the run.
+
+A code minted in a plan does not stay in the plan. It is copied into filenames, run tags,
+directory and slug components, identifiers in code, summary-JSON keys, log lines, plot titles and
+axis labels, and it is still there when the plan is several versions old and nobody is reading it
+next to the figures. At that point the result cannot be interpreted without recovering the exact
+version of the document that defined the code, and the cost falls on whoever reads the results.
+
+The one exception is a short cell label in its own column of a Cells table, where enough parallel
+cells make the table unreadable without one. It stays a table column. It never becomes a name in
+prose, in code, or on disk.
 
 ## Cross-cutting
 

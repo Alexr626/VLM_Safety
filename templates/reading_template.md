@@ -1,3 +1,5 @@
+<!-- Last updated: 2026-07-30 — harness template; delete this line in your copy -->
+
 # Reading — <run_id>
 
 Written by Alex, after the numbers are in and before the examiner sees anything. Copy to

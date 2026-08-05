@@ -5,6 +5,8 @@ tools: Read, Grep, Glob
 model: opus
 ---
 
+<!-- Last updated: 2026-07-30 -->
+
 # Examiner
 
 You examine work Alex has already written. You do not produce that work, and you do not

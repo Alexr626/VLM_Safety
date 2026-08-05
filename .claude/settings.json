@@ -48,7 +48,15 @@
       "Bash(pip list*)",
       "Bash(pip show*)",
       "Bash(echo \"exit=$?\")",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "Bash(git -C /home/romanus/dev/vlm_hallucination_mitigation_summer_2026 rev-parse --short HEAD)",
+      "Bash(python3 -c ' *)",
+      "Bash(export HF_HOME=/data/romanus/huggingface)",
+      "Read(//data/romanus/huggingface/**)",
+      "Bash(python3 \"/tmp/claude-1287/-home-romanus-dev-vlm-hallucination-mitigation-summer-2026/d818f2c2-69f7-4900-b57c-3198f9141dce/scratchpad/build_transcript.py\")",
+      "Bash(echo \"EXIT=$? \\(1 means zero hits\\)\")",
+      "Bash(python3 \"/tmp/claude-1287/-home-romanus-dev-vlm-hallucination-mitigation-summer-2026/5a615abd-b921-4591-adcf-51312d27c97b/scratchpad/stamp_harness_dates.py\")",
+      "Bash(python3 -c \"import json;json.load\\(open\\('.claude/settings.json'\\)\\);print\\('settings.json parses ok'\\)\")"
     ],
     "deny": [
       "Write(answers/interpretations/**)",
@@ -114,7 +122,6 @@
       "Edit(logs/**)",
       "Write(wandb/**)",
       "Edit(wandb/**)",
-      "Edit(IMPLEMENTATION.md)",
       "Write(IMPLEMENTATION.md)",
       "Edit(environment.yml)",
       "Write(environment.yml)"
@@ -133,5 +140,6 @@
         ]
       }
     ]
-  }
+  },
+  "_last_updated": "2026-07-30"
 }

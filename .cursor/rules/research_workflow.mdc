@@ -4,6 +4,8 @@ alwaysApply: false
 description: provided
 ---
 
+<!-- Last updated: 2026-07-30 -->
+
 # Research Workflow — VLM Hallucination Mitigation
 
 You are the implementation agent in a gated research workflow. Alex runs a separate Claude Code
@@ -329,6 +331,23 @@ between otherwise-identical filenames, but the primary name describes what
 the artifact is. If the plan uses bare cell or analysis codes as artifact
 filenames, rename them at write time and note the renaming in
 RESEARCH_LOG.md.
+
+**The same rule applies to code, and it applies whether or not the plan
+followed it.** Do not invent shorthand, and do not adopt a plan's shorthand
+into anything that survives the run: variable, function, class and module
+names, CLI flags, `run_tag` values, directory and cell-slug components,
+dict keys in a metric summary, console output, and progress logging. Plans
+are not supposed to mint phase, stage or step codes; where one has slipped
+through anyway, implement against what the code denotes — the benchmark,
+the layer set, the sample size, the intervention — and name it that.
+`amber_baseline`, `all_layers_nd50`, `late_window`, not `A1`, `C3`, `P4`.
+
+A plan's shorthand is readable only next to that version of that plan.
+Every name that leaves the run — in a filename, a figure, a summary JSON or
+a log — is read later by someone who does not have it open, and a code they
+cannot resolve makes the result uninterpretable. If a name would need the
+plan in hand to decode, it is the wrong name. Where stripping a code would
+change what is actually run, that is a question for Alex, not a rename.
 
 Plot titles, axis labels, and metric names in artifacts follow the same rule:
 plain English readable by a reviewer with no context about the plan. Use

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Last updated: 2026-07-30
 # Verify the spec gate. Run from anywhere; resolves paths itself.
 #
 #   bash .claude/hooks/verify_harness.sh

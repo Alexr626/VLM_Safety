@@ -1,3 +1,5 @@
+<!-- Last updated: 2026-08-05 -->
+
 # Workflow map — what lives where and what enforces what
 
 Reference for the agentic research workflow. Written 2026-07-28, revised 2026-07-28 to add the
@@ -194,3 +196,52 @@ bash .claude/hooks/verify_harness.sh
 
 The unverified denies in the deterministic table need an agent to attempt a write to `analysis/`,
 `designs/`, and `extractions/` and be refused. Until that is done, treat them as instruction-only.
+
+### Last-updated stamps
+
+Every harness file carries its own date at the top, so that a copy of it sitting in another
+chat client — where there is no git history to consult — still says when it was last changed.
+The stamp is the first line of the file, or the first line after YAML frontmatter:
+
+| File type | Form |
+|---|---|
+| `.md`, `.mdc` | `<!-- Last updated: YYYY-MM-DD -->` |
+| `.py`, `.sh` | `# Last updated: YYYY-MM-DD` on the line after the shebang |
+| `.json` | `"_last_updated": "YYYY-MM-DD"` key (JSON has no comments) |
+
+**Whoever edits a harness file updates its stamp in the same edit.** Nothing enforces this; a
+stale stamp is worse than no stamp, because the point of it is to tell a client with no git
+access which copy is current. Templates carry the stamp with a delete-this-line note, so a spec
+copied from one does not inherit the harness date.
+
+`settings.json` is the one file Claude Code itself rewrites — approving a permission prompt
+re-serialises it and moves `_last_updated` to the end of the object. The key survives the
+round-trip but its position does not, and permission churn from a prompt is not a harness edit,
+so the date is not bumped for it. Bump it when the hooks block, the deny list, or the
+deliberate part of the allow list changes.
+
+Files stamped: `CLAUDE.md`, `WORKFLOW.md`, `TOOLING.md`, `WORKFLOW_MAP.md`, `answers/README.md`,
+everything under `.claude/agents/`, `.claude/commands/`, `.claude/hooks/`, `.claude/settings.json`,
+`.cursor/rules/`, and `templates/`. `IMPLEMENTATION.md` keeps its own older form of the same
+convention — `Last updated:` on line 5 with a parenthetical naming what landed, maintained under
+`.cursor/rules/research_workflow.mdc` — and is left alone. Not stamped: `ABSTRACT.md`,
+`RESEARCH_LOG.md`, `readme.md`, `STEERING_MATH_REFERENCE.md`, which date their own entries.
+
+### Exporting the harness for another client
+
+`helper_scripts/export_agentic_workflow_harness.sh` copies the whole harness — role prompts,
+slash commands, hooks, `settings.json`, Cursor rules, templates, workflow docs, and the shared
+markdown agents read — into `exports/agentic_workflow_harness_<YYYY_MM_DD>/`, with a
+`MANIFEST.md` listing what was included and what was deliberately left out. It copies no live
+experiment content and no `settings.local.json`.
+
+```bash
+bash helper_scripts/export_agentic_workflow_harness.sh            # tree layout under exports/
+bash helper_scripts/export_agentic_workflow_harness.sh --flat     # one flat dir, __ path separators
+bash helper_scripts/export_agentic_workflow_harness.sh --zip      # also write <out>.zip
+bash helper_scripts/export_agentic_workflow_harness.sh --out DIR  # somewhere other than exports/
+```
+
+`--flat` is the one to use when uploading to a chat web UI that takes a file list rather than a
+directory. The static file list inside the script has to be kept in sync by hand when a harness
+file is added; Cursor rules and `HANDOFF_*.md` are discovered on disk instead.

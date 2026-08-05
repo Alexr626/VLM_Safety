@@ -2,6 +2,8 @@
 description: Have the examiner interrogate an experiment design before it is planned. Usage /examine-design designs/<MM_DD_YY>/<name>.md
 ---
 
+<!-- Last updated: 2026-07-30 -->
+
 Design spec: $1
 
 **Resolving the spec.** `$1` is a repo-relative path to the spec file, pasted from the editor:

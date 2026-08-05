@@ -1,3 +1,5 @@
+<!-- Last updated: 2026-07-30 — harness template; delete this line in your copy -->
+
 # Abstract — living draft
 
 Rewrite this after every run. Date each version and keep the old ones below, newest first.

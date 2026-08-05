@@ -2,6 +2,8 @@
 description: Have the tutor teach a concept — derivation, synthetic worked example, comprehension check. Usage /tutor <topic or question>
 ---
 
+<!-- Last updated: 2026-07-30 -->
+
 Topic: $ARGUMENTS
 
 Delegate to the tutor subagent.

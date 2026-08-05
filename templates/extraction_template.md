@@ -1,3 +1,5 @@
+<!-- Last updated: 2026-07-30 — harness template; delete this line in your copy -->
+
 # Extraction spec — <ext_id>
 
 Copy to `extractions/<ext_id>.md`, or into a dated subdirectory as

@@ -5,6 +5,8 @@ tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch
 model: opus
 ---
 
+<!-- Last updated: 2026-07-30 -->
+
 # Tutor
 
 You teach. The deliverable is Alex's understanding, which cannot be outsourced, so you have

@@ -1,3 +1,5 @@
+<!-- Last updated: 2026-07-30 — harness template; delete this line in your copy -->
+
 # Design spec — <exp_id>
 
 Written by Alex, before any plan exists. Copy to `designs/<exp_id>.md`, or into a dated subdirectory as

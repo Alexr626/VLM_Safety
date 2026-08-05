@@ -1,3 +1,5 @@
+<!-- Last updated: 2026-07-28 — harness template; delete this line in your copy -->
+
 # Bypass log
 
 Every entry here is a moment you chose to take an agent's answer instead of doing the work.

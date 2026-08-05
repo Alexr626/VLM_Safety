@@ -2,6 +2,8 @@
 description: Expand an approved design spec into a repo-grounded implementation plan. Usage /plan designs/<MM_DD_YY>/<name>.md or extractions/<MM_DD_YY>/<name>.md
 ---
 
+<!-- Last updated: 2026-07-30 -->
+
 Spec: $1
 
 **Resolving the spec.** `$1` is a repo-relative path to the spec file, pasted from the editor:
@@ -151,9 +153,22 @@ A design spec that carries its own required primitives still declares only `desi
 declarations are rejected.
 
 Sections, in plain English: Question, Design spec reference, Cells, Data, Metrics, Artifacts,
-Sanity checks that must pass first, What confirms or falsifies, Open questions. No gate codes,
-no analysis codes. Cell shorthand is fine inside the Cells table when there are enough parallel
-cells to make it useful; nothing else uses codes.
+Sanity checks that must pass first, What confirms or falsifies, Open questions.
+
+**No minted shorthand.** No gate codes, no analysis codes, and no letter-number labels for
+phases, stages, steps, blocks, arms, or any other part of the run. Each is named by what it is —
+"the AMBER baseline", "the all-layers arm at 50 demos", "the late-window block" — however much
+longer that runs. Defining a code once and using it consistently does not satisfy this.
+
+The reason is downstream, not aesthetic: every code a plan invents gets copied verbatim by the
+implementer into filenames, run tags, directory names, identifiers in code, log lines, plot
+titles and column headers, where it outlives the plan. A reviewer looking at the resulting figure
+cannot recover what `C3` meant without finding the plan and the right version of it, and the cost
+falls entirely on whoever reads the results.
+
+One exception: the Cells table may carry a short cell label in its own column when there are
+enough parallel cells that the table is unreadable without one. It stays a table column and never
+becomes a name used in prose; every other section refers to the cell by description.
 
 Metrics named in plain English and stated as primitives where they are primitives. Where the
 spec's y-axis is a composite, carry its lineage — the formula in measured counts, and the

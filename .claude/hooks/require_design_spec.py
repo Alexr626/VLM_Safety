@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Last updated: 2026-07-30
 """PreToolUse hook: no plan lands in implementation_plans/ without a spec behind it.
 
 Two spec types are accepted, declared within the first 10 lines of the outgoing content:

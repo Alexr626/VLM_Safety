@@ -1,3 +1,5 @@
+<!-- Last updated: 2026-07-30 -->
+
 # answers/ — the shared scratchpad
 
 Agents write here. This is where a derivation, a mechanism write-up, or a factual lookup

@@ -1,3 +1,5 @@
+<!-- Last updated: 2026-07-28 -->
+
 # Tooling — which agent runs where, and what happens after the internship
 
 Two clients, one repo. Cursor is free until the internship ends and is the more comfortable
