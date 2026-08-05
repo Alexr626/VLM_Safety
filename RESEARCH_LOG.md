@@ -1689,3 +1689,40 @@ Updated path defaults in the two analysis scripts and
 `helper_scripts/verify_perlayer_pca_control_extraction.py` (`OUT_DIR` →
 `…/verification/`). No direction artifacts or plot contents regenerated;
 files were relocated only.
+
+## 2026-07-30 — steering visual reasoning validation: implementation + overnight launch
+
+Plan: `implementation_plans/7-30-26/steering_vector_visual_reasoning_validation_plan_2026-07-30.md`
+
+**Code landed (no grid metrics yet):**
+- `evaluation/interventions/vti/directions_meandiff.py` — CPU raw mean-difference over demos_850 partitions; 0 forwards; raises on act-cache miss
+- `evaluation/run_scripts/extract_demos850_meandiff_directions.py`
+- `helper_scripts/verify_demos850_meandiff_extraction.py`
+- `VTITextualIntervention` / `run_evaluation` / `run_eval.py`: `--directions_dir`, `--layer_set`; meandiff result-dir suffix `__meandiff__layers_{label}`
+- `step0_chair_token_cap.py`: `--max_pixels`, model-suffixed output, truncation readouts
+- `--chair_max_new_tokens` CLI default **256** (`run_eval.py`); `run_exp1_repro_grid.sh` / `readme.md` aligned
+- Driver: `evaluation/run_scripts/run_steering_visual_reasoning_validation.sh` (AMBER → CHAIR → POPE)
+- Orchestrator: `evaluation/run_scripts/launch_steering_visual_reasoning_overnight.sh`
+- Analysis: `evaluation/steering_visual_reasoning_validation/{build_result_tables,make_plots}.py`
+
+**Overnight CHAIR-cap policy (Alex):** if the 256/512 probe reports any caption at the 256 token cap on either model, set `CHAIR_CAP=512` and continue; never halt; never skip CHAIR. Decision written to `evaluation/results/2026-07-30/_analysis_steering_visual_reasoning_validation/chair_cap_probe_decision.json`.
+
+**Launch:** orchestrator under nohup → logs/steering_visual_reasoning_overnight_orchestrator_2026-07-30.log; grid logs `logs/steering_visual_reasoning_validation_{llava,qwen25}_2026-07-30.log` after probe. Target: lambdab2 GPU 0, both models concurrent after 300s stagger.
+
+**Status at this entry:** implementation complete; orchestrator start / probe / grid PIDs to be confirmed from status JSON after launch.
+
+## 2026-07-30 — overnight babysitter + CHAIR_CAP auto-bump to 512
+
+**Probe decision:** Qwen step0 at 256 had `n_captions_at_token_cap=6` (and 6 without terminal punctuation); at 512 that count was 0. LLaVA had 0 at both caps. Per overnight policy, orchestrator set `CHAIR_CAP=512` for the full grid (both models). Decision file: `evaluation/results/2026-07-30/_analysis_steering_visual_reasoning_validation/chair_cap_probe_decision.json`.
+
+**Babysitter:** `evaluation/run_scripts/babysit_steering_visual_reasoning_grids.py` — monitors both driver PIDs; on crash (exit before finished banner) relaunches the same driver so `--skip_if_exists` resumes. If the crash log shows CUDA/OOM and the sibling model is still running, waits for the sibling to finish before restarting (avoids immediate re-OOM under concurrent footprint). Max 8 restarts/model. Status: `…/babysitter_status.json`. Log: `logs/steering_visual_reasoning_babysitter_2026-07-30.log`. Future overnight launches start the babysitter from the orchestrator after both grids are up.
+
+## 2026-07-31 morning — pause LLaVA on lambdab2; prepare RunAI H100 resume
+
+**Lambdab2:** Stopped both babysitters and the LLaVA driver so Qwen runs exclusive on GPU 0 (~16.6 GiB). LLaVA AMBER complete (37/37) locally; CHAIR mid-grid paused (checkpoint + 2 completed CHAIR cells including baseline). Marker: `evaluation/results/2026-07-30/_analysis_steering_visual_reasoning_validation/llava_paused_for_runai.json`.
+
+**CHAIR_CAP** remains 512 for any resume (probe auto-bump).
+
+**RunAI pack (not yet uploaded):** `/tmp/runai_steering_llava_2026-07-30/` — `vti_repo_working_tree.tar.gz` (includes uncommitted meandiff / `--directions_dir` code), `llava_meandiff_directions.tar.gz`, `llava_partial_results_chair.tar.gz`, `SUBMIT.md`. Helpers: `helper_scripts/runai/run_steering_visual_reasoning_llava.sh`, `pack_steering_llava_for_runai.sh`.
+
+**Blockers for submit:** (1) `runai login` token expired on lambdab2; (2) SFTP to NFS from lambdab2 denied — upload via WinSCP ThinkPad still required.

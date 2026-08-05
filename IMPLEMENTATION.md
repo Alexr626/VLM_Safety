@@ -2,7 +2,7 @@
 
 Ground-truth description of the VLM hallucination mitigation codebase as it exists today. The external research analyst uses this file (without reading source) to plan experiments. **Keep it in sync with code changes.**
 
-Last updated: 2026-07-30 (demos_850 pool pinned; partition / shuffled-control / per-layer PCA extractors on disk)
+Last updated: 2026-07-31 (AMBER plot qualitative HTML galleries via `build_amber_plot_qualitative_html.py`)
 
 ---
 
@@ -123,9 +123,19 @@ sweeps on lambdab2; do not use RunAI for first-pass ~20-sample sanity checks.
 | `setup_vlm.sh` | One-time NFS bootstrap (env + COCO val2014 + weights) |
 | `run_vti.sh` | VTI POPE eval (six variants, default LIMIT=200) |
 | `run_smoke_pope.sh` | Minimal e2e smoke (LIMIT=5, `no_intervention`) |
+| `run_steering_triple_one_h100.sh` | **One** job / **one** H100: concurrent LLaVA CHAIR→POPE + Qwen CHAIR + Qwen POPE (`TRIPLE_OK`) |
+| `run_steering_visual_reasoning_llava.sh` | LLaVA grid helper (also used as a worker under the triple launcher) |
+| `run_steering_visual_reasoning_qwen.sh` | Qwen grid helper (`BENCHMARKS=chair` or `pope`) |
+| `run_steering_llava_smoke.sh` / `run_steering_qwen_smoke.sh` | Steered POPE limit=5 smokes |
+| `sync_steering_llava.sh` | Extract repo + LLaVA/Qwen meandiff (+ optional LLaVA CHAIR partial); `VERIFY_SYNC_OK` / `SYNC_OK` |
+| `verify_steering_nfs_layout.sh` | Required-path checks (`MODEL_SHORTS`) |
+| `runai_job_logging.sh` | Tee to `$BASE/logs/runai/<job>_<ts>.log` |
+| `SUBMIT_STEERING_LLAVA.md` | Sync → Qwen smoke → `hal-steer-triple` (1×H100, 3 processes) |
 | `remap_lambdab2_paths.py` | Rewrite baked lambdab2 absolute paths (`/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/…`) to the local `project_root()` (NFS: `/home/datalake/romanus/vlm_hallucination`). Dry-run by default; `--apply` writes. Scans `data/` (incl. amber/pope augmented JSONLs + dump metadata), `experiment_artifacts/` |
 | `bootstrap_micromamba.py` | Bootstrap micromamba if not pre-uploaded to NFS |
 | `run_bash_lf.py` | Strip CRLF then `bash` a helper `.sh` (WinSCP-safe) |
+
+**Env note (2026-07-31):** `evaluation/run_scripts/run_steering_visual_reasoning_validation.sh` supports `SKIP_CONDA_ACTIVATE=1` so RunAI helpers can run under `micromamba run` without calling `conda activate`. Pack must overlay `data/chair/pinned_chair_500.json` (gitignored under `data/*`); verify fails closed if that pin is missing on NFS.
 
 **Example drivers (RunAI):** `evaluation/run_scripts/run_beta_grid_runai.sh` (N=3000/split); submit via `run_vti.sh` or experiment-specific wrappers. Full submit templates in `readme.md` § RunAI.
 
@@ -616,6 +626,43 @@ Consuming partition directions in eval is out of scope for this extraction.
 **Direction cache:** `experiment_artifacts/vti/{model_short}/textual_v2/{slug}/`
 with `directions.npz` + `metadata.json` + `components.npz`.
 
+#### Mean-difference textual directions (demos_850, CPU, 0 forwards)
+
+Raw mean over demos of `(value_stack − h_stack)` — no PCA, no component
+selection, no sign flip. Reads shared `textual_v2/_act_cache/` only; raises on
+cache miss; never constructs a model wrapper.
+
+| Piece | Location / fact |
+|-------|-----------------|
+| Module | `evaluation/interventions/vti/directions_meandiff.py` |
+| Extract CLI | `evaluation/run_scripts/extract_demos850_meandiff_directions.py` |
+| Verify | `helper_scripts/verify_demos850_meandiff_extraction.py` |
+| Slug | `demos850_{hash8}_{dimension}_nd{N}_s42_meandiff_partition` |
+| Out | `experiment_artifacts/vti/{model_short}/textual_v2/{slug}/` — `directions.npz` + `metadata.json` only (no `components.npz`) |
+| Manifest | `experiment_artifacts/vti/demos850_meandiff_extraction_manifest_2026-07-30.json` |
+| `steer_reconstruction` | `raw_mean_difference` |
+| `diff_polarity` | `value_minus_h_value` (same as PCA live path) |
+| Plan | `implementation_plans/7-30-26/steering_vector_visual_reasoning_validation_plan_2026-07-30.md` |
+
+Consumed at eval via `--directions_dir <slug dir>` (not `--demos_path`).
+
+**Eval driver:** `evaluation/run_scripts/run_steering_visual_reasoning_validation.sh`
+(one model per process; AMBER → CHAIR → POPE; baseline then layer sets
+`all` / `5-14` / late window; nd order 50→500→200→100; betas 0.2→0.5→0.9).
+
+**Overnight orchestrator:**
+`evaluation/run_scripts/launch_steering_visual_reasoning_overnight.sh` —
+extract → verify → CHAIR caption-length probe @ 256/512 → if any caption hits
+256 on either model, set `CHAIR_CAP=512` (never halt; never skip CHAIR) → launch
+both model drivers staggered 5 min on `CUDA_VISIBLE_DEVICES=0` → start
+`babysit_steering_visual_reasoning_grids.py` (crash restart with
+`--skip_if_exists`; OOM crashes wait for sibling model to finish before
+relaunch).
+
+**Offline analysis:** `evaluation/steering_visual_reasoning_validation/`
+(`build_result_tables.py`, `make_plots.py`) under
+`evaluation/results/{run_date}/_analysis_steering_visual_reasoning_validation/`.
+
 #### Out of scope / remaining follow-ups
 
 1. ~~Textual cache path/slug must include demos identity~~ — **done** for demos_v2 (`textual_v2/` namespace). Author-demo legacy path still omits demos hash in the filename.
@@ -626,7 +673,11 @@ with `directions.npz` + `metadata.json` + `components.npz`.
 4. Per-layer PCA textual extraction (one PCA per activation row, PC1+mean recon) —
    **implemented** for demos850 geometric comparison (2026-07-29); see
    **Per-layer PCA vs global PCA** below. Not wired into `run_eval.py`.
-5. Wiring `demos850_*_partition` directions into `run_eval.py` / `VTITextualIntervention` — **not** implemented; belongs to a later design-spec experiment.
+5. Wiring demos850 directions into `run_eval.py` / `VTITextualIntervention` —
+   **done for raw mean-difference** (2026-07-30): see **Mean-difference
+   textual directions** and `--directions_dir` / `--layer_set` below. PCA
+   `*_r2_partition` directories are still loadable the same way (same
+   `textual_v2` on-disk format) but the validation grid uses meandiff slugs.
 
 ### Shuffled-control direction (image derangement)
 
@@ -1133,6 +1184,19 @@ baseline/0.4; Exp2 both baseline/0.3/0.6). Exp1 includes all three grid
 interventions by default (`--exp1-interventions` to narrow). `--no-html` skips
 galleries; `--json-only` skips markdown.
 
+### `build_amber_plot_qualitative_html.py` — per-plot AMBER response galleries
+
+Builds one HTML gallery per selected overnight AMBER summary plot under
+`evaluation/results/2026-07-30/_analysis_steering_visual_reasoning_validation/{llava,qwen}_amber_results/qualitative/`.
+Each page: N=50 independently seeded AMBER-disc examples; image once; question +
+gold; every config that plot shows (baseline + full nd×β or window×β grid) with
+parsed yes/no (`metrics._normalize_yes_no`), correct/incorrect, and full text.
+Gold-yes/no stratification only for the gold-label plot.
+
+```bash
+python helper_scripts/build_amber_plot_qualitative_html.py
+```
+
 ### `render_smoke_review.py` — visual-smoke multi-cell galleries
 
 Builds one self-contained HTML page per (model, benchmark) that shows **every
@@ -1266,7 +1330,7 @@ python evaluation/run_eval.py \
     --run_date 2026-06-18 \
     --amber_task discriminative \
     --judge mock \
-    --chair_max_new_tokens 64
+    --chair_max_new_tokens 256
 ```
 
 **MMHal/CHAIR-specific flags (added 2026-06-22):**
@@ -1280,11 +1344,23 @@ python evaluation/run_eval.py \
   every MMHal `metric_summary.json` as `judge_name` (absolute MMHal scores are
   only comparable across runs judged by the same model). **Public benchmarks
   only** — internal data must not be routed to an external judge.
-- `--chair_max_new_tokens` (default **64**) freezes the CHAIR caption-generation
-  length **independently of `--max_new_tokens`** (which other benchmarks, incl.
-  MMHal at 256, still use). CHAIR confounds with caption length in both
-  directions, so this value must stay constant across baseline and interventions
-  and be recorded.
+- `--chair_max_new_tokens` (default **256**, standing default as of 2026-07-30;
+  was 64) freezes the CHAIR caption-generation length **independently of
+  `--max_new_tokens`** (which other benchmarks, incl. MMHal at 256, still use).
+  CHAIR confounds with caption length in both directions, so this value must stay
+  constant across baseline and interventions and be recorded. Historical cells
+  generated at 64 remain valid records of what was run.
+- `--directions_dir PATH` — load a precomputed `textual_v2` direction directory
+  (`directions.npz` + `metadata.json`). Takes precedence over demos_v2 / legacy
+  extraction inside `VTITextualIntervention`.
+- `--layer_set STR` — `all` or inclusive `A-B` (absolute decoder indices). Parsed
+  to `layer_indices` + `layer_set_label` (`all` or `A_B`). Forwarded to
+  `vti_hook_ctx(layer_indices=...)`.
+
+When `--directions_dir` is set with `--beta`, result directories use
+`{iv}__b{beta}__d{dimension}__nd{n_pairs}__meandiff__layers_{layer_set_label}`
+so layer sets do not collide. Existing demos_v2 path composition is unchanged
+when `directions_dir` is omitted.
 
 **Pinned-subset / prompt flags (added 2026-06-22):**
 - `--subset_ids_file PATH` pins the exact sample ids scored for each benchmark
@@ -1362,7 +1438,7 @@ run_evaluation(
     beta: Optional[float] = None,     # textual coeff for VTI ivs; see below
     alpha: Optional[float] = None,    # visual coeff for VTI ivs; see below
     judge: str = "mock",              # MMHal judge spec; resolved iff mmhal in benchmarks
-    chair_max_new_tokens: int = 64,   # frozen CHAIR caption length (see CLI note)
+    chair_max_new_tokens: int = 256,   # frozen CHAIR caption length (see CLI note)
     subset_ids_file: Optional[str] = None,  # pinned per-benchmark id subset (see CLI note)
     chair_prompt: Optional[str] = None,     # verbatim CHAIR prompt override (see CLI note)
     demos_path: Optional[str] = None,       # textual VTI demos JSONL (demos_v2 or author)
@@ -1447,6 +1523,9 @@ VTITextualIntervention(
     direction_cache: Optional[Path] = None,
     log_lambda_sim: bool = False,
     vector_dimension: Optional[str] = None,  # demos_v2: existence|attribute|counting|relation|all
+    directions_dir: Optional[Path] = None,   # textual_v2 dir; takes precedence
+    layer_indices: Optional[Sequence[int]] = None,
+    layer_set_label: Optional[str] = None,
 )
 ```
 
@@ -1457,9 +1536,11 @@ geometry-agnostic `steer(..., alpha=beta)` / `vti_hook_ctx(alpha=beta)` — i.e.
 arm fills with β (the future vision arm will fill it with α). Renamed from
 `alpha_text` on 2026-06-19; pre-rename result/config JSONs use `alpha_text`.
 
-Lifecycle: compute/load directions on first `generate()`; register hooks via `get_dispatch`; run generation inside `vti_hook_ctx` (hooks always removed on exit). When `demos_path` is `demos_v2.jsonl` and/or `vector_dimension` is set, directions come from `compute_or_load_textual_directions_v2` (see demos_v2 textual section).
+Lifecycle: compute/load directions on first `generate()`; register hooks via `get_dispatch`; run generation inside `vti_hook_ctx` (hooks always removed on exit). When `directions_dir` is set, loads via `load_textual_v2_directions` (metadata loaded eagerly for result-dir naming) and forwards `layer_indices` into `vti_hook_ctx`. When `demos_path` is `demos_v2.jsonl` and/or `vector_dimension` is set (and no `directions_dir`), directions come from `compute_or_load_textual_directions_v2`.
 
-`intervention.config` logs: `variant, hook_site, beta, num_demos, rank, seed, eps_coeff, log_lambda_sim`, plus demos_v2 fields when applicable (`demos_path`, `demos_content_hash_sha256_16`, `dimension`, `selection_policy`, `steer_component`, `diff_polarity`, `token_policy`, `steer_reconstruction`).
+`intervention.config` logs: `variant, hook_site, beta, num_demos, rank, seed, eps_coeff, log_lambda_sim, layer_indices, layer_set_label`, plus demos_v2 or directions_dir fields when applicable (`demos_path`, `demos_content_hash_sha256_16`, `dimension`, `selection_policy`, `steer_component` / `steer_reconstruction`, `diff_polarity`, `token_policy`, `directions_dir`, `direction_slug`).
+
+Visual factory drops `beta`, `directions_dir`, `layer_indices`, `layer_set_label` so a shared kwargs dict cannot raise on visual registry keys.
 
 #### `VTIVisualIntervention` — `evaluation/interventions/vti/visual_intervention.py`
 
