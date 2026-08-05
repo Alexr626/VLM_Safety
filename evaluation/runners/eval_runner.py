@@ -11,7 +11,7 @@ import time
 import traceback
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Sequence
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
@@ -194,6 +194,9 @@ def run_evaluation(
     num_demos: Optional[int] = None,
     rank: Optional[int] = None,
     max_pixels: Optional[int] = None,
+    directions_dir: Optional[str] = None,
+    layer_indices: Optional[Sequence[int]] = None,
+    layer_set_label: Optional[str] = None,
 ) -> dict:
     interventions = interventions or list(ALL_INTERVENTIONS)
     benchmarks = benchmarks or list(_BENCHMARK_LOADERS)
@@ -237,6 +240,10 @@ def run_evaluation(
         print(f"  rank         : {rank}")
     if max_pixels is not None:
         print(f"  max_pixels   : {max_pixels}")
+    if directions_dir is not None:
+        print(f"  directions_dir: {directions_dir}")
+    if layer_set_label is not None or layer_indices is not None:
+        print(f"  layer_set    : {layer_set_label}  indices={layer_indices}")
 
     opts = {"limit": limit, "pope_split": pope_split, "amber_task": amber_task,
             "subset_map": subset_map, "chair_prompt": chair_prompt}
@@ -259,6 +266,12 @@ def run_evaluation(
         iv_kwargs["num_demos"] = num_demos
     if rank is not None:
         iv_kwargs["rank"] = rank
+    if directions_dir is not None:
+        iv_kwargs["directions_dir"] = Path(directions_dir)
+    if layer_indices is not None:
+        iv_kwargs["layer_indices"] = list(layer_indices)
+    if layer_set_label is not None:
+        iv_kwargs["layer_set_label"] = layer_set_label
     iv_runs = [(name, get_intervention(name, model_id=model_id, **iv_kwargs))
                for name in interventions]
 
@@ -270,6 +283,13 @@ def run_evaluation(
         print(f"  [max_pixels] capping Qwen visual budget at {max_pixels} px")
     wrapper = create_wrapper(model_id, **wrapper_kwargs).load()
     print(f"    num_layers={wrapper.num_layers}  hidden_dim={wrapper.hidden_dim}")
+    if layer_indices is not None:
+        lo, hi = min(layer_indices), max(layer_indices)
+        if lo < 0 or hi >= wrapper.num_layers:
+            raise ValueError(
+                f"layer_indices out of range for num_layers={wrapper.num_layers}: "
+                f"min={lo} max={hi}"
+            )
 
     benchmark_captions: dict[str, dict] = {}
     for b_name in benchmarks:
@@ -294,13 +314,19 @@ def run_evaluation(
             if alpha is not None and "alpha" in cfg:
                 iv_dir = f"{iv_name}__a{alpha}"
             elif beta is not None and "beta" in cfg:
-                iv_dir = f"{iv_name}__b{beta}"
-                dim = cfg.get("dimension") or vector_dimension
-                nd = cfg.get("num_demos") if vector_dimension or demos_path else None
-                if dim is not None:
-                    iv_dir = f"{iv_dir}__d{dim}"
-                if nd is not None and (vector_dimension is not None or demos_path):
-                    iv_dir = f"{iv_dir}__nd{nd}"
+                if directions_dir is not None:
+                    iv_dir = (
+                        f"{iv_name}__b{beta}__d{cfg['dimension']}__nd{cfg['num_demos']}"
+                        f"__meandiff__layers_{cfg['layer_set_label']}"
+                    )
+                else:
+                    iv_dir = f"{iv_name}__b{beta}"
+                    dim = cfg.get("dimension") or vector_dimension
+                    nd = cfg.get("num_demos") if vector_dimension or demos_path else None
+                    if dim is not None:
+                        iv_dir = f"{iv_dir}__d{dim}"
+                    if nd is not None and (vector_dimension is not None or demos_path):
+                        iv_dir = f"{iv_dir}__nd{nd}"
             else:
                 iv_dir = iv_name
             out_dir = output_dir / run_date / model_short / bench_key / iv_dir

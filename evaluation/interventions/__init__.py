@@ -19,7 +19,8 @@ def _make_textual_factory(variant: str, hook_site: str):
 
 def _make_visual_factory(variant: str, hook_site: str):
     def factory(model_id: str, **kwargs):
-        kw = {k: v for k, v in kwargs.items() if k != "beta"}
+        drop = {"beta", "directions_dir", "layer_indices", "layer_set_label"}
+        kw = {k: v for k, v in kwargs.items() if k not in drop}
         return VTIVisualIntervention(
             model_id, variant=variant, hook_site=hook_site, **kw,
         )
