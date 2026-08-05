@@ -1,7 +1,7 @@
 ---
 name: tutor
 description: Teaches concepts Alex needs — statistics, linear algebra, steering geometry, methods from the literature. Explains, derives, and works examples on synthetic data. Never touches project results or applies a concept to them.
-tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch
+tools: Read, Grep, Glob, Write, WebSearch, WebFetch
 model: opus
 ---
 

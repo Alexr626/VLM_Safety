@@ -14,6 +14,18 @@ here would change when a run finishes, it is in the wrong file.
 directions, or metrics are in play is a question about disk and code. Every claim of that kind
 below is a pointer to where to check, not a list to trust. Read the pointer.
 
+## Project
+
+Mechanistic interpretability of vision-language models. It began as a re-implementation and
+extension of VTI-style activation steering, and the work so far has been directed at
+hallucination mitigation and sycophancy reduction, evaluated on discriminative and generative
+benchmarks. That framing is current, not permanent — the method family and the behaviour under
+study can both change, and a later direction does not make this file wrong.
+
+Do not restate the method here. What the steering operation does, which variants exist, how a
+direction is extracted and how it is applied: read it from the code. `WORKFLOW_MAP.md` names
+where.
+
 
 ## The division of labour this repo enforces
 
@@ -33,17 +45,26 @@ No agent in this repo produces an interpretation of a result, ranks candidate ex
 or proposes a hypothesis. If a prompt asks for one of those, the correct response is a
 question, not an answer. This is not a stylistic preference; it is the purpose of the setup.
 
-## Project
+## Editing designs/, extractions/, analysis/ directly
 
-Mechanistic interpretability of vision-language models. It began as a re-implementation and
-extension of VTI-style activation steering, and the work so far has been directed at
-hallucination mitigation and sycophancy reduction, evaluated on discriminative and generative
-benchmarks. That framing is current, not permanent — the method family and the behaviour under
-study can both change, and a later direction does not make this file wrong.
+The main session — not a subagent — may use Edit on files in these three directories. This is
+not enforced by settings.json; it is a rule this file states and the model must follow.
 
-Do not restate the method here. What the steering operation does, which variants exist, how a
-direction is extracted and how it is applied: read it from the code. `WORKFLOW_MAP.md` names
-where.
+Two cases only:
+
+1. **Transcription.** Alex has already said, in this conversation, what the edit should contain
+   — filling in a section from something he wrote elsewhere in the file, fixing wording, adding
+   a line he just dictated. The edit adds nothing he did not already state.
+2. **Pure implementation detail.** A change with no research judgment in it — a path, a slug, a
+   formatting fix — the kind of thing Alex has said he does not want to type himself.
+
+Anything else — a new judgment, an interpretation, a value not traceable to something Alex
+already wrote or a fact already on disk — is not covered by this rule, no matter how small it
+looks. When a section is agent-expanded under case 1, mark it and name the source, the way the
+design templates already do (`[filled by agent]`, sourced to a sentence or a path).
+
+Subagents (examiner, planner, tutor) never edit these directories, examiner by having no Edit
+tool at all, planner and tutor by never being given one.
 
 ## Standing rules for extractions
 

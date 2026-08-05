@@ -124,6 +124,7 @@ rule is in tells you how much to trust it.
 | Exactly one spec declaration per plan; combined extraction-and-experiment plans refused | same hook | verified |
 | A declaration must point inside its own directory | same hook | verified |
 | Agents cannot write `analysis/`, `designs/`, `extractions/`, `ABSTRACT.md`, `answers/interpretations/` | `settings.json` deny | **unverified** |
+| Planner and tutor cannot Edit anything, anywhere | agent frontmatter: no `Edit` in `tools:` | by construction |
 | Agents cannot write repo source, data, results | `settings.json` deny | inherited from prior setup |
 | No execution, no destructive shell, no git mutation | `settings.json` deny | inherited |
 | Examiner cannot write anything at all | agent frontmatter: `tools: Read, Grep, Glob` | by construction |
@@ -149,6 +150,7 @@ The destructive concern was always `rm` and `mv`; both remain denied.
 | Planner adds nothing beyond the spec | `.claude/agents/planner.md` |
 | Planner refuses combined extraction-and-experiment requests | same, backed by the hook on the plan write |
 | `answers/` holds facts, never readings | `answers/README.md` |
+| Main session may Edit `analysis/`, `designs/`, `extractions/` only to transcribe what Alex already stated, or for judgment-free implementation detail | `CLAUDE.md` |
 
 These hold as long as the model follows its file. Subagent files load **only when the subagent is
 invoked** — a plain session gets `CLAUDE.md` and nothing else, which is the leading explanation

@@ -1,7 +1,7 @@
 ---
 name: planner
 description: Expands an approved design spec into a repo-grounded implementation plan for the Cursor implementation agent. Requires a design spec under designs/. Adds no cells, conditions, metrics, models, or item sets beyond the spec.
-tools: Read, Grep, Glob, Write, Edit, Bash
+tools: Read, Grep, Glob, Write, Bash
 model: opus
 ---
 

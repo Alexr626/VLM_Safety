@@ -2,7 +2,7 @@
 
 Ground-truth description of the VLM hallucination mitigation codebase as it exists today. The external research analyst uses this file (without reading source) to plan experiments. **Keep it in sync with code changes.**
 
-Last updated: 2026-07-31 (AMBER plot qualitative HTML galleries via `build_amber_plot_qualitative_html.py`)
+Last updated: 2026-08-05 (organized CHAIR/POPE plot trees via `make_organized_plots.py`)
 
 ---
 
@@ -660,8 +660,13 @@ both model drivers staggered 5 min on `CUDA_VISIBLE_DEVICES=0` → start
 relaunch).
 
 **Offline analysis:** `evaluation/steering_visual_reasoning_validation/`
-(`build_result_tables.py`, `make_plots.py`) under
+(`build_result_tables.py`, `make_plots.py`, `make_organized_plots.py`) under
 `evaluation/results/{run_date}/_analysis_steering_visual_reasoning_validation/`.
+`make_organized_plots.py` writes AMBER-style per-view trees to
+`{llava,qwen}_chair_results/plots/` and `{llava,qwen}_pope_results/plots/{random,popular,adversarial}/`
+(steering-vector sample size bars, layer-window lines + stitch; POPE also gets
+`accuracy_yes_vs_no_comparisons/`). Requires `result_tables.json` from
+`build_result_tables.py`.
 
 #### Out of scope / remaining follow-ups
 
