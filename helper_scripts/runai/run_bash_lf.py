@@ -8,6 +8,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+if len(sys.argv) < 2:
+    print("Usage: run_bash_lf.py <script.sh>", file=sys.stderr)
+    sys.exit(2)
+
 path = Path(sys.argv[1])
 text = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
 subprocess.run(["bash"], input=text, check=True)
