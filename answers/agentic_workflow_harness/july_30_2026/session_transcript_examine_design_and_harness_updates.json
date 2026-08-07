@@ -1,0 +1,670 @@
+{
+  "schema_version": 1,
+  "title": "examine-design on steering_vector_visual_reasoning_validation, followed by harness revisions",
+  "date": "2026-07-30",
+  "repo": "vlm_hallucination_mitigation_summer_2026",
+  "branch": "new_research_workflow",
+  "model": "claude-opus-5",
+  "surface": "Claude Code, VS Code extension",
+  "purpose": "Reference example of the research agentic workflow: a design examination through the gated examiner subagent, the spec revisions that followed from it, and the harness changes those revisions exposed as necessary.",
+  "provenance": {
+    "reconstruction": true,
+    "note": "Reconstructed from the live session context by the assistant at Alex's request, not exported from a raw transcript log. User turns are verbatim. Assistant turns are condensed to their substance; the examiner subagent's output in turn 2 is reproduced in full. Tool results are summarised rather than reproduced verbatim, since several were multi-thousand-line file reads.",
+    "not_included": [
+      "raw tool result payloads",
+      "the full text of the design spec at each revision",
+      "the two implementation plans produced by the separate /plan session"
+    ]
+  },
+  "roles_exercised": [
+    "examiner (subagent, Read/Grep/Glob only)",
+    "main session (edits, verification, harness maintenance)"
+  ],
+  "artifacts_examined": {
+    "design_spec": "designs/07_30_26/steering_vector_visual_reasoning_validation.md",
+    "plans_diagnosed": [
+      "implementation_plans/7-30-26/steering_vector_visual_reasoning_validation_plan_2026-07-30.md",
+      "implementation_plans/7-30-26/steering_vector_visual_reasoning_validation_sanity_checks_plan_2026-07-30.md"
+    ]
+  },
+  "turns": [
+    {
+      "index": 1,
+      "role": "user",
+      "kind": "slash_command",
+      "content": "/examine-design steering_vector_visual_reasoning_validation",
+      "note": "Invoked the examine-design skill. The command body (from .claude/commands/examine-design.md) was expanded into the turn and instructed the session to resolve the spec path, check the bypass log, and delegate to the examiner subagent under a three-to-five question cap."
+    },
+    {
+      "index": 2,
+      "role": "assistant",
+      "content": "Spec resolved: designs/07_30_26/steering_vector_visual_reasoning_validation.md. Filled, not a template. No bypass entry dated today names it. Delegating to the examiner.",
+      "tool_uses": [
+        {
+          "tool": "Bash",
+          "purpose": "Resolve the bare exp_id against designs/ using the command's glob patterns",
+          "inputs": "find designs -name '*steering_vector_visual_reasoning_validation*'",
+          "result_summary": "Exactly one match: designs/07_30_26/steering_vector_visual_reasoning_validation.md"
+        },
+        {
+          "tool": "Bash",
+          "purpose": "List all design files to confirm no ambiguous second match",
+          "inputs": "find designs -type f",
+          "result_summary": "Three design files total; only one matches the id"
+        },
+        {
+          "tool": "Read",
+          "purpose": "Read the resolved spec in full before anything else, per the command gate",
+          "inputs": "designs/07_30_26/steering_vector_visual_reasoning_validation.md",
+          "result_summary": "257 lines. Filled spec with question, three competing explanations, a four-row prediction table, an agent-filled Cells factorial (216 steered runs claimed), Item sets, Primitives ('none'), Code gaps (4 entries), Primary measurement, Sample size, prediction, abandonment criterion, Assumptions."
+        },
+        {
+          "tool": "Read",
+          "purpose": "Check whether the examiner gate is lifted for this design today",
+          "inputs": "analysis/bypass_log.md",
+          "result_summary": "Only the template's example entry dated 2026-07-28. No entry for this design dated today, so the gate holds."
+        },
+        {
+          "tool": "Agent",
+          "purpose": "Delegate the examination to the examiner subagent (Read/Grep/Glob only, no edit tool) under the eight checks and the three-to-five question cap",
+          "inputs": "subagent_type=examiner, run_in_background=false, full command body passed as prompt",
+          "result_summary": "Returned 4 blocking questions, 4 corrections, and verification of all 4 existing code gaps. 60,247 subagent tokens, 23 tool uses, ~178s."
+        }
+      ],
+      "relayed_examiner_output": {
+        "blocking_questions": [
+          "The prediction table has four rows with one predicted number each (design:37-42), but the Cells section produces 216 steered runs -- 36 steered numbers per model per benchmark (design:85-86). Which of those 36 is compared against the '77', and is that selection rule fixed in the file before the run?",
+          "Read the abandonment criterion (design:231) against rows 3 and 4. Explanation A predicts CHAIR unchanged at 20 and 17 -- identical to the baseline column. The criterion abandons the truthfulness hypothesis 'if baseline performance showed no difference on these benchmarks than when steering is applied.' Which benchmarks does 'these benchmarks' cover, and is there an outcome that both confirms A and satisfies the criterion?",
+          "Predicted deltas are 7, 4, 0, and 4 points (design:39-42); n is 450/600/500 and the Sample size section states no power argument (design:213-217). At n=450, what size of accuracy change can you separate from zero, and how do you know? Then what that becomes across 36 comparisons per model per benchmark.",
+          "Assumptions says 'I can't think of any assumptions that would need to be checked' (design:239). The design turns free-text into tp/fp/tn/fn on two models with different output conventions, and captions into object counts through a fixed synonym list (metrics.py:329-335). AMBER 450 is 276 gold-no and 174 gold-yes (pinned_amber_disc_450.json:475-476). For the yes/no parser, the object parser, and the gold-label split -- what result would tell you the design is not measuring what the table's rows say it measures?"
+        ],
+        "corrections": [
+          "The question states the method under test is 'the mean difference in truthful versus hallucinated captions' (design:13,15). The directions the design consumes are not mean differences: metadata.json records steer_reconstruction = 'live_pc1_plus_mean' and a sign convention reading 'no mean-diff sign-align'. Primitives declares 'none', so no mean-difference direction is produced under this spec.",
+          "design:48 says 'I expect the relevant performance increase in cells 1 and 3'. The table gives cell 3 (LLaVA CHAIR) as 20 under baseline and 20 under A -- no increase.",
+          "The stated total of 216 steered + 6 baseline runs counts POPE 600 as one run per cell. run_eval.py:33 takes a single --pope_split and eval_runner.py:284 keys output pope_{split}, so POPE is three invocations per cell.",
+          "The Cells table fixes the intervention as additive but names no hook site. interventions/__init__.py:29-33 registers vti_textual_additive_mlp and vti_textual_additive_layer; steer.py:11 defines HOOK_SITES = ('mlp','layer'); the default is hook_site='mlp' (intervention.py:39)."
+        ],
+        "code_gaps_verified": [
+          "Gap 1 confirmed: intervention.py:12-20 imports only directions and directions_v2; directions_partition is not imported by intervention.py or run_eval.py.",
+          "Gap 2 confirmed: intervention.py:151-160 calls vti_hook_ctx without layer_indices; run_eval.py:21-77 exposes no layer flag.",
+          "Gap 3 confirmed with a correction: _flip_counts exists only at rotation_strength.py:132-161 and returns four flip counts, not the two the spec names.",
+          "Gap 4 confirmed: run_eval.py:50 defaults --chair_max_new_tokens to 64 while --max_new_tokens defaults to 256.",
+          "No additional blocking gaps. Generation is greedy throughout (do_sample=False), so run-to-run generation variance is not a source of spread."
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "role": "user",
+      "content": "To respond to your questions, one, for blocking is not legitimate. The point of the prediction cells is to just give a general impression of how the data will look. It doesn't have to be as specific as running 36 steered runs. and if that's not the case given the current definitions of the harnesses then I want to know because these four rows that I've provided should be enough to get the idea across. I definitely do not want to have to write 36 steered numbers in the future when writing specs. 2. I don't really understand what you're asking. I don't know what you're asking when you say that, is there an outcome that both confirms A and satisfies the criterion? What criterion? As far as what benchmarks does the benchmarks cover, there's three benchmarks in this repository currently that are tested for hallucination mitigation, Pope, Amber, and Chair, and only describing performance on amber regarding discriminative stuff is sufficient because Pope was also a discriminative benchmark and they're basically testing the same abilities of the model. Same point about 3 as 1, the prediction table, I don't want it to be an extensive, extremely specific requirement that requires me to do things like consider sample size and prediction deltas and whatnot. like the relative change between the performances that each column provides should be enough to get my predictions across if again if there's a harness that prevents this sort of behavior then let me know because I'm not interested in providing that much detail in these prediction tables going forward. That's actually a good point. The fact that the amber 450 is not balanced in terms of yes-no ratio or gold-no-go, gold-yes ratio means that the yes ratio needs to be reported and the results to make sense of how the performance of the models change under steering Under the gold no and gold yes subsets, The assumption being that the model should perform as well on the gold no subset as the gold yes subset.\n\nAs far as the corrections, I'm saying that per the spec, I want the question that this experiment tests to be the hypothesis where the steering vector is the mean difference in truthful versus hallucinated captions. That's the specification that I'm giving, meaning that if this direction doesn't exist, i.e. if the mean difference, the raw mean difference between truthful and hallucinated captions is not saved, it should be recalculated and saved. I'm specifically not trying to test the steering vector construction using PCA. It was a mistake that primitives declares none in that case. The primitives used should be the saved activations, and the same 5100, 200, and 500 sets of demo examples that are already defined should be used to create these more raw steering vectors that don't use PCA at all to create the steering vector. As far as my statement, I meant that the relative performance increase between the baseline and explanation A when looking at row 1 versus row 3, not cell 1 and cell 3, my apologies, should Give evidence as to whether explanation A is true because a truthfulness vector should not change the impact significantly on a generative benchmark, but it should on a discriminative benchmark. Go ahead and change the number of counts of steered and baseline runs then so that the splits are obvious. I don't really care. Good catch. The cells table should specify that the addition should be done at MLP. It was my mistake earlier in research in doing this to specify a separate additive case at the post-residual stream, or what we're calling the layer site. These really have no difference when it comes to additive steering. adding pre-residual stream or post-residual stream will have the same exact outcome. In fact, this would be something that would be good to note as a code gap, that hook sites at layer should be maybe renamed to residual stream, and that additive textual steering, or rather linear additive textual steering, should not have a difference in site capability. It should be added always at the MLP site, let's say, to avoid confusion."
+    },
+    {
+      "index": 4,
+      "role": "assistant",
+      "content": "Answered the two harness questions, verified two of Alex's claims against the code before recording them, then applied eight edits to the spec.\n\nHarness answers: (1) nothing in the harness requires 36 numbers -- design_template.md:25-26 asks only for 'direction and rough magnitude'. What let the question fire is that check 1 of examine-design.md says 'an entry for every condition', and 'condition' is ambiguous between a table row and a design arm. (2) The effect-size requirement is not from the prediction table -- it is the Sample size field itself (design_template.md:151-157) plus check 5 of the command, so loosening the table would not remove it.\n\nVerified claims: the hook-site equivalence holds for additive and only for additive (steer.py:44-45 returns x + alpha*d_hat; the decoder layer's only consumer of the MLP output is the residual add; the rotation variants renormalise against x.norm() at steer.py:47,72). The mean-difference directions cost zero forward passes -- 5100 cached activation files per model, verified present for both.\n\nAlso noted once, without pressing: the granularity objection and the selection rule are different things, and the file still does not say which of the 72 arms is compared against the 77.",
+      "tool_uses": [
+        {
+          "tool": "Read",
+          "purpose": "Check what the design template actually demands of a prediction table",
+          "inputs": "templates/design_template.md",
+          "result_summary": "Line 25-26 asks for 'direction and rough magnitude, not just changes'. Lines 151-157 of the Sample size field separately require 'what size of effect it can separate from zero, and how you know'."
+        },
+        {
+          "tool": "Read",
+          "purpose": "Check the examiner agent's own design-examination instruction",
+          "inputs": ".claude/agents/examiner.md",
+          "result_summary": "Design examination section requires the prediction table filled 'for every condition'; no cap distinction between a row and a factorial arm."
+        },
+        {
+          "tool": "Read",
+          "purpose": "Verify Alex's claim that additive steering is site-independent",
+          "inputs": "evaluation/interventions/vti/steer.py",
+          "result_summary": "steer.py:43 F.normalize on the direction; :44-45 additive returns x + alpha*d_hat; :47 and :72 the rotation variants renormalise against x.norm(). Claim holds for additive only."
+        },
+        {
+          "tool": "Read",
+          "purpose": "Check how hook sites resolve to modules and whether layer_indices exists",
+          "inputs": "evaluation/interventions/vti/hooks.py",
+          "result_summary": "_resolve_module maps 'mlp' to dispatch.get_mlp and 'layer' to dispatch.get_layer; vti_hook_ctx accepts layer_indices at :62-98."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Read the partition extraction module header",
+          "inputs": "ls evaluation/interventions/vti/ && sed -n '1,80p' directions_partition.py",
+          "result_summary": "SELECTION_POLICY='disjoint_partition', PARTITION_SIZES=(50,100,200,500), seed 42, reuses directions_v2 helpers."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Read how the existing directions are constructed from cached stacks",
+          "inputs": "grep -n 'def obtain_textual_vti_v2_from_stacks' -A 60 directions_v2.py",
+          "result_summary": "Forms per-demo diffs then immediately fits PCA (_live_pca_fit at :302); returns PC1+mean. Confirms the existing sets are not mean differences."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Read cache helpers, diff polarity, sign convention",
+          "inputs": "grep -n 'act_cache_dir|ensure_variant_activation|DIFF_POLARITY|SIGN_CONVENTION' -A 25",
+          "result_summary": "DIFF_POLARITY='value_minus_h_value' (clean - hallucinated); act cache at experiment_artifacts/vti/<model>/textual_v2/_act_cache/."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Verify the activation cache is populated for both models",
+          "inputs": "count *_vl_v2_<variant>.npz per model",
+          "result_summary": "5100 files per model = 850 demos x 6 variants (value + 5 dimensions), present for llava-1.5-7b-hf and qwen2.5-vl-7b-instruct. Mean-diff therefore needs zero forward passes."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Check whether any existing code computes a textual mean difference",
+          "inputs": "grep -rn 'mean_diff' evaluation/ src/",
+          "result_summary": "Only visual_directions.py:51-73, where a mean difference is used to sign-align a PC. No textual mean-difference extractor exists."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Verify the AMBER gold split and POPE subset structure before writing them in",
+          "inputs": "python3 -c 'json.load(...)' on pinned_amber_disc_450.json and pinned_eval_ids.json",
+          "result_summary": "AMBER _meta.gold_counts = {'no': 276, 'yes': 174}. POPE limit_per_split=200 across random/popular/adversarial."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Verify intervention.py defaults and the hook call site",
+          "inputs": "sed -n '1,60p;140,170p' evaluation/interventions/vti/intervention.py",
+          "result_summary": "hook_site default 'mlp' at :39; variant default 'uniform_rotation'; _directions preload accepted; vti_hook_ctx called without layer_indices."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Check which flags run_eval.py exposes",
+          "inputs": "sed -n '1,90p' evaluation/run_eval.py",
+          "result_summary": "No layer flag, no direction-cache flag; --chair_max_new_tokens defaults to 64."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Fix the cell/row wording in the prediction-table paragraph",
+          "inputs": "design spec",
+          "result_summary": "'cells 1 and 3' -> rows; restated the row 1 vs row 3 comparison as Alex meant it."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Add the fixed factors and recompute the run count",
+          "inputs": "design spec Cells",
+          "result_summary": "Added 'Direction construction = raw mean difference (no PCA)' and 'Hook site = mlp' as fixed factors with the additive-equivalence note; recomputed to 72 steered arms x 5 invocations = 360, plus 10 baseline = 370."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Replace Primitives 'none' with the mean-difference primitive",
+          "inputs": "design spec Primitives",
+          "result_summary": "New _meandiff_partition slug per model per nd, inputs from the existing act cache, zero forward passes, nothing shadowed; recorded that steer.py:43 discards the per-layer magnitude profile."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Add gold-split and yes-rate reporting",
+          "inputs": "design spec Primary measurement",
+          "result_summary": "Requires yes rate, gold-no and gold-yes accuracy separately with counts, and tp/fp/tn/fn for every discriminative cell."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Soften an over-reaching sentence to avoid supplying an interpretation",
+          "inputs": "design spec Primary measurement",
+          "result_summary": "Replaced a 'this is a criterion shift' clause with a citation to design_template.md:127-129."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Record Alex's decision to state no power argument",
+          "inputs": "design spec Sample size",
+          "result_summary": "Decision recorded so the file shows a decision rather than an omission."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Record the abandonment-criterion clarification",
+          "inputs": "design spec abandonment section",
+          "result_summary": "'These benchmarks' = AMBER and POPE only; CHAIR unchanged is a prediction of A, not a trigger."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Add the AMBER imbalance assumption",
+          "inputs": "design spec Assumptions",
+          "result_summary": "276/174 gold split named, with what would invalidate the accuracy row."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Rewrite the Code gaps section",
+          "inputs": "design spec Code gaps",
+          "result_summary": "Gap 1 split into 1a (no mean-diff extractor) and 1b (no reachable non-PCA path); gap 3 corrected to four flip counts; gap 4 extended to the uniform_rotation default; new gap 5 on POPE scoring; hook-site rename logged under a 'not a gap' heading because it blocks no cell."
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "role": "user",
+      "content": "About the prediction table granularity, yes, I'd like you to make this change because I think it's a good idea to include something like a prediction table, but to make me have to write it with the granularity of every possible sweep configuration is too much. I think the point of it is really just to display that I understand how the possible explanations for the hypothesis that I am testing will appear in the result data.\n\nAs for the effect size, I'm frankly a bit stuck on how to decide what to do about it because Maybe it's fair to expect me to write something general about how the size of the data or the increase in the size of the data specifically the evaluation sets or the sets of data used to calculate the steering vectors is fair, but but any level of detail about prediction would be too much because it's just too much to expect that someone will make an accurate or even semi-accurate prediction about how increasing n or multiplying n by 5 or 10 or something will affect the results. That's just something that you kind of examine after you run the experiment with a general idea of how increasing or decreasing sample size will affect the outcome. Otherwise the edits are good."
+    },
+    {
+      "index": 6,
+      "role": "assistant",
+      "content": "Applied the prediction-table change in three places, then separated the two things living under 'sample size' and proposed a replacement rather than deciding it unilaterally.\n\nAlso drafted and then removed a second template paragraph that would have required a line on how a collapsed row's number is read off the sweep -- Alex had not asked for it, and adding a requirement to his specification apparatus unasked would be overstepping. Said so explicitly and left the decision to him.",
+      "tool_uses": [
+        {
+          "tool": "Read",
+          "purpose": "Read the command file before editing checks 1 and 5",
+          "inputs": ".claude/commands/examine-design.md",
+          "result_summary": "121 lines; checks 1-8 and the output contract."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Add the row-vs-arm rule to the template",
+          "inputs": "templates/design_template.md prediction table",
+          "result_summary": "'A row is a condition, not an arm.' A row collapses a family of arms the explanations do not distinguish between; splitting is worth it only when two explanations disagree about the halves."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Remove the unasked-for read-off-rule paragraph",
+          "inputs": "templates/design_template.md",
+          "result_summary": "Dropped; reported to Alex rather than imposed."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Match check 1 of the command to the template",
+          "inputs": ".claude/commands/examine-design.md",
+          "result_summary": "Never ask for an entry per arm, per beta, per layer set, or per sample size; the only surviving form is a row two explanations disagree about internally."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Match the examiner agent's design-examination section",
+          "inputs": ".claude/agents/examiner.md",
+          "result_summary": "Same rule, so the agent definition and the command cannot drift."
+        }
+      ],
+      "proposal_returned_to_alex": "Two different things sit under 'sample size': (a) resolution of the instrument -- the smallest difference n can separate from noise, which follows from n alone (at n=450 with a baseline near 0.70 the binomial SE is about 2.2 points); and (b) scaling of the effect with n, which is a prediction about the result. The template only ever asked for (a); what made it read as (b) is that the design has two different n's. Proposed a replacement Sample size field keeping the one-line arithmetic and explicitly excluding the forecast."
+    },
+    {
+      "index": 7,
+      "role": "user",
+      "content": "Sure, add that distinction in the sample size description under the general design template then. For now it's not important for this specific steering vector experiment."
+    },
+    {
+      "index": 8,
+      "role": "assistant",
+      "content": "Applied the sample-size split to the template and to check 5 of the command. The design spec's own Sample size section left untouched, since it already records Alex's decision.",
+      "tool_uses": [
+        {
+          "tool": "Edit",
+          "purpose": "Split the Sample size field into resolution and scaling",
+          "inputs": "templates/design_template.md",
+          "result_summary": "'Evaluation n per cell' plus 'Resolution at that n -- the smallest difference this n can separate from noise', with an explicit clause that no scaling prediction is required where a sample size is a swept factor."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Match check 5 of the command",
+          "inputs": ".claude/commands/examine-design.md",
+          "result_summary": "Ask for the resolution; do not ask for a scaling prediction."
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "role": "user",
+      "content": "Also do me a favor and just change the commands such that right after I provide the backsplash with the command name to indicate to new Claude instances that I want to run those commands as subagents that I can just paste the relative path to the files specifying the artifact needed to run the sub-agent, like designs/07_30_26/steering_vector_visual_reasoning_validation.md. This workaround that the files currently have of doing globes across both spec-tac directories to find the file that I named is very stupid, and I always copy the relative path anyway. Going forward, the command can assume that the way I'll be saving design specs or extraction specs to disk is under the subdirectory design followed by the date with that exact format followed by the name of the spec."
+    },
+    {
+      "index": 10,
+      "role": "assistant",
+      "content": "Rewrote the resolution section of all four commands to take a pasted repo-relative path literally. No globbing, no suffix variants, no near-match search. A bare id still works but only when the argument contains no '/' at all, so it can never shadow a real path. For /plan the leading directory now settles the spec kind outright, which removed the old 'matches in both directories, ask which' branch. The pre-write hook already resolved repo-relative paths at any depth, so it needed no change.",
+      "tool_uses": [
+        {
+          "tool": "Bash",
+          "purpose": "List the command files and read plan.md's resolution block",
+          "inputs": "ls .claude/commands/ && sed -n '1,40p' plan.md",
+          "result_summary": "Five commands; plan.md globbed both designs/ and extractions/."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Read the other two examine commands' resolution blocks",
+          "inputs": "sed -n '1,40p' examine-extraction.md examine-results.md",
+          "result_summary": "Both globbed with _extraction / _reading suffix fallbacks."
+        },
+        {
+          "tool": "Read",
+          "purpose": "Check whether the pre-write hook resolves ids or paths",
+          "inputs": ".claude/hooks/require_design_spec.py",
+          "result_summary": "Already takes a repo-relative path at any depth under designs/ or extractions/. No change needed."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Path-first resolution",
+          "inputs": ".claude/commands/examine-design.md",
+          "result_summary": "Literal path; .md appended if missing; hard stop if it does not exist or is outside designs/; bare-id fallback only when there is no '/'; experiment id is the filename stem."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Path-first resolution",
+          "inputs": ".claude/commands/examine-extraction.md",
+          "result_summary": "Same shape."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Path-first resolution",
+          "inputs": ".claude/commands/examine-results.md",
+          "result_summary": "Same shape, plus an explicit rule that analysis/bypass_log.md is never the reading."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Bypass-log lookup keyed off the id, not $1",
+          "inputs": ".claude/commands/examine-results.md",
+          "result_summary": "Uses the filename stem."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Path-first resolution and spec-kind routing",
+          "inputs": ".claude/commands/plan.md",
+          "result_summary": "Leading directory settles the hook declaration: designs/ -> design_spec, extractions/ -> extraction_spec."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Find remaining id-based references",
+          "inputs": "grep exp_id|ext_id|run_id in commands",
+          "result_summary": "Only the four frontmatter Usage lines."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Rewrite the four Usage lines to the path form",
+          "inputs": "python3 heredoc",
+          "result_summary": "All four updated."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Check the workflow docs for stale id-form usage",
+          "inputs": "grep in WORKFLOW.md and WORKFLOW_MAP.md",
+          "result_summary": "Diagram at WORKFLOW.md:133-159 and the command list at WORKFLOW_MAP.md:39-43."
+        },
+        {
+          "tool": "Read",
+          "purpose": "Read the two doc sections before editing",
+          "inputs": "WORKFLOW.md, WORKFLOW_MAP.md",
+          "result_summary": "ASCII workflow diagram and the .claude tree listing."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Update both docs to the dated-subdirectory path form",
+          "inputs": "python3 heredoc",
+          "result_summary": "Diagram, command list, and spec-kind table updated."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Confirm nothing in the harness broke",
+          "inputs": ".claude/hooks/verify_harness.sh",
+          "result_summary": "passed=14 failed=0, gate behaving correctly."
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "role": "user",
+      "content": "Okay, I'm not sure exactly what happened, but I ran a new chat that ran the command plan on the design spec that we validated together and that we edited together, designs/07_30_26/steering_vector_visual_reasoning_validation.md. The plans that actually resulted from this design spec are under implementation_plans/7-30-26, and I'm particularly interested in the sanity check plan that proposes 10 different sanity checks in regards to our design spec. I'm curious as to what actually caused the planning agent to want to perform so many checks, and in particular, checks that seem to be mainly checks of how the code runs, which can literally just be validated by the agent itself while it's creating the plan, or are checks that are literally validations of how the code works or how artifacts are saved or what their contents are, all of which can be looked up by looking at the implementation markdown file, or by asking me beforehand such that I can provide an assumption to the agent in case it's unsure about some of the parts of the spec. For example, check2 is completely useless because I myself am sure that the four partition blocks are actually disjoint and I would wager that the implementation markdown already lists this explicitly and if it doesn't, it should be in there anyway.\n\nfor context my old agent except was to maintain and implementation markdown file whenever a change in the implementation the online you for this repository was changer something and the research should contain results experiments course and my son this repository. I'm making references to it mainly because I'm assuming that the planning agent is not reading this at all because so many of these checks look like the work of someone Who has never seen the repository before or ever worked with it would want to make Because they have no context about it.\n\nI want to be clear all I did when I opened the new chat instance to create these plans was run the plan command on our design spec I didn't say or do anything else to the files nor did I have any additional turns with the chat session that the planning sub-agent was called in\n\ncan you try to provide some insight on why there's so many checks that are essentially useless for someone who actually has some context about the implementation of the repository?"
+    },
+    {
+      "index": 12,
+      "role": "assistant",
+      "content": "Diagnosed five causes, with citations, and corrected one part of the framing.\n\n1. The sanity-check instruction has no ceiling and an escalation clause. planner.md:154-164 names six categories, gives no cap, and closes with 'this project has run a full experiment on a broken data premise'. The examiner has a hard cap of three to five and an explicit 'zero is legitimate'; the planner has neither, and a cap is the only thing that forces prioritisation.\n\n2. 'Where the checks are substantial, write them as their own plan file' made the container bigger than the content. Once that branch was taken, three checks in a separate document would look thin and ten looks proportionate.\n\n3. IMPLEMENTATION.md is pointed at once, in the wrong section, for the wrong job. planner.md:117-123 sits under Grounding and its object is identifiers -- it is a spell-checker for names. Nothing says the file is a record of already-established repo state that can retire a check. It is absent from CLAUDE.md, WORKFLOW.md, and WORKFLOW_MAP.md entirely.\n\n4. Nothing distinguishes 'verify it now' from 'write a check for later'. The planner holds Read, Grep, Glob, Bash. Checks 2, 8, 9 are file reads it could have done during planning.\n\n5. The whitelist does not cover checks. planner.md:72-83 bounds cells, conditions, metrics, models, benchmarks, item sets, seeds, hyperparameters. Sanity checks are not on that list, so the one 'do not add things' mechanism does not reach the section that inflated.\n\nCorrection to the framing: these are not the work of an agent with no repo context. Seven of the ten trace to something it was handed -- checks 1 and 2 to the Primitives section rewritten in this session, 3 to the new primitive, 4 to Code gap 2, 5 to the standing device_map constraint at planner.md:127, and 6 and 7 to the Assumptions section Alex added in this session. Only 8, 9, 10 are not in the spec. The mechanism is that this session roughly tripled the surface the planner enumerates over, with no cap and no rule permitting a read to close a check instead of opening one.",
+      "tool_uses": [
+        {
+          "tool": "Bash",
+          "purpose": "Locate the plans the new session produced",
+          "inputs": "ls implementation_plans/7-30-26/",
+          "result_summary": "Two files: a 47KB main plan and a 24KB sanity-checks plan, both dated 2026-07-30."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Find the implementation doc Alex referred to",
+          "inputs": "ls *.md; find -iname '*implement*'",
+          "result_summary": "IMPLEMENTATION.md at repo root, 1847 lines."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Outline the sanity-check plan",
+          "inputs": "grep '^## ' on the sanity checks plan",
+          "result_summary": "Ten checks: activations loadable; partition blocks disjoint; direction usable per layer; steering reaches requested layers; model loads unsharded; CHAIR 256 cap; AMBER parser yield; POPE 600 is the pinned 600; AMBER/CHAIR subsets resolve; throughput."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Check whether the harness points any agent at IMPLEMENTATION.md",
+          "inputs": "grep -rn IMPLEMENTATION.md .claude/ CLAUDE.md WORKFLOW*.md templates/",
+          "result_summary": "Three hits: two settings.json permission entries, and planner.md:121 inside the Grounding section. Absent from CLAUDE.md and both workflow docs."
+        },
+        {
+          "tool": "Read",
+          "purpose": "Read the planner definition in full",
+          "inputs": ".claude/agents/planner.md",
+          "result_summary": "165 lines. Sanity checks section at :154-164 with no cap. Whitelist at :72-83 does not cover checks. IMPLEMENTATION.md named only at :121 under Grounding."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Test Alex's wager that IMPLEMENTATION.md already documents disjointness",
+          "inputs": "grep -i 'disjoint|partition' IMPLEMENTATION.md",
+          "result_summary": "Line 597: 'Selection policy disjoint_partition: every id appears in exactly one block.' Wager confirmed -- Check 2 is answered by a line already on disk."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Count IMPLEMENTATION.md citations in the two plans, read the plan's Purpose",
+          "inputs": "grep -c and sed on both plan files",
+          "result_summary": "Sanity-checks plan cites it zero times; main plan once. Purpose section says 'Nine assumptions ... sit under it' and flags checks 6 and 7 as reporting back to Alex."
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "role": "user",
+      "content": "Yeah, let's keep the number of sanity checks to, let's say, 5 at a maximum, with clear instructions that sanity checks are not something that should be added for the sake of adding for a new code base that is necessary to run to implement the design spec needs to be checked to validate an assumption that the experiment is based on. And that assumption should not be relative to the code implementation or the nature of at the existing artifacts that might be reused in separate experiments because all of this information is for sure in the implementation markdown. I think the implementation markdown should definitely be mentioned in the ClaudeMD so that any agent, no matter what, has to read it for context without the entire repo. This is what grounds any agent who inevitably is assisting me in doing something with the codebase to know what already exists on disk, which is largely a representation of where this project is in general.\n\nFinally, if there is an instruction for Cursor, the implementation agent, to update the implementation markdown after it finishes performing an implementation for a plan definitely include a hard rule for it to add to the implementation file as it's been structured up until this point. the other things that you propose are also useful as well please add those too."
+    },
+    {
+      "index": 14,
+      "role": "assistant",
+      "content": "Applied four sets of edits: the five-check cap in both planner.md and plan.md written identically so they cannot drift; IMPLEMENTATION.md as required reading at the head of CLAUDE.md's Infrastructure section; and a hard rule on the Cursor side that every finished plan ends with an IMPLEMENTATION.md update following the file's existing structure. Also fixed a stale handoff path in the Cursor rule. verify_harness.sh still passes 14/14.\n\nNoted that the ten-check plan under implementation_plans/7-30-26/ is untouched -- regenerating it means rerunning /plan, which writes a new dated plan alongside the existing ones rather than replacing them.",
+      "tool_uses": [
+        {
+          "tool": "Bash",
+          "purpose": "Locate the Cursor rule files",
+          "inputs": "ls -a .cursor; find .cursor/rules",
+          "result_summary": "research_workflow.mdc (334 lines) and providing_answers.mdc (47 lines)."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Read IMPLEMENTATION.md's header and structure conventions",
+          "inputs": "sed -n '1,60p' IMPLEMENTATION.md",
+          "result_summary": "'Last updated:' on line 5; repo layout block; per-topic sections with fact tables."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Outline the Cursor workflow rule",
+          "inputs": "grep '^## ' research_workflow.mdc",
+          "result_summary": "Documentation files, the two shared files, the experiment loop, compute allocation, Hard rules, artifact naming, scope drift, no invented identifiers."
+        },
+        {
+          "tool": "Read",
+          "purpose": "Read the two-shared-files and experiment-loop sections",
+          "inputs": ".cursor/rules/research_workflow.mdc:67-146",
+          "result_summary": "Cursor already owns IMPLEMENTATION.md and has an update rule tied to code changes; step 5 of the loop mentions updating it only 'for any code changes'."
+        },
+        {
+          "tool": "Read",
+          "purpose": "Read the Hard rules section for the insertion point",
+          "inputs": ".cursor/rules/research_workflow.mdc:214-247",
+          "result_summary": "Eight existing hard rules."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Rewrite the planner's Sanity checks section",
+          "inputs": ".claude/agents/planner.md",
+          "result_summary": "Hard cap of five; zero legitimate; what qualifies (assumption whose plausible outcome changes what is measured or invalidates a named cell); a never-qualifies list covering code behaviour, artifact layout, reused-artifact properties, pinned-file existence, partition disjointness, hash agreement; environment and throughput moved to a separate heading outside the count; IMPLEMENTATION.md consulted first, and a check that it or a read can close is recorded as a resolved fact with a citation instead."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Mirror the same rules in the command",
+          "inputs": ".claude/commands/plan.md",
+          "result_summary": "Same cap and same lists, written to match so the two cannot drift."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Add IMPLEMENTATION.md as required reading for every agent",
+          "inputs": "CLAUDE.md",
+          "result_summary": "Opens the Infrastructure section: read it first, every session, whatever your role; consult before asking what exists, before proposing to verify code or an artifact, and before calling anything new; a record and not an authority, so code still wins."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Add the Cursor hard rule -- REJECTED BY USER",
+          "inputs": ".cursor/rules/research_workflow.mdc",
+          "result_summary": "Rejected with the reason: also add a note that IMPLEMENTATION.md is only for implementation updates and must not include any results, raw or otherwise."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Re-apply with the results exclusion added",
+          "inputs": ".cursor/rules/research_workflow.mdc Hard rules",
+          "result_summary": "Every finished plan ends with an IMPLEMENTATION.md update, no exceptions; follow the existing structure and field conventions; implementation only, never results; bump 'Last updated:' on line 5; record what a new artifact set is, not only that it exists; correct what the work disproved."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Make step 5 of the experiment loop unconditional",
+          "inputs": ".cursor/rules/research_workflow.mdc",
+          "result_summary": "Update is not optional and not conditional on the run succeeding; numbers stay in RESEARCH_LOG.md."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Fix the stale plan handoff path",
+          "inputs": ".cursor/rules/research_workflow.mdc",
+          "result_summary": "designs/<exp_id>_design.md -> designs/<date>/<name>.md, matching the new convention."
+        },
+        {
+          "tool": "Edit",
+          "purpose": "Add the no-results clause to the file's own description",
+          "inputs": ".cursor/rules/research_workflow.mdc",
+          "result_summary": "Provenance and shape is implementation; a number computed from it is a result."
+        },
+        {
+          "tool": "Bash",
+          "purpose": "Verify the harness and check what changed",
+          "inputs": "verify_harness.sh; git status",
+          "result_summary": "passed=14 failed=0. .cursor/ is untracked in git, which is why the rule file did not appear in the status filter."
+        }
+      ],
+      "user_interruption": "Alex interrupted this turn once, mid-tool-sequence, to commit the existing workflow-file changes before continuing."
+    },
+    {
+      "index": 15,
+      "role": "user",
+      "content": "Please write this entire chat instance, its turns, between me and you, the tool usages that you used to get the context you needed to answer my questions and generally assist me with the examination task and the harness updates, etc. to a JSON file under Answers so that I can use it as an example of a relatively successful conversation and execution of the research agentic workflow that's in development."
+    }
+  ],
+  "files_changed": [
+    {
+      "path": "designs/07_30_26/steering_vector_visual_reasoning_validation.md",
+      "kind": "design spec",
+      "changes": [
+        "cell/row wording corrected in the prediction-table paragraph",
+        "Cells: direction construction and hook site fixed as factors; run count recomputed to 370 invocations",
+        "Primitives: 'none' replaced by the raw mean-difference direction primitive",
+        "Primary measurement: gold-split and yes-rate reporting required",
+        "Sample size: Alex's decision recorded",
+        "Abandonment criterion: 'these benchmarks' clarified to AMBER and POPE",
+        "Assumptions: AMBER 276/174 imbalance added",
+        "Code gaps: rewritten, 1a/1b split, gap 3 corrected, gap 5 added, hook-site rename logged as not-a-gap"
+      ]
+    },
+    {
+      "path": "templates/design_template.md",
+      "kind": "harness template",
+      "changes": [
+        "prediction table: a row is a condition, not an arm",
+        "Sample size: split into resolution (required) and scaling (never required)"
+      ]
+    },
+    {
+      "path": ".claude/commands/examine-design.md",
+      "kind": "slash command",
+      "changes": [
+        "path-first spec resolution",
+        "check 1 matched to the template",
+        "check 5 matched to the template"
+      ]
+    },
+    {
+      "path": ".claude/commands/examine-extraction.md",
+      "kind": "slash command",
+      "changes": [
+        "path-first spec resolution"
+      ]
+    },
+    {
+      "path": ".claude/commands/examine-results.md",
+      "kind": "slash command",
+      "changes": [
+        "path-first reading resolution",
+        "bypass-log lookup keyed off the filename stem"
+      ]
+    },
+    {
+      "path": ".claude/commands/plan.md",
+      "kind": "slash command",
+      "changes": [
+        "path-first spec resolution with spec-kind routing off the leading directory",
+        "sanity checks capped at five, with qualifying and never-qualifying lists"
+      ]
+    },
+    {
+      "path": ".claude/agents/examiner.md",
+      "kind": "agent definition",
+      "changes": [
+        "design examination: row-vs-arm rule"
+      ]
+    },
+    {
+      "path": ".claude/agents/planner.md",
+      "kind": "agent definition",
+      "changes": [
+        "Sanity checks section rewritten: cap of five, qualifying and never-qualifying lists, IMPLEMENTATION.md consulted first, verify-now-instead-of-checking rule"
+      ]
+    },
+    {
+      "path": "CLAUDE.md",
+      "kind": "shared project context",
+      "changes": [
+        "IMPLEMENTATION.md added as required reading for every agent in every session"
+      ]
+    },
+    {
+      "path": ".cursor/rules/research_workflow.mdc",
+      "kind": "implementation-agent rules",
+      "changes": [
+        "hard rule: every finished plan ends with an IMPLEMENTATION.md update, following the file's existing structure, implementation facts only",
+        "experiment loop step 5 made unconditional",
+        "IMPLEMENTATION.md description gained a no-results clause",
+        "stale plan handoff path corrected to the dated form"
+      ]
+    },
+    {
+      "path": "WORKFLOW.md",
+      "kind": "workflow doc",
+      "changes": [
+        "diagram updated to the dated-subdirectory path form"
+      ]
+    },
+    {
+      "path": "WORKFLOW_MAP.md",
+      "kind": "workflow doc",
+      "changes": [
+        "command list and spec-kind table updated to the dated-subdirectory path form"
+      ]
+    }
+  ],
+  "workflow_observations": [
+    "The examiner gate held: the bypass log was checked and contained no entry dated today for this design, so the examination proceeded normally rather than being short-circuited.",
+    "The examiner held its scope. It stated that two prediction columns were identical and asked which cell separates them, without concluding what the identity implied. It stated factual discrepancies as statements and questions as questions.",
+    "Two examiner questions were rejected on their premise by Alex, and one was rejected as unclear. Rejection led to harness changes rather than to the examiner being overruled case-by-case.",
+    "One examiner correction (the PCA-vs-mean-difference discrepancy) changed the experiment's declared primitive from 'none' to a new artifact, which is the largest single consequence of the examination.",
+    "Two of Alex's own claims were verified against the code before being written into the spec: the additive hook-site equivalence (holds for additive only) and the availability of cached activations (5100 files per model, so zero forward passes).",
+    "The session declined to add an unrequested requirement to the design template, drafted it, removed it, and reported the omission rather than imposing it.",
+    "One tool call was rejected by the user mid-session and re-applied with the requested addition.",
+    "The user interrupted one turn to commit intermediate work, then resumed.",
+    "The ten-check sanity plan produced by a separate session was diagnosed by reading the harness files rather than the plan alone; seven of the ten checks traced to instructions the planner was handed, which reframed the cause from 'no repo context' to 'no cap over an enlarged surface'."
+  ],
+  "open_items_at_session_end": [
+    "The design spec still does not state which of the 72 steered arms supplies the number compared against the prediction table's entries. Raised twice, left to Alex.",
+    "The ten-check sanity plan under implementation_plans/7-30-26/ was not regenerated under the new five-check cap; rerunning /plan would write a new dated plan beside it."
+  ]
+}
