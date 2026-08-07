@@ -315,9 +315,25 @@ def run_evaluation(
                 iv_dir = f"{iv_name}__a{alpha}"
             elif beta is not None and "beta" in cfg:
                 if directions_dir is not None:
+                    # Map metadata steer_reconstruction → directory component.
+                    # Keep raw_mean_difference → "meandiff" so 2026-07-30 paths
+                    # stay byte-identical to what this code would emit today.
+                    _recon_to_dir = {
+                        "raw_mean_difference": "meandiff",
+                        "live_pc1_plus_mean": "pc1_plus_mean",
+                    }
+                    recon = cfg.get("steer_reconstruction")
+                    if recon not in _recon_to_dir:
+                        raise ValueError(
+                            f"Unmapped steer_reconstruction={recon!r} for "
+                            f"directions_dir={directions_dir}; refuse to invent "
+                            f"a directory component that could collide. Known: "
+                            f"{sorted(_recon_to_dir)}"
+                        )
+                    recon_stem = _recon_to_dir[recon]
                     iv_dir = (
                         f"{iv_name}__b{beta}__d{cfg['dimension']}__nd{cfg['num_demos']}"
-                        f"__meandiff__layers_{cfg['layer_set_label']}"
+                        f"__{recon_stem}__layers_{cfg['layer_set_label']}"
                     )
                 else:
                     iv_dir = f"{iv_name}__b{beta}"
