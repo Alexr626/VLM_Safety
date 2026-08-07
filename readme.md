@@ -132,36 +132,18 @@ Direction extraction feeds each demo as `question + caption` through `wrapper.fo
 
 ## Project structure
 
+See [`REPO_MAP.md`](REPO_MAP.md) for subdirectory roles (primary vs historical, GitHub-only paths). Short tree:
+
 ```
-vlm_hallucination_mitigation_summer_2026/
-├── src/
-│   ├── model.py          # VLM wrappers, create_wrapper()
-│   ├── dataset.py        # BENCHMARK_REGISTRY, load_benchmark()
-│   ├── extraction.py     # ActivationCache, SVD / modality-shift helpers
-│   ├── mediation.py      # Causal mediation hooks, ScoringTarget
-│   └── paths.py          # Central path helpers (use these — do not hand-roll)
-├── data/
-│   ├── {benchmark}/combined.json
-│   ├── {benchmark}/{model}/activations/     # sample_{id}_{vl|tt}.npz
-│   ├── {benchmark}/{model}/responses/{intervention}/
-│   ├── captions/{benchmark}.json
-│   ├── vti/demos.jsonl                      # VTI paired-caption demos (from authors)
-│   └── coco/val2014/  (+ train2014/ for VTI)
-├── tests/                # unit tests (e.g. test_VTI_text_steer.py)
-├── helper_scripts/       # tracked one-off / ops scripts (see below)
-├── data_scripts/         # download_*, extract_vl/tt, prepare_data, generate_captions
+├── src/                 # wrappers, loaders, paths
+├── evaluation/          # run_eval, interventions, analysis packages, results/
+├── data/                # benchmarks, pins, vti demos (large raw data gitignored)
+├── data_scripts/        # downloads + prep
+├── experiment_artifacts/# directions / caches (mostly gitignored)
 ├── diagnostic_experiments/
-│   ├── modality_shift/   # m^l = x_vl - x_tt analysis
-│   ├── causal_mediation/ # FCCT-style recovery on POPE yes/no
-│   └── vti_lambda_sim/   # gated_rotation lambda_sim diagnostic
-├── evaluation/
-│   ├── run_eval.py       # main benchmark × intervention runner
-│   ├── chair_amber_diagnostics/  # CHAIR+AMBER VTI grid + rotation sweeps
-│   ├── vti_rotation_strength/      # POPE rotation-strength experiment
-│   ├── interventions/    # no_intervention + vti_textual_*
-│   └── results/{run_date}/{model}/...
-├── helper_scripts/       # qualitative review (review_responses, sample_responses)
-└── experiment_artifacts/{experiment}/{model}/
+├── helper_scripts/      # incl. runai/
+├── IMPLEMENTATION.md, RESEARCH_LOG.md, REPO_MAP.md, ARTIFACT_*.md
+└── …                    # agentic workflow paths: personal GitHub only
 ```
 
 ### Path conventions
