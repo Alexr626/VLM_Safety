@@ -43,17 +43,16 @@ git push -u github new_research_workflow:VLM_hallucination_mitigation
 
 Enough to reopen the POPE 06-19 vs 07-30 thread and continue demos850 steering without re-fitting every direction from scratch.
 
-| Tarball (suggested name) | Contents | Approx size (2026-08-07) |
-|--------------------------|----------|---------------------------|
-| `packA_directions_no_act_cache.tar.gz` | `experiment_artifacts/vti/` **excluding** any `_act_cache/` directories | ~0.3–0.5G |
-| `packA_eval_results_key_dates.tar.gz` | `evaluation/results/{2026-06-19,2026-07-30,2026-08-05,2026-08-06}/` | ~0.2G |
-| `packA_generated_data_vti_and_pins.tar.gz` | `data/vti/` demos/partitions/json (+ `v2/` staging if present); already-tracked pins are in git but included for convenience | varies (exclude huge dumps if desired) |
+**Built on lambdab2 2026-08-07** under `/tmp/vlm_artifact_packs/` (upload these to Drive):
 
-Optional add-on if you need to re-extract meandiff/PCA without forwards:
+| Tarball | Contents | Size on disk |
+|--------------------------|----------|-----------|
+| `packA_directions_no_act_cache.tar.gz` | `experiment_artifacts/vti/` excluding `_act_cache/` | **276M** |
+| `packA_eval_results_key_dates.tar.gz` | `evaluation/results/{2026-06-19,2026-07-30,2026-08-05,2026-08-06}/` | **35M** |
+| `packA_generated_data_vti_and_pins.tar.gz` | `data/vti/` + pinned amber/chair/pope JSON | **798M** |
+| `packA_act_caches_textual_v2.tar.gz` (optional) | `textual_v2/_act_cache/` for llava + qwen2.5 + qwen2 | **2.9G** |
 
-| Tarball | Contents | Approx size |
-|---------|----------|-------------|
-| `packA_act_caches_textual_v2.tar.gz` | `experiment_artifacts/vti/*/textual_v2/_act_cache/` | ~3G |
+Also offline GitHub mirror bundle (gitignored): `exports/new_research_workflow_for_github.bundle` (~436M).
 
 ### Build Pack A (from repo root)
 
@@ -98,7 +97,11 @@ ls -lh "$OUT"
 
 ## Pack B — optional full `data/`
 
-Skip deciding COCO vs pins. Entire `data/` tree (~51G on lambdab2 as of 2026-08-07, dominated by `data/coco/` ~39G).
+Skip deciding COCO vs pins. Entire `data/` tree.
+
+**Built on lambdab2 2026-08-07:** `/tmp/vlm_artifact_packs/packB_full_data.tar.gz` (**48G**). Durable copy path (if synced): `/home/romanus/vlm_artifact_packs_2026-08-07/`.
+
+Alternatively re-download benchmarks with `bash data_scripts/download_all_benchmarks.sh` and only restore Pack A.
 
 ```bash
 OUT=/tmp/vlm_artifact_packs
@@ -107,7 +110,6 @@ tar -czf "$OUT/packB_full_data.tar.gz" data
 ls -lh "$OUT/packB_full_data.tar.gz"
 ```
 
-Alternatively re-download benchmarks with `bash data_scripts/download_all_benchmarks.sh` and only restore Pack A.
 
 ---
 
