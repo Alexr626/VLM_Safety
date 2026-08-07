@@ -1726,3 +1726,22 @@ Plan: `implementation_plans/7-30-26/steering_vector_visual_reasoning_validation_
 **RunAI pack (not yet uploaded):** `/tmp/runai_steering_llava_2026-07-30/` — `vti_repo_working_tree.tar.gz` (includes uncommitted meandiff / `--directions_dir` code), `llava_meandiff_directions.tar.gz`, `llava_partial_results_chair.tar.gz`, `SUBMIT.md`. Helpers: `helper_scripts/runai/run_steering_visual_reasoning_llava.sh`, `pack_steering_llava_for_runai.sh`.
 
 **Blockers for submit:** (1) `runai login` token expired on lambdab2; (2) SFTP to NFS from lambdab2 denied — upload via WinSCP ThinkPad still required.
+
+## 2026-08-06 — matched LLaVA POPE comparison (2026-06-19 vs 2026-07-30)
+
+**Type:** offline analysis of existing eval cells (no new generation).
+**Script:** `evaluation/pope_0619_vs_0730_matched/build_comparison.py`
+**Output:** `evaluation/results/2026-08-06/_analysis_pope_0619_vs_0730_matched/`
+
+**Frame:** LLaVA-1.5-7B, `vti_textual_additive_mlp`, all layers, β ∈ {0.2, 0.5, 0.9}, POPE random/popular/adversarial (n=200 each). Baselines identical across the two run dates.
+
+| Arm | Source cells | Direction |
+|-----|--------------|-----------|
+| 06-19 | `evaluation/results/2026-06-19/llava-1.5-7b-hf/pope_*/vti_textual_additive_mlp__b{β}/` | author demos nd70, PC1+mean |
+| 07-30 | `…/2026-07-30/…/vti_textual_additive_mlp__b{β}__dall__nd500__meandiff__layers_all/` | demos850 nd500, raw mean-difference |
+
+**Artifacts:** `comparison_tables.md`; `tables/{per_split,split_averaged}_metrics.csv`; bar plots under `plots/split_averaged/` and `plots/per_split/{random,popular,adversarial}/` for accuracy, precision, recall, accuracy_gold_no, accuracy_gold_yes; `plots/direction_magnitude_per_layer.png` (+ abs-diff twin) with demos850 nd500 PC1+mean (`*_r2_partition`) as magnitude control; `cells.json`, `direction_magnitudes.json`.
+
+**Split-averaged accuracy (%):** baseline 84.67; β=0.2 → 06-19 83.67 / 07-30 84.67; β=0.5 → 85.50 / 83.33; β=0.9 → 88.00 / 83.17.
+
+**Update (same day):** added three pairwise per-layer cosine plots under `plots/direction_cosine/` plus `direction_cosines.json`. Mean cosine over layers: 06-19 vs 07-30 meandiff −0.0425; 06-19 vs demos850 PC1+mean −0.0386; 07-30 meandiff vs demos850 PC1+mean (same block) 0.9989.

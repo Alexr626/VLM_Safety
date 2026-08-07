@@ -2,7 +2,7 @@
 
 Ground-truth description of the VLM hallucination mitigation codebase as it exists today. The external research analyst uses this file (without reading source) to plan experiments. **Keep it in sync with code changes.**
 
-Last updated: 2026-08-05 (organized CHAIR/POPE plot trees via `make_organized_plots.py`)
+Last updated: 2026-08-06 (matched POPE 06-19 vs 07-30 comparison analysis)
 
 ---
 
@@ -284,6 +284,7 @@ data/vti/demos_850.jsonl                 # 850-row pool: 555 demos_v2 prefix + 2
 data/vti/demos_850_partition_s42.json    # disjoint 50/100/200/500 blocks over demos_850 (seed 42)
 data/vti/qual_subset_chair5_amber25.json # CHAIR-5 + AMBER-25 qualitative pin (2026-06-22 LLaVA bundle)
 data/amber/pinned_amber_disc_100.json    # AMBER-100 discriminative (20/stratum; keeps AMBER-25)
+data/amber/pinned_amber_disc_1500.json   # AMBER-1500 discriminative (strict superset of 450; seed 1234)
 data/amber/augmented_amber{25,100}.jsonl # leading-clause (+ filler) prompt JSONLs
 data/amber/dumps/{model_short}/{run_tag}/ # steered-capture dumps (AMBER subsets)
 data/pope/pinned_pope_existence_yes_30.json # POPE-30-yes: 30 unique gold=yes from random (rebuilt 2026-07-21)
@@ -668,6 +669,44 @@ relaunch).
 `accuracy_yes_vs_no_comparisons/`). Requires `result_tables.json` from
 `build_result_tables.py`.
 
+**Matched POPE cross-date comparison (2026-08-06):**
+`evaluation/pope_0619_vs_0730_matched/build_comparison.py` — LLaVA
+`vti_textual_additive_mlp`, all layers, β ∈ {0.2, 0.5, 0.9}, all three POPE
+splits. Arms: 2026-06-19 author-demo nd70 PC1+mean vs 2026-07-30 demos850 nd500
+meandiff `layers_all`. Writes tables (accuracy / precision / recall /
+gold-no / gold-yes + deltas), bar plots vs β with baseline, and per-layer
+direction-magnitude plots (06-19 / 07-30 meandiff / demos850 nd500 PC1+mean
+control) and three pairwise per-layer cosine plots under
+`evaluation/results/2026-08-06/_analysis_pope_0619_vs_0730_matched/`.
+
+#### AMBER expanded steering-direction grid (2026-08-05)
+
+Extraction continuation over a new 1500-item AMBER discriminative pin, both
+models, baseline + mean-difference + VTI PCA (PC1+mean) directions from the
+same demos850 nd500 partition block, β ∈ {0.2, 0.5, 0.9}, three layer windows
+per model. Spec:
+`extractions/08_05_26/steering_vector_validation_continuation.md`. Plan:
+`implementation_plans/8-5-26/amber_expanded_steering_direction_grid_plan_2026-08-05.md`.
+
+| Piece | Location / fact |
+|-------|-----------------|
+| Pin | `data/amber/pinned_amber_disc_1500.json` (strict superset of 450; seed 1234) |
+| Pin builder | `data_scripts/draw_amber_discriminative_1500.py` |
+| Pin verify | `helper_scripts/verify_amber_discriminative_1500_pin.py` |
+| Eval driver | `evaluation/run_scripts/run_amber_expanded_steering_direction_grid.sh` (one model per process) |
+| Directions | `…/textual_v2/demos850_ba05bd96_all_nd500_s42_{meandiff\|r2}_partition` (read-only; no `--demos_path`) |
+| Result tree | `evaluation/results/2026-08-05/{model_short}/amber/{no_intervention\|vti_textual_additive_mlp__b{β}__dall__nd500__{meandiff\|pc1_plus_mean}__layers_{…}}/` |
+| Analysis dir | `evaluation/results/2026-08-05/_analysis_steering_vector_validation_continuation/` |
+| Table builder | `evaluation/steering_vector_validation_continuation/build_per_configuration_and_per_item_tables.py` — per-config / per-qtype / per-item CSVs + `coverage.json` + `result_tables.json`; no cell-to-cell contrasts |
+| Run verify | `helper_scripts/verify_amber_expanded_steering_direction_grid_run.py` → `run_verification.json` |
+| Held constant | greedy decode, `--max_new_tokens 256`, `--amber_task discriminative`, Qwen `--max_pixels 1003520`, intervention `vti_textual_additive_mlp`, dimension `all`, nd=500 |
+| Layer windows | LLaVA `all` / `5-14` / `20-29`; Qwen `all` / `5-14` / `15-24` |
+| Cells | 38 (19 per model) × 1500 items |
+
+Leave `run_steering_visual_reasoning_validation.sh` and
+`evaluation/steering_visual_reasoning_validation/build_result_tables.py`
+untouched — they remain the record of the 2026-07-30 multi-benchmark grid.
+
 #### Out of scope / remaining follow-ups
 
 1. ~~Textual cache path/slug must include demos identity~~ — **done** for demos_v2 (`textual_v2/` namespace). Author-demo legacy path still omits demos hash in the filename.
@@ -681,8 +720,11 @@ relaunch).
 5. Wiring demos850 directions into `run_eval.py` / `VTITextualIntervention` —
    **done for raw mean-difference** (2026-07-30): see **Mean-difference
    textual directions** and `--directions_dir` / `--layer_set` below. PCA
-   `*_r2_partition` directories are still loadable the same way (same
-   `textual_v2` on-disk format) but the validation grid uses meandiff slugs.
+   `*_r2_partition` directories are loadable the same way (same
+   `textual_v2` on-disk format). The 2026-07-30 validation grid used meandiff
+   slugs only; the 2026-08-05 AMBER expanded grid also runs the matching
+   `*_r2_partition` (PC1 + mean) directories — see **AMBER expanded
+   steering-direction grid** below.
 
 ### Shuffled-control direction (image derangement)
 
@@ -1363,9 +1405,19 @@ python evaluation/run_eval.py \
   `vti_hook_ctx(layer_indices=...)`.
 
 When `--directions_dir` is set with `--beta`, result directories use
-`{iv}__b{beta}__d{dimension}__nd{n_pairs}__meandiff__layers_{layer_set_label}`
-so layer sets do not collide. Existing demos_v2 path composition is unchanged
-when `directions_dir` is omitted.
+`{iv}__b{beta}__d{dimension}__nd{n_pairs}__{recon_stem}__layers_{layer_set_label}`
+where `recon_stem` is derived from `intervention.config["steer_reconstruction"]`
+(loaded eagerly from the direction directory's `metadata.json`):
+
+| `steer_reconstruction` | directory component |
+|------------------------|---------------------|
+| `raw_mean_difference`  | `meandiff`          |
+| `live_pc1_plus_mean`   | `pc1_plus_mean`     |
+
+Any other value raises `ValueError` (no silent fallback). `raw_mean_difference`
+→ `meandiff` keeps every existing `evaluation/results/2026-07-30/` path identical
+to what the previous hard-coded suffix emitted. Existing demos_v2 path composition
+is unchanged when `directions_dir` is omitted.
 
 **Pinned-subset / prompt flags (added 2026-06-22):**
 - `--subset_ids_file PATH` pins the exact sample ids scored for each benchmark
@@ -1598,7 +1650,8 @@ Lifecycle: `ensure_directions(wrapper)` on first `generate()` (expensive: ~70 de
 
 **CHAIR + AMBER diagnostics** (`evaluation/chair_amber_diagnostics/`, added 2026-06-22). Two experiments sharing one pinned subset draw + the frozen CHAIR cap (64) + the verbatim VTI prompt, characterizing the VTI interventions on a generative (CHAIR) and a multi-dimension discriminative (AMBER) benchmark for `llava-1.5-7b-hf` and `Qwen2.5-VL-7B-Instruct`.
 
-- `draw_subsets.py` (+ `run_scripts/run_prep_subsets.sh`): draws + pins the shared subsets ONCE with a fixed seed (default 1234) to **tracked** files — `data/chair/pinned_chair_500.json` (500 random COCO val2014 image ids) and `data/amber/pinned_amber_disc_450.json` (stratified 150 each existence/attribute/relation, by the annotation-derived `category`). Each file is shaped `{benchmark: [ids], "_meta": {...}}` so it passes straight to `run_eval.py --subset_ids_file`. Deterministic; `--force` to redraw.
+- `draw_subsets.py` (+ `run_scripts/run_prep_subsets.sh`): draws + pins the shared subsets ONCE with a fixed seed (default 1234) to **tracked** files — `data/chair/pinned_chair_500.json` (500 random COCO val2014 image ids) and `data/amber/pinned_amber_disc_450.json` (stratified 150 each existence/attribute/relation, by the annotation-derived `category`). Each file is shaped `{benchmark: [ids], "_meta": {...}}` so it passes straight to `run_eval.py --subset_ids_file`. Deterministic; `--force` to redraw. Leave this script alone for new draws — it is the record of how the 450 was produced.
+- **AMBER-1500 expanded pin** (2026-08-05/06): `data_scripts/draw_amber_discriminative_1500.py` writes `data/amber/pinned_amber_disc_1500.json` only (refuses any other `--out`). Strict superset of the 450; seed **1234**; dedupe at most one item per `(image, question text)`; per-(question type, gold) targets existence-no 500, attribute 250/250, relation 293/207 (543 yes / 957 no overall); image-spread fill. Verify: `helper_scripts/verify_amber_discriminative_1500_pin.py` → `evaluation/results/2026-08-05/_analysis_steering_vector_validation_continuation/amber_1500_pin_verification.json`.
 - `step0_chair_token_cap.py` (+ `run_scripts/run_step0_chair_cap.sh`): the cap-provenance probe (20 images, caps 64 vs 512, LLaVA no_intervention, verbatim prompt). Writes `evaluation/results/{run_date}/_diagnostics/step0_chair_token_cap.json`. Result frozen the cap at **64** (see RESEARCH_LOG 2026-06-22).
 - **Experiment 1 — reproduction grid** (`run_scripts/run_exp1_repro_grid.sh`): the `run_vti_pope_beta_grid.sh` analog on CHAIR+AMBER. Runs `vti_textual_additive_mlp`, `vti_textual_additive_layer`, `vti_textual_uniform_rotation_mlp` (NOT `uniform_rotation_layer` — that is Exp 2) across the β grid (β outermost; baselines once per model/benchmark), both models, via `run_eval.py` with the pinned subsets, `--chair_prompt`, `--chair_max_new_tokens 64`, `--amber_task discriminative`. Per-cell outputs land in the standard tree `{run_date}/{model_short}/{chair|amber}/{iv}__b{beta}/metric_summary.json`. Resumable via `--skip_if_exists`.
 - **Experiment 2 — rotation-strength sweep** (`rotation_strength_chair_amber.py` + `run_scripts/run_exp2_rotation_strength.sh`): the `vti_rotation_strength` analog. Sweeps β for `uniform_rotation @ layer` over the pinned subsets, per (model, benchmark), reusing the generic gen/classify/flip helpers from `evaluation/vti_rotation_strength/rotation_strength.py`. **β grid (distinct from Exp1):** `0.6 0.5 0.45 0.4 0.35 0.3 0.25 0.2 0.1` (fine grid in the live zone; same as POPE `run_rotation_strength_sweep.sh`; Exp1 uses the coarser `0.4 0.1 … 0.9` reproduction grid). Reports `metrics_by_beta` (CHAIR: chair_s/chair_i over non-empty, avg_objects_mentioned, avg_caption_len_chars, mean_len, n_empty/empty_fraction; AMBER: accuracy/f1/yes_ratio/neg_item_accuracy/pos_item_accuracy/n_unparsed/by_qtype + POPE-style decision-flip accounting), the empty/identical/changed collapse split, and decode-only + skip-position-0 mitigation probes at β_max. Writes `{run_date}/{model_short}/{chair|amber}_rotation_strength/sweep_uniform_rotation_layer_n{N}.json`. Resumable: it checkpoints per-sample records to `sweep_..._n{N}.checkpoint.json` (every 25 new samples), reloads any complete records by `id` on restart so an interrupted sweep does not regenerate them, deletes the checkpoint on completion, and with `--skip_if_exists` skips a (model,benchmark) sweep whose final JSON already exists.
