@@ -126,6 +126,7 @@ data/vti/*
 data/amber/*
 !data/amber/pinned_amber_disc_450.json
 !data/amber/pinned_amber_disc_100.json
+!data/amber/pinned_amber_disc_1500.json
 !data/chair/
 data/chair/*
 !data/chair/pinned_chair_500.json
