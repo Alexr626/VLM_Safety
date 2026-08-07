@@ -10,6 +10,33 @@ Drive folder URL (fill after upload):
 <PASTE_GOOGLE_DRIVE_FOLDER_URL_HERE>
 ```
 
+## GitHub full-tree push (Phase 2 note)
+
+Pushing `new_research_workflow` → `git@github.com:Alexr626/VLM_Safety.git` branch `VLM_hallucination_mitigation` from lambdab2 failed with `Permission denied (publickey)` — the host key `romanus@lambdab2` is not authorized on that GitHub account.
+
+**Offline alternative already built on this machine:**
+
+```
+exports/new_research_workflow_for_github.bundle   (~436M; gitignored under exports/)
+```
+
+On a machine that can push to `Alexr626/VLM_Safety`:
+
+```bash
+git clone git@github.com:Alexr626/VLM_Safety.git
+cd VLM_Safety
+git fetch /path/to/new_research_workflow_for_github.bundle new_research_workflow:new_research_workflow
+git checkout VLM_hallucination_mitigation
+git merge --ff-only new_research_workflow   # or reset --hard if you intend to replace tip
+git push origin VLM_hallucination_mitigation
+```
+
+Or authorize the lambdab2 ed25519 public key on GitHub, then from the internship clone:
+
+```bash
+git push -u github new_research_workflow:VLM_hallucination_mitigation
+```
+
 ---
 
 ## Pack A — restore-critical (recommended first)
