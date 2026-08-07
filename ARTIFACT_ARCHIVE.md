@@ -7,7 +7,7 @@ Large gitignored trees are **not** on GitHub/GitLab. Pack them to Google Drive, 
 Drive folder URL (fill after upload):
 
 ```
-<PASTE_GOOGLE_DRIVE_FOLDER_URL_HERE>
+https://drive.google.com/drive/u/0/folders/161QYJLNkiBMf7NtpNgaMy-iElBVlkYtd
 ```
 
 **Pack locations on lambdab2 (identical):**
