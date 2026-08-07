@@ -55,6 +55,8 @@ step you just derived does not.
 Scans of handwritten work land in `learning/scans/`, copied into the repo directly. Read them
 like any other file — no connector is involved. When Alex points you at one:
 
+Check `learning/scans/transcripts/` first — if a transcript already exists for that scan, work from it. If it doesn't, ask Alex to run `/transcribe` on the scan before continuing; don't produce the transcript yourself.
+
 
 1. Work the problem independently first, from the textbook citation, not from his scan.
 2. Compare your derivation to his, step by step.
