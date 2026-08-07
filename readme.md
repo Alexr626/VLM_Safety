@@ -1,8 +1,26 @@
 # VLM Hallucination Mitigation Research
 
-Mechanistic interpretability infrastructure for studying and mitigating hallucinations in Vision-Language Models (VLMs). The repo provides shared model wrappers, activation extraction (VL vs text-only), modality-shift analysis, FCCT-style causal mediation, and a benchmark × intervention evaluation harness across five public hallucination benchmarks.
+Mechanistic interpretability infrastructure for studying and mitigating hallucinations in Vision-Language Models (VLMs). Shared model wrappers, activation extraction, VTI-style textual activation steering, and a benchmark × intervention evaluation harness across public hallucination benchmarks (POPE, AMBER, CHAIR, HallusionBench, MMHal-Bench).
 
-**Scope:** hallucination evaluation (object presence, captions, illusion/consistency). Counting benchmarks (e.g. FSC-147-style MAE/RMSE) are not implemented yet.
+**Scope:** hallucination evaluation (object presence, captions, illusion/consistency). Counting benchmarks are not implemented yet.
+
+## Internship handoff (read first)
+
+**Start here for the current research thread:** matched LLaVA POPE comparison of differently constructed steering vectors (2026-06-19 author-demo PC1+mean vs 2026-07-30 demos850 meandiff).
+
+| Item | Location |
+|------|----------|
+| Analysis output | [`evaluation/results/2026-08-06/_analysis_pope_0619_vs_0730_matched/`](evaluation/results/2026-08-06/_analysis_pope_0619_vs_0730_matched/) |
+| Builder (offline) | [`evaluation/pope_0619_vs_0730_matched/build_comparison.py`](evaluation/pope_0619_vs_0730_matched/build_comparison.py) |
+| Subdirectory roles | [`REPO_MAP.md`](REPO_MAP.md) |
+| Artifact locations | [`ARTIFACT_INDEX.md`](ARTIFACT_INDEX.md) |
+| Drive archive / restore | [`ARTIFACT_ARCHIVE.md`](ARTIFACT_ARCHIVE.md) |
+| Code facts | [`IMPLEMENTATION.md`](IMPLEMENTATION.md) |
+| Run log | [`RESEARCH_LOG.md`](RESEARCH_LOG.md) |
+
+**Two remotes:** personal GitHub keeps the full tree (including agentic workflow under `answers/`, `.claude/`, etc.). Nokia GitLab `manager_handoff` keeps experimental/eval code only — see `REPO_MAP.md`.
+
+**Large artifacts** (`experiment_artifacts/`, most of `evaluation/results/`, raw `data/`) are gitignored on purpose. Restore from Google Drive using `ARTIFACT_ARCHIVE.md`. Do not commit `.env` or HF weights.
 
 ## What is implemented today
 
