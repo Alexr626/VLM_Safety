@@ -1,24 +1,30 @@
 #!/usr/bin/env python3
-"""Rewrite lambdab2 absolute paths to the local (NFS) repo root.
+"""Rewrite baked checkout-absolute paths in JSON / JSONL.
 
-Lambdab2 builds (augment JSONLs, data/*/combined.json, some metadata) bake in:
+Lambdab2-era files bake in:
 
   /home/romanus/dev/vlm_hallucination_mitigation_summer_2026/...
 
-On RunAI the same files live under:
+Two replacement modes:
 
-  /home/datalake/romanus/vlm_hallucination/...
+- Default: replace that prefix with another absolute prefix (default:
+  this checkout's ``project_root()``). Use on **gitignored** manifests so
+  they point at the current machine. Do not commit the result.
+- ``--relative``: strip the prefix so paths become repo-relative
+  (``data/coco/val2014/...``). Use on **git-tracked** files so one commit
+  works on every site. Loaders in ``src/dataset.py`` resolve relative
+  paths against ``project_root()``.
 
-This script does a text-level prefix replace in JSON / JSONL (and optional
-extra extensions). Dry-run by default; pass --apply to write.
+Dry-run by default; pass ``--apply`` to write. Default scan roots: ``data/``,
+``experiment_artifacts/``.
 
-Examples (inside the NFS pod, from repo root or any cwd):
+Examples:
 
   python helper_scripts/runai/remap_lambdab2_paths.py
-  python helper_scripts/runai/remap_lambdab2_paths.py --apply
+  python helper_scripts/runai/remap_lambdab2_paths.py --relative --apply
   python helper_scripts/runai/remap_lambdab2_paths.py --apply \\
       --old /home/romanus/dev/vlm_hallucination_mitigation_summer_2026 \\
-      --new /home/datalake/romanus/vlm_hallucination
+      --new /home/alex/dev/vlm_hallucination
 """
 
 from __future__ import annotations
@@ -82,6 +88,18 @@ def _remap_text(text: str, old: str, new: str) -> tuple[str, int]:
     return text.replace(old, new), count
 
 
+def _remap_text_relative(text: str, old: str) -> tuple[str, int]:
+    """Strip ``old`` so remaining paths are repo-relative (no leading slash)."""
+    old = old.rstrip("/")
+    if old not in text:
+        return text, 0
+    count = text.count(old)
+    # Replace "old/" first so "/data/..." does not become an absolute "/data/...".
+    text = text.replace(old + "/", "")
+    text = text.replace(old, "")
+    return text, count
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument(
@@ -92,7 +110,13 @@ def main() -> int:
     ap.add_argument(
         "--new",
         default=None,
-        help="Replacement prefix (default: project_root() of this checkout)",
+        help="Replacement prefix (default: project_root() of this checkout). "
+             "Ignored when --relative is set.",
+    )
+    ap.add_argument(
+        "--relative",
+        action="store_true",
+        help="Strip --old so paths are repo-relative. For git-tracked files.",
     )
     ap.add_argument(
         "--root",
@@ -100,7 +124,7 @@ def main() -> int:
         dest="roots",
         default=None,
         help="Directory or file to scan (repeatable). Default: data/, "
-             "augment/outputs/, experiment_artifacts/",
+             "experiment_artifacts/",
     )
     ap.add_argument(
         "--ext",
@@ -118,8 +142,12 @@ def main() -> int:
     args = ap.parse_args()
 
     old = args.old.rstrip("/")
-    new = (args.new or str(project_root())).rstrip("/")
-    if old == new:
+    if args.relative and args.new is not None:
+        print("ERROR: --relative and --new cannot be used together",
+              file=sys.stderr)
+        return 2
+    new = "" if args.relative else (args.new or str(project_root())).rstrip("/")
+    if not args.relative and old == new:
         print(f"ERROR: --old and --new are identical: {old}", file=sys.stderr)
         return 2
 
@@ -137,8 +165,9 @@ def main() -> int:
 
     files = _iter_files(roots, suffixes)
     print(f"old prefix : {old}")
-    print(f"new prefix : {new}")
-    print(f"mode       : {'APPLY' if args.apply else 'DRY-RUN'}")
+    print(f"new prefix : {'<repo-relative>' if args.relative else new}")
+    print(f"mode       : {'APPLY' if args.apply else 'DRY-RUN'}"
+          + (" relative" if args.relative else ""))
     print(f"roots      : {', '.join(str(r) for r in roots)}")
     print(f"files scan : {len(files)}")
 
@@ -153,7 +182,10 @@ def main() -> int:
             text = raw.decode("utf-8")
         except UnicodeDecodeError:
             continue
-        new_text, count = _remap_text(text, old, new)
+        if args.relative:
+            new_text, count = _remap_text_relative(text, old)
+        else:
+            new_text, count = _remap_text(text, old, new)
         if count == 0:
             continue
         n_files += 1

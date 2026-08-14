@@ -109,6 +109,60 @@ def load_combined(benchmark: str, project_root: Optional[Path] = None) -> List[d
     return data if isinstance(data, list) else list(data.values())
 
 
+def _resolve_image_path(
+    stored: Optional[str],
+    *,
+    extra_dirs: Optional[List[Path]] = None,
+    project_root: Optional[Path] = None,
+) -> Optional[Path]:
+    """Resolve a stored image path that may be absolute, repo-relative, or a name.
+
+    Absolute paths that exist are used as-is (per-site remaps of gitignored
+    manifests). Missing absolute paths and repo-relative paths (``data/...``)
+    are joined to ``project_root``. Bare filenames are tried under each
+    ``extra_dirs`` entry (e.g. ``data/amber/images``, COCO val2014).
+    """
+    if not stored:
+        return None
+    root = project_root or _PROJECT_ROOT
+    extras = list(extra_dirs or [])
+    p = Path(stored)
+
+    candidates: List[Path] = []
+    if p.is_absolute():
+        candidates.append(p)
+        try:
+            rel = p.relative_to(root)
+            candidates.append(root / rel)
+        except ValueError:
+            pass
+        s = str(p)
+        marker = "/data/"
+        idx = s.find(marker)
+        if idx != -1:
+            candidates.append(root / s[idx + 1 :])  # drop leading slash → data/...
+        candidates.append(root / p.name)
+        for d in extras:
+            candidates.append(d / p.name)
+    else:
+        candidates.append(root / p)
+        if extras:
+            candidates.append(extras[0] / p)
+        for d in extras:
+            candidates.append(d / p.name)
+        candidates.append(root / p.name)
+
+    seen = set()
+    for c in candidates:
+        key = str(c)
+        if key in seen:
+            continue
+        seen.add(key)
+        if c.exists():
+            return c
+    return candidates[0] if candidates else None
+
+
 def _coco_image_path(coco_root: Path, image_id_or_name: str) -> Optional[Path]:
     """Resolve COCO val2014 image by numeric id or filename."""
     s = str(image_id_or_name)

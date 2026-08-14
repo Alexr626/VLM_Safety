@@ -2,7 +2,7 @@
 
 Ground-truth description of the VLM hallucination mitigation codebase as it exists today. The external research analyst uses this file (without reading source) to plan experiments. **Keep it in sync with code changes.**
 
-Last updated: 2026-08-06 (matched POPE 06-19 vs 07-30 comparison analysis)
+Last updated: 2026-08-13 (two-checkout sites, relative path remap, `_resolve_image_path`)
 
 ---
 
@@ -41,9 +41,9 @@ see Evaluation §. (AMBER **generative** scoring remains a placeholder.)
 | PyTorch | 2.10.0, CUDA wheels `cu121` (Ampere A6000 on lambdab2) |
 | Transformers | 4.50.1 (pinned — v5 output changes affect activation extraction) |
 | flash-attn | **Not installed** — use SDPA/eager |
-| HF cache | `HF_HOME=/data/romanus/huggingface` (recommended) |
-| W&B | `WANDB_DIR=/data/romanus/wandb` (recommended) |
-| GPUs (lambdab2) | 4× RTX A6000 48GB; set `CUDA_VISIBLE_DEVICES`; check `nvidia-smi` — see **Compute resources** |
+| HF cache | personal-workstation: unset (Hugging Face default). lambdab2 historical: `HF_HOME=/data/romanus/huggingface`. See `config/sites.md`. |
+| W&B | Logging only, not a GPU site. lambdab2 historical: `WANDB_DIR=/data/romanus/wandb`. |
+| GPUs | personal-workstation: 1× RTX 5080. lambdab2: 4× RTX A6000 48GB (shared). See **Compute resources**. |
 | GLIBCXX | Conda env has `activate.d` hook prepending `$CONDA_PREFIX/lib` on Ubuntu 20.04 |
 
 **MiniGPT-4:** requires external MiniGPT-4 repo + `MINIGPT4_CKPT` env var pointing to `.pth` checkpoint.
@@ -56,24 +56,42 @@ see Evaluation §. (AMBER **generative** scoring remains a placeholder.)
 
 ## Compute resources
 
-Romanus has **two compute targets**. The analyst must tag each planned run with
-**target** (`lambdab2` | `runai`), **sample scale**, and **purpose**
-(qualitative gate vs production benchmark). Do not schedule multi-day full-benchmark
-sweeps on lambdab2; do not use RunAI for first-pass ~20-sample sanity checks.
+Site table (paths, GPU, conda, `HF_HOME`): **`config/sites.md`**. Plans tag each run with **site** (`personal-workstation` | `lambdab2` | `runai-nfs` | later `cloud-h100`), **sample scale**, and **purpose** (qualitative gate vs production benchmark).
+
+**Current canonical hallucination checkout (2026-08-13):** `/home/alex/dev/vlm_hallucination` on this workstation. Sibling safety checkout: `/home/alex/dev/VLM_Safety` (`origin/main`). Shared COCO: `/home/alex/data/coco` (each tree’s `data/coco` is a symlink). lambdab2 and RunAI remain documented sites for when Nokia access returns; they are not the current canonical trees.
+
+Do not schedule multi-day full-benchmark sweeps on the personal 5080; do not use RunAI (or rented H100s) for first-pass ~20-sample sanity checks.
 
 ### Routing summary
 
-| | **lambdab2** | **RunAI** |
-|--|--------------|-----------|
-| **Purpose** | Dev, debug, **small exploratory runs** | **Large benchmark / reproduction runs** |
-| **Typical N** | ~10–20 (qualitative), ≤~200 (single local cell) | Pinned subsets (CHAIR-500, AMBER-450), paper scale (e.g. POPE 3000/split) |
-| **When** | New intervention/diagnostic; inspect raw outputs before scaling | Method already looks promising locally; confirm at benchmark scale |
-| **Repo** | Live git clone (`~/dev/vlm_hallucination_mitigation_summer_2026`) | NFS extracted tree from `vti_repo.tar.gz` |
-| **Python env** | Conda `vlm_hallucination_mitigation` | Micromamba `envs/vlm_hal` on NFS |
-| **GPU** | 1× A6000 48GB (Romanus should **keep one slot free** long-term) | 1× H100 80GB HBM3 per job (`h100-pool`) |
-| **Submit / run** | SSH on lambdab2; `CUDA_VISIBLE_DEVICES=N python …` | `runai training submit` from lambdab2 |
+| | **personal-workstation** | **lambdab2** | **runai-nfs** |
+|--|--------------------------|--------------|---------------|
+| **Purpose** | Current canonical; dev, debug, small exploratory runs | Nokia lab server when access returns; same role as before | Large hallucination benchmark / reproduction runs |
+| **Typical N** | ~10–20 (qualitative); watch 5080 VRAM | ~10–20, ≤~200 (single local cell) | Pinned subsets (CHAIR-500, AMBER-450), paper scale |
+| **Repo** | `/home/alex/dev/vlm_hallucination` (+ `/home/alex/dev/VLM_Safety`) | `/home/romanus/dev/vlm_hallucination` (intended) | NFS extracted tree from `vti_repo.tar.gz` |
+| **Python env** | Conda `vlm_hallucination_mitigation` | Same conda name, per checkout | Micromamba `envs/vlm_hal` on NFS |
+| **GPU** | 1× RTX 5080 | 1× A6000 48GB (keep one slot free) | 1× H100 80GB HBM3 per job (`h100-pool`) |
+| **Submit / run** | SSH to this box; `CUDA_VISIBLE_DEVICES` | SSH on lambdab2 | `runai training submit` from lambdab2 |
 
-### lambdab2 (local server)
+### personal-workstation
+
+| Fact | Value |
+|------|-------|
+| OS | Pop!_OS |
+| GPU | 1× RTX 5080; check `nvidia-smi` |
+| Hallucination | `/home/alex/dev/vlm_hallucination` (this tree) |
+| Safety | `/home/alex/dev/VLM_Safety` |
+| Shared COCO | `/home/alex/data/coco` |
+| `HF_HOME` | unset (default cache) |
+| Cursor / Claude Code | Both; one window per checkout |
+
+**Appropriate jobs:** `LIMIT=10`–`20` `run_eval.py` cells; CHAIR/AMBER diagnostic smoke; reading `responses.json`; hook and activation-extraction debugging. Full unsharded 7B load: confirm free VRAM first (5080 is smaller than A6000 48GB).
+
+**Example drivers (local):** `run_beta_grid_local.sh`, `run_exp1_repro_grid.sh` with default pinned subsets only when a **single** model/cell is needed — not full multi-model grids at scale.
+
+### lambdab2 (Nokia lab server)
+
+Historical facts; **[stub]** re-verify on return. See `config/sites.md`.
 
 | Fact | Value |
 |------|-------|
@@ -131,7 +149,7 @@ sweeps on lambdab2; do not use RunAI for first-pass ~20-sample sanity checks.
 | `verify_steering_nfs_layout.sh` | Required-path checks (`MODEL_SHORTS`) |
 | `runai_job_logging.sh` | Tee to `$BASE/logs/runai/<job>_<ts>.log` |
 | `SUBMIT_STEERING_LLAVA.md` | Sync → Qwen smoke → `hal-steer-triple` (1×H100, 3 processes) |
-| `remap_lambdab2_paths.py` | Rewrite baked lambdab2 absolute paths (`/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/…`) to the local `project_root()` (NFS: `/home/datalake/romanus/vlm_hallucination`). Dry-run by default; `--apply` writes. Scans `data/` (incl. amber/pope augmented JSONLs + dump metadata), `experiment_artifacts/` |
+| `remap_lambdab2_paths.py` | Rewrite baked absolute prefixes. `--relative` strips to repo-relative (git-tracked files). Default `--apply` rewrites gitignored files to `project_root()`. Default `--old` remains the lambdab2 prefix. Scans `data/`, `experiment_artifacts/`. See `config/sites.md`. |
 | `bootstrap_micromamba.py` | Bootstrap micromamba if not pre-uploaded to NFS |
 | `run_bash_lf.py` | Strip CRLF then `bash` a helper `.sh` (WinSCP-safe) |
 
@@ -147,9 +165,9 @@ sweeps on lambdab2; do not use RunAI for first-pass ~20-sample sanity checks.
 
 WinSCP only: lambdab2 ↔ NFS file transfer. Not a dev or submit environment.
 
-### Device policy (both targets)
+### Device policy
 
-VTI direction extraction and rotation steering **must** run with the **full model on a single GPU** — no CPU offload or multi-GPU sharding (corrupts hooks / activations). One 7B VLM fits comfortably on A6000 48GB or H100 80GB.
+VTI direction extraction and rotation steering **must** run with the **full model on a single GPU** — no CPU offload or multi-GPU sharding (corrupts hooks / activations). One 7B VLM fits comfortably on A6000 48GB or H100 80GB. On the personal RTX 5080, check free VRAM before an unsharded load.
 
 ---
 
@@ -222,6 +240,8 @@ Generation is **greedy** everywhere: `do_sample=False` in all wrapper `generate_
 ---
 
 ## `src/dataset.py` — Benchmark loaders
+
+Loaders resolve `image_path` through `_resolve_image_path`: existing absolute paths are used as-is; repo-relative paths (`data/coco/val2014/...`) are joined to the checkout root; missing lambdab2-era absolutes fall back to the filename under the benchmark image dir or COCO val2014. Tracked manifests should stay repo-relative (see `helper_scripts/runai/remap_lambdab2_paths.py --relative`).
 
 ### Registry
 

@@ -1,9 +1,9 @@
 {
   "date": "2026-07-30",
   "generated_at": "2026-07-30T23:39:46",
-  "demos_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/vti/demos_850.jsonl",
+  "demos_path": "data/vti/demos_850.jsonl",
   "demos_content_hash_sha256_16": "ba05bd960cad0c18",
-  "partition_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/vti/demos_850_partition_s42.json",
+  "partition_path": "data/vti/demos_850_partition_s42.json",
   "dimension": "all",
   "sizes": [
     50,
@@ -15,24 +15,24 @@
   "forwards_executed": 0,
   "act_cache_before": {
     "llava-1.5-7b-hf": {
-      "path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/_act_cache",
+      "path": "experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/_act_cache",
       "n_files": 5100,
       "mtime_digest_sha256_16": "40399b5d0ad63afc"
     },
     "qwen2.5-vl-7b-instruct": {
-      "path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/_act_cache",
+      "path": "experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/_act_cache",
       "n_files": 5100,
       "mtime_digest_sha256_16": "f9378147c42bebd6"
     }
   },
   "act_cache_after": {
     "llava-1.5-7b-hf": {
-      "path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/_act_cache",
+      "path": "experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/_act_cache",
       "n_files": 5100,
       "mtime_digest_sha256_16": "40399b5d0ad63afc"
     },
     "qwen2.5-vl-7b-instruct": {
-      "path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/_act_cache",
+      "path": "experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/_act_cache",
       "n_files": 5100,
       "mtime_digest_sha256_16": "f9378147c42bebd6"
     }
@@ -42,7 +42,7 @@
       "model": "llava-hf/llava-1.5-7b-hf",
       "model_short": "llava-1.5-7b-hf",
       "slug": "demos850_ba05bd96_all_nd50_s42_meandiff_partition",
-      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/demos850_ba05bd96_all_nd50_s42_meandiff_partition",
+      "cache_dir": "experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/demos850_ba05bd96_all_nd50_s42_meandiff_partition",
       "num_demos": 50,
       "directions_shape": [
         32,
@@ -57,7 +57,7 @@
       "model": "llava-hf/llava-1.5-7b-hf",
       "model_short": "llava-1.5-7b-hf",
       "slug": "demos850_ba05bd96_all_nd100_s42_meandiff_partition",
-      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/demos850_ba05bd96_all_nd100_s42_meandiff_partition",
+      "cache_dir": "experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/demos850_ba05bd96_all_nd100_s42_meandiff_partition",
       "num_demos": 100,
       "directions_shape": [
         32,
@@ -72,7 +72,7 @@
       "model": "llava-hf/llava-1.5-7b-hf",
       "model_short": "llava-1.5-7b-hf",
       "slug": "demos850_ba05bd96_all_nd200_s42_meandiff_partition",
-      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/demos850_ba05bd96_all_nd200_s42_meandiff_partition",
+      "cache_dir": "experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/demos850_ba05bd96_all_nd200_s42_meandiff_partition",
       "num_demos": 200,
       "directions_shape": [
         32,
@@ -87,7 +87,7 @@
       "model": "llava-hf/llava-1.5-7b-hf",
       "model_short": "llava-1.5-7b-hf",
       "slug": "demos850_ba05bd96_all_nd500_s42_meandiff_partition",
-      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/demos850_ba05bd96_all_nd500_s42_meandiff_partition",
+      "cache_dir": "experiment_artifacts/vti/llava-1.5-7b-hf/textual_v2/demos850_ba05bd96_all_nd500_s42_meandiff_partition",
       "num_demos": 500,
       "directions_shape": [
         32,
@@ -102,7 +102,7 @@
       "model": "Qwen/Qwen2.5-VL-7B-Instruct",
       "model_short": "qwen2.5-vl-7b-instruct",
       "slug": "demos850_ba05bd96_all_nd50_s42_meandiff_partition",
-      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/demos850_ba05bd96_all_nd50_s42_meandiff_partition",
+      "cache_dir": "experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/demos850_ba05bd96_all_nd50_s42_meandiff_partition",
       "num_demos": 50,
       "directions_shape": [
         28,
@@ -117,7 +117,7 @@
       "model": "Qwen/Qwen2.5-VL-7B-Instruct",
       "model_short": "qwen2.5-vl-7b-instruct",
       "slug": "demos850_ba05bd96_all_nd100_s42_meandiff_partition",
-      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/demos850_ba05bd96_all_nd100_s42_meandiff_partition",
+      "cache_dir": "experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/demos850_ba05bd96_all_nd100_s42_meandiff_partition",
       "num_demos": 100,
       "directions_shape": [
         28,
@@ -132,7 +132,7 @@
       "model": "Qwen/Qwen2.5-VL-7B-Instruct",
       "model_short": "qwen2.5-vl-7b-instruct",
       "slug": "demos850_ba05bd96_all_nd200_s42_meandiff_partition",
-      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/demos850_ba05bd96_all_nd200_s42_meandiff_partition",
+      "cache_dir": "experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/demos850_ba05bd96_all_nd200_s42_meandiff_partition",
       "num_demos": 200,
       "directions_shape": [
         28,
@@ -147,7 +147,7 @@
       "model": "Qwen/Qwen2.5-VL-7B-Instruct",
       "model_short": "qwen2.5-vl-7b-instruct",
       "slug": "demos850_ba05bd96_all_nd500_s42_meandiff_partition",
-      "cache_dir": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/demos850_ba05bd96_all_nd500_s42_meandiff_partition",
+      "cache_dir": "experiment_artifacts/vti/qwen2.5-vl-7b-instruct/textual_v2/demos850_ba05bd96_all_nd500_s42_meandiff_partition",
       "num_demos": 500,
       "directions_shape": [
         28,

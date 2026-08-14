@@ -97,7 +97,7 @@
     "include_cls": true,
     "patch_size": 14,
     "seed": 42,
-    "demos_file": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/vti/demos.jsonl"
+    "demos_file": "data/vti/demos.jsonl"
   },
   "demos_file_hash": "5ce467817fc2a297"
 }

@@ -1745,3 +1745,15 @@ Plan: `implementation_plans/7-30-26/steering_vector_visual_reasoning_validation_
 **Split-averaged accuracy (%):** baseline 84.67; β=0.2 → 06-19 83.67 / 07-30 84.67; β=0.5 → 85.50 / 83.33; β=0.9 → 88.00 / 83.17.
 
 **Update (same day):** added three pairwise per-layer cosine plots under `plots/direction_cosine/` plus `direction_cosines.json`. Mean cosine over layers: 06-19 vs 07-30 meandiff −0.0425; 06-19 vs demos850 PC1+mean −0.0386; 07-30 meandiff vs demos850 PC1+mean (same block) 0.9989.
+
+## 2026-08-13 — path remap after Drive restore (personal-workstation)
+
+**Type:** local filesystem remap; no generation.
+
+**Tracked `--relative` apply** (`helper_scripts/runai/remap_lambdab2_paths.py --relative --apply` on 13 git-tracked files under `data/` and `experiment_artifacts/`):
+
+`--old /home/romanus/dev/vlm_hallucination_mitigation_summer_2026` → repo-relative. 13 files, 9473 replacements. Example: `data/pope/combined.json` `image_path` is now `data/coco/val2014/COCO_val2014_000000310196.jpg`.
+
+**Gitignored absolute apply** (same script, default mode, `--new /home/alex/dev/vlm_hallucination --apply`): 427 files, 60547 replacements. Example: `data/chair/combined.json` → `/home/alex/dev/vlm_hallucination/data/coco/val2014/...`. Not committed.
+
+Site table: `config/sites.md`. Loaders: `src/dataset.py` `_resolve_image_path`.

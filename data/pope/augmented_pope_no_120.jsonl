@@ -4,7 +4,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000310196.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -37,7 +37,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000310196.jpg",
 	"question_neutral": "Is there a sandwich in the image?",
 	"variants": [
 		{
@@ -70,7 +70,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000310196.jpg",
 	"question_neutral": "Is there a couch in the image?",
 	"variants": [
 		{
@@ -103,7 +103,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000210789.jpg",
 	"question_neutral": "Is there a pizza in the image?",
 	"variants": [
 		{
@@ -136,7 +136,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000210789.jpg",
 	"question_neutral": "Is there a sink in the image?",
 	"variants": [
 		{
@@ -169,7 +169,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000210789.jpg",
 	"question_neutral": "Is there a cell phone in the image?",
 	"variants": [
 		{
@@ -202,7 +202,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000429109.jpg",
 	"question_neutral": "Is there a sheep in the image?",
 	"variants": [
 		{
@@ -235,7 +235,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000429109.jpg",
 	"question_neutral": "Is there a broccoli in the image?",
 	"variants": [
 		{
@@ -268,7 +268,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000429109.jpg",
 	"question_neutral": "Is there a tennis racket in the image?",
 	"variants": [
 		{
@@ -301,7 +301,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000211674.jpg",
 	"question_neutral": "Is there a teddy bear in the image?",
 	"variants": [
 		{
@@ -334,7 +334,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000211674.jpg",
 	"question_neutral": "Is there a broccoli in the image?",
 	"variants": [
 		{
@@ -367,7 +367,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000211674.jpg",
 	"question_neutral": "Is there an orange in the image?",
 	"variants": [
 		{
@@ -400,7 +400,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000458338.jpg",
 	"question_neutral": "Is there a train in the image?",
 	"variants": [
 		{
@@ -433,7 +433,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000458338.jpg",
 	"question_neutral": "Is there a surfboard in the image?",
 	"variants": [
 		{
@@ -466,7 +466,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000458338.jpg",
 	"question_neutral": "Is there a kite in the image?",
 	"variants": [
 		{
@@ -499,7 +499,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000283412.jpg",
 	"question_neutral": "Is there a toaster in the image?",
 	"variants": [
 		{
@@ -532,7 +532,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000283412.jpg",
 	"question_neutral": "Is there a sports ball in the image?",
 	"variants": [
 		{
@@ -565,7 +565,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000283412.jpg",
 	"question_neutral": "Is there a book in the image?",
 	"variants": [
 		{
@@ -598,7 +598,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000265719.jpg",
 	"question_neutral": "Is there a traffic light in the image?",
 	"variants": [
 		{
@@ -631,7 +631,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000265719.jpg",
 	"question_neutral": "Is there a bird in the image?",
 	"variants": [
 		{
@@ -664,7 +664,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000265719.jpg",
 	"question_neutral": "Is there a truck in the image?",
 	"variants": [
 		{
@@ -697,7 +697,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000461331.jpg",
 	"question_neutral": "Is there a bowl in the image?",
 	"variants": [
 		{
@@ -730,7 +730,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000461331.jpg",
 	"question_neutral": "Is there a cow in the image?",
 	"variants": [
 		{
@@ -763,7 +763,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000461331.jpg",
 	"question_neutral": "Is there a laptop in the image?",
 	"variants": [
 		{
@@ -796,7 +796,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000544456.jpg",
 	"question_neutral": "Is there a cell phone in the image?",
 	"variants": [
 		{
@@ -829,7 +829,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000544456.jpg",
 	"question_neutral": "Is there a couch in the image?",
 	"variants": [
 		{
@@ -862,7 +862,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000544456.jpg",
 	"question_neutral": "Is there a tennis racket in the image?",
 	"variants": [
 		{
@@ -895,7 +895,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000017708.jpg",
 	"question_neutral": "Is there a fire hydrant in the image?",
 	"variants": [
 		{
@@ -928,7 +928,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000017708.jpg",
 	"question_neutral": "Is there a bed in the image?",
 	"variants": [
 		{
@@ -961,7 +961,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000017708.jpg",
 	"question_neutral": "Is there a bench in the image?",
 	"variants": [
 		{
@@ -994,7 +994,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000574692.jpg",
 	"question_neutral": "Is there a bear in the image?",
 	"variants": [
 		{
@@ -1027,7 +1027,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000574692.jpg",
 	"question_neutral": "Is there a cow in the image?",
 	"variants": [
 		{
@@ -1060,7 +1060,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000574692.jpg",
 	"question_neutral": "Is there a bed in the image?",
 	"variants": [
 		{
@@ -1093,7 +1093,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000353180.jpg",
 	"question_neutral": "Is there a potted plant in the image?",
 	"variants": [
 		{
@@ -1126,7 +1126,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000353180.jpg",
 	"question_neutral": "Is there a wine glass in the image?",
 	"variants": [
 		{
@@ -1159,7 +1159,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000353180.jpg",
 	"question_neutral": "Is there a suitcase in the image?",
 	"variants": [
 		{
@@ -1192,7 +1192,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000239444.jpg",
 	"question_neutral": "Is there an airplane in the image?",
 	"variants": [
 		{
@@ -1225,7 +1225,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000239444.jpg",
 	"question_neutral": "Is there a clock in the image?",
 	"variants": [
 		{
@@ -1258,7 +1258,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000239444.jpg",
 	"question_neutral": "Is there a horse in the image?",
 	"variants": [
 		{
@@ -1291,7 +1291,7 @@
 	"gold": "no",
 	"qtype": "random",
 	"split": "random",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000569839.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000569839.jpg",
 	"question_neutral": "Is there a zebra in the image?",
 	"variants": [
 		{
@@ -1324,7 +1324,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000310196.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -1357,7 +1357,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000310196.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -1390,7 +1390,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000310196.jpg",
 	"question_neutral": "Is there a chair in the image?",
 	"variants": [
 		{
@@ -1423,7 +1423,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000210789.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -1456,7 +1456,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000210789.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -1489,7 +1489,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000210789.jpg",
 	"question_neutral": "Is there a chair in the image?",
 	"variants": [
 		{
@@ -1522,7 +1522,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000429109.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -1555,7 +1555,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000429109.jpg",
 	"question_neutral": "Is there a chair in the image?",
 	"variants": [
 		{
@@ -1588,7 +1588,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000429109.jpg",
 	"question_neutral": "Is there a cup in the image?",
 	"variants": [
 		{
@@ -1621,7 +1621,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000211674.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -1654,7 +1654,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000211674.jpg",
 	"question_neutral": "Is there a chair in the image?",
 	"variants": [
 		{
@@ -1687,7 +1687,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000211674.jpg",
 	"question_neutral": "Is there a cup in the image?",
 	"variants": [
 		{
@@ -1720,7 +1720,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000458338.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -1753,7 +1753,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000458338.jpg",
 	"question_neutral": "Is there a chair in the image?",
 	"variants": [
 		{
@@ -1786,7 +1786,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000458338.jpg",
 	"question_neutral": "Is there a cup in the image?",
 	"variants": [
 		{
@@ -1819,7 +1819,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000283412.jpg",
 	"question_neutral": "Is there a person in the image?",
 	"variants": [
 		{
@@ -1852,7 +1852,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000283412.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -1885,7 +1885,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000283412.jpg",
 	"question_neutral": "Is there a chair in the image?",
 	"variants": [
 		{
@@ -1918,7 +1918,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000265719.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -1951,7 +1951,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000265719.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -1984,7 +1984,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000265719.jpg",
 	"question_neutral": "Is there a chair in the image?",
 	"variants": [
 		{
@@ -2017,7 +2017,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000461331.jpg",
 	"question_neutral": "Is there a person in the image?",
 	"variants": [
 		{
@@ -2050,7 +2050,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000461331.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -2083,7 +2083,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000461331.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -2116,7 +2116,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000544456.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -2149,7 +2149,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000544456.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -2182,7 +2182,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000544456.jpg",
 	"question_neutral": "Is there a chair in the image?",
 	"variants": [
 		{
@@ -2215,7 +2215,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000017708.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -2248,7 +2248,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000017708.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -2281,7 +2281,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000017708.jpg",
 	"question_neutral": "Is there a chair in the image?",
 	"variants": [
 		{
@@ -2314,7 +2314,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000574692.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -2347,7 +2347,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000574692.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -2380,7 +2380,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000574692.jpg",
 	"question_neutral": "Is there a chair in the image?",
 	"variants": [
 		{
@@ -2413,7 +2413,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000353180.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -2446,7 +2446,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000353180.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -2479,7 +2479,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000353180.jpg",
 	"question_neutral": "Is there a chair in the image?",
 	"variants": [
 		{
@@ -2512,7 +2512,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000239444.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -2545,7 +2545,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000239444.jpg",
 	"question_neutral": "Is there a cup in the image?",
 	"variants": [
 		{
@@ -2578,7 +2578,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000239444.jpg",
 	"question_neutral": "Is there a bottle in the image?",
 	"variants": [
 		{
@@ -2611,7 +2611,7 @@
 	"gold": "no",
 	"qtype": "popular",
 	"split": "popular",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000569839.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000569839.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -2644,7 +2644,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000310196.jpg",
 	"question_neutral": "Is there a backpack in the image?",
 	"variants": [
 		{
@@ -2677,7 +2677,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000310196.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -2710,7 +2710,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000310196.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000310196.jpg",
 	"question_neutral": "Is there a dog in the image?",
 	"variants": [
 		{
@@ -2743,7 +2743,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000210789.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -2776,7 +2776,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000210789.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -2809,7 +2809,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000210789.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000210789.jpg",
 	"question_neutral": "Is there a handbag in the image?",
 	"variants": [
 		{
@@ -2842,7 +2842,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000429109.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -2875,7 +2875,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000429109.jpg",
 	"question_neutral": "Is there a motorcycle in the image?",
 	"variants": [
 		{
@@ -2908,7 +2908,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000429109.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000429109.jpg",
 	"question_neutral": "Is there a truck in the image?",
 	"variants": [
 		{
@@ -2941,7 +2941,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000211674.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -2974,7 +2974,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000211674.jpg",
 	"question_neutral": "Is there a vase in the image?",
 	"variants": [
 		{
@@ -3007,7 +3007,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000211674.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000211674.jpg",
 	"question_neutral": "Is there a truck in the image?",
 	"variants": [
 		{
@@ -3040,7 +3040,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000458338.jpg",
 	"question_neutral": "Is there a bus in the image?",
 	"variants": [
 		{
@@ -3073,7 +3073,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000458338.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -3106,7 +3106,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000458338.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000458338.jpg",
 	"question_neutral": "Is there a truck in the image?",
 	"variants": [
 		{
@@ -3139,7 +3139,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000283412.jpg",
 	"question_neutral": "Is there a person in the image?",
 	"variants": [
 		{
@@ -3172,7 +3172,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000283412.jpg",
 	"question_neutral": "Is there a chair in the image?",
 	"variants": [
 		{
@@ -3205,7 +3205,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000283412.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000283412.jpg",
 	"question_neutral": "Is there a book in the image?",
 	"variants": [
 		{
@@ -3238,7 +3238,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000265719.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -3271,7 +3271,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000265719.jpg",
 	"question_neutral": "Is there a cup in the image?",
 	"variants": [
 		{
@@ -3304,7 +3304,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000265719.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000265719.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -3337,7 +3337,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000461331.jpg",
 	"question_neutral": "Is there a person in the image?",
 	"variants": [
 		{
@@ -3370,7 +3370,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000461331.jpg",
 	"question_neutral": "Is there a book in the image?",
 	"variants": [
 		{
@@ -3403,7 +3403,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000461331.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000461331.jpg",
 	"question_neutral": "Is there a bottle in the image?",
 	"variants": [
 		{
@@ -3436,7 +3436,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000544456.jpg",
 	"question_neutral": "Is there a handbag in the image?",
 	"variants": [
 		{
@@ -3469,7 +3469,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000544456.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -3502,7 +3502,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000544456.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000544456.jpg",
 	"question_neutral": "Is there a snowboard in the image?",
 	"variants": [
 		{
@@ -3535,7 +3535,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000017708.jpg",
 	"question_neutral": "Is there a handbag in the image?",
 	"variants": [
 		{
@@ -3568,7 +3568,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000017708.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -3601,7 +3601,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000017708.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000017708.jpg",
 	"question_neutral": "Is there a chair in the image?",
 	"variants": [
 		{
@@ -3634,7 +3634,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000574692.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -3667,7 +3667,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000574692.jpg",
 	"question_neutral": "Is there a dining table in the image?",
 	"variants": [
 		{
@@ -3700,7 +3700,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000574692.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000574692.jpg",
 	"question_neutral": "Is there a cup in the image?",
 	"variants": [
 		{
@@ -3733,7 +3733,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000353180.jpg",
 	"question_neutral": "Is there a handbag in the image?",
 	"variants": [
 		{
@@ -3766,7 +3766,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000353180.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -3799,7 +3799,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000353180.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000353180.jpg",
 	"question_neutral": "Is there a traffic light in the image?",
 	"variants": [
 		{
@@ -3832,7 +3832,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000239444.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{
@@ -3865,7 +3865,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000239444.jpg",
 	"question_neutral": "Is there a cup in the image?",
 	"variants": [
 		{
@@ -3898,7 +3898,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000239444.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000239444.jpg",
 	"question_neutral": "Is there a couch in the image?",
 	"variants": [
 		{
@@ -3931,7 +3931,7 @@
 	"gold": "no",
 	"qtype": "adversarial",
 	"split": "adversarial",
-	"image_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/coco/val2014/COCO_val2014_000000569839.jpg",
+	"image_path": "data/coco/val2014/COCO_val2014_000000569839.jpg",
 	"question_neutral": "Is there a car in the image?",
 	"variants": [
 		{

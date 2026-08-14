@@ -4,7 +4,7 @@
   "derangement_file": "experiment_artifacts/vti/shuffled_control_image_derangement_nd200_s1234.json",
   "derangement_seed": 1234,
   "derangement_fixed_points": 0,
-  "demos_path": "/home/romanus/dev/vlm_hallucination_mitigation_summer_2026/data/vti/demos_v2.jsonl",
+  "demos_path": "data/vti/demos_v2.jsonl",
   "demos_file": "demos_v2.jsonl",
   "content_hash_sha256_16": "9a44f4afde0324b5",
   "dimension": "all",
