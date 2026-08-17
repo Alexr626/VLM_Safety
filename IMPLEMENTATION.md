@@ -2,7 +2,7 @@
 
 Ground-truth description of the VLM hallucination mitigation codebase as it exists today. The external research analyst uses this file (without reading source) to plan experiments. **Keep it in sync with code changes.**
 
-Last updated: 2026-08-13 (two-checkout sites, relative path remap, `_resolve_image_path`)
+Last updated: 2026-08-16 (cloud-h100 vendor Runpod; Cursor MCP + skills installed, GPU site not live)
 
 ---
 
@@ -164,6 +164,19 @@ Historical facts; **[stub]** re-verify on return. See `config/sites.md`.
 ### ThinkPad
 
 WinSCP only: lambdab2 ↔ NFS file transfer. Not a dev or submit environment.
+
+### cloud-h100 (Runpod)
+
+Vendor chosen 2026-08-16. **Not a live GPU site** until a Pod and persistent volume exist. See `config/sites.md`.
+
+| Fact | Value |
+|------|-------|
+| Role | Intended replacement for RunAI grids while off Nokia compute |
+| Agent (Cursor) | Hosted MCP `https://mcp.getrunpod.io/` in repo `.cursor/mcp.json` and `~/.cursor/mcp.json` (OAuth on first use; no API key on disk). Skills: `runpod`, `runpod-mcp`, `runpodctl`, `flash`, `runpod-usage`, `companion-clis` under `~/.agents/skills/` (symlinked into `~/.cursor/skills/`). |
+| `runpodctl` / Flash / API key | Not installed yet (skills install them on first need) |
+| Submit / run | **[stub]** no Pod, volume, or helper directory yet. Do not retarget `helper_scripts/runai/`. |
+
+Do not schedule pinned-subset grids here until the stub rows (checkout path, `HF_HOME`, GPU type) are filled from a real Pod.
 
 ### Device policy
 

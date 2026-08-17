@@ -67,8 +67,9 @@ may keep a checkout-absolute prefix and are remapped per site (do not commit).
 | Fact | Value |
 |------|-------|
 | Role | Rented H100 (or similar) for large hallucination grids while off Nokia compute |
-| Vendor | **[stub]** not chosen |
-| Checkout / data | **[stub]** |
+| Vendor | Runpod |
+| Agent tooling (2026-08-16) | Cursor: hosted MCP `https://mcp.getrunpod.io/` in repo `.cursor/mcp.json` and `~/.cursor/mcp.json`. Skills in `~/.agents/skills/` (symlinked into `~/.cursor/skills/`). OAuth is per machine, not in git. `runpodctl` / Flash / API keys not installed yet. |
+| Checkout / data | **[stub]** not a live GPU site until a Pod + volume exist |
 | `HF_HOME` | **[stub]** |
 
 W&B is logging, not a GPU site. Do not conflate the two.
