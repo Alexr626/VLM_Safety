@@ -135,6 +135,44 @@ part (d) is the interaction CI across independent strata), then 8.12 (matched tr
 generalized CMH route to marginal homogeneity), optionally 8.8 (crossover, order-stratified
 discordant table). Discussion: `answers/concepts/august_05_2026/stratified_and_multicondition_inference_on_paired_binary_outcomes.md`.
 
+Second discussion 08/17/26, surfaced while planning the comparison of two intervention arms in an
+`analysis/` reading table. Status stays **open** — 8.6(d) and 8.12 are still unworked, and they are
+what would close it. Three sub-points added, all inside this cluster rather than new topics:
+(i) the two arms' confusion matrices determine the point estimate exactly and the standard error not
+at all, because `c-b` is a function of the marginals and `m = b+c` is not (Fréchet bounds on the
+joint; `|z_McNemar| <= sqrt(n|Delta|)` as a free screening bound); (ii) comparing two arms neither of
+which is the baseline is fine for McNemar, which is symmetric, but differencing two published
+deltas-vs-a-shared-baseline and adding their variances is not — they are positively correlated
+through the shared baseline, and the direct arm-vs-arm table gives the correct SE with no covariance
+bookkeeping; (iii) the confusion-matrix split (gold label) and the pairing axis (which arm) are
+orthogonal, and conflating them is what made the procedure look complete when it was not.
+Discussion: `answers/concepts/august_17_2026/comparing_two_intervention_arms_on_the_same_items.md`.
+Same three textbook problems remain the check.
+
+### Clustered items and the effective sample size — opened 08/17/26
+
+Surfaced while working out which test compares two intervention arms on a shared POPE item set. Every
+interval and every McNemar p-value in the 08/05 notes assumes the items are independent draws.
+POPE-family benchmarks are built by drawing several object-presence questions per image, so items
+sharing an image are not independent, the effective sample size is the number of images rather than
+the number of questions, and every SE computed item-wise is too small. Content: intraclass
+correlation and the design effect `1 + (k-1)rho_c`; the cluster-robust (sandwich) variance of a mean,
+where the cluster totals rather than the items are the independent units; the cluster bootstrap
+(resample images, not questions) as the route that needs no distributional assumption and tolerates
+unequal cluster sizes; and the fact that McNemar's exact conditional argument has no clustered
+analogue, so the test itself has to be replaced rather than corrected.
+
+This is a **precondition** for everything in the two paired-inference entries above, not a refinement
+of them — if it bites, the numbers those entries produce are wrong in a known direction (too narrow,
+too significant), and it bites harder on p-values than on point estimates.
+
+Sources:
+- Open, needs Alex to name one. Agresti, *An Introduction to Categorical Data Analysis*, 2nd ed. has
+  a chapter on modelling correlated / clustered responses (GEE and random effects) which is the
+  obvious candidate given it is already in the rotation — but I have not verified its section numbers
+  or whether it works the design-effect and cluster-bootstrap material as problems, so I am not
+  citing chapter or problem numbers I have not checked. Name a source and it can be worked against.
+
 ### Random matrix behavior of PCA at small n (optional, defer)
 
 Why explained-variance ratios inflate when n is small relative to dimension; Marchenko-Pastur as

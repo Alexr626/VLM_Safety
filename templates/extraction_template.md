@@ -1,10 +1,14 @@
-<!-- Last updated: 2026-07-30 — harness template; delete this line in your copy -->
+<!-- Last updated: 2026-08-17 — harness template; delete this line in your copy -->
 
 # Extraction spec — <ext_id>
 
 Copy to `extractions/<ext_id>.md`, or into a dated subdirectory as
 `extractions/<date>/<ext_id>.md`. Three fields. Delete every angle-bracket
 placeholder; the pre-write hook rejects plans whose spec still contains them.
+
+There is one pre-drawn table, under field 2, and it is optional — the prose is the spec. It has
+no column for output paths, cache layout, or forward-pass counts, because those are the plan's
+to resolve rather than yours to state. See "Not your job".
 
 Short on purpose. A bad extraction costs compute; a bad design costs a belief. The gate is
 correspondingly light, and everything an implementer works out by reading the repo is absent —
@@ -43,6 +47,12 @@ not know you need.
 
 For every pair of sets: disjoint, nested, or identical, and why. State it as intent — what
 produces the property is the plan's problem, not your sentence to write.
+
+| Set A | Set B | Disjoint, nested, or identical | Why |
+|---|---|---|---|
+| <set> | <set> | ... | ... |
+| ... | ... | ... | ... |
+| ... | ... | ... | ... |
 
 Then, in one line: what is held constant across the sets, and what varies. If more than one
 thing varies, say so deliberately rather than by omission.

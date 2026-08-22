@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-07-30 — harness template; delete this line in your copy -->
+<!-- Last updated: 2026-08-17 — harness template; delete this line in your copy -->
 
 # Design spec — <exp_id>
 
@@ -6,6 +6,10 @@ Written by Alex, before any plan exists. Copy to `designs/<exp_id>.md`, or into 
 `designs/<date>/<exp_id>.md`, and fill in.
 Delete every angle-bracket placeholder; the pre-write hook rejects plans whose design spec
 still contains them.
+
+Tables are pre-drawn so you type numbers, not pipes. `...` means unfilled; spare rows and
+columns are there to be deleted. The hook does not catch a leftover `...` the way it catches an
+angle-bracket placeholder.
 
 ---
 
@@ -39,11 +43,16 @@ show that you know what each explanation would look like in the result data, at 
 grain that still separates the explanations. Splitting a row is worth doing only when two
 explanations disagree about the two halves.
 
-| Condition | Explanation A predicts | Explanation B predicts |
-|---|---|---|
-| <condition 1> | <prediction> | <prediction> |
-| <condition 2> | <prediction> | <prediction> |
-| <condition 3> | <prediction> | <prediction> |
+Put units in the header. The baseline column is optional but usually earns its place —
+predictions stated as absolute numbers are only readable next to the no-intervention value, and
+stating it here commits you to it before the run. Delete columns you do not need.
+
+| Condition | Baseline (no intervention) | Explanation A predicts | Explanation B predicts | Explanation C predicts |
+|---|---|---|---|---|
+| <condition 1> | ... | <prediction> | <prediction> | <prediction> |
+| <condition 2> | ... | ... | ... | ... |
+| <condition 3> | ... | ... | ... | ... |
+| ... | ... | ... | ... | ... |
 
 Which single cell does the most work in separating A from B, and why:
 
@@ -67,9 +76,28 @@ spent.
 The test for which shape you are in: does this cell exist to distinguish two columns of the
 prediction table, or to characterise how the method behaves across its own parameters?
 
+The `Cell` label column is the one exception to the naming rule in `CLAUDE.md`: a short label
+may exist here, in its own column, and never becomes a name in prose, in code, or on disk.
+
 | Cell | Model | Benchmark / subset | Intervention | Layers | Beta |
 |---|---|---|---|---|---|
-| | | | | | |
+| <label> | ... | ... | ... | ... | ... |
+| ... | ... | ... | ... | ... | ... |
+| ... | ... | ... | ... | ... | ... |
+
+**Method-validation sweep only** — use this instead of enumerating arms above. Levels are the
+values actually swept; the provenance column is what stops a level being a number nobody can
+account for later.
+
+| Factor | Levels | Where the level came from |
+|---|---|---|
+| <factor> | ... | ... |
+| ... | ... | ... |
+| ... | ... | ... |
+
+Crossed fully unless noted: <exceptions, or "none">
+
+Total arms: <n> — total runs: <n>
 
 ## Item sets
 
@@ -160,13 +188,15 @@ For each composite on the y-axis:
 
 ## Sample size
 
-Evaluation n per cell: <n>
+Resolution is a property of the measuring instrument, not a forecast: it follows from n and the
+baseline rate alone, before anything is known about the effect. For a yes/no benchmark the
+binomial standard error at the baseline rate is enough. One row per benchmark, or one row if n
+is uniform.
 
-Resolution at that n — the smallest difference this n can separate from noise:
-
-<One line. This is a property of the measuring instrument, not a forecast: it follows from n
-alone, before anything is known about the effect. For a yes/no benchmark the binomial standard
-error at the baseline rate is enough.>
+| Benchmark / subset | Evaluation n per cell | Baseline rate | Smallest difference separable from noise |
+|---|---|---|---|
+| <name> | ... | ... | ... |
+| ... | ... | ... | ... |
 
 Where a sample size is itself a factor of the design — direction sample size, demo count,
 anything swept rather than fixed — no prediction of how the result scales with it is required.
