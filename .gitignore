@@ -1,0 +1,24 @@
+# ── Python ────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+
+# ── Third-party clone (see README) ────────────────────
+llm-control/
+
+# ── Data and large outputs ────────────────────────────
+data/
+artifacts/
+evaluation/results/
+*.checkpoint.json
+
+# ── Environment / editor ──────────────────────────────
+.env
+.venv/
+.vscode/
+.DS_Store
+nohup.out
+logs/

@@ -1,0 +1,54 @@
+name: vlm_hallucination_control
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Conda environment for local / lab GPUs.
+#   conda env create -f environment.yml && conda activate vlm_hallucination_control
+#
+# Kaggle / Colab: torch is preinstalled there; use `pip install -r requirements.txt`
+# instead of this file (see README).
+#
+# Target models:
+#   LLaVA-1.5-7B            (llava-hf/llava-1.5-7b-hf)
+#   Qwen2.5-VL-7B-Instruct  (Qwen/Qwen2.5-VL-7B-Instruct)
+# ─────────────────────────────────────────────────────────────────────────────
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.12.7
+  - pip
+  # Keeps GLIBCXX recent enough for compiled wheels on older Linux hosts.
+  - libstdcxx-ng
+
+  # Scientific stack via conda so numpy's ABI matches scipy / scikit-learn.
+  - numpy=1.26.4
+  - scipy=1.13.1
+  - scikit-learn=1.5.2
+  - matplotlib=3.9.4
+  - pillow=10.4.0
+  - tqdm=4.66.6
+  - pandas=2.2.3
+  - pytest
+
+  - pip:
+      # All torch packages must come from the same index. cu124 runs on
+      # Turing (T4) through Blackwell; switch to cu121 for CUDA 12.2 drivers.
+      - --extra-index-url https://download.pytorch.org/whl/cu124
+      - torch==2.10.0
+      - torchvision==0.25.0
+
+      # Qwen2.5-VL needs transformers >= 4.49. Staying on 4.5x avoids the v5
+      # rewrite, which changed hidden-state handling for several model classes.
+      # tokenizers must match the transformers pin.
+      - transformers==4.50.1
+      - tokenizers==0.21.0
+      - accelerate==1.3.0
+      - huggingface_hub==0.27.1
+      - datasets==3.1.0
+      - safetensors==0.4.5
+      - sentencepiece==0.2.0
+      # protobuf 5+ breaks SentencePiece-based tokenizer backends on 4.50.x.
+      - protobuf==4.25.5
+      - qwen-vl-utils==0.0.8
+      - requests>=2.31
