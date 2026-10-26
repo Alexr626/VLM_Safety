@@ -1,1 +1,1 @@
-"""VLM jailbreak-defense evaluation framework."""
+"""Hallucination benchmark evaluation: loaders, scorers, interventions, runner."""
