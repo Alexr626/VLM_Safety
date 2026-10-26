@@ -41,10 +41,14 @@ def artifacts_dir(experiment: str, model_short: str) -> Path:
     return artifacts_root() / experiment / model_short
 
 
-def evaluation_results_dir(model_short: str, benchmark: str,
+def evaluation_results_dir(run_date: str, model_short: str, benchmark_key: str,
                            intervention: str) -> Path:
-    return (project_root() / "evaluation" / "results"
-            / model_short / benchmark / intervention)
+    """``evaluation/results/{run_date}/{model_short}/{benchmark_key}/{intervention}/``.
+
+    benchmark_key is ``pope_{split}`` for POPE, else the benchmark name.
+    """
+    return (project_root() / "evaluation" / "results" / run_date
+            / model_short / benchmark_key / intervention)
 
 
 # ── Data ─────────────────────────────────────────────────────────────────────
